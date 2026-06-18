@@ -1,0 +1,38 @@
+name: Update Meta Ads Data
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # каждый день в 9:00 по Киеву (UTC+3)
+  workflow_dispatch:       # ручной запуск кнопкой
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run fetch script
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          META_ACCOUNT_ID: ${{ secrets.META_ACCOUNT_ID }}
+        run: python fetch_meta.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json images/
+          git diff --staged --quiet || git commit -m "Update Meta Ads data $(date +'%Y-%m-%d')"
+          git push
