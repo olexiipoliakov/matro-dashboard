@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matro · Эффективность рекламы</title>
+<style>
+  :root{
+    --ink:#1a1714; --ink-soft:#5c534a; --paper:#f5f1ea; --card:#fffdf9;
+    --line:#e3dccf; --accent:#c8553d; --accent-2:#d98a6b;
+    --good:#3f7d5c; --good-bg:#e3f0e8; --mid:#b8893b; --mid-bg:#fbf0d8;
+    --bad:#c0432f; --bad-bg:#f6e0db;
+    --r:14px; --shadow:0 1px 2px rgba(26,23,20,.04),0 8px 24px rgba(26,23,20,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;padding:32px 24px 64px}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .logo{font-family:Georgia,serif;font-size:30px;font-weight:700;letter-spacing:-.5px}
+  .logo .dot{color:var(--accent)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--ink-soft);font-weight:600}
+  .meta-line{text-align:right;font-size:12px;color:var(--ink-soft)}
+  .meta-line b{color:var(--ink)}
+  .rule{height:2px;background:var(--ink);margin:14px 0 28px;position:relative}
+  .rule::after{content:"";position:absolute;left:0;top:0;height:2px;width:72px;background:var(--accent)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:34px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
+  .kpi .val{font-family:Georgia,serif;font-size:29px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .kpi .val .cur{font-size:15px;color:var(--ink-soft);font-weight:400}
+  .kpi .sub{font-size:12px;color:var(--ink-soft);margin-top:7px}
+  .kpi.feature{background:linear-gradient(135deg,#2a241f,#1a1714);color:#f5f1ea;border-color:#2a241f}
+  .kpi.feature .lbl{color:#c9bdab}.kpi.feature .val{color:#fff}.kpi.feature .sub{color:#b8a994}
+  .kpi.feature::before{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;
+    background:radial-gradient(circle,rgba(200,85,61,.45),transparent 70%)}
+  .sec-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+  .sec-head h2{font-family:Georgia,serif;font-size:19px;font-weight:700}
+  .sec-head .n{font-size:11px;font-weight:700;color:var(--accent);border:1.5px solid var(--accent);
+    border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0}
+  .sec-head .ln{flex:1;height:1px;background:var(--line)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:20px;margin-bottom:34px}
+  .chart{display:flex;align-items:flex-end;gap:10px;height:200px;padding:10px 0 0}
+  .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+  .chart .barwrap{width:100%;display:flex;align-items:flex-end;justify-content:center;flex:1}
+  .chart .bar{width:60%;max-width:42px;background:linear-gradient(180deg,var(--accent),var(--accent-2));
+    border-radius:6px 6px 0 0;transition:height .9s cubic-bezier(.2,.8,.2,1);position:relative;min-height:2px}
+  .chart .bar:hover::after{content:attr(data-v);position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:11px;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .chart .xl{font-size:10.5px;color:var(--ink-soft);white-space:nowrap}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);
+    font-weight:700;padding:8px 10px;border-bottom:2px solid var(--ink);cursor:pointer;user-select:none;white-space:nowrap}
+  th:first-child{text-align:left}th:hover{color:var(--accent)}
+  td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  td:first-child{text-align:left;font-weight:600}
+  tbody tr:hover{background:#faf6ee}
+  .cpl-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px}
+  .cpl-tag.good{background:var(--good-bg);color:var(--good)}
+  .cpl-tag.mid{background:var(--mid-bg);color:var(--mid)}
+  .cpl-tag.bad{background:var(--bad-bg);color:var(--bad)}
+  .goal-tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;
+    background:#ece4d6;color:var(--ink-soft)}
+  .bthumb{width:46px;height:46px;object-fit:cover;border-radius:8px;
+    border:1px solid var(--line);display:block;margin:0 auto}
+  .noimg{color:#c9bdab;font-size:18px}
+  .imgmodal{display:none;position:fixed;inset:0;z-index:100;background:rgba(26,23,20,.82);
+    align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:30px;cursor:zoom-out}
+  .imgmodal.open{display:flex}
+  .imgmodal img{width:auto;height:auto;min-width:min(420px,80vw);max-width:90vw;max-height:80vh;
+    border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);background:#fff;
+    image-rendering:auto;object-fit:contain}
+  .imgmodal .cap{color:#f5f1ea;font-size:14px;font-weight:600;text-align:center}
+  .imgmodal .close{position:absolute;top:20px;right:28px;color:#fff;font-size:32px;cursor:pointer;
+    line-height:1;opacity:.8}.imgmodal .close:hover{opacity:1}
+  .legend{font-size:11.5px;color:var(--ink-soft);margin-top:12px;display:flex;gap:18px;flex-wrap:wrap}
+  .tot-row td{border-top:2px solid var(--ink);font-weight:700;background:#f0ebe0}
+  /* вкладки */
+  .tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+  .tab{padding:11px 22px;font-size:14px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+    border:none;background:none;font-family:inherit;border-bottom:3px solid transparent;
+    margin-bottom:-1px;transition:color .2s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .view{display:none}.view.active{display:block}
+  .period-bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:26px;
+    padding:14px 18px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .period-btns{display:flex;gap:6px}
+  .pbtn{padding:7px 16px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:8px;transition:all .15s}
+  .pbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .period-cal{display:flex;align-items:center;gap:8px}
+  .cal-lbl{font-size:13px;color:var(--ink-soft)}
+  .period-cal input{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;
+    font-family:inherit;color:var(--ink);background:#fff}
+  .period-cal input:focus{outline:2px solid var(--accent);border-color:transparent}
+  .period-info{margin-left:auto;font-size:12.5px;color:var(--ink-soft);font-weight:600}
+  @media(max-width:820px){.period-bar{gap:12px}.period-info{margin-left:0;width:100%}}
+  .grade{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .grade.good{background:var(--good-bg);color:var(--good)}
+  .grade.mid{background:var(--mid-bg);color:var(--mid)}
+  .grade.bad{background:var(--bad-bg);color:var(--bad)}
+  .grade.none{background:none;color:var(--ink-soft);font-weight:400}
+  .best-row{background:linear-gradient(90deg,rgba(63,125,92,.09),transparent)}
+  .best-row td:first-child::before{content:"★ ";color:var(--good)}
+  footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
+  footer code{background:#ece4d6;padding:1px 6px;border-radius:4px}
+  .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}body{padding:20px 14px 48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">Matro<span class="dot">.</span></div>
+      <div>
+        <div class="eyebrow">Эффективность рекламы</div>
+        <div style="font-size:13px;color:var(--ink-soft)">Meta Ads · у каждой кампании свой результат</div>
+      </div>
+    </div>
+    <div class="meta-line">Период: <b id="period">—</b><br>Обновлено: <b id="updated">—</b></div>
+  </header>
+  <div class="rule"></div>
+
+  <div id="error-box"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="camps" onclick="switchTab('camps')">Кампании</button>
+    <button class="tab" data-tab="banners" onclick="switchTab('banners')">Эффективность баннеров</button>
+  </div>
+
+  <div class="period-bar">
+    <div class="period-btns">
+      <button class="pbtn" onclick="setPeriodDays(0,this)">Сегодня</button>
+      <button class="pbtn" onclick="setPeriodDays(1,this)">Вчера</button>
+      <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 дней</button>
+      <button class="pbtn active" data-days="14" onclick="setPeriod(14,this)">14 дней</button>
+      <button class="pbtn" data-days="30" onclick="setPeriod(30,this)">30 дней</button>
+      <button class="pbtn" data-days="90" onclick="setPeriod(90,this)">Всё</button>
+    </div>
+    <div class="period-cal">
+      <span class="cal-lbl">или период:</span>
+      <input type="date" id="date-from" onchange="setCustom()">
+      <span style="color:var(--ink-soft)">—</span>
+      <input type="date" id="date-to" onchange="setCustom()">
+    </div>
+    <div class="period-info" id="period-info">—</div>
+  </div>
+
+  <!-- ВКЛАДКА: КАМПАНИИ -->
+  <div class="view active" id="view-camps">
+  <div class="kpis">
+    <div class="kpi feature"><div class="lbl">Результатов всего</div>
+      <div class="val" id="k-leads">—</div>
+      <div class="sub" id="k-leads-break">—</div></div>
+    <div class="kpi"><div class="lbl">Расход</div>
+      <div class="val"><span id="k-spend">—</span> <span class="cur">грн</span></div>
+      <div class="sub" id="k-days">—</div></div>
+    <div class="kpi"><div class="lbl">Кампаний активно</div>
+      <div class="val" id="k-camps">—</div>
+      <div class="sub" id="k-best">—</div></div>
+    <div class="kpi"><div class="lbl">Типов целей</div>
+      <div class="val" id="k-goals">—</div>
+      <div class="sub">переписки / лиды / покупки</div></div>
+  </div>
+
+  <div class="sec-head"><span class="n">1</span><h2>Расход по дням</h2><span class="ln"></span></div>
+  <div class="panel"><div class="chart" id="chart"></div>
+    <div class="legend"><span>Высота столбца — дневной расход на рекламу</span></div>
+  </div>
+
+  <div class="sec-head"><span class="n">2</span><h2>Кампании: результаты и их цена</h2><span class="ln"></span></div>
+  <div class="panel" style="overflow-x:auto">
+    <table id="camp-table">
+      <thead><tr>
+        <th data-k="campaign">Кампания</th>
+        <th data-k="goal">Тип</th>
+        <th data-k="spend">Расход, грн</th>
+        <th data-k="leads">Результатов</th>
+        <th data-k="cost_per_lead">Цена результата</th>
+        <th data-k="share">Доля расхода</th>
+      </tr></thead>
+      <tbody id="camp-body"></tbody>
+    </table>
+    <div class="legend">
+      <span>Цена результата подсвечена относительно средней <b>внутри своего типа</b> (переписки, лиды, покупки считаются отдельно): <span class="cpl-tag good">дёшево</span> <span class="cpl-tag mid">средне</span> <span class="cpl-tag bad">дорого</span></span>
+      <span>Клик по заголовку — сортировка</span>
+    </div>
+  </div>
+  </div><!-- /view-camps -->
+
+  <!-- ВКЛАДКА: БАННЕРЫ -->
+  <div class="view" id="view-banners">
+    <div class="kpis">
+      <div class="kpi feature"><div class="lbl">Лучший баннер</div>
+        <div class="val" id="b-best" style="font-size:18px;line-height:1.2">—</div>
+        <div class="sub" id="b-best-cpl">—</div></div>
+      <div class="kpi"><div class="lbl">Баннеров активно</div>
+        <div class="val" id="b-count">—</div>
+        <div class="sub">в периоде</div></div>
+      <div class="kpi"><div class="lbl">Типов целей</div>
+        <div class="val" id="b-avg-cpl">—</div>
+        <div class="sub">переписки / лиды / покупки</div></div>
+      <div class="kpi"><div class="lbl">Средний CTR</div>
+        <div class="val" id="b-avg-ctr">—</div>
+        <div class="sub">по всем баннерам</div></div>
+    </div>
+
+    <div class="sec-head"><span class="n">★</span><h2>Баннеры по эффективности</h2><span class="ln"></span></div>
+    <div class="panel" style="overflow-x:auto">
+      <table id="banner-table">
+        <thead><tr>
+          <th data-k="image" style="cursor:default">Превью</th>
+          <th data-k="banner">Баннер</th>
+          <th data-k="campaign">Кампания</th>
+          <th data-k="goal">Тип</th>
+          <th data-k="spend">Расход, грн</th>
+          <th data-k="leads">Результатов</th>
+          <th data-k="cost_per_lead">Цена результата</th>
+          <th data-k="ctr">CTR</th>
+          <th data-k="grade">Оценка</th>
+        </tr></thead>
+        <tbody id="banner-body"></tbody>
+      </table>
+      <div class="legend">
+        <span style="color:var(--accent);font-weight:600">Баннеры показаны за весь выгруженный период (точные результаты из Meta), не зависят от выбора дат выше</span>
+        <span>★ и зелёная строка — лучший баннер в своём типе цели</span>
+        <span>Клик по заголовку — сортировка</span>
+      </div>
+    </div>
+  </div><!-- /view-banners -->
+
+  <footer>Данные: <code>data.json</code> · обновляет скрипт <code>fetch_meta.py</code> из Meta Marketing API.</footer>
+</div>
+
+<div class="imgmodal" id="imgmodal" onclick="closeImg()">
+  <span class="close" onclick="closeImg()">&times;</span>
+  <img id="imgmodal-img" src="" alt="">
+  <div class="cap" id="imgmodal-cap"></div>
+</div>
+
+<script>
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+let DATA=null, CAMPS=[];
+
+async function load(){
+  try{ DATA=await (await fetch('data.json?'+Date.now())).json(); }
+  catch(e){
+    document.getElementById('error-box').innerHTML='<div class="err">Не удалось загрузить <b>data.json</b>. '+
+      'При открытии через file:// браузер блокирует чтение — запусти <code>python -m http.server</code> или открой на GitHub Pages.</div>';
+    DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+  }
+  initPeriod();
+}
+
+// ── фильтр по датам ──
+let FD=[], FB=[];                 // отфильтрованные daily / banners
+let curFrom=null, curTo=null;     // текущий диапазон (ISO-строки)
+
+function allDates(){
+  const s=new Set();
+  (DATA.daily||[]).forEach(r=>r.date&&s.add(r.date));
+  (DATA.banners||[]).forEach(r=>r.date&&s.add(r.date));
+  return [...s].sort();
+}
+function initPeriod(){
+  const dates=allDates();
+  if(dates.length){
+    // дефолт — последние 14 дней
+    const maxD=dates[dates.length-1];
+    document.getElementById('date-to').value=maxD;
+    document.getElementById('date-to').max=maxD;
+    document.getElementById('date-from').max=maxD;
+    document.getElementById('date-from').min=dates[0];
+    document.getElementById('date-to').min=dates[0];
+  }
+  setPeriod(14, document.querySelector('.pbtn[data-days="14"]'));
+}
+function applyFilter(){
+  FD=(DATA.daily||[]).filter(r=>(!curFrom||r.date>=curFrom)&&(!curTo||r.date<=curTo));
+  FB=(DATA.banners||[]).filter(r=>(!curFrom||r.date>=curFrom)&&(!curTo||r.date<=curTo));
+  const info=document.getElementById('period-info');
+  if(info){
+    const dd=new Set(FD.map(r=>r.date)).size;
+    info.textContent=`${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.`;
+  }
+  render();
+}
+function fmtDate(iso){if(!iso)return '—';const [y,m,d]=iso.split('-');return `${d}.${m}.${y}`;}
+function setPeriod(days,btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){curFrom=curTo=null;applyFilter();return;}
+  const maxD=dates[dates.length-1];
+  const to=new Date(maxD+'T00:00:00');
+  const from=new Date(to); from.setDate(from.getDate()-(days-1));
+  const fromIso=from.toISOString().slice(0,10);
+  curFrom=fromIso<dates[0]?dates[0]:fromIso;
+  curTo=maxD;
+  // синхронизируем календарь
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
+// сегодня / вчера — конкретная дата, не диапазон
+function setPeriodDays(daysAgo, btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){curFrom=curTo=null;applyFilter();return;}
+  const maxD=dates[dates.length-1];
+  const target=new Date(maxD+'T00:00:00');
+  target.setDate(target.getDate()-daysAgo);
+  const iso=target.toISOString().slice(0,10);
+  curFrom=iso<dates[0]?dates[0]:iso;
+  curTo=curFrom;
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
+function setCustom(){
+  const f=document.getElementById('date-from').value;
+  const t=document.getElementById('date-to').value;
+  if(f&&t&&f>t){return;}  // некорректный диапазон — игнор
+  curFrom=f||null; curTo=t||null;
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  applyFilter();
+}
+
+function aggregate(){
+  const m={};
+  FD.forEach(r=>{
+    if(!m[r.campaign]) m[r.campaign]={campaign:r.campaign,goal:r.goal||'Обращения',spend:0,leads:0};
+    m[r.campaign].spend+=r.spend; m[r.campaign].leads+=r.leads;
+  });
+  const arr=Object.values(m);
+  arr.forEach(c=>c.cost_per_lead=c.leads?c.spend/c.leads:0);
+  return arr;
+}
+
+function render(){
+  document.getElementById('period').textContent=(curFrom&&curTo)?(fmtDate(curFrom)+' — '+fmtDate(curTo)):(DATA.period||'—');
+  document.getElementById('updated').textContent=DATA.generated_at||'—';
+  CAMPS=aggregate();
+  const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
+  const totLeads=CAMPS.reduce((a,c)=>a+c.leads,0);
+  CAMPS.forEach(c=>c.share=totSpend?c.spend/totSpend*100:0);
+
+  // средняя цена внутри каждого типа цели (для честной подсветки)
+  const byGoal={};
+  CAMPS.forEach(c=>{
+    if(!byGoal[c.goal]) byGoal[c.goal]={spend:0,leads:0};
+    byGoal[c.goal].spend+=c.spend; byGoal[c.goal].leads+=c.leads;
+  });
+  window._goalAvg={};
+  Object.keys(byGoal).forEach(g=>window._goalAvg[g]=byGoal[g].leads?byGoal[g].spend/byGoal[g].leads:0);
+
+  // разбивка результатов по типам
+  const breakParts=Object.keys(byGoal).map(g=>`${byGoal[g].leads} ${g.toLowerCase()}`).join(' · ');
+  document.getElementById('k-leads').textContent=fmt(totLeads);
+  document.getElementById('k-leads-break').textContent=breakParts||'за период';
+  document.getElementById('k-spend').textContent=fmt(totSpend);
+  document.getElementById('k-camps').textContent=CAMPS.length;
+  document.getElementById('k-goals').textContent=Object.keys(byGoal).length;
+  const days=new Set(FD.map(r=>r.date)).size;
+  document.getElementById('k-days').textContent=days+' дн. в периоде';
+  // лучшая кампания — самая дешёвая относительно среднего по своему типу
+  const ranked=CAMPS.filter(c=>c.leads>0).map(c=>({...c,ratio:c.cost_per_lead/(window._goalAvg[c.goal]||c.cost_per_lead)}));
+  const best=ranked.sort((a,b)=>a.ratio-b.ratio)[0];
+  document.getElementById('k-best').textContent=best?('эффективнее всех: '+best.campaign):'—';
+
+  // график: по дням, но если период большой — группируем по неделям
+  const byday={};
+  FD.forEach(r=>byday[r.date]=(byday[r.date]||0)+r.spend);
+  const dates=Object.keys(byday).sort();
+  let chartData, chartLabel;
+  if(dates.length>31){
+    // группировка по неделям (ISO: год-неделя)
+    const wk={};
+    dates.forEach(d=>{
+      const dt=new Date(d+'T00:00:00');
+      const onejan=new Date(dt.getFullYear(),0,1);
+      const wn=Math.ceil((((dt-onejan)/86400000)+onejan.getDay()+1)/7);
+      const key=dt.getFullYear()+'-W'+String(wn).padStart(2,'0');
+      if(!wk[key])wk[key]={sum:0,first:d};
+      wk[key].sum+=byday[d];
+    });
+    const keys=Object.keys(wk).sort();
+    chartData=keys.map(k=>wk[k].sum);
+    chartLabel=keys.map(k=>{const f=wk[k].first;return f.slice(8)+'.'+f.slice(5,7);});
+  }else{
+    chartData=dates.map(d=>byday[d]);
+    chartLabel=dates.map(d=>d.slice(8)+'.'+d.slice(5,7));
+  }
+  const maxv=Math.max(...chartData,1);
+  document.getElementById('chart').innerHTML=chartData.map((v,i)=>{
+    const h=v/maxv*100;
+    return `<div class="col"><div class="barwrap"><div class="bar" data-v="${fmt(v)} грн" data-h="${h}" style="height:0"></div></div><div class="xl">${chartLabel[i]}</div></div>`;
+  }).join('');
+  requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll('.chart .bar').forEach(b=>b.style.height=b.dataset.h+'%'),60));
+
+  window._avgCpl=0;
+  renderTable('cost_per_lead',true);
+  renderBanners();
+}
+
+let sKey='cost_per_lead',sAsc=true;
+function cplClass(v,goal){
+  const a=(window._goalAvg&&window._goalAvg[goal])||0;
+  if(!a)return 'mid';
+  return v<=a*0.85?'good':v>=a*1.15?'bad':'mid';
+}
+function renderTable(key,asc){
+  sKey=key;sAsc=asc;
+  const s=[...CAMPS].sort((a,b)=>typeof a[key]==='string'?(asc?a[key].localeCompare(b[key]):b[key].localeCompare(a[key])):(asc?a[key]-b[key]:b[key]-a[key]));
+  const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
+  const totLeads=CAMPS.reduce((a,c)=>a+c.leads,0);
+  let html=s.map(c=>`<tr>
+    <td title="${c.campaign}">${c.campaign}</td>
+    <td><span class="goal-tag">${c.goal||'—'}</span></td>
+    <td>${fmt(c.spend)}</td>
+    <td>${fmt(c.leads)}</td>
+    <td><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></td>
+    <td>${c.share.toFixed(0)}%</td>
+  </tr>`).join('');
+  html+=`<tr class="tot-row"><td>ИТОГО</td><td></td><td>${fmt(totSpend)}</td><td>${fmt(totLeads)}</td>
+    <td>—</td><td>100%</td></tr>`;
+  document.getElementById('camp-body').innerHTML=html;
+}
+document.querySelectorAll('#camp-table th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k; renderTable(k,k===sKey?!sAsc:(k==='campaign'||k==='cost_per_lead'));}));
+
+// ── вкладки ──
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+}
+
+// ── баннеры ──
+let bKey='cost_per_lead', bAsc=true;
+let BANNERS_AGG=[];
+function aggregateBanners(){
+  // баннеры — за весь выгруженный период (точные результаты из API),
+  // не фильтруются по календарю; уже агрегированы скриптом по объявлению
+  const m={};
+  (DATA.banners||[]).forEach(r=>{
+    const k=(r.banner||'')+'|'+(r.campaign||'');
+    if(!m[k]) m[k]={banner:r.banner,campaign:r.campaign,goal:r.goal||'—',
+                    spend:0,leads:0,ctrSum:0,ctrN:0,image:r.image||''};
+    m[k].spend+=r.spend; m[k].leads+=r.leads;
+    if(r.ctr){m[k].ctrSum+=r.ctr;m[k].ctrN++;}
+    if(!m[k].image&&r.image)m[k].image=r.image;
+  });
+  const arr=Object.values(m);
+  arr.forEach(b=>{
+    b.cost_per_lead=b.leads?b.spend/b.leads:0;
+    b.ctr=b.ctrN?b.ctrSum/b.ctrN:0;
+  });
+  return arr;
+}
+function renderBanners(){
+  BANNERS_AGG=aggregateBanners();
+  const bs=BANNERS_AGG;
+  if(!bs.length){
+    document.getElementById('banner-body').innerHTML='<tr><td colspan="9" style="text-align:center;color:#b8a994;padding:24px">Нет данных по баннерам за выбранный период</td></tr>';
+    document.getElementById('b-best').textContent='—';
+    document.getElementById('b-best-cpl').textContent='—';
+    document.getElementById('b-count').textContent='0';
+    document.getElementById('b-avg-cpl').textContent='0';
+    document.getElementById('b-avg-ctr').textContent='—';
+    return;
+  }
+  // средняя цена внутри каждого типа
+  const g={};
+  bs.forEach(b=>{const k=b.goal||'—'; if(!g[k])g[k]={spend:0,leads:0}; g[k].spend+=b.spend; g[k].leads+=b.leads;});
+  window._bGoalAvg={};
+  Object.keys(g).forEach(k=>window._bGoalAvg[k]=g[k].leads?g[k].spend/g[k].leads:0);
+
+  const avgCtr=bs.reduce((a,b)=>a+b.ctr,0)/bs.length;
+  // лучший — самый низкий ratio к среднему по своему типу
+  const ranked=bs.filter(b=>b.cost_per_lead>0).map(b=>({...b,ratio:b.cost_per_lead/((window._bGoalAvg[b.goal||'—'])||b.cost_per_lead)}));
+  const best=ranked.sort((a,b)=>a.ratio-b.ratio)[0];
+
+  document.getElementById('b-best').textContent=best?best.banner:'—';
+  document.getElementById('b-best-cpl').textContent=best?(best.goal+': '+fmt(best.cost_per_lead)+' грн · CTR '+fmt1(best.ctr)+'%'):'—';
+  document.getElementById('b-count').textContent=bs.length;
+  document.getElementById('b-avg-cpl').textContent=Object.keys(g).length;
+  document.getElementById('b-avg-ctr').textContent=fmt1(avgCtr)+'%';
+
+  renderBannerTable(bKey,bAsc);
+}
+function gradeOf(b){
+  if(!b.leads || b.leads===0) return ['—','none'];  // нет результатов — нет оценки
+  const a=(window._bGoalAvg&&window._bGoalAvg[b.goal||'—'])||0;
+  const cpl=b.cost_per_lead;
+  if(!a)return['Средний','mid'];
+  return cpl<=a*0.8?['Лучший','good']:cpl>=a*1.2?['Слабый','bad']:['Средний','mid'];
+}
+function bClass(cpl){return gradeOf(cpl)[1];}
+function renderBannerTable(key,asc){
+  bKey=key;bAsc=asc;
+  const bs=[...BANNERS_AGG];
+  // лучший внутри своего типа
+  const bestSet=new Set();
+  const byG={};
+  bs.forEach(b=>{const k=b.goal||'—'; if(!byG[k]||b.cost_per_lead<byG[k].cost_per_lead) byG[k]=b;});
+  Object.values(byG).forEach(b=>bestSet.add(b.banner+'|'+b.campaign));
+  const s=bs.sort((a,b)=>typeof a[key]==='string'?(asc?a[key].localeCompare(b[key]):b[key].localeCompare(a[key])):(asc?a[key]-b[key]:b[key]-a[key]));
+  document.getElementById('banner-body').innerHTML=s.map(b=>{
+    const [gtxt,gcls]=gradeOf(b);
+    const isBest=bestSet.has(b.banner+'|'+b.campaign);
+    return `<tr class="${isBest?'best-row':''}">
+      <td style="text-align:center;padding:6px">${b.image?`<img class="bthumb" src="${b.image}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.outerHTML='<span class=\\'noimg\\'>▦</span>'">`:'<span class="noimg">—</span>'}</td>
+      <td title="${b.banner}">${b.banner}</td>
+      <td style="font-weight:400;color:var(--ink-soft)">${b.campaign}</td>
+      <td><span class="goal-tag">${b.goal||'—'}</span></td>
+      <td>${fmt(b.spend)}</td>
+      <td>${fmt(b.leads)}</td>
+      <td><b>${fmt(b.cost_per_lead)} грн</b></td>
+      <td>${fmt1(b.ctr)}%</td>
+      <td><span class="grade ${gcls}">${gtxt}</span></td>
+    </tr>`;
+  }).join('');
+}
+document.querySelectorAll('#banner-table th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k;
+  // по умолчанию: текст — по возрастанию, цена/лид — по возрастанию (дешёвые сверху), остальное — по убыванию
+  const defAsc=(k==='banner'||k==='campaign'||k==='cost_per_lead');
+  renderBannerTable(k, k===bKey? !bAsc : defAsc);
+}));
+
+function openImg(src,cap){
+  document.getElementById('imgmodal-img').src=src;
+  document.getElementById('imgmodal-cap').textContent=cap||'';
+  document.getElementById('imgmodal').classList.add('open');
+}
+function closeImg(){document.getElementById('imgmodal').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImg();});
+
+const fmt1=n=>new Intl.NumberFormat('uk-UA',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n||0);
+
+load();
+</script>
+</body>
+</html>
