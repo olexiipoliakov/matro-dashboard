@@ -709,14 +709,10 @@ async function genInsights(tab){
 
   try{
     const prompt = tab==='camps' ? buildCampsPrompt() : buildBannersPrompt();
-    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+    const resp = await fetch("https://matro-ai.playnvm69.workers.dev",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-6",
-        max_tokens:1000,
-        messages:[{role:"user",content:prompt}]
-      })
+      body:JSON.stringify({prompt})
     });
     const data=await resp.json();
     const text=data.content?.[0]?.text||'Не удалось получить ответ.';
