@@ -110,6 +110,30 @@
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   footer code{background:#ece4d6;padding:1px 6px;border-radius:4px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  /* ── AI-блок ── */
+  .ai-block{background:linear-gradient(135deg,#1e1a16,#2a241f);border-radius:var(--r);
+    padding:22px;margin:0 0 28px;color:#f5f1ea}
+  .ai-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+  .ai-icon{font-size:22px;flex-shrink:0;margin-top:2px;color:#d98a6b}
+  .ai-title{font-family:Georgia,serif;font-size:17px;font-weight:700;margin-bottom:3px}
+  .ai-sub{font-size:12px;color:#b8a994;line-height:1.4}
+  .ai-btn{margin-left:auto;background:var(--accent);color:#fff;border:none;
+    padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;
+    font-family:inherit;transition:background .2s;white-space:nowrap;flex-shrink:0}
+  .ai-btn:hover{background:#b3492f}
+  .ai-btn:disabled{background:#5a4a3a;cursor:wait}
+  .ai-result{margin-top:18px;font-size:14px;line-height:1.7;color:#e8ddd0;display:none}
+  .ai-result.visible{display:block}
+  .ai-result h4{font-size:13px;text-transform:uppercase;letter-spacing:1px;
+    color:#d98a6b;font-weight:700;margin:14px 0 6px}
+  .ai-result h4:first-child{margin-top:0}
+  .ai-result ul{padding-left:18px;margin:4px 0 10px}
+  .ai-result li{margin-bottom:4px}
+  .ai-result strong{color:#fff}
+  .ai-loading{display:flex;align-items:center;gap:10px;color:#b8a994;font-size:13px;margin-top:16px}
+  .ai-spinner{width:18px;height:18px;border:2px solid #5a4a3a;border-top-color:#d98a6b;
+    border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   /* ── Мобильные карточки (показываем вместо таблицы на телефоне) ── */
   .mob-sort{display:none;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
@@ -246,6 +270,18 @@
       <span>Клик по заголовку — сортировка</span>
     </div>
   </div>
+
+  <div class="ai-block" id="ai-camps">
+    <div class="ai-head">
+      <div class="ai-icon">✦</div>
+      <div>
+        <div class="ai-title">AI-анализ кампаний</div>
+        <div class="ai-sub">Claude проанализирует данные за выбранный период и даст конкретные рекомендации</div>
+      </div>
+      <button class="ai-btn" onclick="genInsights('camps')">Сгенерировать выводы</button>
+    </div>
+    <div class="ai-result" id="ai-result-camps"></div>
+  </div>
   </div><!-- /view-camps -->
 
   <!-- ВКЛАДКА: БАННЕРЫ -->
@@ -298,6 +334,18 @@
         <span>Клик по заголовку — сортировка</span>
       </div>
     </div>
+
+  <div class="ai-block" id="ai-banners">
+    <div class="ai-head">
+      <div class="ai-icon">✦</div>
+      <div>
+        <div class="ai-title">AI-анализ баннеров</div>
+        <div class="ai-sub">Claude определит лучшие и слабые креативы и порекомендует что масштабировать</div>
+      </div>
+      <button class="ai-btn" onclick="genInsights('banners')">Сгенерировать выводы</button>
+    </div>
+    <div class="ai-result" id="ai-result-banners"></div>
+  </div>
   </div><!-- /view-banners -->
 
   <footer>Данные: <code>data.json</code> · обновляет скрипт <code>fetch_meta.py</code> из Meta Marketing API.</footer>
@@ -649,6 +697,81 @@ function renderMobBanners(banners){
     </div>`;
   }).join('');
 }
+// ── AI-анализ через Claude API ──
+async function genInsights(tab){
+  const btn=document.querySelector(`#ai-${tab} .ai-btn`);
+  const resultEl=document.getElementById(`ai-result-${tab}`);
+  btn.disabled=true; btn.textContent='Анализирую…';
+  resultEl.classList.remove('visible');
+  resultEl.innerHTML='<div class="ai-loading"><div class="ai-spinner"></div>Claude анализирует данные…</div>';
+  resultEl.classList.add('visible');
+
+  try{
+    const prompt = tab==='camps' ? buildCampsPrompt() : buildBannersPrompt();
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:1000,
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content?.[0]?.text||'Не удалось получить ответ.';
+    resultEl.innerHTML=formatAI(text);
+  }catch(e){
+    resultEl.innerHTML=`<span style="color:#f6a0a0">Ошибка: ${e.message}</span>`;
+  }
+  btn.disabled=false; btn.textContent='Обновить выводы';
+}
+
+function buildCampsPrompt(){
+  const period=document.getElementById('period-info').textContent;
+  const rows=CAMPS.map(c=>`• ${c.campaign} [${c.goal}]: расход ${fmt(c.spend)} грн, результатов ${c.leads}, цена результата ${c.cost_per_lead?fmt(c.cost_per_lead)+' грн':'—'}, доля ${c.share.toFixed(0)}%`).join('\n');
+  return `Ты — аналитик по рекламе для мебельного бизнеса Matro (матрасы, кровати, диваны). Проанализируй данные рекламных кампаний Meta Ads за период ${period} и дай конкретные практические выводы на русском языке.
+
+Данные по кампаниям:
+${rows}
+
+Типы результатов: Переписки = начатые диалоги в директе, Покупки = конверсии на сайте.
+
+Дай анализ в следующем формате (используй заголовки с ##):
+## Что работает хорошо
+## Что требует внимания  
+## Конкретные рекомендации (3-5 пунктов)
+
+Будь конкретным, называй кампании по имени. Не используй общие фразы. Объём — 150-250 слов.`;
+}
+
+function buildBannersPrompt(){
+  const bs=BANNERS_AGG.slice(0,20); // топ 20 чтобы не перегружать
+  const rows=bs.map(b=>`• "${b.banner}" [${b.campaign}, ${b.goal}]: расход ${fmt(b.spend)} грн, результатов ${b.leads}, цена ${b.cost_per_lead?fmt(b.cost_per_lead)+' грн':'—'}, CTR ${b.ctr.toFixed(1)}%`).join('\n');
+  return `Ты — аналитик по рекламе для мебельного бизнеса Matro (матрасы, кровати, диваны). Проанализируй эффективность рекламных баннеров Meta Ads и дай конкретные практические выводы на русском языке.
+
+Данные по баннерам:
+${rows}
+
+Дай анализ в следующем формате (используй заголовки с ##):
+## Лучшие баннеры (что масштабировать)
+## Слабые баннеры (что отключить или переделать)
+## Рекомендации по креативам
+
+Будь конкретным, называй баннеры по имени. Сравнивай баннеры внутри одного типа цели (переписки с переписками, покупки с покупками). Объём — 150-250 слов.`;
+}
+
+function formatAI(text){
+  // Конвертируем markdown в HTML
+  return text
+    .replace(/## (.+)/g,'<h4>$1</h4>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^• (.+)$/gm,'<li>$1</li>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g,m=>`<ul>${m}</ul>`)
+    .replace(/\n\n/g,'<br>')
+    .replace(/\n/g,' ');
+}
+
 function openImg(src,cap){
   document.getElementById('imgmodal-img').src=src;
   document.getElementById('imgmodal-cap').textContent=cap||'';
