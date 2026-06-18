@@ -112,7 +112,14 @@
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
 
   /* ── Мобильные карточки (показываем вместо таблицы на телефоне) ── */
-  .mob-cards{display:none}
+  .mob-sort{display:none;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .mob-sort label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft)}
+  .mob-sort select{padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;
+    font-family:inherit;color:var(--ink);background:#fff;cursor:pointer}
+  .mob-sort select:focus{outline:2px solid var(--accent);border-color:transparent}
+  @media(max-width:600px){
+    .mob-sort{display:flex}
+  }
   .mob-card{background:var(--card);border:1px solid var(--line);border-radius:12px;
     padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
   .mob-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
@@ -223,6 +230,16 @@
       </tr></thead>
       <tbody id="camp-body"></tbody>
     </table>
+    <div class="mob-sort">
+      <label>Сортировка:</label>
+      <select id="camp-sort" onchange="sortMobCamps(this.value)">
+        <option value="spend_desc">Расход ↓</option>
+        <option value="leads_desc">Результатов ↓</option>
+        <option value="cost_per_lead_asc">Цена ↑ (дешевле)</option>
+        <option value="cost_per_lead_desc">Цена ↓ (дороже)</option>
+        <option value="share_desc">Доля расхода ↓</option>
+      </select>
+    </div>
     <div class="mob-cards" id="camp-cards"></div>
     <div class="legend">
       <span>Цена результата подсвечена относительно средней <b>внутри своего типа</b> (переписки, лиды, покупки считаются отдельно): <span class="cpl-tag good">дёшево</span> <span class="cpl-tag mid">средне</span> <span class="cpl-tag bad">дорого</span></span>
@@ -264,6 +281,16 @@
         </tr></thead>
         <tbody id="banner-body"></tbody>
       </table>
+      <div class="mob-sort">
+        <label>Сортировка:</label>
+        <select id="banner-sort" onchange="sortMobBanners(this.value)">
+          <option value="cost_per_lead_asc">Цена ↑ (дешевле)</option>
+          <option value="leads_desc">Результатов ↓</option>
+          <option value="spend_desc">Расход ↓</option>
+          <option value="ctr_desc">CTR ↓</option>
+          <option value="cost_per_lead_desc">Цена ↓ (дороже)</option>
+        </select>
+      </div>
       <div class="mob-cards" id="banner-cards"></div>
       <div class="legend">
         <span style="color:var(--accent);font-weight:600">Баннеры показаны за весь выгруженный период (точные результаты из Meta), не зависят от выбора дат выше</span>
@@ -574,6 +601,17 @@ document.querySelectorAll('#banner-table th').forEach(th=>th.addEventListener('c
   const defAsc=(k==='banner'||k==='campaign'||k==='cost_per_lead');
   renderBannerTable(k, k===bKey? !bAsc : defAsc);
 }));
+
+function sortMobCamps(val){
+  const [key,dir]=val.split('_desc').length>1?[val.replace('_desc',''),'desc']:[val.replace('_asc',''),'asc'];
+  const sorted=[...CAMPS].sort((a,b)=>dir==='asc'?a[key]-b[key]:b[key]-a[key]);
+  renderMobCamps(sorted);
+}
+function sortMobBanners(val){
+  const [key,dir]=val.split('_desc').length>1?[val.replace('_desc',''),'desc']:[val.replace('_asc',''),'asc'];
+  const sorted=[...BANNERS_AGG].sort((a,b)=>dir==='asc'?a[key]-b[key]:b[key]-a[key]);
+  renderMobBanners(sorted);
+}
 
 function renderMobCamps(camps){
   const el=document.getElementById('camp-cards'); if(!el)return;
