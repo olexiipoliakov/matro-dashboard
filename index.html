@@ -707,11 +707,11 @@ async function genInsights(tab){
   resultEl.classList.add('visible');
 
   try{
-    const prompt = tab==='camps' ? buildCampsPrompt() : buildBannersPrompt();
     const resp = await fetch("https://matro-ai.playnvm69.workers.dev",{
-      method:"POST",
-     
-    });
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({prompt})
+});
     const data=await resp.json();
     const text=data.content?.[0]?.text||'Не удалось получить ответ.';
     resultEl.innerHTML=formatAI(text);
