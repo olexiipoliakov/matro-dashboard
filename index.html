@@ -137,6 +137,7 @@
 
   /* ── Мобильные карточки (показываем вместо таблицы на телефоне) ── */
   .mob-sort{display:none;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .mob-cards{display:none}
   .mob-sort label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft)}
   .mob-sort select{padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;
     font-family:inherit;color:var(--ink);background:#fff;cursor:pointer}
@@ -707,11 +708,16 @@ async function genInsights(tab){
   resultEl.classList.add('visible');
 
   try{
-    const resp = await fetch("https://matro-ai.playnvm69.workers.dev",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({prompt})
-});
+    const prompt = tab==='camps' ? buildCampsPrompt() : buildBannersPrompt();
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:1000,
+        messages:[{role:"user",content:prompt}]
+      })
+    });
     const data=await resp.json();
     const text=data.content?.[0]?.text||'Не удалось получить ответ.';
     resultEl.innerHTML=formatAI(text);
