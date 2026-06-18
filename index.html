@@ -110,7 +110,43 @@
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   footer code{background:#ece4d6;padding:1px 6px;border-radius:4px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
-  @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}body{padding:20px 14px 48px}}
+
+  /* ── Мобильные карточки (показываем вместо таблицы на телефоне) ── */
+  .mob-cards{display:none}
+  .mob-card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .mob-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .mob-card-name{font-weight:700;font-size:14px;line-height:1.3;flex:1}
+  .mob-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mob-stat{background:#f5f0e8;border-radius:8px;padding:8px 10px}
+  .mob-stat .ml{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);font-weight:600;margin-bottom:3px}
+  .mob-stat .mv{font-size:16px;font-weight:700;font-family:Georgia,serif}
+  .mob-banner-img{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--line);flex-shrink:0}
+
+  @media(max-width:600px){
+    body{padding:16px 12px 48px}
+    .kpis,.kpis-sec{grid-template-columns:repeat(2,1fr);gap:10px}
+    .kpi{padding:14px}
+    .kpi .val{font-size:24px}
+    /* шапка */
+    header{flex-direction:column;align-items:flex-start;gap:6px}
+    .meta-line{text-align:left}
+    /* вкладки */
+    .tab{padding:9px 14px;font-size:13px}
+    /* панель периода */
+    .period-bar{flex-direction:column;align-items:flex-start;gap:10px;padding:12px}
+    .period-btns{flex-wrap:wrap;gap:6px}
+    .pbtn{padding:6px 12px;font-size:12px}
+    .period-cal{flex-wrap:wrap;gap:6px}
+    .period-cal input{font-size:12px;padding:5px 8px}
+    /* скрываем таблицы, показываем карточки */
+    #camp-table{display:none}
+    #banner-table{display:none}
+    .mob-cards{display:block}
+    /* график адаптируем */
+    .chart{height:140px}
+    .chart .xl{font-size:9px}
+  }
 </style>
 </head>
 <body>
@@ -187,6 +223,7 @@
       </tr></thead>
       <tbody id="camp-body"></tbody>
     </table>
+    <div class="mob-cards" id="camp-cards"></div>
     <div class="legend">
       <span>Цена результата подсвечена относительно средней <b>внутри своего типа</b> (переписки, лиды, покупки считаются отдельно): <span class="cpl-tag good">дёшево</span> <span class="cpl-tag mid">средне</span> <span class="cpl-tag bad">дорого</span></span>
       <span>Клик по заголовку — сортировка</span>
@@ -227,6 +264,7 @@
         </tr></thead>
         <tbody id="banner-body"></tbody>
       </table>
+      <div class="mob-cards" id="banner-cards"></div>
       <div class="legend">
         <span style="color:var(--accent);font-weight:600">Баннеры показаны за весь выгруженный период (точные результаты из Meta), не зависят от выбора дат выше</span>
         <span>★ и зелёная строка — лучший баннер в своём типе цели</span>
@@ -432,6 +470,7 @@ function renderTable(key,asc){
   html+=`<tr class="tot-row"><td>ИТОГО</td><td></td><td>${fmt(totSpend)}</td><td>${fmt(totLeads)}</td>
     <td>—</td><td>100%</td></tr>`;
   document.getElementById('camp-body').innerHTML=html;
+  renderMobCamps(s);
 }
 document.querySelectorAll('#camp-table th').forEach(th=>th.addEventListener('click',()=>{
   const k=th.dataset.k; renderTable(k,k===sKey?!sAsc:(k==='campaign'||k==='cost_per_lead'));}));
@@ -528,14 +567,50 @@ function renderBannerTable(key,asc){
       <td><span class="grade ${gcls}">${gtxt}</span></td>
     </tr>`;
   }).join('');
+  renderMobBanners(s);
 }
 document.querySelectorAll('#banner-table th').forEach(th=>th.addEventListener('click',()=>{
   const k=th.dataset.k;
-  // по умолчанию: текст — по возрастанию, цена/лид — по возрастанию (дешёвые сверху), остальное — по убыванию
   const defAsc=(k==='banner'||k==='campaign'||k==='cost_per_lead');
   renderBannerTable(k, k===bKey? !bAsc : defAsc);
 }));
 
+function renderMobCamps(camps){
+  const el=document.getElementById('camp-cards'); if(!el)return;
+  el.innerHTML=camps.map(c=>`
+    <div class="mob-card">
+      <div class="mob-card-head">
+        <div class="mob-card-name">${c.campaign}</div>
+        <span class="goal-tag">${c.goal||'—'}</span>
+      </div>
+      <div class="mob-card-grid">
+        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(c.spend)} <span style="font-size:12px;color:var(--ink-soft)">грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Результатов</div><div class="mv">${fmt(c.leads)}</div></div>
+        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv"><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Доля расхода</div><div class="mv">${c.share.toFixed(0)}%</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderMobBanners(banners){
+  const el=document.getElementById('banner-cards'); if(!el)return;
+  el.innerHTML=banners.map(b=>{
+    const [gtxt,gcls]=gradeOf(b);
+    return `<div class="mob-card">
+      <div class="mob-card-head">
+        ${b.image?`<img class="mob-banner-img" src="${b.image}" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">`:''}
+        <div class="mob-card-name">${b.banner}<br><span style="font-size:12px;color:var(--ink-soft);font-weight:400">${b.campaign}</span></div>
+        <span class="goal-tag">${b.goal||'—'}</span>
+      </div>
+      <div class="mob-card-grid">
+        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(b.spend)} <span style="font-size:12px;color:var(--ink-soft)">грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Результатов</div><div class="mv">${fmt(b.leads)}</div></div>
+        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv">${b.cost_per_lead?fmt(b.cost_per_lead)+' грн':'—'}</div></div>
+        <div class="mob-stat"><div class="ml">CTR · Оценка</div><div class="mv">${fmt1(b.ctr)}% <span class="grade ${gcls}">${gtxt}</span></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
 function openImg(src,cap){
   document.getElementById('imgmodal-img').src=src;
   document.getElementById('imgmodal-cap').textContent=cap||'';
