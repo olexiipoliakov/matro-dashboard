@@ -237,12 +237,7 @@
       <div class="sub">переписки / лиды / покупки</div></div>
   </div>
 
-  <div class="sec-head"><span class="n">1</span><h2>Расход по дням</h2><span class="ln"></span></div>
-  <div class="panel"><div class="chart" id="chart"></div>
-    <div class="legend"><span>Высота столбца — дневной расход на рекламу</span></div>
-  </div>
-
-  <div class="sec-head"><span class="n">2</span><h2>Кампании: результаты и их цена</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">1</span><h2>Кампании: результаты и их цена</h2><span class="ln"></span></div>
   <div class="panel" style="overflow-x:auto">
     <table id="camp-table">
       <thead><tr>
@@ -270,6 +265,11 @@
       <span>Цена результата подсвечена относительно средней <b>внутри своего типа</b> (переписки, лиды, покупки считаются отдельно): <span class="cpl-tag good">дёшево</span> <span class="cpl-tag mid">средне</span> <span class="cpl-tag bad">дорого</span></span>
       <span>Клик по заголовку — сортировка</span>
     </div>
+  </div>
+
+  <div class="sec-head"><span class="n">2</span><h2>Расход по дням</h2><span class="ln"></span></div>
+  <div class="panel"><div class="chart" id="chart"></div>
+    <div class="legend"><span>Высота столбца — дневной расход на рекламу</span></div>
   </div>
 
   <div class="ai-block" id="ai-camps">
@@ -411,13 +411,15 @@ function setPeriod(days,btn){
   if(btn)btn.classList.add('active');
   const dates=allDates();
   if(!dates.length){curFrom=curTo=null;applyFilter();return;}
+  // используем реальную сегодняшнюю дату, но не выходим за пределы данных
+  const todayIso=new Date().toISOString().slice(0,10);
   const maxD=dates[dates.length-1];
-  const to=new Date(maxD+'T00:00:00');
+  const toIso=todayIso<=maxD?todayIso:maxD;
+  const to=new Date(toIso+'T00:00:00');
   const from=new Date(to); from.setDate(from.getDate()-(days-1));
   const fromIso=from.toISOString().slice(0,10);
   curFrom=fromIso<dates[0]?dates[0]:fromIso;
-  curTo=maxD;
-  // синхронизируем календарь
+  curTo=toIso;
   document.getElementById('date-from').value=curFrom;
   document.getElementById('date-to').value=curTo;
   applyFilter();
@@ -428,12 +430,14 @@ function setPeriodDays(daysAgo, btn){
   if(btn) btn.classList.add('active');
   const dates=allDates();
   if(!dates.length){curFrom=curTo=null;applyFilter();return;}
-  const maxD=dates[dates.length-1];
-  const target=new Date(maxD+'T00:00:00');
-  target.setDate(target.getDate()-daysAgo);
-  const iso=target.toISOString().slice(0,10);
-  curFrom=iso<dates[0]?dates[0]:iso;
-  curTo=curFrom;
+  // реальная дата браузера
+  const today=new Date();
+  today.setDate(today.getDate()-daysAgo);
+  const iso=today.toISOString().slice(0,10);
+  // если дата вне диапазона данных — берём ближайшую
+  const minD=dates[0]; const maxD=dates[dates.length-1];
+  const clamped=iso<minD?minD:iso>maxD?maxD:iso;
+  curFrom=clamped; curTo=clamped;
   document.getElementById('date-from').value=curFrom;
   document.getElementById('date-to').value=curTo;
   applyFilter();
