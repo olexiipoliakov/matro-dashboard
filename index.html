@@ -113,6 +113,19 @@
   .banner-period-note{display:flex;align-items:center;gap:10px;padding:12px 16px;
     background:#faf3e6;border:1px solid #e8d5a0;border-radius:10px;margin-bottom:20px;
     font-size:13px;color:var(--ink-soft);line-height:1.4}
+  .chart-block{margin-bottom:20px}
+  .chart-block:last-of-type{margin-bottom:8px}
+  .chart-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--ink-soft);font-weight:700;margin-bottom:8px}
+  .chart-filter{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .cf-label{font-size:12px;font-weight:600;color:var(--accent);
+    max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cf-reset{background:var(--accent);color:#fff;border:none;padding:4px 10px;
+    border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+  .cf-reset:hover{background:#b3492f}
+  /* подсветка активной строки кампании */
+  #camp-body tr{cursor:pointer}
+  #camp-body tr.active-camp{background:#faf0eb;outline:2px solid var(--accent)}
   .bp-icon{font-size:16px;flex-shrink:0}
   .banner-period-note b{color:var(--ink)}
   /* ── AI-блок ── */
@@ -272,9 +285,27 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">2</span><h2>Расход по дням</h2><span class="ln"></span></div>
-  <div class="panel"><div class="chart" id="chart"></div>
-    <div class="legend"><span>Высота столбца — дневной расход на рекламу</span></div>
+  <div class="sec-head">
+    <span class="n">2</span><h2>Динамика по дням</h2><span class="ln"></span>
+    <div class="chart-filter" id="chart-filter" style="display:none">
+      <span class="cf-label" id="cf-name"></span>
+      <button class="cf-reset" onclick="resetChartFilter()">Все кампании ×</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="chart-block">
+      <div class="chart-title">Расход, грн</div>
+      <div class="chart" id="chart-spend"></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-title">Лиды / результаты</div>
+      <div class="chart" id="chart-leads"></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-title">Цена за лид, грн</div>
+      <div class="chart" id="chart-cpl"></div>
+    </div>
+    <div class="legend"><span>Клик по строке кампании выше — фильтр графиков по этой кампании</span></div>
   </div>
 
   <div class="ai-block" id="ai-camps">
@@ -504,39 +535,88 @@ function render(){
   const best=ranked.sort((a,b)=>a.ratio-b.ratio)[0];
   document.getElementById('k-best').textContent=best?('эффективнее всех: '+best.campaign):'—';
 
-  // график: по дням, но если период большой — группируем по неделям
-  const byday={};
-  FD.forEach(r=>byday[r.date]=(byday[r.date]||0)+r.spend);
-  const dates=Object.keys(byday).sort();
-  let chartData, chartLabel;
+  renderCharts();
+
+  window._avgCpl=0;
+  renderTable('cost_per_lead',true);
+  renderBanners();
+}
+
+// ── Три графика с фильтром по кампании ──
+let activeChartCamp=null;
+
+function resetChartFilter(){
+  activeChartCamp=null;
+  document.getElementById('chart-filter').style.display='none';
+  document.querySelectorAll('#camp-body tr').forEach(r=>r.classList.remove('active-camp'));
+  renderCharts();
+}
+
+function filterChartByCamp(campName){
+  activeChartCamp=campName;
+  document.getElementById('chart-filter').style.display='flex';
+  document.getElementById('cf-name').textContent=campName;
+  document.querySelectorAll('#camp-body tr').forEach(r=>{
+    r.classList.toggle('active-camp',r.dataset.camp===campName);
+  });
+  renderCharts();
+}
+
+function renderCharts(){
+  const data=activeChartCamp
+    ? FD.filter(r=>r.campaign===activeChartCamp)
+    : FD;
+
+  const bydate={};
+  data.forEach(r=>{
+    if(!bydate[r.date]) bydate[r.date]={spend:0,leads:0};
+    bydate[r.date].spend+=r.spend;
+    bydate[r.date].leads+=r.leads;
+  });
+  const dates=Object.keys(bydate).sort();
+
+  // группировка по неделям если дат > 31
+  let labels, spends, leads, cpls;
   if(dates.length>31){
-    // группировка по неделям (ISO: год-неделя)
     const wk={};
     dates.forEach(d=>{
       const dt=new Date(d+'T00:00:00');
       const onejan=new Date(dt.getFullYear(),0,1);
       const wn=Math.ceil((((dt-onejan)/86400000)+onejan.getDay()+1)/7);
       const key=dt.getFullYear()+'-W'+String(wn).padStart(2,'0');
-      if(!wk[key])wk[key]={sum:0,first:d};
-      wk[key].sum+=byday[d];
+      if(!wk[key])wk[key]={spend:0,leads:0,first:d};
+      wk[key].spend+=bydate[d].spend;
+      wk[key].leads+=bydate[d].leads;
     });
     const keys=Object.keys(wk).sort();
-    chartData=keys.map(k=>wk[k].sum);
-    chartLabel=keys.map(k=>{const f=wk[k].first;return f.slice(8)+'.'+f.slice(5,7);});
-  }else{
-    chartData=dates.map(d=>byday[d]);
-    chartLabel=dates.map(d=>d.slice(8)+'.'+d.slice(5,7));
+    labels=keys.map(k=>{const f=wk[k].first;return f.slice(8)+'.'+f.slice(5,7);});
+    spends=keys.map(k=>wk[k].spend);
+    leads=keys.map(k=>wk[k].leads);
+    cpls=keys.map(k=>wk[k].leads?wk[k].spend/wk[k].leads:0);
+  } else {
+    labels=dates.map(d=>d.slice(8)+'.'+d.slice(5,7));
+    spends=dates.map(d=>bydate[d].spend);
+    leads=dates.map(d=>bydate[d].leads);
+    cpls=dates.map(d=>bydate[d].leads?bydate[d].spend/bydate[d].leads:0);
   }
-  const maxv=Math.max(...chartData,1);
-  document.getElementById('chart').innerHTML=chartData.map((v,i)=>{
-    const h=v/maxv*100;
-    return `<div class="col"><div class="barwrap"><div class="bar" data-v="${fmt(v)} грн" data-h="${h}" style="height:0"></div></div><div class="xl">${chartLabel[i]}</div></div>`;
-  }).join('');
-  requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll('.chart .bar').forEach(b=>b.style.height=b.dataset.h+'%'),60));
 
-  window._avgCpl=0;
-  renderTable('cost_per_lead',true);
-  renderBanners();
+  drawChart('chart-spend', spends, labels, v=>fmt(v)+' грн', '#c8553d');
+  drawChart('chart-leads', leads, labels, v=>fmt(v), '#3f7d5c');
+  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' грн', '#b8893b');
+}
+
+function drawChart(id, values, labels, fmtFn, color){
+  const el=document.getElementById(id); if(!el)return;
+  const maxv=Math.max(...values,1);
+  el.innerHTML=labels.map((lbl,i)=>{
+    const h=values[i]/maxv*100;
+    return `<div class="col">
+      <div class="barwrap"><div class="bar" data-v="${fmtFn(values[i])}"
+        data-h="${h}" style="height:0;background:linear-gradient(180deg,${color},${color}88)"></div></div>
+      <div class="xl">${lbl}</div>
+    </div>`;
+  }).join('');
+  requestAnimationFrame(()=>setTimeout(()=>el.querySelectorAll('.bar').forEach(b=>b.style.height=b.dataset.h+'%'),60));
 }
 
 let sKey='cost_per_lead',sAsc=true;
@@ -550,7 +630,7 @@ function renderTable(key,asc){
   const s=[...CAMPS].sort((a,b)=>typeof a[key]==='string'?(asc?a[key].localeCompare(b[key]):b[key].localeCompare(a[key])):(asc?a[key]-b[key]:b[key]-a[key]));
   const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
   const totLeads=CAMPS.reduce((a,c)=>a+c.leads,0);
-  let html=s.map(c=>`<tr>
+  let html=s.map(c=>`<tr data-camp="${c.campaign}" onclick="filterChartByCamp('${c.campaign.replace(/'/g,"\\'")}')">
     <td title="${c.campaign}">${c.campaign}</td>
     <td><span class="goal-tag">${c.goal||'—'}</span></td>
     <td>${fmt(c.spend)}</td>
@@ -561,6 +641,12 @@ function renderTable(key,asc){
   html+=`<tr class="tot-row"><td>ИТОГО</td><td></td><td>${fmt(totSpend)}</td><td>${fmt(totLeads)}</td>
     <td>—</td><td>100%</td></tr>`;
   document.getElementById('camp-body').innerHTML=html;
+  // восстанавливаем подсветку активной кампании после перерисовки
+  if(activeChartCamp){
+    document.querySelectorAll('#camp-body tr').forEach(r=>{
+      r.classList.toggle('active-camp',r.dataset.camp===activeChartCamp);
+    });
+  }
   renderMobCamps(s);
 }
 document.querySelectorAll('#camp-table th').forEach(th=>th.addEventListener('click',()=>{
