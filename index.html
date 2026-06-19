@@ -110,6 +110,11 @@
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   footer code{background:#ece4d6;padding:1px 6px;border-radius:4px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  .banner-period-note{display:flex;align-items:center;gap:10px;padding:12px 16px;
+    background:#faf3e6;border:1px solid #e8d5a0;border-radius:10px;margin-bottom:20px;
+    font-size:13px;color:var(--ink-soft);line-height:1.4}
+  .bp-icon{font-size:16px;flex-shrink:0}
+  .banner-period-note b{color:var(--ink)}
   /* ── AI-блок ── */
   .ai-block{background:linear-gradient(135deg,#1e1a16,#2a241f);border-radius:var(--r);
     padding:22px;margin:0 0 28px;color:#f5f1ea}
@@ -287,6 +292,10 @@
 
   <!-- ВКЛАДКА: БАННЕРЫ -->
   <div class="view" id="view-banners">
+    <div class="banner-period-note">
+      <span class="bp-icon">📅</span>
+      <span>Статистика баннеров показывается за всё время выгрузки (последние 90 дней) — фильтр по датам здесь не применяется. Период: <b id="bp-period">—</b></span>
+    </div>
     <div class="kpis">
       <div class="kpi feature"><div class="lbl">Лучший баннер</div>
         <div class="val" id="b-best" style="font-size:18px;line-height:1.2">—</div>
@@ -330,7 +339,6 @@
       </div>
       <div class="mob-cards" id="banner-cards"></div>
       <div class="legend">
-        <span style="color:var(--accent);font-weight:600">Баннеры показаны за весь выгруженный период (точные результаты из Meta), не зависят от выбора дат выше</span>
         <span>★ и зелёная строка — лучший баннер в своём типе цели</span>
         <span>Клик по заголовку — сортировка</span>
       </div>
@@ -465,6 +473,9 @@ function aggregate(){
 function render(){
   document.getElementById('period').textContent=(curFrom&&curTo)?(fmtDate(curFrom)+' — '+fmtDate(curTo)):(DATA.period||'—');
   document.getElementById('updated').textContent=DATA.generated_at||'—';
+  // период для плашки баннеров
+  const bpEl=document.getElementById('bp-period');
+  if(bpEl) bpEl.textContent=DATA.period||'—';
   CAMPS=aggregate();
   const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
   const totLeads=CAMPS.reduce((a,c)=>a+c.leads,0);
@@ -560,6 +571,9 @@ function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
+  // скрываем панель дат на вкладке баннеров
+  const pb=document.querySelector('.period-bar');
+  if(pb) pb.style.display=name==='banners'?'none':'';
 }
 
 // ── баннеры ──
