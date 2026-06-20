@@ -26,3 +26,14 @@ jobs:
       - name: Run fetch script
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          META_ACCOUNT_ID: ${{ secrets.META_ACCOUNT_ID }}
+          META_ACCOUNT_ID_2: ${{ secrets.META_ACCOUNT_ID_2 }}
+        run: python fetch_meta.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json data2.json images/
+          git diff --staged --quiet || git commit -m "Update Meta Ads data $(date +'%Y-%m-%d')"
+          git push
