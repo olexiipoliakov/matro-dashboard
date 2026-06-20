@@ -25,11 +25,12 @@ import os, json, time, datetime as dt
 from pathlib import Path
 import requests
 
-ACCESS_TOKEN = os.environ.get("META_ACCESS_TOKEN", "PASTE_YOUR_TOKEN_HERE")
-ACCOUNT_ID   = os.environ.get("META_ACCOUNT_ID",   "act_XXXXXXXXXX")
-API_VERSION  = "v21.0"
-DATE_PRESET  = "last_90d"    # тянем широкий период; фильтр по датам — в дашборде
-CURRENCY     = "грн"
+ACCESS_TOKEN  = os.environ.get("META_ACCESS_TOKEN", "PASTE_YOUR_TOKEN_HERE")
+ACCOUNT_ID    = os.environ.get("META_ACCOUNT_ID",   "act_XXXXXXXXXX")
+ACCOUNT_ID_2  = os.environ.get("META_ACCOUNT_ID_2", "act_248358219946238")  # Matro
+API_VERSION   = "v21.0"
+DATE_PRESET   = "last_90d"    # тянем широкий период; фильтр по датам — в дашборде
+CURRENCY      = "грн"
 
 # ── Маппинг: цель оптимизации кампании -> какой action_type считать "результатом".
 # Meta отдаёт optimization_goal у группы объявлений; для надёжности мы
@@ -293,16 +294,23 @@ def download_images(banners):
         b["image"] = f"images/{fname}"
 
 
-def build():
+def build(account_id=None, out_path=None, account_name=""):
+    global ACCOUNT_ID, OUT
+    if account_id:
+        ACCOUNT_ID = account_id
+    if out_path:
+        OUT = out_path
+
+    label = f"[{account_name}] " if account_name else ""
     seen = set()
-    print("→ Тяну цели кампаний (optimization_goal)…")
+    print(f"{label}→ Тяну цели кампаний (optimization_goal)…")
     goals = fetch_campaign_goals()
 
     # карта имя->цель (на случай если в insights нет campaign_id)
     name_goal = {info["name"]: info for info in goals.values()}
 
     # 1) по дням × кампания
-    print("→ Тяну статистику по дням…")
+    print(f"{label}→ Тяну статистику по дням…")
     daily_raw = insights("campaign",
                           "campaign_id,campaign_name,spend,actions,date_start",
                           {"time_increment": 1})
@@ -332,12 +340,12 @@ def build():
     # 2) баннеры (объявления) — АГРЕГАТ за период с точными результатами.
     # Без разбивки по дням: Meta корректно отдаёт actions только на агрегате,
     # подневная разбивка по объявлениям рассыпает конверсии и даёт нули.
-    print("→ Тяну статистику по объявлениям (за период)…")
+    print(f"{label}→ Тяну статистику по объявлениям (за период)…")
     ads_raw = insights("ad",
                         "ad_id,ad_name,campaign_id,campaign_name,spend,actions,ctr")
 
     # 2b) картинки креативов
-    print("→ Тяну превью баннеров…")
+    print(f"{label}→ Тяну превью баннеров…")
     ad_ids = list({r.get("ad_id") for r in ads_raw if r.get("ad_id")})
 
     # диагностика: смотрим что вообще возвращает API для первого объявления
@@ -379,7 +387,7 @@ def build():
             "image": thumbs.get(r.get("ad_id"), ""),
         })
 
-    print("→ Скачиваю картинки баннеров локально…")
+    print(f"{label}→ Скачиваю картинки баннеров локально…")
     download_images(banners)
 
     dates = sorted({d["date"] for d in daily if d["date"]})
@@ -395,7 +403,7 @@ def build():
     }
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print(f"\n✓ data.json готов: строк день×кампания {len(daily)}, баннеров {len(banners)}")
+    print(f"\n{label}✓ {OUT.name} готов: строк день×кампания {len(daily)}, баннеров {len(banners)}")
     with_img = sum(1 for b in banners if b.get("image"))
     print(f"  Баннеров с картинкой: {with_img} из {len(banners)}")
     sample = next((b["image"] for b in banners if b.get("image")), "")
@@ -403,7 +411,7 @@ def build():
         print(f"  Пример ссылки на превью: {sample[:90]}…")
     if with_img == 0:
         print("  ⚠ Картинки не пришли. Возможно, токену не хватает прав на креативы.")
-    print("\n  Какая цель определена у каждой кампании:")
+    print(f"\n  {label}Какая цель определена у каждой кампании:")
     for name, g in sorted(goal_used.items()):
         print(f"   - {name}  →  {GOAL_LABEL.get(g, g or '(авто)')}")
 
@@ -412,4 +420,22 @@ if __name__ == "__main__":
     if "PASTE_YOUR_TOKEN" in ACCESS_TOKEN or "XXXX" in ACCOUNT_ID:
         print("⚠  Укажите META_ACCESS_TOKEN и META_ACCOUNT_ID.")
     else:
-        build()
+        # Аккаунт 1 — Plume (основной)
+        print("=" * 50)
+        print("АККАУНТ 1: Plume")
+        print("=" * 50)
+        build(
+            account_id=ACCOUNT_ID,
+            out_path=Path(__file__).parent / "data.json",
+            account_name="Plume"
+        )
+
+        # Аккаунт 2 — Matro
+        print("\n" + "=" * 50)
+        print("АККАУНТ 2: Matro")
+        print("=" * 50)
+        build(
+            account_id=ACCOUNT_ID_2,
+            out_path=Path(__file__).parent / "data2.json",
+            account_name="Matro"
+        )

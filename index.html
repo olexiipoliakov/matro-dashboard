@@ -110,6 +110,17 @@
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   footer code{background:#ece4d6;padding:1px 6px;border-radius:4px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  /* переключатель аккаунтов */
+  .acc-tabs{display:flex;gap:4px;margin-bottom:20px}
+  .acc-tab{padding:8px 24px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;
+    border:2px solid var(--line);background:var(--card);color:var(--ink-soft);
+    border-radius:10px 10px 0 0;border-bottom:none;margin-bottom:-1px;
+    transition:all .15s;position:relative}
+  .acc-tab:hover{color:var(--ink);border-color:var(--ink)}
+  .acc-tab.active{background:#fff;color:var(--ink);border-color:var(--ink);
+    border-bottom:2px solid #fff;z-index:1}
+  .acc-tab.active::after{content:"";position:absolute;bottom:-2px;left:0;right:0;
+    height:2px;background:#fff}
   .banner-period-note{display:flex;align-items:center;gap:10px;padding:12px 16px;
     background:#faf3e6;border:1px solid #e8d5a0;border-radius:10px;margin-bottom:20px;
     font-size:13px;color:var(--ink-soft);line-height:1.4}
@@ -212,6 +223,12 @@
     <div class="meta-line">Период: <b id="period">—</b><br>Обновлено: <b id="updated">—</b></div>
   </header>
   <div class="rule"></div>
+
+  <!-- переключатель аккаунтов -->
+  <div class="acc-tabs">
+    <button class="acc-tab active" onclick="switchAccount('data.json','Plume',this)">Plume</button>
+    <button class="acc-tab" onclick="switchAccount('data2.json','Matro',this)">Matro</button>
+  </div>
 
   <div id="error-box"></div>
 
@@ -401,8 +418,30 @@
 const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
 let DATA=null, CAMPS=[];
 
+// ── переключение аккаунтов ──
+let currentDataFile = 'data.json';
+async function switchAccount(file, name, btn){
+  if(currentDataFile === file) return;
+  document.querySelectorAll('.acc-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  currentDataFile = file;
+  // сбрасываем фильтр кампании
+  activeChartCamp = null;
+  document.getElementById('chart-filter').style.display = 'none';
+  // обновляем заголовок
+  document.querySelector('.eyebrow').textContent = `Эффективность рекламы · ${name}`;
+  // загружаем новые данные
+  try{
+    DATA = await (await fetch(file+'?'+Date.now())).json();
+    initPeriod();
+  }catch(e){
+    document.getElementById('error-box').innerHTML=
+      `<div class="err">Не удалось загрузить <b>${file}</b>. Возможно данные ещё не выгружены.</div>`;
+  }
+}
+
 async function load(){
-  try{ DATA=await (await fetch('data.json?'+Date.now())).json(); }
+  try{ DATA=await (await fetch(currentDataFile+'?'+Date.now())).json(); }
   catch(e){
     document.getElementById('error-box').innerHTML='<div class="err">Не удалось загрузить <b>data.json</b>. '+
       'При открытии через file:// браузер блокирует чтение — запусти <code>python -m http.server</code> или открой на GitHub Pages.</div>';
