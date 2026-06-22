@@ -294,12 +294,14 @@ def download_images(banners):
         b["image"] = f"images/{fname}"
 
 
-def build(account_id=None, out_path=None, account_name=""):
-    global ACCOUNT_ID, OUT
+def build(account_id=None, out_path=None, account_name="", access_token=None):
+    global ACCOUNT_ID, OUT, ACCESS_TOKEN
     if account_id:
         ACCOUNT_ID = account_id
     if out_path:
         OUT = out_path
+    if access_token:
+        ACCESS_TOKEN = access_token
 
     label = f"[{account_name}] " if account_name else ""
     seen = set()
@@ -439,10 +441,9 @@ if __name__ == "__main__":
             print("⚠  META_ACCESS_TOKEN_2 не настроен — пропускаем Matro.")
         else:
             try:
-                global ACCESS_TOKEN
-                ACCESS_TOKEN = ACCESS_TOKEN_2
                 build(
                     account_id=ACCOUNT_ID_2,
+                    access_token=ACCESS_TOKEN_2,
                     out_path=Path(__file__).parent / "data2.json",
                     account_name="Matro"
                 )
