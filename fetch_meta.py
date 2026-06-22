@@ -432,21 +432,4 @@ if __name__ == "__main__":
             account_name="Plume"
         )
 
-        # Аккаунт 2 — Matro (необязательный — не роняем скрипт если токен не настроен)
-        print("\n" + "=" * 50)
-        print("АККАУНТ 2: Matro")
-        print("=" * 50)
-        ACCESS_TOKEN_2 = os.environ.get("META_ACCESS_TOKEN_2", "")
-        if not ACCESS_TOKEN_2 or "PASTE" in ACCESS_TOKEN_2:
-            print("⚠  META_ACCESS_TOKEN_2 не настроен — пропускаем Matro.")
-        else:
-            try:
-                build(
-                    account_id=ACCOUNT_ID_2,
-                    access_token=ACCESS_TOKEN_2,
-                    out_path=Path(__file__).parent / "data2.json",
-                    account_name="Matro"
-                )
-            except Exception as e:
-                print(f"⚠  Matro не удалось выгрузить: {e}")
-                print("   Plume данные сохранены, продолжаем.")
+
