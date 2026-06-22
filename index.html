@@ -1,1414 +1,958 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Каталог фасадів</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Matro · Эффективность рекламы</title>
 <style>
-  :root {
-    --bg: #f5f2ee;
-    --surface: #ffffff;
-    --surface2: #ede9e4;
-    --border: #d8d0c6;
-    --text: #1a1714;
-    --text-muted: #7a7068;
-    --accent: #8b6f47;
-    --accent-dark: #6b5235;
-    --accent-light: #f0e8de;
-    --tag: #e8e0d6;
-    --shadow: 0 2px 16px rgba(0,0,0,0.07);
-    --shadow-hover: 0 8px 40px rgba(0,0,0,0.13);
-    --radius: 4px;
+  :root{
+    --ink:#1a1714; --ink-soft:#5c534a; --paper:#f5f1ea; --card:#fffdf9;
+    --line:#e3dccf; --accent:#c8553d; --accent-2:#d98a6b;
+    --good:#3f7d5c; --good-bg:#e3f0e8; --mid:#b8893b; --mid-bg:#fbf0d8;
+    --bad:#c0432f; --bad-bg:#f6e0db;
+    --r:14px; --shadow:0 1px 2px rgba(26,23,20,.04),0 8px 24px rgba(26,23,20,.06);
   }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;padding:32px 24px 64px}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .logo{font-family:Georgia,serif;font-size:30px;font-weight:700;letter-spacing:-.5px}
+  .logo .dot{color:var(--accent)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--ink-soft);font-weight:600}
+  .meta-line{text-align:right;font-size:12px;color:var(--ink-soft)}
+  .meta-line b{color:var(--ink)}
+  .rule{height:2px;background:var(--ink);margin:14px 0 28px;position:relative}
+  .rule::after{content:"";position:absolute;left:0;top:0;height:2px;width:72px;background:var(--accent)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:34px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
+  .kpi .val{font-family:Georgia,serif;font-size:29px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .kpi .val .cur{font-size:15px;color:var(--ink-soft);font-weight:400}
+  .kpi .sub{font-size:12px;color:var(--ink-soft);margin-top:7px}
+  .kpi.feature{background:linear-gradient(135deg,#2a241f,#1a1714);color:#f5f1ea;border-color:#2a241f}
+  .kpi.feature .lbl{color:#c9bdab}.kpi.feature .val{color:#fff}.kpi.feature .sub{color:#b8a994}
+  .kpi.feature::before{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;
+    background:radial-gradient(circle,rgba(200,85,61,.45),transparent 70%)}
+  .sec-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+  .sec-head h2{font-family:Georgia,serif;font-size:19px;font-weight:700}
+  .sec-head .n{font-size:11px;font-weight:700;color:var(--accent);border:1.5px solid var(--accent);
+    border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0}
+  .sec-head .ln{flex:1;height:1px;background:var(--line)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:20px;margin-bottom:34px}
+  .chart{display:flex;align-items:flex-end;gap:10px;height:200px;padding:10px 0 0}
+  .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+  .chart .barwrap{width:100%;display:flex;align-items:flex-end;justify-content:center;flex:1}
+  .chart .bar{width:60%;max-width:42px;background:linear-gradient(180deg,var(--accent),var(--accent-2));
+    border-radius:6px 6px 0 0;transition:height .9s cubic-bezier(.2,.8,.2,1);position:relative;min-height:2px}
+  .chart .bar:hover::after{content:attr(data-v);position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:11px;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .chart .xl{font-size:10.5px;color:var(--ink-soft);white-space:nowrap}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);
+    font-weight:700;padding:8px 10px;border-bottom:2px solid var(--ink);cursor:pointer;user-select:none;white-space:nowrap}
+  th:first-child{text-align:left}th:hover{color:var(--accent)}
+  td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  td:first-child{text-align:left;font-weight:600}
+  tbody tr:hover{background:#faf6ee}
+  .cpl-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px}
+  .cpl-tag.good{background:var(--good-bg);color:var(--good)}
+  .cpl-tag.mid{background:var(--mid-bg);color:var(--mid)}
+  .cpl-tag.bad{background:var(--bad-bg);color:var(--bad)}
+  .goal-tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;
+    background:#ece4d6;color:var(--ink-soft)}
+  .bthumb{width:46px;height:46px;object-fit:cover;border-radius:8px;
+    border:1px solid var(--line);display:block;margin:0 auto}
+  .noimg{color:#c9bdab;font-size:18px}
+  .imgmodal{display:none;position:fixed;inset:0;z-index:100;background:rgba(26,23,20,.82);
+    align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:30px;cursor:zoom-out}
+  .imgmodal.open{display:flex}
+  .imgmodal img{width:auto;height:auto;min-width:min(420px,80vw);max-width:90vw;max-height:80vh;
+    border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);background:#fff;
+    image-rendering:auto;object-fit:contain}
+  .imgmodal .cap{color:#f5f1ea;font-size:14px;font-weight:600;text-align:center}
+  .imgmodal .close{position:absolute;top:20px;right:28px;color:#fff;font-size:32px;cursor:pointer;
+    line-height:1;opacity:.8}.imgmodal .close:hover{opacity:1}
+  .legend{font-size:11.5px;color:var(--ink-soft);margin-top:12px;display:flex;gap:18px;flex-wrap:wrap}
+  .tot-row td{border-top:2px solid var(--ink);font-weight:700;background:#f0ebe0}
+  /* вкладки */
+  .tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+  .tab{padding:11px 22px;font-size:14px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+    border:none;background:none;font-family:inherit;border-bottom:3px solid transparent;
+    margin-bottom:-1px;transition:color .2s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .view{display:none}.view.active{display:block}
+  .period-bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:26px;
+    padding:14px 18px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .period-btns{display:flex;gap:6px}
+  .pbtn{padding:7px 16px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:8px;transition:all .15s}
+  .pbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .period-cal{display:flex;align-items:center;gap:8px}
+  .cal-lbl{font-size:13px;color:var(--ink-soft)}
+  .period-cal input{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;
+    font-family:inherit;color:var(--ink);background:#fff}
+  .period-cal input:focus{outline:2px solid var(--accent);border-color:transparent}
+  .period-info{margin-left:auto;font-size:12.5px;color:var(--ink-soft);font-weight:600}
+  @media(max-width:820px){.period-bar{gap:12px}.period-info{margin-left:0;width:100%}}
+  .grade{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .grade.good{background:var(--good-bg);color:var(--good)}
+  .grade.mid{background:var(--mid-bg);color:var(--mid)}
+  .grade.bad{background:var(--bad-bg);color:var(--bad)}
+  .grade.none{background:none;color:var(--ink-soft);font-weight:400}
+  .best-row{background:linear-gradient(90deg,rgba(63,125,92,.09),transparent)}
+  .best-row td:first-child::before{content:"★ ";color:var(--good)}
+  footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
+  footer code{background:#ece4d6;padding:1px 6px;border-radius:4px}
+  .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  /* переключатель аккаунтов */
+  .acc-tabs{display:flex;gap:4px;margin-bottom:20px}
+  .acc-tab{padding:8px 24px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;
+    border:2px solid var(--line);background:var(--card);color:var(--ink-soft);
+    border-radius:10px 10px 0 0;border-bottom:none;margin-bottom:-1px;
+    transition:all .15s;position:relative}
+  .acc-tab:hover{color:var(--ink);border-color:var(--ink)}
+  .acc-tab.active{background:#fff;color:var(--ink);border-color:var(--ink);
+    border-bottom:2px solid #fff;z-index:1}
+  .acc-tab.active::after{content:"";position:absolute;bottom:-2px;left:0;right:0;
+    height:2px;background:#fff}
+  .banner-period-note{display:flex;align-items:center;gap:10px;padding:12px 16px;
+    background:#faf3e6;border:1px solid #e8d5a0;border-radius:10px;margin-bottom:20px;
+    font-size:13px;color:var(--ink-soft);line-height:1.4}
+  .chart-block{margin-bottom:20px}
+  .chart-block:last-of-type{margin-bottom:8px}
+  .chart-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--ink-soft);font-weight:700;margin-bottom:8px}
+  .chart-filter{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .cf-label{font-size:12px;font-weight:600;color:var(--accent);
+    max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cf-reset{background:var(--accent);color:#fff;border:none;padding:4px 10px;
+    border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+  .cf-reset:hover{background:#b3492f}
+  /* подсветка активной строки кампании */
+  #camp-body tr{cursor:pointer}
+  #camp-body tr.active-camp{background:#faf0eb;outline:2px solid var(--accent)}
+  .bp-icon{font-size:16px;flex-shrink:0}
+  .banner-period-note b{color:var(--ink)}
+  /* ── AI-блок ── */
+  .ai-block{background:linear-gradient(135deg,#1e1a16,#2a241f);border-radius:var(--r);
+    padding:22px;margin:0 0 28px;color:#f5f1ea}
+  .ai-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+  .ai-icon{font-size:22px;flex-shrink:0;margin-top:2px;color:#d98a6b}
+  .ai-title{font-family:Georgia,serif;font-size:17px;font-weight:700;margin-bottom:3px}
+  .ai-sub{font-size:12px;color:#b8a994;line-height:1.4}
+  .ai-btn{margin-left:auto;background:var(--accent);color:#fff;border:none;
+    padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;
+    font-family:inherit;transition:background .2s;white-space:nowrap;flex-shrink:0}
+  .ai-btn:hover{background:#b3492f}
+  .ai-btn:disabled{background:#5a4a3a;cursor:wait}
+  .ai-result{margin-top:18px;font-size:14px;line-height:1.7;color:#e8ddd0;display:none}
+  .ai-result.visible{display:block}
+  .ai-result h4{font-size:13px;text-transform:uppercase;letter-spacing:1px;
+    color:#d98a6b;font-weight:700;margin:14px 0 6px}
+  .ai-result h4:first-child{margin-top:0}
+  .ai-result ul{padding-left:18px;margin:4px 0 10px}
+  .ai-result li{margin-bottom:4px}
+  .ai-result strong{color:#fff}
+  .ai-loading{display:flex;align-items:center;gap:10px;color:#b8a994;font-size:13px;margin-top:16px}
+  .ai-spinner{width:18px;height:18px;border:2px solid #5a4a3a;border-top-color:#d98a6b;
+    border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Jost', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
+  /* ── Мобильные карточки (показываем вместо таблицы на телефоне) ── */
+  .mob-sort{display:none;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .mob-cards{display:none}
+  .mob-sort label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft)}
+  .mob-sort select{padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;
+    font-family:inherit;color:var(--ink);background:#fff;cursor:pointer}
+  .mob-sort select:focus{outline:2px solid var(--accent);border-color:transparent}
+  @media(max-width:600px){
+    .mob-sort{display:flex}
   }
+  .mob-card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .mob-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .mob-card-name{font-weight:700;font-size:14px;line-height:1.3;flex:1}
+  .mob-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mob-stat{background:#f5f0e8;border-radius:8px;padding:8px 10px}
+  .mob-stat .ml{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);font-weight:600;margin-bottom:3px}
+  .mob-stat .mv{font-size:16px;font-weight:700;font-family:Georgia,serif}
+  .mob-banner-img{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--line);flex-shrink:0}
 
-  /* ─── HEADER ─── */
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .header-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    height: 68px;
-  }
-
-  .logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    color: var(--text);
-    text-decoration: none;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .logo span { color: var(--accent); }
-
-  /* Search */
-  .search-wrap {
-    flex: 1;
-    max-width: 480px;
-    position: relative;
-  }
-
-  .search-wrap svg {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
-  }
-
-  #search {
-    width: 100%;
-    padding: 10px 16px 10px 42px;
-    border: 1.5px solid var(--border);
-    border-radius: 50px;
-    background: var(--bg);
-    font-family: 'Jost', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  #search::placeholder { color: var(--text-muted); }
-
-  #search:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(139,111,71,0.12);
-  }
-
-  #search-clear {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-muted);
-    display: none;
-    padding: 2px;
-    line-height: 1;
-    font-size: 18px;
-  }
-
-  #search-clear.visible { display: block; }
-
-  .header-count {
-    font-size: 13px;
-    color: var(--text-muted);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  /* ─── NAV / CATEGORIES ─── */
-  .categories-bar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .categories-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 32px;
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .categories-inner::-webkit-scrollbar { display: none; }
-
-  .cat-btn {
-    background: none;
-    border: none;
-    font-family: 'Jost', sans-serif;
-    font-size: 13.5px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    padding: 14px 22px;
-    cursor: pointer;
-    white-space: nowrap;
-    position: relative;
-    transition: color 0.2s;
-    border-bottom: 2.5px solid transparent;
-    margin-bottom: -1px;
-  }
-
-  .cat-btn:hover { color: var(--text); }
-
-  .cat-btn.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
-
-  .cat-btn .count-badge {
-    display: inline-block;
-    background: var(--accent-light);
-    color: var(--accent);
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 10px;
-    margin-left: 6px;
-    vertical-align: middle;
-  }
-
-  /* ─── MAIN ─── */
-  main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 36px 32px 64px;
-  }
-
-  /* Category heading */
-  .cat-heading {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-
-  .cat-heading h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 38px;
-    font-weight: 300;
-    letter-spacing: 0.01em;
-  }
-
-  .cat-heading p {
-    font-size: 14px;
-    color: var(--text-muted);
-  }
-
-  /* Search results banner */
-  #search-banner {
-    display: none;
-    background: var(--accent-light);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 20px;
-    margin-bottom: 28px;
-    font-size: 14px;
-    color: var(--accent-dark);
-  }
-
-  #search-banner.visible { display: block; }
-
-  /* ─── GRID ─── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 24px;
-  }
-
-  /* ─── CARD ─── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    cursor: pointer;
-    transition: box-shadow 0.25s, transform 0.25s;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .card:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-3px);
-  }
-
-  .card-img {
-    aspect-ratio: 3/4;
-    overflow: hidden;
-    background: var(--surface2);
-    position: relative;
-  }
-
-  .card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease;
-  }
-
-  .card:hover .card-img img { transform: scale(1.04); }
-
-  /* Placeholder when no image */
-  .card-img .no-img {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-size: 13px;
-    gap: 10px;
-    background: var(--surface2);
-  }
-
-  .card-img .no-img svg { opacity: 0.35; }
-
-  .card-cat-tag {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(255,255,255,0.9);
-    backdrop-filter: blur(4px);
-    border-radius: 3px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--accent);
-    padding: 3px 8px;
-  }
-
-  .card-body {
-    padding: 14px 16px 16px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .card-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    line-height: 1.4;
-  }
-
-  .card-code {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-weight: 300;
-    letter-spacing: 0.04em;
-  }
-
-  /* ─── EMPTY STATE ─── */
-  .empty {
-    grid-column: 1/-1;
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text-muted);
-  }
-
-  .empty svg { opacity: 0.25; margin-bottom: 16px; }
-  .empty h3 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; margin-bottom: 8px; color: var(--text); }
-  .empty p { font-size: 14px; }
-
-  /* ─── LIGHTBOX ─── */
-  #lightbox {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(20,16,12,0.85);
-    backdrop-filter: blur(6px);
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  #lightbox.open { display: flex; }
-
-  .lb-inner {
-    background: var(--surface);
-    border-radius: 6px;
-    overflow: hidden;
-    max-width: 700px;
-    width: 100%;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    animation: lbIn 0.25s ease;
-  }
-
-  @keyframes lbIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  .lb-img {
-    width: 100%;
-    max-height: 62vh;
-    object-fit: contain;
-    background: var(--surface2);
-  }
-
-  .lb-info {
-    padding: 20px 24px 24px;
-    border-top: 1px solid var(--border);
-  }
-
-  .lb-category {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 6px;
-  }
-
-  .lb-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    font-weight: 400;
-    margin-bottom: 4px;
-  }
-
-  .lb-code { font-size: 13px; color: var(--text-muted); }
-
-  .lb-close {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    background: rgba(255,255,255,0.9);
-    border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    font-size: 20px;
-    line-height: 1;
-    cursor: pointer;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s;
-    box-shadow: var(--shadow);
-  }
-
-  .lb-close:hover { background: #fff; }
-
-  /* ─── FOOTER ─── */
-  footer {
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding: 24px 32px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 768px) {
-    .header-inner { padding: 0 16px; gap: 16px; height: 60px; }
-    .logo { font-size: 21px; }
-    .header-count { display: none; }
-    .categories-inner { padding: 0 16px; }
-    main { padding: 24px 16px 48px; }
-    .cat-heading h1 { font-size: 28px; }
-    .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  @media(max-width:600px){
+    body{padding:16px 12px 48px}
+    .kpis,.kpis-sec{grid-template-columns:repeat(2,1fr);gap:10px}
+    .kpi{padding:14px}
+    .kpi .val{font-size:24px}
+    /* шапка */
+    header{flex-direction:column;align-items:flex-start;gap:6px}
+    .meta-line{text-align:left}
+    /* вкладки */
+    .tab{padding:9px 14px;font-size:13px}
+    /* панель периода */
+    .period-bar{flex-direction:column;align-items:flex-start;gap:10px;padding:12px}
+    .period-btns{flex-wrap:wrap;gap:6px}
+    .pbtn{padding:6px 12px;font-size:12px}
+    .period-cal{flex-wrap:wrap;gap:6px}
+    .period-cal input{font-size:12px;padding:5px 8px}
+    /* скрываем таблицы, показываем карточки */
+    #camp-table{display:none}
+    #banner-table{display:none}
+    .mob-cards{display:block}
+    /* график адаптируем */
+    .chart{height:140px}
+    .chart .xl{font-size:9px}
   }
 </style>
 </head>
 <body>
-
-<!-- ── HEADER ── -->
-<header>
-  <div class="header-inner">
-    <a href="#" class="logo">Фасад<span>Про</span></a>
-    <div class="search-wrap">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="search" placeholder="Пошук за назвою або артикулом…" autocomplete="off">
-      <button id="search-clear" title="Очистити">×</button>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">Matro<span class="dot">.</span></div>
+      <div>
+        <div class="eyebrow">Эффективность рекламы</div>
+        <div style="font-size:13px;color:var(--ink-soft)">Meta Ads · у каждой кампании свой результат</div>
+      </div>
     </div>
-    <div class="header-count" id="header-count"></div>
+    <div class="meta-line">Период: <b id="period">—</b><br>Обновлено: <b id="updated">—</b></div>
+  </header>
+  <div class="rule"></div>
+
+  <!-- переключатель аккаунтов -->
+  <div class="acc-tabs">
+    <button class="acc-tab active" onclick="switchAccount('data.json','Plume',this)">Plume</button>
+    <button class="acc-tab" onclick="switchAccount('data2.json','Matro',this)">Matro</button>
   </div>
-</header>
 
-<!-- ── CATEGORIES NAV ── -->
-<nav class="categories-bar">
-  <div class="categories-inner" id="cat-nav"></div>
-</nav>
+  <div id="error-box"></div>
 
-<!-- ── MAIN ── -->
-<main>
-  <div class="cat-heading">
-    <h1 id="cat-title">Всі фасади</h1>
-    <p id="cat-desc"></p>
+  <div class="tabs">
+    <button class="tab active" data-tab="camps" onclick="switchTab('camps')">Кампании</button>
+    <button class="tab" data-tab="banners" onclick="switchTab('banners')">Эффективность баннеров</button>
   </div>
-  <div id="search-banner"></div>
-  <div class="grid" id="grid"></div>
-</main>
 
-<!-- ── LIGHTBOX ── -->
-<div id="lightbox">
-  <div class="lb-inner">
-    <button class="lb-close" id="lb-close">×</button>
-    <img class="lb-img" id="lb-img" src="" alt="">
-    <div class="lb-info">
-      <div class="lb-category" id="lb-cat"></div>
-      <div class="lb-name" id="lb-name"></div>
-      <div class="lb-code" id="lb-code"></div>
+  <div class="period-bar">
+    <div class="period-btns">
+      <button class="pbtn" onclick="setPeriodDays(0,this)">Сегодня</button>
+      <button class="pbtn" onclick="setPeriodDays(1,this)">Вчера</button>
+      <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 дней</button>
+      <button class="pbtn active" data-days="14" onclick="setPeriod(14,this)">14 дней</button>
+      <button class="pbtn" data-days="30" onclick="setPeriod(30,this)">30 дней</button>
+      <button class="pbtn" data-days="0" onclick="setAll(this)">Всё</button>
+    </div>
+    <div class="period-cal">
+      <span class="cal-lbl">или период:</span>
+      <input type="date" id="date-from" onchange="setCustom()">
+      <span style="color:var(--ink-soft)">—</span>
+      <input type="date" id="date-to" onchange="setCustom()">
+    </div>
+    <div class="period-info" id="period-info">—</div>
+  </div>
+
+  <!-- ВКЛАДКА: КАМПАНИИ -->
+  <div class="view active" id="view-camps">
+  <div class="kpis">
+    <div class="kpi feature"><div class="lbl">Результатов всего</div>
+      <div class="val" id="k-leads">—</div>
+      <div class="sub" id="k-leads-break">—</div></div>
+    <div class="kpi"><div class="lbl">Расход</div>
+      <div class="val"><span id="k-spend">—</span> <span class="cur">грн</span></div>
+      <div class="sub" id="k-days">—</div></div>
+    <div class="kpi"><div class="lbl">Кампаний активно</div>
+      <div class="val" id="k-camps">—</div>
+      <div class="sub" id="k-best">—</div></div>
+    <div class="kpi"><div class="lbl">Типов целей</div>
+      <div class="val" id="k-goals">—</div>
+      <div class="sub">переписки / лиды / покупки</div></div>
+  </div>
+
+  <div class="sec-head"><span class="n">1</span><h2>Кампании: результаты и их цена</h2><span class="ln"></span></div>
+  <div class="panel" style="overflow-x:auto">
+    <table id="camp-table">
+      <thead><tr>
+        <th data-k="campaign">Кампания</th>
+        <th data-k="goal">Тип</th>
+        <th data-k="spend">Расход, грн</th>
+        <th data-k="leads">Результатов</th>
+        <th data-k="cost_per_lead">Цена результата</th>
+        <th data-k="share">Доля расхода</th>
+      </tr></thead>
+      <tbody id="camp-body"></tbody>
+    </table>
+    <div class="mob-sort">
+      <label>Сортировка:</label>
+      <select id="camp-sort" onchange="sortMobCamps(this.value)">
+        <option value="spend_desc">Расход ↓</option>
+        <option value="leads_desc">Результатов ↓</option>
+        <option value="cost_per_lead_asc">Цена ↑ (дешевле)</option>
+        <option value="cost_per_lead_desc">Цена ↓ (дороже)</option>
+        <option value="share_desc">Доля расхода ↓</option>
+      </select>
+    </div>
+    <div class="mob-cards" id="camp-cards"></div>
+    <div class="legend">
+      <span>Цена результата подсвечена относительно средней <b>внутри своего типа</b> (переписки, лиды, покупки считаются отдельно): <span class="cpl-tag good">дёшево</span> <span class="cpl-tag mid">средне</span> <span class="cpl-tag bad">дорого</span></span>
+      <span>Клик по заголовку — сортировка</span>
     </div>
   </div>
+
+  <div class="sec-head">
+    <span class="n">2</span><h2>Динамика по дням</h2><span class="ln"></span>
+    <div class="chart-filter" id="chart-filter" style="display:none">
+      <span class="cf-label" id="cf-name"></span>
+      <button class="cf-reset" onclick="resetChartFilter()">Все кампании ×</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="chart-block">
+      <div class="chart-title">Расход, грн</div>
+      <div class="chart" id="chart-spend"></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-title">Лиды / результаты</div>
+      <div class="chart" id="chart-leads"></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-title">Цена за лид, грн</div>
+      <div class="chart" id="chart-cpl"></div>
+    </div>
+    <div class="legend"><span>Клик по строке кампании выше — фильтр графиков по этой кампании</span></div>
+  </div>
+
+  <div class="ai-block" id="ai-camps">
+    <div class="ai-head">
+      <div class="ai-icon">✦</div>
+      <div>
+        <div class="ai-title">AI-анализ кампаний</div>
+        <div class="ai-sub">Claude проанализирует данные за выбранный период и даст конкретные рекомендации</div>
+      </div>
+      <button class="ai-btn" onclick="genInsights('camps')">Сгенерировать выводы</button>
+    </div>
+    <div class="ai-result" id="ai-result-camps"></div>
+  </div>
+  </div><!-- /view-camps -->
+
+  <!-- ВКЛАДКА: БАННЕРЫ -->
+  <div class="view" id="view-banners">
+    <div class="banner-period-note">
+      <span class="bp-icon">📅</span>
+      <span>Статистика баннеров показывается за всё время выгрузки (последние 90 дней) — фильтр по датам здесь не применяется. Период: <b id="bp-period">—</b></span>
+    </div>
+    <div class="kpis">
+      <div class="kpi feature"><div class="lbl">Лучший баннер</div>
+        <div class="val" id="b-best" style="font-size:18px;line-height:1.2">—</div>
+        <div class="sub" id="b-best-cpl">—</div></div>
+      <div class="kpi"><div class="lbl">Баннеров активно</div>
+        <div class="val" id="b-count">—</div>
+        <div class="sub">в периоде</div></div>
+      <div class="kpi"><div class="lbl">Типов целей</div>
+        <div class="val" id="b-avg-cpl">—</div>
+        <div class="sub">переписки / лиды / покупки</div></div>
+      <div class="kpi"><div class="lbl">Средний CTR</div>
+        <div class="val" id="b-avg-ctr">—</div>
+        <div class="sub">по всем баннерам</div></div>
+    </div>
+
+    <div class="sec-head"><span class="n">★</span><h2>Баннеры по эффективности</h2><span class="ln"></span></div>
+    <div class="panel" style="overflow-x:auto">
+      <table id="banner-table">
+        <thead><tr>
+          <th data-k="image" style="cursor:default">Превью</th>
+          <th data-k="banner">Баннер</th>
+          <th data-k="campaign">Кампания</th>
+          <th data-k="goal">Тип</th>
+          <th data-k="spend">Расход, грн</th>
+          <th data-k="leads">Результатов</th>
+          <th data-k="cost_per_lead">Цена результата</th>
+          <th data-k="ctr">CTR</th>
+          <th data-k="grade">Оценка</th>
+        </tr></thead>
+        <tbody id="banner-body"></tbody>
+      </table>
+      <div class="mob-sort">
+        <label>Сортировка:</label>
+        <select id="banner-sort" onchange="sortMobBanners(this.value)">
+          <option value="cost_per_lead_asc">Цена ↑ (дешевле)</option>
+          <option value="leads_desc">Результатов ↓</option>
+          <option value="spend_desc">Расход ↓</option>
+          <option value="ctr_desc">CTR ↓</option>
+          <option value="cost_per_lead_desc">Цена ↓ (дороже)</option>
+        </select>
+      </div>
+      <div class="mob-cards" id="banner-cards"></div>
+      <div class="legend">
+        <span>★ и зелёная строка — лучший баннер в своём типе цели</span>
+        <span>Клик по заголовку — сортировка</span>
+      </div>
+    </div>
+
+  <div class="ai-block" id="ai-banners">
+    <div class="ai-head">
+      <div class="ai-icon">✦</div>
+      <div>
+        <div class="ai-title">AI-анализ баннеров</div>
+        <div class="ai-sub">Claude определит лучшие и слабые креативы и порекомендует что масштабировать</div>
+      </div>
+      <button class="ai-btn" onclick="genInsights('banners')">Сгенерировать выводы</button>
+    </div>
+    <div class="ai-result" id="ai-result-banners"></div>
+  </div>
+  </div><!-- /view-banners -->
+
+  <footer>Данные: <code>data.json</code> · обновляет скрипт <code>fetch_meta.py</code> из Meta Marketing API.</footer>
 </div>
 
-<footer>© 2025 ФасадПро — каталог меблевих фасадів</footer>
+<div class="imgmodal" id="imgmodal" onclick="closeImg()">
+  <span class="close" onclick="closeImg()">&times;</span>
+  <img id="imgmodal-img" src="" alt="">
+  <div class="cap" id="imgmodal-cap"></div>
+</div>
 
 <script>
-/* ═══════════════════════════════════════════════
-   DATA — редагуйте тут свій каталог
-   ═══════════════════════════════════════════════
-   Структура категорії:
-   {
-     id: 'унікальний-id',
-     name: 'Назва категорії',
-     description: 'Короткий опис (необов'язково)',
-     items: [
-       { name: 'Назва фасаду', code: 'Артикул', img: 'URL або шлях до фото' },
-       ...
-     ]
-   }
-   Якщо img = '' або null — буде показана заглушка.
-═══════════════════════════════════════════════ */
-const CATALOG = [
-  {
-    id: 'bavariia',
-    name: 'Баварія',
-    description: 'Фасади серії Баварія',
-    items: [
-      { name: 'БЦ658_Белый глянец', code: 'БЦ658', img: 'Бавария/БЦ658_Белый глянец.jpg' },
-      { name: 'БЦ2837_Серый глянец - зеркало графит', code: 'БЦ2837', img: 'Бавария/БЦ2837_Серый глянец - зеркало графит.jpg' },
-      { name: 'БЦ2661_RAL_7024 серый глянец', code: 'БЦ2661', img: 'Бавария/БЦ2661_RAL_7024 серый глянец.jpg' },
-      { name: 'БЦ2655_Коричневый глянец', code: 'БЦ2655', img: 'Бавария/БЦ2655_Коричневый глянец.jpg' },
-      { name: 'БЦ228_Белый глянец-зеркало серебро', code: 'БЦ228', img: 'Бавария/БЦ228_Белый глянец-зеркало серебро.jpg' },
-      { name: 'БЦ148_Черный глянец-белый глянец-зеркало графит', code: 'БЦ148', img: 'Бавария/БЦ148_Черный глянец-белый глянец-зеркало графит.jpg' },
-      { name: 'БЦ1110_Жемчуг глянец-кремовый глянец', code: 'БЦ1110', img: 'Бавария/БЦ1110_Жемчуг глянец-кремовый глянец.jpg' },
-      { name: 'БС86_Белое дерево', code: 'БС86', img: 'Бавария/БС86_Белое дерево.jpg' },
-      { name: 'БС380_Зеркало серебро матовое', code: 'БС380', img: 'Бавария/БС380_Зеркало серебро матовое.jpg' },
-      { name: 'БС288_Зеркало бронза', code: 'БС288', img: 'Бавария/БС288_Зеркало бронза.jpg' },
-      { name: 'БС2640_Зеркало бронза', code: 'БС2640', img: 'Бавария/БС2640_Зеркало бронза.jpg' },
-      { name: 'БС2551_Дуб крафт белый', code: 'БС2551', img: 'Бавария/БС2551_Дуб крафт белый.jpg' },
-      { name: 'Б_2637_RAL_7047 светло-серый', code: 'Б', img: 'Бавария/Б_2637_RAL_7047 светло-серый.jpg' },
-      { name: 'Б_2617_RAL 1019 Бежевый', code: 'Б', img: 'Бавария/Б_2617_RAL 1019 Бежевый.jpg' },
-      { name: 'Б9_Б10 - профіль димчастий, RAL 7024, RAL 7032, дзеркало графіт', code: 'Б9', img: 'Бавария/Б9_Б10 - профіль димчастий сірий, RAL 7024 сірий, RAL 7032 бежевий,  дзеркало графіт.jpg' },
-      { name: 'Б7_Б8 - профіль чорний браш, білий, чорний глянець, дзеркало срібло', code: 'Б7', img: 'Бавария/Б7_Б8 - профіль чорний браш, білий глянець, чорний глянець, дзеркало срібло.jpg' },
-      { name: 'Б5_Б6 - профіль чорний браш, RAL 7036, білий, чорний глянець', code: 'Б5', img: 'Бавария/Б5_Б6 - профіль чорний браш, RAL 7036 сірий, білий глянець,чорний глянець, RAL 204 помаранчевий.jpg' },
-      { name: 'Б3_Б4 - Профіль білий, чорний глянець, RAL 2004, 5010, 3010, 4007', code: 'Б3', img: 'Бавария/Б3_Б4 - Профіль білий, чорний глянець, RAL 2004 помаранчевий, RAL 5010 синій, RAL 3010 кремовий, RAL 4007 фіолетовий, RAL 7004 сірий.jpg' },
-      { name: 'Б34_Б35_Б34 - профіль чорний браш, білий, чорний глянець', code: 'Б34', img: 'Бавария/Б34_Б35_Б34 - профіль чорний браш, білий глянець, чорний глянець.jpg' },
-      { name: 'Б31_Б32_Б33 - профіль димчастий, дзеркало срібло, білий глянець', code: 'Б31', img: 'Бавария/Б31_Б32_Б33 - профіль димчастий сірий, дзеркало срібло, білий глянець.jpg' },
-      { name: 'Б28_Б29_Б30 - профіль димчастий, білий, чорний глянець, RAL 7036', code: 'Б28', img: 'Бавария/Б28_Б29_Б30 - профіль димчастий сірий, білий глянець, чорний глянець, RAL 7036 сірий.jpg' },
-      { name: 'Б27_Б27_Б27 - профіль бронза, RAL 3010, 8017, дзеркало бронза', code: 'Б27', img: 'Бавария/Б27_Б27_Б27 - профіль бронза, RAL 3010 кремовий, RAL 8017 коричневий, дзеркало бронза.jpg' },
-      { name: 'Б24_Б25_Б26 - профіль димчастий, RAL 5024, 7004, чорний глянець', code: 'Б24', img: 'Бавария/Б24_Б25_Б26 - профіль димчастий сірий, RAL 5024 блакитний, RAL 7004 сірий, чорний глянець.jpg' },
-      { name: 'Б23_Б23_Б23 - профіль димчастий, RAL 7024, дзеркало графіт', code: 'Б23', img: 'Бавария/Б23_Б23_Б23 - профіль димчастий сірий, RAL 7024 сірий, дзеркало графіт.jpg' },
-      { name: 'Б22_Б22_Б22 - профіль бронза, RAL 8017, дзеркало бронза', code: 'Б22', img: 'Бавария/Б22_Б22_Б22 - профіль бронза, RAL 8017 коричневий, дзеркало бронза.jpg' },
-      { name: 'Б1_Б2 - профіль чорний браш, білий глянець, RAL 7024, дзеркало бронза', code: 'Б1', img: 'Бавария/Б1_Б2 - профіль чорний браш, білий глянець, RAL 7024 сірий, дзеркало бронза.jpg' },
-      { name: 'Б19_Б20_Б21 - профіль білий, чорний глянець, RAL 7004, білий глянець', code: 'Б19', img: 'Бавария/Б19_Б20_Б21 - профіль білий, чорний глянець, RAL 7004 сірий, білий глянець.jpg' },
-      { name: 'Б13_Б13 - профіль чорний браш, RAL 1019, чорний, білий глянець', code: 'Б13', img: 'Бавария/Б13_Б13 - профіль чорний браш, RAL 1019 бежевий, чорний глянець, білий глянець.jpg' },
-      { name: 'Б12_Б12 - профіль чорний браш, дзеркало бронза, чорний глянець', code: 'Б12', img: 'Бавария/Б12_Б12 - профіль чорний браш, дзеркало бронза, чорний глянець.jpg' },
-      { name: 'Б11_Б11 - Профіль білий, RAL 7047, дзеркало графіт', code: 'Б11', img: 'Бавария/Б11_Б11 - Профіль білий, RAL 7047 сірий,  дзеркало графіт.jpg' },
-      { name: 'БЦ2668_RAL_7024_Серый глянец', code: 'БЦ2668', img: 'Бавария/БЦ2668_RAL_7024_Серый глянец.jpg' },
-      { name: 'БС6_Зеркало серебро', code: 'БС6', img: 'Бавария/БС6_Зеркало серебро.jpg' },
-      { name: 'БС5_Ольха темная', code: 'БС5', img: 'Бавария/БС5_Ольха темная.jpg' },
-      { name: 'БЦ276_Черный глянец', code: 'БЦ276', img: 'Бавария/БЦ276_Черный глянец.jpg' }
-    ]
-  },
-  {
-    id: 'bavariia_ns',
-    name: 'Баварія NS',
-    description: 'Фасади серії Баварія NS',
-    items: [
-      { name: 'БЦ1108_NS-Кремовый глянец', code: 'БЦ1108', img: 'Бавария_NS/БЦ1108_NS-Кремовый глянец.jpg' },
-      { name: 'БЦ 8_NS_Белый глянец-зеркало серебро', code: 'БЦ 8', img: 'Бавария_NS/БЦ 8_NS_Белый глянец-зеркало серебро.jpg' },
-      { name: 'БС_1761_NS_Дуб Бароко Бурштиновий', code: 'БС', img: 'Бавария_NS/БС_1761_NS_Дуб_Бароко_Бурштиновий_16мм.jpg' },
-      { name: 'БС1759_NS_Стекло матовое', code: 'БС1759', img: 'Бавария_NS/БС1759_NS_Стекло матовое (не каленое).jpg' },
-      { name: 'БС1723_NS_Дуб крафт белый-антрацит', code: 'БС1723', img: 'Бавария_NS/БС1723_NS_Дуб крафт белый-антрацит.jpg' },
-      { name: 'БС1714_NS_Дуб крафт белый-зеркало серебро', code: 'БС1714', img: 'Бавария_NS/БС1714_NS_Дуб крафт белый-зеркало серебро.jpg' },
-      { name: 'БС 1760_NS_Зеркало бронза', code: 'БС 1760', img: 'Бавария_NS/БС 1760_NS_Зеркало бронза.jpg' },
-      { name: 'БС 1701_NS_Дуб экспрессив бронзовый-зеркало бронза', code: 'БС 1701', img: 'Бавария_NS/БС 1701_NS_Дуб экспрессив бронзовый-зекало бронза.jpg' },
-      { name: 'Б 44_NS_белый глянец', code: 'Б 44', img: 'Бавария_NS/Б 44_NS_белый глянец.jpg' },
-      { name: 'Б 43_NS_зеркало серебро', code: 'Б 43', img: 'Бавария_NS/Б 43_NS_зеркало серебро.jpg' },
-      { name: 'Б 42_NS_кремовый глянец-зеркало бронза', code: 'Б 42', img: 'Бавария_NS/Б 42_NS_кремовый глянец-зеркало бронза.jpg' },
-      { name: 'Б 41_NS_зеркало графит', code: 'Б 41', img: 'Бавария_NS/Б 41_NS_ зеркало графит.jpg' },
-      { name: 'Б 40_NS_зеркало графит', code: 'Б 40', img: 'Бавария_NS/Б 40_NS_зеркало графит.jpg' },
-      { name: 'Б 39_NS_чёрный глянец-жемчуг глянец', code: 'Б 39', img: 'Бавария_NS/Б 39_NS_чёрный глянец_жемчуг глянец.jpg' },
-      { name: 'Б 38_NS_чёрный глянец-жемчуг глянец', code: 'Б 38', img: 'Бавария_NS/Б 38_NS_чёрный глянец_жемчуг глянец.jpg' },
-      { name: 'Б 37_белый глянец', code: 'Б 37', img: 'Бавария_NS/Б 37_белый глянец.jpg' },
-      { name: 'Б 36_зеркало серебро', code: 'Б 36', img: 'Бавария_NS/Б 36_зеркало серебро.jpg' }
-    ]
-  },
-  {
-    id: 'ne_standart',
-    name: 'НЕ Стандарт',
-    description: 'Нестандартні фасади',
-    items: [
-      { name: '931_NS_венге_зеркало бронза пескоструй', code: '931', img: 'НЕ Стандарт/931_NS_венге_зеркало бронза пескоструй 9nl.jpg' },
-      { name: '928_NS_венге_зеркало серебро пескоструй', code: '928', img: 'НЕ Стандарт/928_NS_венге_зеркало серебро пескоструй 9nl.jpg' },
-      { name: '905_NS_венге_пескоструй', code: '905', img: 'НЕ Стандарт/905_NS_венге_пескоструй_66ir.jpg' },
-      { name: '1686_NS_Черный глянец-зеркало серебро', code: '1686', img: 'НЕ Стандарт/1686_NS_Черный глянец-зеркало серебро.jpg' },
-      { name: '1685_NS_Белый глянец-зеркало серебро', code: '1685', img: 'НЕ Стандарт/1685_NS_Белый глянец-зеркало серебро.jpg' },
-      { name: '1684_NS_Серый глянец-зеркало графит', code: '1684', img: 'НЕ Стандарт/1684_NS_Серый глянец-зеркало графит.jpg' },
-      { name: '1677_NS_Зеркало бронза', code: '1677', img: 'НЕ Стандарт/1677_NS_Зеркало бронза.jpg' },
-      { name: '1676_NS_Белый глянец-жемчуг глянец', code: '1676', img: 'НЕ Стандарт/1676_NS_Белый глянец-жемчуг глянец.jpg' },
-      { name: '1671_NS_Кремовый глянец-белый глянец', code: '1671', img: 'НЕ Стандарт/1671_NS_Кремовый глянец-белый глянец.jpg' },
-      { name: '1661_NS_Белый глянец-чёрный глянец-RAL 7036', code: '1661', img: 'НЕ Стандарт/1661_NS_Белый глянец-чорный глянец-RAL 7036 серый.jpg' },
-      { name: '1659_NS_Белый глянец-чёрный глянец-RAL 7036', code: '1659', img: 'НЕ Стандарт/1659_NS_Белый глянец-чорный глянец-RAL 7036 серый.jpg' },
-      { name: '1655_NS_Глянец жемчуг-зеркало серебро', code: '1655', img: 'НЕ Стандарт/1655_NS_Глянец жемчуг-зеркало серебро.jpg' },
-      { name: '1654_NS_Белый глянец-дуб сонома светлый', code: '1654', img: 'НЕ Стандарт/1654_NS_Белый глянец-дуб сонома светлый.jpg' },
-      { name: '1653_NS_Белый глянец-зеркало графит', code: '1653', img: 'НЕ Стандарт/1653_NS_Белый глянец-зеркало графит.jpg' },
-      { name: '1637_NS_черный глянец-серый глянец', code: '1637', img: 'НЕ Стандарт/1637_NS_черный глянец-серый глянец.jpg' },
-      { name: '1636_NS_Дуб сонома трюфель', code: '1636', img: 'НЕ Стандарт/1636_NS_Дуб сонома трюфель.jpg' },
-      { name: '1631_NS_Дуб сонома трюфель-зеркало бронза-пескоструй', code: '1631', img: 'НЕ Стандарт/1631_NS_Дуб сонома трюфель-зеркало бронза-пескоструй 85 ir.jpg' },
-      { name: '1630_NS_Дуб сонома трюфель-зеркало графит-пескоструй', code: '1630', img: 'НЕ Стандарт/1630_NS_Дуб сонома трюфель-зеркало графит-пескоструй 85 ir.jpg' },
-      { name: '1625_NS_венге-зеркало серебро', code: '1625', img: 'НЕ Стандарт/1625_NS_венге-зеркало серебро.jpg' },
-      { name: '1619_NS_белый глянец_черный глянец', code: '1619', img: 'НЕ Стандарт/1619_NS_белый глянец_черный глянец.jpg' },
-      { name: '1608_NS_коричневый глянец-жемчужный глянец', code: '1608', img: 'НЕ Стандарт/1608_NS_коричневый глянец-жемчужный глянец.png' },
-      { name: '1591_NS_серый глянец_зеркало серебро', code: '1591', img: 'НЕ Стандарт/1591_NS_серый глянец_зеркало серебро.jpg' },
-      { name: '1589_NS_белый глянец_зеркало графит_чёрный глянец', code: '1589', img: 'НЕ Стандарт/1589_NS_белый глянец_зеркало графит_чёрный глянец.jpg' },
-      { name: '1588_NS_белое дерево_дуб сонома трюфель', code: '1588', img: 'НЕ Стандарт/1588_NS_белое дерево_дуб сонома трюфель.jpg' },
-      { name: '1573_NS_дуб сонома светлый_дуб сонома трюфель', code: '1573', img: 'НЕ Стандарт/1573_NS_дуб сонома светлый_дуб сонома трюфель.jpg' },
-      { name: '1572_NS_белый глянец_зеркало бронза', code: '1572', img: 'НЕ Стандарт/1572_NS_белый глянец_зеркало бронза.jpg' },
-      { name: '1566_NS_белый глянец_зеркало серебро', code: '1566', img: 'НЕ Стандарт/1566_NS_белый глянец_зеркало серебро.jpg' },
-      { name: '1565_NS_дуб атланта', code: '1565', img: 'НЕ Стандарт/1565_NS_дуб атланта.jpg' },
-      { name: '1560_NS_дуб сонома трюфель_черный глянец', code: '1560', img: 'НЕ Стандарт/1560_NS_дуб сонома трюфель_черный глянец.jpg' },
-      { name: '1559_NS_белый глянец_жемчуг глянец', code: '1559', img: 'НЕ Стандарт/1559_NS_белый глянец_жемчуг глянец.jpg' },
-      { name: '1558_NS_дуб сонома светлый_зеркало серебро', code: '1558', img: 'НЕ Стандарт/1558_NS_дуб сонома светлый_зеркало серебро.jpg' },
-      { name: '1557_NS_дуб сонома светлый_зеркало серебро', code: '1557', img: 'НЕ Стандарт/1557_NS_дуб сонома светлый_зеркало серебро.jpg' },
-      { name: '1556_NS_зеркало бронза', code: '1556', img: 'НЕ Стандарт/1556_NS_зеркало бронза.jpg' },
-      { name: '1555_NS_белый глянец_жемчуг_кремовый_коричневый глянец', code: '1555', img: 'НЕ Стандарт/1555_NS_белый глянец_жемчуг глянец_кремовый глянец_коричневый глянец.jpg' },
-      { name: '1554_NS_серый глянец_зеркало серебро матовое', code: '1554', img: 'НЕ Стандарт/1554_NS_серый глянец_зеркало серебро матовое.jpg' },
-      { name: '1553_NS_белый глянец_зеркало графит_серый глянец', code: '1553', img: 'НЕ Стандарт/1553_NS_белый глянец_зеркало графит_серый глянец.jpg' },
-      { name: '1552_NS_зеркало графит_серый глянец_белый глянец', code: '1552', img: 'НЕ Стандарт/1552_NS_зеркало графит_серый глянец_белый глянец.jpg' },
-      { name: '1551_NS_белый глянец_зеркало графит_серый глянец', code: '1551', img: 'НЕ Стандарт/1551_NS_белый глянец_зеркало графит_серый глянец.jpg' },
-      { name: '1550_NS_белое дерево_зеркало серебро', code: '1550', img: 'НЕ Стандарт/1550_NS_белое дерево_зеркало серебро.jpg' },
-      { name: '1549_NS_белое дерево_зеркало серебро', code: '1549', img: 'НЕ Стандарт/1549_NS_белое дерево_зеркало серебро.jpg' },
-      { name: '1548_NS_белый глянец_зеркало серебро', code: '1548', img: 'НЕ Стандарт/1548_NS_белый глянец_зеркало серебро.jpg' },
-      { name: '1547_NS_белый глянец_дуб сонома светлый', code: '1547', img: 'НЕ Стандарт/1547_NS_белый глянец_дуб сонома светлый.jpg' },
-      { name: '1542_NS_дуб молочный', code: '1542', img: 'НЕ Стандарт/1542_NS_дуб молочный.jpg' },
-      { name: '1541_NS_белый глянец_зеркало графит_черный глянец', code: '1541', img: 'НЕ Стандарт/1541_NS_белый глянец_зеркало графит_черный глянец.jpg' },
-      { name: '1540_NS_серый_кремовый_жемчуг_белый глянец', code: '1540', img: 'НЕ Стандарт/1540_NS_серый глянец_кремовый глянец_жемчуг глянец_белый глянец.jpg' },
-      { name: '1539_NS_зеркало графит_пескоструй', code: '1539', img: 'НЕ Стандарт/1539_NS_зеркало графит_пескоструй.jpg' },
-      { name: '1538_NS_зеркало графит_пескоструй', code: '1538', img: 'НЕ Стандарт/1538_NS_зеркало графит_пескоструй.jpg' },
-      { name: '1537_NS_жемчуг глянец_белый глянец', code: '1537', img: 'НЕ Стандарт/1537_NS_жемчуг глянец_белый глянец.jpg' },
-      { name: '1536_NS_жемчуг глянец_дуб сонома светлый', code: '1536', img: 'НЕ Стандарт/1536_NS_жемчуг глянец_дуб сонома светлый.jpg' },
-      { name: '1535_NS_жемчуг глянец_зеркало бронза_пескоструй', code: '1535', img: 'НЕ Стандарт/1535_NS_жемчуг глянец_зеркало бронза_пескоструй 61r.jpg' },
-      { name: '1534_NS_кремовый глянец_дуб сонома трюфель', code: '1534', img: 'НЕ Стандарт/1534_NS_кремовый глянец_дуб сонома трюфель.jpg' }
-    ]
-  },
-  {
-    id: 'komb_glyanets',
-    name: 'Комб. глянець',
-    description: 'Комбіновані фасади з глянцем',
-    items: [
-      { name: '2057_коричневый_жемчуг глянец', code: '2057', img: 'Комб_Глянец/1/2057_коричневый_жемчуг глянец.jpg' },
-      { name: '2060_белый глянец-коричневый глянец', code: '2060', img: 'Комб_Глянец/1/2060_белый глянец-коричневый глянец.jpg' },
-      { name: '2709_Белый глянец-RAL 7036 Серый-белый глянец', code: '2709', img: 'Комб_Глянец/1/2709_Белый глянец-RAL 7036 Серый-белый глянец.jpg' },
-      { name: '2811_Коричневый глянец - кремовый глянец', code: '2811', img: 'Комб_Глянец/1/2811_Коричневый глянец - кремовый глянец.jpg' },
-      { name: '427_черный глянец', code: '427', img: 'Комб_Глянец/1/427_черный глянец.jpg' },
-      { name: '457_чёрный глянец-белый глянец', code: '457', img: 'Комб_Глянец/1/457_чёрный глянец-белый глянец.jpg' },
-      { name: '502_жемчуг глянец-серый глянец', code: '502', img: 'Комб_Глянец/1/502_жемчуг глянец-серый глянец.jpg' },
-      { name: '508_жемчуг глянец-кремовый глянец', code: '508', img: 'Комб_Глянец/1/508_жемчуг глянец-кремовый глянец.jpg' },
-      { name: '520_белый глянец-бирюзовый глянец', code: '520', img: 'Комб_Глянец/1/520_белый глянец-бирюзовый глянец.jpg' },
-      { name: '527_кремовый глянец-жемчуг глянец', code: '527', img: 'Комб_Глянец/1/527_кремовый глянец-жемчуг глянец.jpg' },
-      { name: '580_белый глянец-RAL7024_серый глянец', code: '580', img: 'Комб_Глянец/1/580_белый глянец-RAL7024_серый глянец.jpg' },
-      { name: '635_ кремовый  глянец-белый глянец', code: '635', img: 'Комб_Глянец/1/635_ кремовый  глянец-белый глянец.jpg' },
-      { name: '645_белый глянец-синий глянец', code: '645', img: 'Комб_Глянец/1/645_белый глянец-синий глянец.jpg' },
-      { name: '658_белый глянец', code: '658', img: 'Комб_Глянец/1/658_белый глянец.jpg' },
-      { name: '675_кремовый глянец-синий глянец', code: '675', img: 'Комб_Глянец/1/675_кремовый глянец-синий глянец.jpg' },
-      { name: '689_стекло чёрный глянец-синий глянец', code: '689', img: 'Комб_Глянец/1/689_стекло чёрный глянец-синий глянец.jpg' },
-      { name: '698_жемчуг глянец-черный глянец', code: '698', img: 'Комб_Глянец/1/698_жемчуг глянец-черный глянец.jpg' },
-      { name: '708_кремовый  глянец-черный глянец', code: '708', img: 'Комб_Глянец/1/708_кремовый  глянец-черный глянец.jpg' },
-      { name: '803_черный глянец-кремовый глянец', code: '803', img: 'Комб_Глянец/1/803_черный глянец-кремовый глянец.jpg' },
-      { name: '804_черный глянец-серый глянец', code: '804', img: 'Комб_Глянец/1/804_черный глянец-серый глянец.jpg' },
-      { name: '830_белый глянец-красный глянец', code: '830', img: 'Комб_Глянец/1/830_белый глянец-красный глянец.jpg' },
-      { name: '831_белый глянец-оранжевый глянец', code: '831', img: 'Комб_Глянец/1/831_белый глянец-оранжевый глянец.jpg' },
-      { name: '832_белый глянец-жемчуг глянец', code: '832', img: 'Комб_Глянец/1/832_белый глянец-жемчуг глянец.jpg' },
-      { name: '833_белый глянец-кремовый глянец', code: '833', img: 'Комб_Глянец/1/833_белый глянец-кремовый глянец.jpg' },
-      { name: '834_красный глянец-черный глянец', code: '834', img: 'Комб_Глянец/1/834_красный глянец-черный глянец.jpg' },
-      { name: '835_красный глянец-белый глянец', code: '835', img: 'Комб_Глянец/1/835_красный глянец-белый глянец.jpg' },
-      { name: '836_красный глянец', code: '836', img: 'Комб_Глянец/1/836_красный глянец.jpg' },
-      { name: '837_красный глянец-синий глянец', code: '837', img: 'Комб_Глянец/1/837_красный глянец-синий глянец.jpg' },
-      { name: '838_красный глянец-бирюзовый глянец', code: '838', img: 'Комб_Глянец/1/838_красный глянец-бирюзовый глянец.jpg' },
-      { name: '839_красный глянец-оранжевый глянец', code: '839', img: 'Комб_Глянец/1/839_красный глянец-оранжевый глянец.jpg' },
-      { name: '840_красный глянец-жемчуг глянец', code: '840', img: 'Комб_Глянец/1/840_красный глянец-жемчуг глянец.jpg' },
-      { name: '841_красный глянец-кремовый глянец', code: '841', img: 'Комб_Глянец/1/841_красный глянец-кремовый глянец.jpg' },
-      { name: '842_красный глянец-серый глянец', code: '842', img: 'Комб_Глянец/1/842_красный глянец-серый глянец.jpg' },
-      { name: '843_синий глянец-черный глянец', code: '843', img: 'Комб_Глянец/1/843_синий глянец-черный глянец.jpg' },
-      { name: '844_синий глянец-белый глянец', code: '844', img: 'Комб_Глянец/1/844_синий глянец-белый глянец.jpg' },
-      { name: '845_синий глянец-красный глянец', code: '845', img: 'Комб_Глянец/1/845_синий глянец-красный глянец.jpg' },
-      { name: '846_синий глянец', code: '846', img: 'Комб_Глянец/1/846_синий глянец.jpg' },
-      { name: '847_синий глянец-бирюзовый глянец', code: '847', img: 'Комб_Глянец/1/847_синий глянец-бирюзовый глянец.jpg' },
-      { name: '848_синий глянец-оранжевый глянец', code: '848', img: 'Комб_Глянец/1/848_синий глянец-оранжевый глянец.jpg' },
-      { name: '852_бирюзовый глянец-черный глянец', code: '852', img: 'Комб_Глянец/1/852_бирюзовый глянец-черный глянец.jpg' },
-      { name: '853_бирюзовый глянец-белый глянец', code: '853', img: 'Комб_Глянец/1/853_бирюзовый глянец-белый глянец.jpg' },
-      { name: '854_бирюзовый глянец-красный глянец', code: '854', img: 'Комб_Глянец/1/854_бирюзовый глянец-красный глянец.jpg' },
-      { name: '855_бирюзовый глянец-синий глянец', code: '855', img: 'Комб_Глянец/1/855_бирюзовый глянец-синий глянец.jpg' },
-      { name: '856_бирюзовый глянец', code: '856', img: 'Комб_Глянец/1/856_бирюзовый глянец.jpg' },
-      { name: '857_бирюзовый глянец-оранжевый глянец', code: '857', img: 'Комб_Глянец/1/857_бирюзовый глянец-оранжевый глянец.jpg' },
-      { name: '858_бирюзовый глянец-жемчуг глянец', code: '858', img: 'Комб_Глянец/1/858_бирюзовый глянец-жемчуг глянец.jpg' },
-      { name: '859_бирюзовый глянец-кремовый глянец', code: '859', img: 'Комб_Глянец/1/859_бирюзовый глянец-кремовый глянец.jpg' },
-      { name: '860_бирюзовый глянец-серый глянец', code: '860', img: 'Комб_Глянец/1/860_бирюзовый глянец-серый глянец.jpg' },
-      { name: '861_оранжевый глянец-черный глянец', code: '861', img: 'Комб_Глянец/1/861_оранжевый глянец-черный глянец.jpg' },
-      { name: '862_оранжевый глянец-белый глянец', code: '862', img: 'Комб_Глянец/1/862_оранжевый глянец-белый глянец.jpg' },
-      { name: '863_оранжевый глянец-красный глянец', code: '863', img: 'Комб_Глянец/1/863_оранжевый глянец-красный глянец.jpg' },
-      { name: '864_оранжевый глянец-синий глянец', code: '864', img: 'Комб_Глянец/1/864_оранжевый глянец-синий глянец.jpg' },
-      { name: '865_оранжевый глянец-бирюзовый глянец', code: '865', img: 'Комб_Глянец/1/865_оранжевый глянец-бирюзовый глянец.jpg' },
-      { name: '869_оранжевый глянец', code: '869', img: 'Комб_Глянец/1/869_оранжевый глянец.jpg' },
-      { name: '870_кремовый глянец-бирюзовый глянец', code: '870', img: 'Комб_Глянец/1/870_кремовый глянец-бирюзовый глянец.jpg' },
-      { name: '871_кремовый глянец-красный глянец', code: '871', img: 'Комб_Глянец/1/871_кремовый глянец-красный глянец.jpg' },
-      { name: '872_кремовый глянец-оранжевый глянец', code: '872', img: 'Комб_Глянец/1/872_кремовый глянец-оранжевый глянец.jpg' },
-      { name: '873_кремовый глянец', code: '873', img: 'Комб_Глянец/1/873_кремовый глянец.jpg' },
-      { name: '874_кремовый глянец-серый глянец', code: '874', img: 'Комб_Глянец/1/874_кремовый глянец-серый глянец.jpg' },
-      { name: '875_жемчуг глянец-белый глянец', code: '875', img: 'Комб_Глянец/1/875_жемчуг глянец-белый глянец.jpg' },
-      { name: '876_жемчуг глянец-красный глянец', code: '876', img: 'Комб_Глянец/1/876_жемчуг глянец-красный глянец.jpg' },
-      { name: '877_жемчуг глянец-синий глянец', code: '877', img: 'Комб_Глянец/1/877_жемчуг глянец-синий глянец.jpg' },
-      { name: '878_жемчуг глянец-бирюзовый глянец', code: '878', img: 'Комб_Глянец/1/878_жемчуг глянец-бирюзовый глянец.jpg' },
-      { name: '879_жемчуг глянец-оранжевый глянец', code: '879', img: 'Комб_Глянец/1/879_жемчуг глянец-оранжевый глянец.jpg' },
-      { name: '880_серый глянец', code: '880', img: 'Комб_Глянец/1/880_серый глянец.jpg' },
-      { name: '881_серый глянец-черный глянец', code: '881', img: 'Комб_Глянец/1/881_серый глянец-черный глянец.jpg' },
-      { name: '882_серый глянец-белый глянец', code: '882', img: 'Комб_Глянец/1/882_серый глянец-белый глянец.jpg' },
-      { name: '883_серый глянец-красный глянец', code: '883', img: 'Комб_Глянец/1/883_серый глянец-красный глянец.jpg' },
-      { name: '884_серый глянец-синий глянец', code: '884', img: 'Комб_Глянец/1/884_серый глянец-синий глянец.jpg' },
-      { name: '885_серый глянец-бирюзовый глянец', code: '885', img: 'Комб_Глянец/1/885_серый глянец-бирюзовый глянец.jpg' },
-      { name: '886_серый глянец-оранжевый глянец', code: '886', img: 'Комб_Глянец/1/886_серый глянец-оранжевый глянец.jpg' },
-      { name: '887_серый глянец-жемчуг глянец', code: '887', img: 'Комб_Глянец/1/887_серый глянец-жемчуг глянец.jpg' },
-      { name: '888_серый глянец-кремовый глянец', code: '888', img: 'Комб_Глянец/1/888_серый глянец-кремовый глянец.jpg' },
-      { name: '277_синий глянец', code: '277', img: 'Комб_Глянец/2/277_синий глянец.jpg' },
-      { name: '554_кремовый глянец', code: '554', img: 'Комб_Глянец/2/554_кремовый глянец.jpg' },
-      { name: '818_синий глянец-белый глянец', code: '818', img: 'Комб_Глянец/2/818_синий глянец-белый глянец.jpg' },
-      { name: '823_серый глянец-белый глянец', code: '823', img: 'Комб_Глянец/2/823_серый глянец-белый глянец.jpg' },
-      { name: '824_белый глянец-красный глянец', code: '824', img: 'Комб_Глянец/2/824_белый глянец-красный глянец.jpg' },
-      { name: '825_белый глянец-синий глянец', code: '825', img: 'Комб_Глянец/2/825_белый глянец-синий глянец.jpg' },
-      { name: '826_белый глянец-бирюзовый глянец', code: '826', img: 'Комб_Глянец/2/826_белый глянец-бирюзовый глянец.jpg' },
-      { name: '890_бирюзовый глянец-красный глянец', code: '890', img: 'Комб_Глянец/2/890_бирюзовый глянец-красный глянец.jpg' },
-      { name: '891_оранжевый глянец-красный глянец', code: '891', img: 'Комб_Глянец/2/891_оранжевый глянец-красный глянец.jpg' },
-      { name: '895_красный глянец-синий глянец', code: '895', img: 'Комб_Глянец/2/895_красный глянец-синий глянец.jpg' },
-      { name: '896_красный глянец-бирюзовый глянец', code: '896', img: 'Комб_Глянец/2/896_красный глянец-бирюзовый глянец.jpg' },
-      { name: '897_красный глянец-оранжевый глянец', code: '897', img: 'Комб_Глянец/2/897_красный глянец-оранжевый глянец.jpg' },
-      { name: '907_серый глянец-синий глянец', code: '907', img: 'Комб_Глянец/2/907_серый глянец-синий глянец.jpg' },
-      { name: '909_синий глянец-оранжевый глянец', code: '909', img: 'Комб_Глянец/2/909_синий глянец-оранжевый глянец.jpg' },
-      { name: '914_жемчуг глянец-бирюзовый глянец', code: '914', img: 'Комб_Глянец/2/914_жемчуг глянец-бирюзовый глянец.jpg' },
-      { name: '915_кремовый глянец-бирюзовый глянец', code: '915', img: 'Комб_Глянец/2/915_кремовый глянец-бирюзовый глянец.jpg' },
-      { name: '922_кремовый глянец-оранжевый глянец', code: '922', img: 'Комб_Глянец/2/922_кремовый глянец-оранжевый глянец.jpg' },
-      { name: '923_серый глянец-оранжевый глянец', code: '923', img: 'Комб_Глянец/2/923_серый глянец-оранжевый глянец.jpg' },
-      { name: '931_серый глянец-кремовый глянец', code: '931', img: 'Комб_Глянец/2/931_серый глянец-кремовый глянец.jpg' },
-      { name: '932_кремовый глянец-серый глянец', code: '932', img: 'Комб_Глянец/2/932_кремовый глянец-серый глянец.jpg' },
-      { name: '2059_кремовый глянец_коричневый глянец', code: '2059', img: 'Комб_Глянец/3/2059_кремовый глянец_коричневый глянец.jpg' },
-      { name: '935_черный глянец-жемчуг глянец', code: '935', img: 'Комб_Глянец/3/935_черный глянец-жемчуг глянец.jpg' },
-      { name: '936_черный глянец-кремовый глянец', code: '936', img: 'Комб_Глянец/3/936_черный глянец-кремовый глянец.jpg' },
-      { name: '946_красный глянец-синий глянец', code: '946', img: 'Комб_Глянец/3/946_красный глянец-синий глянец.jpg' },
-      { name: '947_красный глянец-бирюзовый глянец', code: '947', img: 'Комб_Глянец/3/947_красный глянец-бирюзовый глянец.jpg' },
-      { name: '955_синий глянец-бирюзовый глянец', code: '955', img: 'Комб_Глянец/3/955_синий глянец-бирюзовый глянец.jpg' },
-      { name: '957_синий глянец-оранжевый глянец', code: '957', img: 'Комб_Глянец/3/957_синий глянец-оранжевый глянец.jpg' },
-      { name: '964_бирюзовый глянец-синий глянец', code: '964', img: 'Комб_Глянец/3/964_бирюзовый глянец-синий глянец.jpg' },
-      { name: '965_бирюзовый глянец-оранжевый глянец', code: '965', img: 'Комб_Глянец/3/965_бирюзовый глянец-оранжевый глянец.jpg' },
-      { name: '979_серый глянец-черный глянец', code: '979', img: 'Комб_Глянец/3/979_серый глянец-черный глянец.jpg' },
-      { name: '980_серый глянец-синий глянец', code: '980', img: 'Комб_Глянец/3/980_серый глянец-синий глянец.jpg' },
-      { name: '981_серый глянец-бирюзовый глянец', code: '981', img: 'Комб_Глянец/3/981_серый глянец-бирюзовый глянец.jpg' },
-      { name: '982_серый глянец-оранжевый глянец', code: '982', img: 'Комб_Глянец/3/982_серый глянец-оранжевый глянец.jpg' },
-      { name: '1017_черный глянец-белый глянец', code: '1017', img: 'Комб_Глянец/4/1017_черный глянец-белый глянец.jpg' },
-      { name: '1018_черный глянец-красный глянец', code: '1018', img: 'Комб_Глянец/4/1018_черный глянец-красный глянец.jpg' },
-      { name: '1019_черный глянец-синий глянец', code: '1019', img: 'Комб_Глянец/4/1019_черный глянец-синий глянец.jpg' },
-      { name: '1020_черный глянец-синий глянец', code: '1020', img: 'Комб_Глянец/4/1020_черный глянец-синий глянец.jpg' },
-      { name: '1021_черный глянец-бирюзовый глянец', code: '1021', img: 'Комб_Глянец/4/1021_черный глянец-бирюзовый глянец.jpg' },
-      { name: '1022_черный глянец-оранжевый глянец', code: '1022', img: 'Комб_Глянец/4/1022_черный глянец-оранжевый глянец.jpg' },
-      { name: '1023_черный глянец-жемчуг глянец', code: '1023', img: 'Комб_Глянец/4/1023_черный глянец-жемчуг глянец.jpg' },
-      { name: '1024_черный глянец-кремовый глянец', code: '1024', img: 'Комб_Глянец/4/1024_черный глянец-кремовый глянец.jpg' },
-      { name: '1025_черный глянец-кремовый глянец', code: '1025', img: 'Комб_Глянец/4/1025_черный глянец-кремовый глянец.jpg' },
-      { name: '1026_черный глянец-серый глянец', code: '1026', img: 'Комб_Глянец/4/1026_черный глянец-серый глянец.jpg' },
-      { name: '1027_белый глянец-черный глянец', code: '1027', img: 'Комб_Глянец/4/1027_белый глянец-черный глянец.jpg' },
-      { name: '1028_белый глянец-красный глянец', code: '1028', img: 'Комб_Глянец/4/1028_белый глянец-красный глянец.jpg' },
-      { name: '1029_белый глянец-синий глянец', code: '1029', img: 'Комб_Глянец/4/1029_белый глянец-синий глянец.jpg' },
-      { name: '1033_белый глянец-оранжевый глянец', code: '1033', img: 'Комб_Глянец/4/1033_белый глянец-оранжевый глянец.jpg' },
-      { name: '1034_белый глянец-жемчуг глянец', code: '1034', img: 'Комб_Глянец/4/1034_белый глянец-жемчуг глянец.jpg' },
-      { name: '1035_белый глянец-кремовый глянец', code: '1035', img: 'Комб_Глянец/4/1035_белый глянец-кремовый глянец.jpg' },
-      { name: '1036_белый глянец-кремовый глянец', code: '1036', img: 'Комб_Глянец/4/1036_белый глянец-кремовый глянец.jpg' },
-      { name: '1037_белый глянец-серый глянец', code: '1037', img: 'Комб_Глянец/4/1037_белый глянец-серый глянец.jpg' },
-      { name: '1038_белый глянец-серый глянец', code: '1038', img: 'Комб_Глянец/4/1038_белый глянец-серый глянец.jpg' },
-      { name: '1039_красный глянец-черный глянец', code: '1039', img: 'Комб_Глянец/4/1039_красный глянец-черный глянец.jpg' },
-      { name: '1040_красный глянец-белый глянец', code: '1040', img: 'Комб_Глянец/4/1040_красный глянец-белый глянец.jpg' },
-      { name: '1041_красный глянец-cиний глянец', code: '1041', img: 'Комб_Глянец/4/1041_красный глянец-cиний глянец.jpg' },
-      { name: '1042_красный глянец-cиний глянец', code: '1042', img: 'Комб_Глянец/4/1042_красный глянец-cиний глянец.jpg' },
-      { name: '1043_красный глянец-бирюзовый глянец', code: '1043', img: 'Комб_Глянец/4/1043_красный глянец-бирюзовый глянец.jpg' },
-      { name: '1044_красный глянец-оранжевый глянец', code: '1044', img: 'Комб_Глянец/4/1044_красный глянец-оранжевый глянец.jpg' },
-      { name: '1045_красный глянец-оранжевый глянец', code: '1045', img: 'Комб_Глянец/4/1045_красный глянец-оранжевый глянец.jpg' },
-      { name: '104_черный глянец-оранжевый глянец', code: '104', img: 'Комб_Глянец/4/104_черный глянец-оранжевый глянец.jpg' },
-      { name: '1050_красный глянец-серый глянец', code: '1050', img: 'Комб_Глянец/4/1050_красный глянец-серый глянец.jpg' },
-      { name: '1051_красный глянец-серый глянец', code: '1051', img: 'Комб_Глянец/4/1051_красный глянец-серый глянец.jpg' },
-      { name: '1052_синий глянец-черный глянец', code: '1052', img: 'Комб_Глянец/4/1052_синий глянец-черный глянец.jpg' },
-      { name: '1053_синий глянец-черный глянец', code: '1053', img: 'Комб_Глянец/4/1053_синий глянец-черный глянец.jpg' },
-      { name: '1054_синий глянец-белый глянец', code: '1054', img: 'Комб_Глянец/4/1054_синий глянец-белый глянец.jpg' },
-      { name: '1055_бирюзовый глянец-черный глянец', code: '1055', img: 'Комб_Глянец/4/1055_бирюзовый глянец-черный глянец.jpg' },
-      { name: '1056_синий глянец-красный глянец', code: '1056', img: 'Комб_Глянец/4/1056_синий глянец-красный глянец.jpg' },
-      { name: '1057_синий глянец-красный глянец', code: '1057', img: 'Комб_Глянец/4/1057_синий глянец-красный глянец.jpg' },
-      { name: '1058_синий глянец-бирюзовый глянец', code: '1058', img: 'Комб_Глянец/4/1058_синий глянец-бирюзовый глянец.jpg' },
-      { name: '1059_синий глянец-бирюзовый глянец', code: '1059', img: 'Комб_Глянец/4/1059_синий глянец-бирюзовый глянец.jpg' },
-      { name: '1060_синий глянец-оранжевый глянец', code: '1060', img: 'Комб_Глянец/4/1060_синий глянец-оранжевый глянец.jpg' },
-      { name: '1061_синий глянец-оранжевый глянец', code: '1061', img: 'Комб_Глянец/4/1061_синий глянец-оранжевый глянец.jpg' },
-      { name: '1062_синий глянец-жемчуг глянец', code: '1062', img: 'Комб_Глянец/4/1062_синий глянец-жемчуг глянец.jpg' },
-      { name: '1063_синий глянец-жемчуг глянец', code: '1063', img: 'Комб_Глянец/4/1063_синий глянец-жемчуг глянец.jpg' },
-      { name: '1064_синий глянец-кремовый глянец', code: '1064', img: 'Комб_Глянец/4/1064_синий глянец-кремовый глянец.jpg' },
-      { name: '1065_синий глянец-кремовый глянец', code: '1065', img: 'Комб_Глянец/4/1065_синий глянец-кремовый глянец.jpg' },
-      { name: '106_черный глянец-бирюзовый глянец', code: '106', img: 'Комб_Глянец/4/106_черный глянец-бирюзовый глянец.jpg' },
-      { name: '1070_бирюзовый глянец-белый глянец', code: '1070', img: 'Комб_Глянец/4/1070_бирюзовый глянец-белый глянец.jpg' },
-      { name: '1071_бирюзовый глянец-красный глянец', code: '1071', img: 'Комб_Глянец/4/1071_бирюзовый глянец-красный глянец.jpg' },
-      { name: '1072_бирюзовый глянец-синий глянец', code: '1072', img: 'Комб_Глянец/4/1072_бирюзовый глянец-синий глянец.jpg' },
-      { name: '1073_бирюзовый глянец-синий глянец', code: '1073', img: 'Комб_Глянец/4/1073_бирюзовый глянец-синий глянец.jpg' },
-      { name: '1074_бирюзовый глянец-оранжевый глянец', code: '1074', img: 'Комб_Глянец/4/1074_бирюзовый глянец-оранжевый глянец.jpg' },
-      { name: '1075_бирюзовый глянец-оранжевый глянец', code: '1075', img: 'Комб_Глянец/4/1075_бирюзовый глянец-оранжевый глянец.jpg' },
-      { name: '1076_бирюзовый глянец-жемчуг глянец', code: '1076', img: 'Комб_Глянец/4/1076_бирюзовый глянец-жемчуг глянец.jpg' },
-      { name: '1077_бирюзовый глянец-жемчуг глянец', code: '1077', img: 'Комб_Глянец/4/1077_бирюзовый глянец-жемчуг глянец.jpg' },
-      { name: '1078_бирюзовый глянец', code: '1078', img: 'Комб_Глянец/4/1078_бирюзовый глянец.jpg' },
-      { name: '1079_бирюзовый глянец-кремовый глянец', code: '1079', img: 'Комб_Глянец/4/1079_бирюзовый глянец-кремовый глянец.jpg' },
-      { name: '1080_бирюзовый глянец-кремовый глянец', code: '1080', img: 'Комб_Глянец/4/1080_бирюзовый глянец-кремовый глянец.jpg' },
-      { name: '1085_оранжевый глянец-белый глянец', code: '1085', img: 'Комб_Глянец/4/1085_оранжевый глянец-белый глянец.jpg' },
-      { name: '1086_оранжевый глянец-белый глянец', code: '1086', img: 'Комб_Глянец/4/1086_оранжевый глянец-белый глянец.jpg' },
-      { name: '1087_оранжевый глянец-красный глянец', code: '1087', img: 'Комб_Глянец/4/1087_оранжевый глянец-красный глянец.jpg' },
-      { name: '1088_оранжевый глянец-красный глянец', code: '1088', img: 'Комб_Глянец/4/1088_оранжевый глянец-красный глянец.jpg' },
-      { name: '1089_оранжевый глянец-синий глянец', code: '1089', img: 'Комб_Глянец/4/1089_оранжевый глянец-синий глянец.jpg' },
-      { name: '1090_оранжевый глянец-синий глянец', code: '1090', img: 'Комб_Глянец/4/1090_оранжевый глянец-синий глянец.jpg' },
-      { name: '1091_оранжевый глянец-бирюзовый глянец', code: '1091', img: 'Комб_Глянец/4/1091_оранжевый глянец-бирюзовый глянец.jpg' },
-      { name: '1092_оранжевый глянец-бирюзовый глянец', code: '1092', img: 'Комб_Глянец/4/1092_оранжевый глянец-бирюзовый глянец.jpg' },
-      { name: '1093_оранжевый глянец', code: '1093', img: 'Комб_Глянец/4/1093_оранжевый глянец.jpg' },
-      { name: '1094_оранжевый глянец-жемчуг глянец', code: '1094', img: 'Комб_Глянец/4/1094_оранжевый глянец-жемчуг глянец.jpg' },
-      { name: '1095_оранжевый глянец-жемчуг глянец', code: '1095', img: 'Комб_Глянец/4/1095_оранжевый глянец-жемчуг глянец.jpg' },
-      { name: '1096_оранжевый глянец-кремовый глянец', code: '1096', img: 'Комб_Глянец/4/1096_оранжевый глянец-кремовый глянец.jpg' },
-      { name: '1097_оранжевый глянец-кремовый глянец', code: '1097', img: 'Комб_Глянец/4/1097_оранжевый глянец-кремовый глянец.jpg' },
-      { name: '1098_оранжевый глянец-серый глянец', code: '1098', img: 'Комб_Глянец/4/1098_оранжевый глянец-серый глянец.jpg' },
-      { name: '1099_оранжевый глянец-серый глянец', code: '1099', img: 'Комб_Глянец/4/1099_оранжевый глянец-серый глянец.jpg' },
-      { name: '1100_жемчуг глянец-черный глянец', code: '1100', img: 'Комб_Глянец/4/1100_жемчуг глянец-черный глянец.jpg' },
-      { name: '1105_жемчуг глянец-красный глянец', code: '1105', img: 'Комб_Глянец/4/1105_жемчуг глянец-красный глянец.jpg' },
-      { name: '1106_жемчуг глянец-синий глянец', code: '1106', img: 'Комб_Глянец/4/1106_жемчуг глянец-синий глянец.jpg' },
-      { name: '1107_жемчуг глянец-бирюзовый глянец', code: '1107', img: 'Комб_Глянец/4/1107_жемчуг глянец-бирюзовый глянец.jpg' },
-      { name: '1108_жемчуг глянец-оранжевый глянец', code: '1108', img: 'Комб_Глянец/4/1108_жемчуг глянец-оранжевый глянец.jpg' },
-      { name: '1109_жемчуг глянец-оранжевый глянец', code: '1109', img: 'Комб_Глянец/4/1109_жемчуг глянец-оранжевый глянец.jpg' },
-      { name: '1110_жемчуг глянец-кремовый глянец', code: '1110', img: 'Комб_Глянец/4/1110_жемчуг глянец-кремовый глянец.jpg' },
-      { name: '1111_жемчуг глянец-серый глянец', code: '1111', img: 'Комб_Глянец/4/1111_жемчуг глянец-серый глянец.jpg' },
-      { name: '1112_жемчуг глянец-серый глянец', code: '1112', img: 'Комб_Глянец/4/1112_жемчуг глянец-серый глянец.jpg' },
-      { name: '1113_кремовый глянец-черный глянец', code: '1113', img: 'Комб_Глянец/4/1113_кремовый глянец-черный глянец.jpg' },
-      { name: '1114_кремовый глянец-черный глянец', code: '1114', img: 'Комб_Глянец/4/1114_кремовый глянец-черный глянец.jpg' },
-      { name: '1115_кремовый глянец-белый глянец', code: '1115', img: 'Комб_Глянец/4/1115_кремовый глянец-белый глянец.jpg' },
-      { name: '1116_кремовый глянец-белый глянец', code: '1116', img: 'Комб_Глянец/4/1116_кремовый глянец-белый глянец.jpg' },
-      { name: '1117_кремовый глянец-красный глянец', code: '1117', img: 'Комб_Глянец/4/1117_кремовый глянец-красный глянец.jpg' },
-      { name: '1118_кремовый глянец-красный глянец', code: '1118', img: 'Комб_Глянец/4/1118_кремовый глянец-красный глянец.jpg' },
-      { name: '1119_кремовый глянец-синий глянец', code: '1119', img: 'Комб_Глянец/4/1119_кремовый глянец-синий глянец.jpg' },
-      { name: '1123_кремовый глянец-оранжевый глянец', code: '1123', img: 'Комб_Глянец/4/1123_кремовый глянец-оранжевый глянец.jpg' },
-      { name: '1124_кремовый глянец-оранжевый глянец', code: '1124', img: 'Комб_Глянец/4/1124_кремовый глянец-оранжевый глянец.jpg' },
-      { name: '1125_кремовый глянец-жемчуг глянец', code: '1125', img: 'Комб_Глянец/4/1125_кремовый глянец-жемчуг глянец.jpg' },
-      { name: '1126_кремовый глянец-жемчуг глянец', code: '1126', img: 'Комб_Глянец/4/1126_кремовый глянец-жемчуг глянец.jpg' },
-      { name: '1127_кремовый глянец-серый глянец', code: '1127', img: 'Комб_Глянец/4/1127_кремовый глянец-серый глянец.jpg' },
-      { name: '1128_кремовый глянец-серый глянец', code: '1128', img: 'Комб_Глянец/4/1128_кремовый глянец-серый глянец.jpg' },
-      { name: '1129_серый глянец-черный глянец', code: '1129', img: 'Комб_Глянец/4/1129_серый глянец-черный глянец.jpg' },
-      { name: '112_красный глянец-белый глянец', code: '112', img: 'Комб_Глянец/4/112_красный глянец-белый глянец.jpg' },
-      { name: '1130_серый глянец-черный глянец', code: '1130', img: 'Комб_Глянец/4/1130_серый глянец-черный глянец.jpg' },
-      { name: '1131_серый глянец-белый глянец', code: '1131', img: 'Комб_Глянец/4/1131_серый глянец-белый глянец.jpg' },
-      { name: '1132_серый глянец-белый глянец', code: '1132', img: 'Комб_Глянец/4/1132_серый глянец-белый глянец.jpg' },
-      { name: '1133_серый глянец-красный глянец', code: '1133', img: 'Комб_Глянец/4/1133_серый глянец-красный глянец.jpg' },
-      { name: '1134_серый глянец-красный глянец', code: '1134', img: 'Комб_Глянец/4/1134_серый глянец-красный глянец.jpg' },
-      { name: '1135_серый глянец-синий глянец', code: '1135', img: 'Комб_Глянец/4/1135_серый глянец-синий глянец.jpg' },
-      { name: '1136_серый глянец-синий глянец', code: '1136', img: 'Комб_Глянец/4/1136_серый глянец-синий глянец.jpg' },
-      { name: '1137_серый глянец-бирюзовый глянец', code: '1137', img: 'Комб_Глянец/4/1137_серый глянец-бирюзовый глянец.jpg' },
-      { name: '1138_серый глянец-бирюзовый глянец', code: '1138', img: 'Комб_Глянец/4/1138_серый глянец-бирюзовый глянец.jpg' },
-      { name: '1143_серый глянец-кремовый глянец', code: '1143', img: 'Комб_Глянец/4/1143_серый глянец-кремовый глянец.jpg' },
-      { name: '1144_серый глянец', code: '1144', img: 'Комб_Глянец/4/1144_серый глянец.jpg' },
-      { name: '120_синий глянец', code: '120', img: 'Комб_Глянец/4/120_синий глянец.jpg' },
-      { name: '121_белый глянец', code: '121', img: 'Комб_Глянец/4/121_белый глянец.jpg' },
-      { name: '122_красный глянец', code: '122', img: 'Комб_Глянец/4/122_красный глянец.jpg' },
-      { name: '165_белый глянец-синий глянец', code: '165', img: 'Комб_Глянец/4/165_белый глянец-синий глянец.jpg' },
-      { name: '208_белый глянец-красный глянец', code: '208', img: 'Комб_Глянец/4/208_белый глянец-красный глянец.jpg' },
-      { name: '238_черный глянец-белый глянец', code: '238', img: 'Комб_Глянец/4/238_черный глянец-белый глянец.jpg' },
-      { name: '260_синий глянец-белый глянец', code: '260', img: 'Комб_Глянец/4/260_синий глянец-белый глянец.jpg' },
-      { name: '2663_Коричневый глянец', code: '2663', img: 'Комб_Глянец/4/2663_Коричневый глянец.jpg' },
-      { name: '2698_Кремовый глянец-коричневый глянец', code: '2698', img: 'Комб_Глянец/4/2698_Кремовый глянец-коричневый глянец.jpg' },
-      { name: '311_красный глянец-бирюзовый глянец', code: '311', img: 'Комб_Глянец/4/311_красный глянец-бирюзовый глянец.jpg' },
-      { name: '312_бирюзовый глянец-красный глянец', code: '312', img: 'Комб_Глянец/4/312_бирюзовый глянец-красный глянец.jpg' },
-      { name: '454_жемчуг глянец-синий глянец', code: '454', img: 'Комб_Глянец/4/454_жемчуг глянец-синий глянец.jpg' },
-      { name: '670_серый глянец-кремовый глянец', code: '670', img: 'Комб_Глянец/4/670_серый глянец-кремовый глянец.jpg' },
-      { name: '691_кремовый глянец', code: '691', img: 'Комб_Глянец/4/691_кремовый глянец.jpg' },
-      { name: '712_жемчуг глянец-кремовый глянец', code: '712', img: 'Комб_Глянец/4/712_жемчуг глянец-кремовый глянец.jpg' },
-      { name: '751_белый глянец-жемчуг глянец', code: '751', img: 'Комб_Глянец/4/751_белый глянец-жемчуг глянец.jpg' },
-      { name: '757_черный глянец-серый глянец', code: '757', img: 'Комб_Глянец/4/757_черный глянец-серый глянец.jpg' },
-      { name: '758_черный глянец-жемчуг глянец', code: '758', img: 'Комб_Глянец/4/758_черный глянец-жемчуг глянец.jpg' },
-      { name: '760_жемчуг глянец', code: '760', img: 'Комб_Глянец/4/760_жемчуг глянец.jpg' },
-      { name: '1150_черный глянец-бирюзовый глянец', code: '1150', img: 'Комб_Глянец/5/1150_черный глянец-бирюзовый глянец.jpg' },
-      { name: '1159_белый глянец-красный глянец', code: '1159', img: 'Комб_Глянец/5/1159_белый глянец-красный глянец.jpg' },
-      { name: '1160_красный глянец-белый глянец', code: '1160', img: 'Комб_Глянец/5/1160_красный глянец-белый глянец.jpg' },
-      { name: '1161_белый глянец-синий глянец', code: '1161', img: 'Комб_Глянец/5/1161_белый глянец-синий глянец.jpg' },
-      { name: '1171_белый глянец-серый глянец', code: '1171', img: 'Комб_Глянец/5/1171_белый глянец-серый глянец.jpg' },
-      { name: '1176_красный глянец-бирюзовый глянец', code: '1176', img: 'Комб_Глянец/5/1176_красный глянец-бирюзовый глянец.jpg' },
-      { name: '1177_бирюзовый глянец-красный глянец', code: '1177', img: 'Комб_Глянец/5/1177_бирюзовый глянец-красный глянец.jpg' },
-      { name: '1178_красный глянец-оранжевый глянец-', code: '1178', img: 'Комб_Глянец/5/1178_красный глянец-оранжевый глянец-.jpg' },
-      { name: '1190_оранжевый глянец-синий глянец', code: '1190', img: 'Комб_Глянец/5/1190_оранжевый глянец-синий глянец.jpg' },
-      { name: '1191_синий глянец-жемчуг глянец', code: '1191', img: 'Комб_Глянец/5/1191_синий глянец-жемчуг глянец.jpg' },
-      { name: '1410_кремовый глянец-оранжевый глянец', code: '1410', img: 'Комб_Глянец/5/1410_кремовый глянец-оранжевый глянец.jpg' },
-      { name: '1411_оранжевый глянец-серый глянец', code: '1411', img: 'Комб_Глянец/5/1411_оранжевый глянец-серый глянец.jpg' },
-      { name: '1420_серый глянец-кремовый глянец', code: '1420', img: 'Комб_Глянец/5/1420_серый глянец-кремовый глянец.jpg' },
-      { name: '1421_серый глянец', code: '1421', img: 'Комб_Глянец/5/1421_серый глянец.jpg' },
-      { name: '705_жемчуг глянец-черный глянец', code: '705', img: 'Комб_Глянец/5/705_жемчуг глянец-черный глянец.jpg' },
-      { name: '2710_Серый глянец-черный глянец', code: '2710', img: 'Комб_Глянец/6/2710_Серый глянец-черный глянец.jpg' },
-      { name: '2725_Белый глянец', code: '2725', img: 'Комб_Глянец/6/2725_Белый глянец.jpg' },
-      { name: '2728_Бирюзовый глянец', code: '2728', img: 'Комб_Глянец/6/2728_Бирюзовый глянец.jpg' },
-      { name: '2729_Синий глянец', code: '2729', img: 'Комб_Глянец/6/2729_Синий глянец.jpg' },
-      { name: '2730_Коричневый глянец', code: '2730', img: 'Комб_Глянец/6/2730_Коричневый глянец.jpg' }
-    ]
-  },
-  {
-    id: 'komb_glyanets_dzerkalo',
-    name: 'Комб. глянець дзеркало',
-    description: 'Комбіновані фасади глянець + дзеркало',
-    items: [
-      { name: '2040_бирюзовый глянец-зеркало серебро', code: '2040', img: 'Комб_Глянец_зеркало/2040_бирюзовый глянец-зеркало серебро.jpg' },
-      { name: '2041_бирюзовый глянец-зеркало графит', code: '2041', img: 'Комб_Глянец_зеркало/2041_бирюзовый глянец-зеркало графит.jpg' },
-      { name: '2681_Коричневый глянец-зеркало бронза', code: '2681', img: 'Комб_Глянец_зеркало/2681_Коричневый глянец-зеркало бронза.jpg' },
-      { name: '303_черный глянец-зеркало графит', code: '303', img: 'Комб_Глянец_зеркало/303_черный глянец-зеркало графит.jpg' },
-      { name: '393_жемчуг глянец-зеркало бронза', code: '393', img: 'Комб_Глянец_зеркало/393_жемчуг глянец-зеркало бронза.jpg' },
-      { name: '557_красный глянец-зеркало графит', code: '557', img: 'Комб_Глянец_зеркало/557_красный глянец-зеркало графит.jpg' },
-      { name: '642_серый глянец-зеркало графит', code: '642', img: 'Комб_Глянец_зеркало/642_серый глянец-зеркало графит.jpg' }
-    ]
-  },
-  {
-    id: 'komb_dsp',
-    name: 'Комб. ДСП',
-    description: 'Комбіновані фасади з ДСП',
-    items: [
-      { name: '128_дуб сонома светлый', code: '128', img: 'Комб_ДСП/128_дуб сонома светлый.jpg' },
-      { name: '1298_дуб сонома светлый - белое дерево', code: '1298', img: 'Комб_ДСП/1298_дуб сонома светлый - белое дерево.jpg' },
-      { name: '201_дуб сонома светлый', code: '201', img: 'Комб_ДСП/201_дуб сонома светлый.jpg' },
-      { name: '2694_Дуб экспрессив бронзовый-дуб сонома светлый', code: '2694', img: 'Комб_ДСП/2694_Дуб экспрессив бронзовый-дуб сонома светлый.jpg' },
-      { name: '2716_Дуб сонома светлый-дуб экспрессив бронзовый', code: '2716', img: 'Комб_ДСП/2716_Дуб сонома светлый-дуб экспрессив бронзовый.jpg' },
-      { name: '2737_Морское дерево Карбон', code: '2737', img: 'Комб_ДСП/2737_Морское дерево Карбон.jpg' },
-      { name: '2781_Серая Глина', code: '2781', img: 'Комб_ДСП/2781_Серая Глина.jpg' },
-      { name: '86_белое дерево', code: '86', img: 'Комб_ДСП/86_белое дерево.jpg' }
-    ]
-  },
-  {
-    id: 'komb_dsp_dzerkalo',
-    name: 'Комб. ДСП дзеркало',
-    description: 'Комбіновані фасади ДСП + дзеркало',
-    items: [
-      { name: '1212_белое дерево - зеркало серебро матовое', code: '1212', img: 'Комб_ДСП_Зеркало/1/1212_белое дерево - зеркало серебро матовое.jpg' },
-      { name: '1219_белое дерево - зеркало графит матовое', code: '1219', img: 'Комб_ДСП_Зеркало/1/1219_белое дерево - зеркало графит матовое.jpg' },
-      { name: '1220_дуб сонома светлый - зеркало графит матовое', code: '1220', img: 'Комб_ДСП_Зеркало/1/1220_дуб сонома светлый - зеркало графит матовое.jpg' },
-      { name: '1228_белое дерево - зеркало бронза матовое', code: '1228', img: 'Комб_ДСП_Зеркало/1/1228_белое дерево - зеркало бронза матовое.jpg' },
-      { name: '1229_дуб сонома светлый - зеркало бронза матовое', code: '1229', img: 'Комб_ДСП_Зеркало/1/1229_дуб сонома светлый - зеркало бронза матовое.jpg' },
-      { name: '198_дуб сонома светлый - зеркало серебро', code: '198', img: 'Комб_ДСП_Зеркало/1/198_дуб сонома светлый - зеркало серебро.jpg' },
-      { name: '2086_антрацит-зеркало серебро', code: '2086', img: 'Комб_ДСП_Зеркало/1/2086_антрацит-зеркало серебро.jpg' },
-      { name: '215_дуб сонома светлый - зеркало серебро матовое', code: '215', img: 'Комб_ДСП_Зеркало/1/215_дуб сонома светлый - зеркало серебро матовое.jpg' },
-      { name: '2164_антрацит-зеркало бронза', code: '2164', img: 'Комб_ДСП_Зеркало/1/2164_антрацит-зеркало бронза.jpg' },
-      { name: '2230_антрацит-зеркало графит', code: '2230', img: 'Комб_ДСП_Зеркало/1/2230_антрацит-зеркало графит.jpg' },
-      { name: '2528_дуб еспресив бронзовий_дзеркало ср?бло', code: '2528', img: 'Комб_ДСП_Зеркало/1/2528_дуб еспресив бронзовий_дзеркало ср?бло.jpg' },
-      { name: '2541_дуб крафт зотой-дзеркало ср?бло', code: '2541', img: 'Комб_ДСП_Зеркало/1/2541_дуб крафт зотой-дзеркало ср?бло.jpg' },
-      { name: '2587_дуб крафт белый-зеркало серебро', code: '2587', img: 'Комб_ДСП_Зеркало/1/2587_дуб крафт белый-зеркало серебро.jpg' },
-      { name: '2606_Дуб крафт белый-зеркало графит', code: '2606', img: 'Комб_ДСП_Зеркало/1/2606_Дуб крафт белый-зеркало графит.jpg' },
-      { name: '2680_Дуб крафт белый-зеркало бронза', code: '2680', img: 'Комб_ДСП_Зеркало/1/2680_Дуб крафт белый-зеркало бронза.jpg' },
-      { name: '644_белое дерево - зеркало графит', code: '644', img: 'Комб_ДСП_Зеркало/1/644_белое дерево - зеркало графит.jpg' },
-      { name: '1609_белое дерево-зеркало серебро матовое', code: '1609', img: 'Комб_ДСП_Зеркало/10/1609_белое дерево-зеркало серебро матовое.jpg' },
-      { name: '1610_белое дерево-зеркало графит матовое', code: '1610', img: 'Комб_ДСП_Зеркало/10/1610_белое дерево-зеркало графит матовое.jpg' },
-      { name: '180_дуб сонома светлый-зеркало серебро', code: '180', img: 'Комб_ДСП_Зеркало/10/180_дуб сонома светлый-зеркало серебро.jpg' },
-      { name: '204_дуб сонома светлый-зеркало серебро', code: '204', img: 'Комб_ДСП_Зеркало/10/204_дуб сонома светлый-зеркало серебро.jpg' },
-      { name: '2131_антрацит-зеркало серебро', code: '2131', img: 'Комб_ДСП_Зеркало/10/2131_антрацит-зеркало серебро.jpg' },
-      { name: '2216_антрацит-зеркало бронза', code: '2216', img: 'Комб_ДСП_Зеркало/10/2216_антрацит-зеркало бронза.jpg' },
-      { name: '226_белое дерево-зеркало серебро', code: '226', img: 'Комб_ДСП_Зеркало/10/226_белое дерево-зеркало серебро.jpg' },
-      { name: '2516_дуб крафт б?лий - дзеркало ср?бло', code: '2516', img: 'Комб_ДСП_Зеркало/10/2516_дуб крафт б?лий - дзеркало ср?бло.jpg' },
-      { name: '2519_дуб експресив бронзовий_дзеркало ср?бло', code: '2519', img: 'Комб_ДСП_Зеркало/10/2519_дуб експресив бронзовий_дзеркало ср?бло.jpg' },
-      { name: '2569_дуб крафт золотий-дзеркало ср?бло', code: '2569', img: 'Комб_ДСП_Зеркало/10/2569_дуб крафт золотий-дзеркало ср?бло.png' },
-      { name: '2595_Дуб крафт золотой-зеркало бронза', code: '2595', img: 'Комб_ДСП_Зеркало/10/2595_Дуб крафт золотой-зеркало бронза.jpg' },
-      { name: '2615_Дуб експресив бронзовый-зеркало бронза', code: '2615', img: 'Комб_ДСП_Зеркало/10/2615_Дуб експресив бронзовый-зеркало бронза.jpg' },
-      { name: '2746 дуб крафт белый - зеркало серебро матовое', code: '2746 дуб крафт белый - зеркало серебро матовое', img: 'Комб_ДСП_Зеркало/10/2746 дуб крафт белый - зеркало серебро матовое.jpg' },
-      { name: '2755_Дуб экспресив бронза - зеркало бронза матовое', code: '2755', img: 'Комб_ДСП_Зеркало/10/2755_Дуб экспресив бронза - зеркало бронза матовое.jpg' },
-      { name: '2784_Серая глина - зеркало серебро', code: '2784', img: 'Комб_ДСП_Зеркало/10/2784_Серая глина - зеркало серебро.jpg' },
-      { name: '2801_Серая глина - зеркало брона', code: '2801', img: 'Комб_ДСП_Зеркало/10/2801_Серая глина - зеркало брона.jpg' },
-      { name: '2824_Морское дерево карбон - зеркало графит', code: '2824', img: 'Комб_ДСП_Зеркало/10/2824_Морское дерево карбон - зеркало графит.jpg' },
-      { name: '2828_Дуб крафт белый - зеркало бронза', code: '2828', img: 'Комб_ДСП_Зеркало/10/2828_Дуб крафт белый - зеркало бронза.jpg' },
-      { name: '2837_Морское дерево карбон - зеркало бронза', code: '2837', img: 'Комб_ДСП_Зеркало/10/2837_Морское дерево карбон - зеркало бронза.jpg' },
-      { name: '2844_Серая глина - зеркало графит', code: '2844', img: 'Комб_ДСП_Зеркало/10/2844_Серая глина - зеркало графит.jpg' },
-      { name: '408_дуб сонома светлый-зеркало бронза', code: '408', img: 'Комб_ДСП_Зеркало/10/408_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '417_белое дерево-зеркало графит', code: '417', img: 'Комб_ДСП_Зеркало/10/417_белое дерево-зеркало графит.jpg' },
-      { name: '479_дуб сонома светлый-зеркало графит', code: '479', img: 'Комб_ДСП_Зеркало/10/479_дуб сонома светлый-зеркало графит.jpg' },
-      { name: '561_дуб сонома светлый-зеркало серебро матовое', code: '561', img: 'Комб_ДСП_Зеркало/10/561_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '2224_антрацит-зеркало бронза', code: '2224', img: 'Комб_ДСП_Зеркало/11/2224_антрацит-зеркало бронза.jpg' },
-      { name: '2499_белое дерево-зеркало графит', code: '2499', img: 'Комб_ДСП_Зеркало/11/2499_белое дерево-зеркало графит.jpg' },
-      { name: '2500_зеркало графит-дуб сонома светлый', code: '2500', img: 'Комб_ДСП_Зеркало/11/2500_зеркало графит-дуб сонома светлый.jpg' },
-      { name: '2502_зеркало бронза-дуб сонома светлый', code: '2502', img: 'Комб_ДСП_Зеркало/11/2502_зеркало бронза-дуб сонома светлый.jpg' },
-      { name: '2535_дуб крафт б?лий-дзеркало ср?бло', code: '2535', img: 'Комб_ДСП_Зеркало/11/2535_дуб крафт б?лий-дзеркало ср?бло.jpg' },
-      { name: '2545_дуб крафт золотий-дзеркало ср?бло', code: '2545', img: 'Комб_ДСП_Зеркало/11/2545_дуб крафт золотий-дзеркало ср?бло.jpg' },
-      { name: '2578_антрацит_зеркало графит', code: '2578', img: 'Комб_ДСП_Зеркало/11/2578_антрацит_зеркало графит.jpg' },
-      { name: '2758_Морское дерево Карбон - зеркало серебро', code: '2758', img: 'Комб_ДСП_Зеркало/11/2758_Морское дерево Карбон - зеркало серебро.jpg' },
-      { name: '2777_Дуб крафт белый - зеркало графит', code: '2777', img: 'Комб_ДСП_Зеркало/11/2777_Дуб крафт белый - зеркало графит.jpg' },
-      { name: '2813_Серая глина - зеркало серебро', code: '2813', img: 'Комб_ДСП_Зеркало/11/2813_Серая глина - зеркало серебро.jpg' },
-      { name: '2825_Морское дерево карбон - зеркало графит', code: '2825', img: 'Комб_ДСП_Зеркало/11/2825_Морское дерево карбон - зеркало графит.jpg' },
-      { name: '2651_Дуб крафт белый-зеркало серебро', code: '2651', img: 'Комб_ДСП_Зеркало/12/2651_Дуб крафт белый-зеркало серебро.jpg' },
-      { name: '1257_белое дерево - зеркало бронза матовое', code: '1257', img: 'Комб_ДСП_Зеркало/2/1257_белое дерево - зеркало бронза матовое.jpg' },
-      { name: '1258_дуб сонома светлый - зеркало бронза матовое', code: '1258', img: 'Комб_ДСП_Зеркало/2/1258_дуб сонома светлый - зеркало бронза матовое.jpg' },
-      { name: '1729_белое дерево-зеркало серебро матовое', code: '1729', img: 'Комб_ДСП_Зеркало/3/1729_белое дерево-зеркало серебро матовое.jpg' },
-      { name: '1730_белое дерево-зеркало графит', code: '1730', img: 'Комб_ДСП_Зеркало/3/1730_белое дерево-зеркало графит.jpg' },
-      { name: '2669_Дуб крафт белый-зеркало графит', code: '2669', img: 'Комб_ДСП_Зеркало/3/2669_Дуб крафт белый-зеркало графит.jpg' },
-      { name: '2692_Дуб крафт белый-зеркало бронза', code: '2692', img: 'Комб_ДСП_Зеркало/3/2692_Дуб крафт белый-зеркало бронза.jpg' },
-      { name: '604_дуб сонома светлый-зеркало графит', code: '604', img: 'Комб_ДСП_Зеркало/3/604_дуб сонома светлый-зеркало графит.jpg' },
-      { name: '170_белое дерево-зеркало графит', code: '170', img: 'Комб_ДСП_Зеркало/4/170_белое дерево-зеркало графит.jpg' },
-      { name: '1768_белое дерево-зеркало серебро матовое', code: '1768', img: 'Комб_ДСП_Зеркало/4/1768_белое дерево-зеркало серебро матовое.jpg' },
-      { name: '1769_белое дерево-зеркало графит матовое', code: '1769', img: 'Комб_ДСП_Зеркало/4/1769_белое дерево-зеркало графит матовое.jpg' },
-      { name: '1770_белое дерево-зеркало бронза', code: '1770', img: 'Комб_ДСП_Зеркало/4/1770_белое дерево-зеркало бронза.jpg' },
-      { name: '1771_белое дерево-зеркало бронза матовое', code: '1771', img: 'Комб_ДСП_Зеркало/4/1771_белое дерево-зеркало бронза матовое.jpg' },
-      { name: '1776_дуб сонома светлый-зеркало бронза', code: '1776', img: 'Комб_ДСП_Зеркало/4/1776_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '1777_дуб сонома светлый-зеркало бронза матовое', code: '1777', img: 'Комб_ДСП_Зеркало/4/1777_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '2151_антрацит-зеркало серебро', code: '2151', img: 'Комб_ДСП_Зеркало/4/2151_антрацит-зеркало серебро.jpg' },
-      { name: '2175_антрацит-зеркало бронза', code: '2175', img: 'Комб_ДСП_Зеркало/4/2175_антрацит-зеркало бронза.jpg' },
-      { name: '2176_орех болонья тёмный-зеркало бронза', code: '2176', img: 'Комб_ДСП_Зеркало/4/2176_орех болонья тёмный-зеркало бронза.jpg' },
-      { name: '2177_дуб шамони тёмный-зеркало бронза', code: '2177', img: 'Комб_ДСП_Зеркало/4/2177_дуб шамони тёмный-зеркало бронза.jpg' },
-      { name: '2240_антрацит-зеркало графит', code: '2240', img: 'Комб_ДСП_Зеркало/4/2240_антрацит-зеркало графит.jpg' },
-      { name: '2514_дуб крафт б?лий - дзеркало ср?бло', code: '2514', img: 'Комб_ДСП_Зеркало/4/2514_дуб крафт б?лий - дзеркало ср?бло.jpg' },
-      { name: '2573_дуб експресив бронзовий_дзеркало ср?бло', code: '2573', img: 'Комб_ДСП_Зеркало/4/2573_дуб експресив бронзовий_дзеркало ср?бло.jpg' },
-      { name: '2593_Дуб крафт белый-зеркало серебро', code: '2593', img: 'Комб_ДСП_Зеркало/4/2593_Дуб крафт белый-зеркало серебро.jpg' },
-      { name: '2596_Дуб крафт золотой-зеркало серебро', code: '2596', img: 'Комб_ДСП_Зеркало/4/2596_Дуб крафт золотой-зеркало серебро.jpg' },
-      { name: '2745 Морское дерево Карбон - зеркало серебро', code: '2745 Морское дерево Карбон - зеркало серебро', img: 'Комб_ДСП_Зеркало/4/2745 Морское дерево Карбон - зеркало серебро.jpg' },
-      { name: '2789_Серая глина - зеркало серебро', code: '2789', img: 'Комб_ДСП_Зеркало/4/2789_Серая глина - зеркало серебро.jpg' },
-      { name: '281_белое дерево-зеркало серебро', code: '281', img: 'Комб_ДСП_Зеркало/4/281_белое дерево-зеркало серебро.jpg' },
-      { name: '2823_Серая глина - зеркало бронза', code: '2823', img: 'Комб_ДСП_Зеркало/4/2823_Серая глина - зеркало бронза.jpg' },
-      { name: '2826_дуб крафт золотой - зеркало бронза', code: '2826', img: 'Комб_ДСП_Зеркало/4/2826_дуб крафт золотой - зеркало бронза.jpg' },
-      { name: '2836_Дуб крафт белый - зеркало графит', code: '2836', img: 'Комб_ДСП_Зеркало/4/2836_Дуб крафт белый - зеркало графит.jpg' },
-      { name: '181_дуб сонома светлый-зеркало серебро', code: '181', img: 'Комб_ДСП_Зеркало/5/181_дуб сонома светлый-зеркало серебро.jpg' },
-      { name: '1839_белое дерево-зеркало серебро матовое', code: '1839', img: 'Комб_ДСП_Зеркало/5/1839_белое дерево-зеркало серебро матовое.jpg' },
-      { name: '1840_белое дерево-зеркало серебро матовое', code: '1840', img: 'Комб_ДСП_Зеркало/5/1840_белое дерево-зеркало серебро матовое.jpg' },
-      { name: '1841_белое дерево-зеркало графит', code: '1841', img: 'Комб_ДСП_Зеркало/5/1841_белое дерево-зеркало графит.jpg' },
-      { name: '1842_белое дерево-зеркало графит', code: '1842', img: 'Комб_ДСП_Зеркало/5/1842_белое дерево-зеркало графит.jpg' },
-      { name: '1843_белое дерево-зеркало графит матовое', code: '1843', img: 'Комб_ДСП_Зеркало/5/1843_белое дерево-зеркало графит матовое.jpg' },
-      { name: '1844_белое дерево-зеркало графит матовое', code: '1844', img: 'Комб_ДСП_Зеркало/5/1844_белое дерево-зеркало графит матовое.jpg' },
-      { name: '1845_белое дерево-зеркало бронза', code: '1845', img: 'Комб_ДСП_Зеркало/5/1845_белое дерево-зеркало бронза.jpg' },
-      { name: '1846_белое дерево-зеркало бронза', code: '1846', img: 'Комб_ДСП_Зеркало/5/1846_белое дерево-зеркало бронза.jpg' },
-      { name: '1847_белое дерево-зеркало бронза матовое', code: '1847', img: 'Комб_ДСП_Зеркало/5/1847_белое дерево-зеркало бронза матовое.jpg' },
-      { name: '1848_белое дерево-зеркало бронза матовое', code: '1848', img: 'Комб_ДСП_Зеркало/5/1848_белое дерево-зеркало бронза матовое.jpg' },
-      { name: '1849_дуб сонома светлый-зеркало серебро матовое', code: '1849', img: 'Комб_ДСП_Зеркало/5/1849_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '1850_дуб сонома светлый-зеркало серебро матовое', code: '1850', img: 'Комб_ДСП_Зеркало/5/1850_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '1855_дуб сонома светлый-зеркало бронза', code: '1855', img: 'Комб_ДСП_Зеркало/5/1855_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '1856_дуб сонома светлый-зеркало бронза', code: '1856', img: 'Комб_ДСП_Зеркало/5/1856_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '1857_дуб сонома светлый-зеркало бронза матовое', code: '1857', img: 'Комб_ДСП_Зеркало/5/1857_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '1858_дуб сонома светлый-зеркало бронза матовое', code: '1858', img: 'Комб_ДСП_Зеркало/5/1858_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '2158_антрацит-зеркало серебро', code: '2158', img: 'Комб_ДСП_Зеркало/5/2158_антрацит-зеркало серебро.jpg' },
-      { name: '2159_антрацит-зеркало серебро', code: '2159', img: 'Комб_ДСП_Зеркало/5/2159_антрацит-зеркало серебро.jpg' },
-      { name: '2180_антрацит-зеркало бронза', code: '2180', img: 'Комб_ДСП_Зеркало/5/2180_антрацит-зеркало бронза.jpg' },
-      { name: '2181_антрацит-зеркало бронза', code: '2181', img: 'Комб_ДСП_Зеркало/5/2181_антрацит-зеркало бронза.jpg' },
-      { name: '2248_антрацит-зеркало графит', code: '2248', img: 'Комб_ДСП_Зеркало/5/2248_антрацит-зеркало графит.jpg' },
-      { name: '2249_антрацит-зеркало графит', code: '2249', img: 'Комб_ДСП_Зеркало/5/2249_антрацит-зеркало графит.jpg' },
-      { name: '2523_дуб крафт б?лий - дзеркало ср?бло', code: '2523', img: 'Комб_ДСП_Зеркало/5/2523_дуб крафт б?лий - дзеркало ср?бло.jpg' },
-      { name: '2524_дуб крафт б?лий - дзеркало ср?бло', code: '2524', img: 'Комб_ДСП_Зеркало/5/2524_дуб крафт б?лий - дзеркало ср?бло.jpg' },
-      { name: '2591_дуб експресив бронзовый_зеркало серебро', code: '2591', img: 'Комб_ДСП_Зеркало/5/2591_дуб експресив бронзовый_зеркало серебро.jpg' },
-      { name: '261_дуб сонома светлый-зеркало серебро', code: '261', img: 'Комб_ДСП_Зеркало/5/261_дуб сонома светлый-зеркало серебро.jpg' },
-      { name: '2657_Дуб експрессив бронзовый-зеркало бронза', code: '2657', img: 'Комб_ДСП_Зеркало/5/2657_Дуб експрессив бронзовый-зеркало бронза.jpg' },
-      { name: '2671_Дуб крафт белый-зеркало серебро матовое', code: '2671', img: 'Комб_ДСП_Зеркало/5/2671_Дуб крафт белый-зеркало серебро матовое.jpg' },
-      { name: '2672_Дуб крафт белый-зеркало серебро матовое', code: '2672', img: 'Комб_ДСП_Зеркало/5/2672_Дуб крафт белый-зеркало серебро матовое.jpg' },
-      { name: '2682_Дуб крафт белый-зеркало графит', code: '2682', img: 'Комб_ДСП_Зеркало/5/2682_Дуб крафт белый-зеркало графит.jpg' },
-      { name: '2683_Дуб крафт белый-зеркало графит', code: '2683', img: 'Комб_ДСП_Зеркало/5/2683_Дуб крафт белый-зеркало графит.jpg' },
-      { name: '2756_Морское дерево карбон - зеркало серебро', code: '2756', img: 'Комб_ДСП_Зеркало/5/2756_Морское дерево карбон - зеркало серебро.jpg' },
-      { name: '2757_Морское дерево карбон - зеркало серебро', code: '2757', img: 'Комб_ДСП_Зеркало/5/2757_Морское дерево карбон - зеркало серебро.jpg' },
-      { name: '2774_Дуб крафт белый - зеркало бронза', code: '2774', img: 'Комб_ДСП_Зеркало/5/2774_Дуб крафт белый - зеркало бронза.jpg' },
-      { name: '2775_Дуб крафт белый - зеркало бронза', code: '2775', img: 'Комб_ДСП_Зеркало/5/2775_Дуб крафт белый - зеркало бронза.jpg' },
-      { name: '2785_Серая глина - зеркало серебро', code: '2785', img: 'Комб_ДСП_Зеркало/5/2785_Серая глина - зеркало серебро.jpg' },
-      { name: '2786_Серая глина - зеркало серебро', code: '2786', img: 'Комб_ДСП_Зеркало/5/2786_Серая глина - зеркало серебро.jpg' },
-      { name: '2832_Морское дерево карбон - зеркало бронза', code: '2832', img: 'Комб_ДСП_Зеркало/5/2832_Морское дерево карбон - зеркало бронза.jpg' },
-      { name: '2833_Морское дерево карбон - зеркало бронза', code: '2833', img: 'Комб_ДСП_Зеркало/5/2833_Морское дерево карбон - зеркало бронза.jpg' },
-      { name: '559_белое дерево-зеркало серебро', code: '559', img: 'Комб_ДСП_Зеркало/5/559_белое дерево-зеркало серебро.jpg' },
-      { name: '560_белое дерево-зеркало серебро', code: '560', img: 'Комб_ДСП_Зеркало/5/560_белое дерево-зеркало серебро.jpg' },
-      { name: '1922_белое дерево-зеркало графит матовое', code: '1922', img: 'Комб_ДСП_Зеркало/6/1922_белое дерево-зеркало графит матовое.jpg' },
-      { name: '1923_белое дерево-зеркало бронза', code: '1923', img: 'Комб_ДСП_Зеркало/6/1923_белое дерево-зеркало бронза.jpg' },
-      { name: '1924_белое дерево-зеркало бронза', code: '1924', img: 'Комб_ДСП_Зеркало/6/1924_белое дерево-зеркало бронза.jpg' },
-      { name: '1929_дуб сонома светлый-зеркало серебро матовое', code: '1929', img: 'Комб_ДСП_Зеркало/6/1929_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '1933_дуб сонома светлый-зеркало графит матовое', code: '1933', img: 'Комб_ДСП_Зеркало/6/1933_дуб сонома светлый-зеркало графит матовое.jpg' },
-      { name: '1934_дуб сонома светлый-зеркало графит матовое', code: '1934', img: 'Комб_ДСП_Зеркало/6/1934_дуб сонома светлый-зеркало графит матовое.jpg' },
-      { name: '1935_дуб сонома светлый-зеркало бронза матовое', code: '1935', img: 'Комб_ДСП_Зеркало/6/1935_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '1936_дуб сонома светлый-зеркало бронза матовое', code: '1936', img: 'Комб_ДСП_Зеркало/6/1936_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '2061_антрацит-зеркало серебро', code: '2061', img: 'Комб_ДСП_Зеркало/6/2061_антрацит-зеркало серебро.jpg' },
-      { name: '2568_дуб еспресив бронзовий_дзеркало ср?бло', code: '2568', img: 'Комб_ДСП_Зеркало/6/2568_дуб еспресив бронзовий_дзеркало ср?бло.jpg' },
-      { name: '2622_Дуб крафт белый-зеркало графит', code: '2622', img: 'Комб_ДСП_Зеркало/6/2622_Дуб крафт белый-зеркало графит.jpg' },
-      { name: '646_белое дерево-зеркало графит', code: '646', img: 'Комб_ДСП_Зеркало/6/646_белое дерево-зеркало графит.jpg' },
-      { name: '647_белое дерево-зеркало графит', code: '647', img: 'Комб_ДСП_Зеркало/6/647_белое дерево-зеркало графит.jpg' },
-      { name: '754_дуб сонома светлый-зеркало бронза', code: '754', img: 'Комб_ДСП_Зеркало/6/754_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '755_дуб сонома светлый-зеркало бронза', code: '755', img: 'Комб_ДСП_Зеркало/6/755_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '2009_белое дерево-зеркало графит', code: '2009', img: 'Комб_ДСП_Зеркало/7/2009_белое дерево-зеркало графит.jpg' },
-      { name: '2010_белое дерево-зеркало графит матовое', code: '2010', img: 'Комб_ДСП_Зеркало/7/2010_белое дерево-зеркало графит матовое.jpg' },
-      { name: '2011_белое дерево-зеркало графит матовое', code: '2011', img: 'Комб_ДСП_Зеркало/7/2011_белое дерево-зеркало графит матовое.jpg' },
-      { name: '2012_белое дерево-зеркало бронза', code: '2012', img: 'Комб_ДСП_Зеркало/7/2012_белое дерево-зеркало бронза.jpg' },
-      { name: '2013_белое дерево-зеркало бронза', code: '2013', img: 'Комб_ДСП_Зеркало/7/2013_белое дерево-зеркало бронза.jpg' },
-      { name: '2018_дуб сонома светлый-зеркало серебро матовое', code: '2018', img: 'Комб_ДСП_Зеркало/7/2018_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '2019_дуб сонома светлый-зеркало серебро матовое', code: '2019', img: 'Комб_ДСП_Зеркало/7/2019_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '2020_дуб сонома светлый-зеркало графит', code: '2020', img: 'Комб_ДСП_Зеркало/7/2020_дуб сонома светлый-зеркало графит.jpg' },
-      { name: '2021_дуб сонома светлый-зеркало графит', code: '2021', img: 'Комб_ДСП_Зеркало/7/2021_дуб сонома светлый-зеркало графит.jpg' },
-      { name: '2022_дуб сонома светлый-зеркало графит матовое', code: '2022', img: 'Комб_ДСП_Зеркало/7/2022_дуб сонома светлый-зеркало графит матовое.jpg' },
-      { name: '2023_дуб сонома светлый-зеркало графит матовое', code: '2023', img: 'Комб_ДСП_Зеркало/7/2023_дуб сонома светлый-зеркало графит матовое.jpg' },
-      { name: '2025_дуб сонома светлый-зеркало бронза', code: '2025', img: 'Комб_ДСП_Зеркало/7/2025_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '2026_дуб сонома светлый-зеркало бронза матовое', code: '2026', img: 'Комб_ДСП_Зеркало/7/2026_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '2090_антрацит-зеркало графит', code: '2090', img: 'Комб_ДСП_Зеркало/7/2090_антрацит-зеркало графит.jpg' },
-      { name: '2145_антрацит-зеркало серебро', code: '2145', img: 'Комб_ДСП_Зеркало/7/2145_антрацит-зеркало серебро.jpg' },
-      { name: '2196_антрацит-зеркало бронза', code: '2196', img: 'Комб_ДСП_Зеркало/7/2196_антрацит-зеркало бронза.jpg' },
-      { name: '2197_антрацит-зеркало бронза', code: '2197', img: 'Комб_ДСП_Зеркало/7/2197_антрацит-зеркало бронза.jpg' },
-      { name: '2515_дуб крафт б?лий - дзеркало ср?бло', code: '2515', img: 'Комб_ДСП_Зеркало/7/2515_дуб крафт б?лий - дзеркало ср?бло.jpg' },
-      { name: '2522_дуб крафт белый - дзеркало ср?бло', code: '2522', img: 'Комб_ДСП_Зеркало/7/2522_дуб крафт белый - дзеркало ср?бло.jpg' },
-      { name: '2574_дуб крафт золотой - дзеркало ср?бло', code: '2574', img: 'Комб_ДСП_Зеркало/7/2574_дуб крафт золотой - дзеркало ср?бло.jpg' },
-      { name: '2575_дуб крафт золотой - дзеркало ср?бло', code: '2575', img: 'Комб_ДСП_Зеркало/7/2575_дуб крафт золотой - дзеркало ср?бло.jpg' },
-      { name: '2584_дуб експресив бронзовии? - дзеркало ср?бло', code: '2584', img: 'Комб_ДСП_Зеркало/7/2584_дуб експресив бронзовии? - дзеркало ср?бло.jpg' },
-      { name: '2670_Дуб крафт белый-зеркало графит', code: '2670', img: 'Комб_ДСП_Зеркало/7/2670_Дуб крафт белый-зеркало графит.jpg' },
-      { name: '2678_Дуб крафт золотой-зеркало бронза', code: '2678', img: 'Комб_ДСП_Зеркало/7/2678_Дуб крафт золотой-зеркало бронза.jpg' },
-      { name: '2679_Дуб крафт золотой-зеркало бронза', code: '2679', img: 'Комб_ДСП_Зеркало/7/2679_Дуб крафт золотой-зеркало бронза.jpg' },
-      { name: '2688_Дуб експрессив бронзовый-зеркало графит', code: '2688', img: 'Комб_ДСП_Зеркало/7/2688_Дуб експрессив бронзовый-зеркало графит.jpg' },
-      { name: '2689_Дуб експрессив бронзовый-зеркало графит', code: '2689', img: 'Комб_ДСП_Зеркало/7/2689_Дуб експрессив бронзовый-зеркало графит.jpg' },
-      { name: '2753_Морское дерево Карбон - зеркало серебро', code: '2753', img: 'Комб_ДСП_Зеркало/7/2753_Морское дерево Карбон - зеркало серебро.jpg' },
-      { name: '2754_Морское дерево Карбон - зеркало серебро', code: '2754', img: 'Комб_ДСП_Зеркало/7/2754_Морское дерево Карбон - зеркало серебро.jpg' },
-      { name: '2782_Серая глина - зеркало серебро', code: '2782', img: 'Комб_ДСП_Зеркало/7/2782_Серая глина - зеркало серебро.jpg' },
-      { name: '2783_Серая глина - зеркало серебро', code: '2783', img: 'Комб_ДСП_Зеркало/7/2783_Серая глина - зеркало серебро.jpg' },
-      { name: '2806_Серая глина - зеркало бронза', code: '2806', img: 'Комб_ДСП_Зеркало/7/2806_Серая глина - зеркало бронза.jpg' },
-      { name: '2807_Серая глина - зеркало бронза', code: '2807', img: 'Комб_ДСП_Зеркало/7/2807_Серая глина - зеркало бронза.jpg' },
-      { name: '2841_Дуб Крафт золотой - зеркало графит', code: '2841', img: 'Комб_ДСП_Зеркало/7/2841_Дуб Крафт золотой - зеркало графит.jpg' },
-      { name: '2842_Дуб Крафт золотой - зеркало графит', code: '2842', img: 'Комб_ДСП_Зеркало/7/2842_Дуб Крафт золотой - зеркало графит.jpg' },
-      { name: '749_дуб сонома светлый-зеркало бронза', code: '749', img: 'Комб_ДСП_Зеркало/7/749_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '1677_белое дерево-зеркало графит', code: '1677', img: 'Комб_ДСП_Зеркало/8/1677_белое дерево-зеркало графит.jpg' },
-      { name: '1679_белое дерево-зеркало графит матовое', code: '1679', img: 'Комб_ДСП_Зеркало/8/1679_белое дерево-зеркало графит матовое.jpg' },
-      { name: '1680_белое дерево-зеркало графит матовое', code: '1680', img: 'Комб_ДСП_Зеркало/8/1680_белое дерево-зеркало графит матовое.jpg' },
-      { name: '1681_белое дерево-зеркало бронза', code: '1681', img: 'Комб_ДСП_Зеркало/8/1681_белое дерево-зеркало бронза.jpg' },
-      { name: '1682_белое дерево-зеркало бронза', code: '1682', img: 'Комб_ДСП_Зеркало/8/1682_белое дерево-зеркало бронза.jpg' },
-      { name: '1683_белое дерево-зеркало бронза матовое', code: '1683', img: 'Комб_ДСП_Зеркало/8/1683_белое дерево-зеркало бронза матовое.jpg' },
-      { name: '1684_белое дерево-зеркало бронза матовое', code: '1684', img: 'Комб_ДСП_Зеркало/8/1684_белое дерево-зеркало бронза матовое.jpg' },
-      { name: '1689_дуб сонома светлый-зеркало графит матовое', code: '1689', img: 'Комб_ДСП_Зеркало/8/1689_дуб сонома светлый-зеркало графит матовое.jpg' },
-      { name: '1690_дуб сонома светлый-зеркало графит матовое', code: '1690', img: 'Комб_ДСП_Зеркало/8/1690_дуб сонома светлый-зеркало графит матовое.jpg' },
-      { name: '1691_дуб сонома светлый-зеркало бронза матовое', code: '1691', img: 'Комб_ДСП_Зеркало/8/1691_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '1692_дуб сонома светлый-зеркало бронза матовое', code: '1692', img: 'Комб_ДСП_Зеркало/8/1692_дуб сонома светлый-зеркало бронза матовое.jpg' },
-      { name: '1766_NS антроцит - зеркало графит', code: '1766', img: 'Комб_ДСП_Зеркало/8/1766_NS антроцит - зеркало графит.jpg' },
-      { name: '2111_антрацит-зеркало серебро', code: '2111', img: 'Комб_ДСП_Зеркало/8/2111_антрацит-зеркало серебро.jpg' },
-      { name: '2112_зеркало серебро-антрацит', code: '2112', img: 'Комб_ДСП_Зеркало/8/2112_зеркало серебро-антрацит.jpg' },
-      { name: '2610_Дуб крафт золотой-зеркало серебро', code: '2610', img: 'Комб_ДСП_Зеркало/8/2610_Дуб крафт золотой-зеркало серебро.jpg' },
-      { name: '2611_Дуб крафт белый-зеркало серебро', code: '2611', img: 'Комб_ДСП_Зеркало/8/2611_Дуб крафт белый-зеркало серебро.jpg' },
-      { name: '2612_Дуб крафт белый-зеркало серебро', code: '2612', img: 'Комб_ДСП_Зеркало/8/2612_Дуб крафт белый-зеркало серебро.jpg' },
-      { name: '2696_Дуб крафт белый-зеркало серебро матовое', code: '2696', img: 'Комб_ДСП_Зеркало/8/2696_Дуб крафт белый-зеркало серебро матовое.jpg' },
-      { name: '2702_Дуб крафт золотой-зеркало графит', code: '2702', img: 'Комб_ДСП_Зеркало/8/2702_Дуб крафт золотой-зеркало графит.jpg' },
-      { name: '2703_Дуб крафт золотой-зеркало графит', code: '2703', img: 'Комб_ДСП_Зеркало/8/2703_Дуб крафт золотой-зеркало графит.jpg' },
-      { name: '270_белое дерево-зеркало серебро матовое', code: '270', img: 'Комб_ДСП_Зеркало/8/270_белое дерево-зеркало серебро матовое.jpg' },
-      { name: '271_белое дерево-зеркало серебро матовое', code: '271', img: 'Комб_ДСП_Зеркало/8/271_белое дерево-зеркало серебро матовое.jpg' },
-      { name: '2731_дуб экспресив бронза - зеркало бронза', code: '2731', img: 'Комб_ДСП_Зеркало/8/2731_дуб экспресив бронза - зеркало бронза.jpg' },
-      { name: '2732_ дуб экспресив бронза - зеркало бронза', code: '2732', img: 'Комб_ДСП_Зеркало/8/2732_ дуб экспресив бронза - зеркало бронза.jpg' },
-      { name: '2762_ Морское дерево Карбон - зеркало бронза', code: '2762', img: 'Комб_ДСП_Зеркало/8/2762_ Морское дерево Карбон - зеркало бронза.jpg' },
-      { name: '2763_ Морское дерево Карбон - зеркало бронза', code: '2763', img: 'Комб_ДСП_Зеркало/8/2763_ Морское дерево Карбон - зеркало бронза.jpg' },
-      { name: '2764_ Моркое дерево Карбон - зеркало бронза', code: '2764', img: 'Комб_ДСП_Зеркало/8/2764_ Моркое дерево Карбон - зеркало бронза.jpg' },
-      { name: '2767_ Морское дерево Карбон - зеркало серебро', code: '2767', img: 'Комб_ДСП_Зеркало/8/2767_ Морское дерево Карбон - зеркало серебро.jpg' },
-      { name: '2768_ Морское дерево Карбон - зеркало серебро', code: '2768', img: 'Комб_ДСП_Зеркало/8/2768_ Морское дерево Карбон - зеркало серебро.jpg' },
-      { name: '2769_Морское дерево Карбон -зеркало серебро', code: '2769', img: 'Комб_ДСП_Зеркало/8/2769_Морское дерево Карбон -зеркало серебро.jpg' },
-      { name: '2772_Белое дерево - зеркало графит', code: '2772', img: 'Комб_ДСП_Зеркало/8/2772_Белое дерево - зеркало графит.jpg' },
-      { name: '2846_Дуб крафт золотой_зеркало бронза', code: '2846', img: 'Комб_ДСП_Зеркало/8/2846_Дуб крафт золотой_зеркало бронза.jpg' },
-      { name: '2847_Дуб крафт золотой_зеркало бронза', code: '2847', img: 'Комб_ДСП_Зеркало/8/2847_Дуб крафт золотой_зеркало бронза.jpg' },
-      { name: '295_дуб сонома светлый-зеркало серебро матовое', code: '295', img: 'Комб_ДСП_Зеркало/8/295_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '306_белое дерево-зеркало серебро', code: '306', img: 'Комб_ДСП_Зеркало/8/306_белое дерево-зеркало серебро.jpg' },
-      { name: '307_белое дерево-зеркало серебро', code: '307', img: 'Комб_ДСП_Зеркало/8/307_белое дерево-зеркало серебро.jpg' },
-      { name: '394_дуб сонома светлый-зеркало серебро', code: '394', img: 'Комб_ДСП_Зеркало/8/394_дуб сонома светлый-зеркало серебро.jpg' },
-      { name: '397_дуб сонома светлый-зеркало серебро', code: '397', img: 'Комб_ДСП_Зеркало/8/397_дуб сонома светлый-зеркало серебро.jpg' },
-      { name: '761_дуб сонома светлый-зеркало бронза', code: '761', img: 'Комб_ДСП_Зеркало/8/761_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '763_дуб сонома светлый-зеркало бронза', code: '763', img: 'Комб_ДСП_Зеркало/8/763_дуб сонома светлый-зеркало бронза.jpg' },
-      { name: '1370_белое дерево-зеркало серебро', code: '1370', img: 'Комб_ДСП_Зеркало/9/1370_белое дерево-зеркало серебро.jpg' },
-      { name: '1379_белое дерево-зеркало бронза матовое', code: '1379', img: 'Комб_ДСП_Зеркало/9/1379_белое дерево-зеркало бронза матовое.jpg' },
-      { name: '1380_белое дерево-зеркало бронза матовое', code: '1380', img: 'Комб_ДСП_Зеркало/9/1380_белое дерево-зеркало бронза матовое.jpg' },
-      { name: '2130_зеркало серебро-антрацит', code: '2130', img: 'Комб_ДСП_Зеркало/9/2130_зеркало серебро-антрацит.jpg' },
-      { name: '2212_антрацит-зеркало бронза', code: '2212', img: 'Комб_ДСП_Зеркало/9/2212_антрацит-зеркало бронза.jpg' },
-      { name: '2213_зеркало бронза-антрацит', code: '2213', img: 'Комб_ДСП_Зеркало/9/2213_зеркало бронза-антрацит.jpg' },
-      { name: '2674_Дуб експресив бронзовый-зеркало бронза', code: '2674', img: 'Комб_ДСП_Зеркало/9/2674_Дуб експресив бронзовый-зеркало бронза.JPG' },
-      { name: '2686_Дуб крафт белый-зеркало графит', code: '2686', img: 'Комб_ДСП_Зеркало/9/2686_Дуб крафт белый-зеркало графит.jpg' },
-      { name: '2844_сера глина-зеркало графит', code: '2844', img: 'Комб_ДСП_Зеркало/9/2844_сера глина-зеркало графит.png' },
-      { name: '496_дуб сонома светлый-зеркало серебро матовое', code: '496', img: 'Комб_ДСП_Зеркало/9/496_дуб сонома светлый-зеркало серебро матовое.jpg' },
-      { name: '549_дуб сонома светлый-зеркало серебро матовое', code: '549', img: 'Комб_ДСП_Зеркало/9/549_дуб сонома светлый-зеркало серебро матовое.jpg' }
-    ]
-  },
-  {
-    id: 'komb_dsp_tsvet',
-    name: 'Комб. ДСП кольорове',
-    description: 'Комбіновані кольорові фасади ДСП',
-    items: [
-      { name: '1477_белое дерево-черний глянец', code: '1477', img: 'Комб_ДСП_цветные стекла/1477_белое дерево-черний глянец.jpg' },
-      { name: '1493_дуб сонома светлый-кремовый глянец', code: '1493', img: 'Комб_ДСП_цветные стекла/1493_дуб сонома светлый-кремовый глянец.jpg' },
-      { name: '1564_белое дерево-кремовый глянец', code: '1564', img: 'Комб_ДСП_цветные стекла/1564_белое дерево-кремовый глянец.jpg' },
-      { name: '1565_белое дерево-серый глянец', code: '1565', img: 'Комб_ДСП_цветные стекла/1565_белое дерево-серый глянец.jpg' },
-      { name: '1566_дуб сонома светлый-черный глянец', code: '1566', img: 'Комб_ДСП_цветные стекла/1566_дуб сонома светлый-черный глянец.jpg' },
-      { name: '2539_дуб крафт золотой-оранжевый глянец', code: '2539', img: 'Комб_ДСП_цветные стекла/2539_дуб крафт золотой-оранжевый глянец.jpg' },
-      { name: '2624_Дуб крафт белый-жемчуг глянец', code: '2624', img: 'Комб_ДСП_цветные стекла/2624_Дуб крафт белый-жемчуг глянец.jpg' },
-      { name: '2795_Серая глина - белый глянец', code: '2795', img: 'Комб_ДСП_цветные стекла/2795_Серая глина - белый глянец.jpg' },
-      { name: '2834_Морское дерево карбон - серый глянец', code: '2834', img: 'Комб_ДСП_цветные стекла/2834_Морское дерево карбон - серый глянец.jpg' }
-    ]
-  },
-  {
-    id: 'komb_dzerkalo',
-    name: 'Комб. дзеркало',
-    description: 'Комбіновані дзеркальні фасади',
-    items: [
-      { name: '1007_зеркало графит матовое', code: '1007', img: 'Комб_Зеркало/1007_зеркало графит матовое.jpg' },
-      { name: '1010_зеркало серебро матовое', code: '1010', img: 'Комб_Зеркало/1010_зеркало серебро матовое.jpg' },
-      { name: '1011_зеркало бронза матовое', code: '1011', img: 'Комб_Зеркало/1011_зеркало бронза матовое.jpg' },
-      { name: '1012_зеркало графит матовое', code: '1012', img: 'Комб_Зеркало/1012_зеркало графит матовое.jpg' },
-      { name: '1013_зеркало серебро матовое', code: '1013', img: 'Комб_Зеркало/1013_зеркало серебро матовое.jpg' },
-      { name: '1014_зеркало бронза матовое', code: '1014', img: 'Комб_Зеркало/1014_зеркало бронза матовое.jpg' },
-      { name: '1015_зеркало графит матовое', code: '1015', img: 'Комб_Зеркало/1015_зеркало графит матовое.jpg' },
-      { name: '141_зеркало графит', code: '141', img: 'Комб_Зеркало/141_зеркало графит.jpg' },
-      { name: '145_зеркало бронза', code: '145', img: 'Комб_Зеркало/145_зеркало бронза.jpg' },
-      { name: '15_зеркало серебро', code: '15', img: 'Комб_Зеркало/15_зеркало серебро.jpg' },
-      { name: '2640_Зеркало бронза', code: '2640', img: 'Комб_Зеркало/2640_Зеркало бронза.jpg' },
-      { name: '288_зеркало бронза', code: '288', img: 'Комб_Зеркало/288_зеркало бронза.jpg' },
-      { name: '353_зеркало бронза матовое', code: '353', img: 'Комб_Зеркало/353_зеркало бронза матовое.jpg' },
-      { name: '381_зеркало бронза матовое', code: '381', img: 'Комб_Зеркало/381_зеркало бронза матовое.jpg' },
-      { name: '419_зеркало бронза', code: '419', img: 'Комб_Зеркало/419_зеркало бронза.jpg' },
-      { name: '529_зеркало графит матовое', code: '529', img: 'Комб_Зеркало/529_зеркало графит матовое.jpg' },
-      { name: '606_зеркало графит', code: '606', img: 'Комб_Зеркало/606_зеркало графит.jpg' },
-      { name: '64_зеркало бронза', code: '64', img: 'Комб_Зеркало/64_зеркало бронза.jpg' },
-      { name: '65_зеркало графит', code: '65', img: 'Комб_Зеркало/65_зеркало графит.jpg' },
-      { name: '6_зеркало серебро', code: '6', img: 'Комб_Зеркало/6_зеркало серебро.jpg' },
-      { name: '737_зеркало серебро', code: '737', img: 'Комб_Зеркало/737_зеркало серебро.jpg' },
-      { name: '7_зеркало серебро матовое', code: '7', img: 'Комб_Зеркало/7_зеркало серебро матовое.jpg' }
-    ]
-  },
-  {
-    id: 'starie_fasady',
-    name: 'Старі робочі фасади',
-    description: 'Архів робочих фасадів',
-    items: [
-      { name: '161_белый глянец-зеркало бронза-белый глянец', code: '161', img: 'Старые рабочие фасады/161_белый глянец-зеркало бронза-белый глянец.jpg' },
-      { name: '163_белый глянец-бирюзовый глянец', code: '163', img: 'Старые рабочие фасады/163_белый глянец-бирюзовый глянец.jpg' },
-      { name: '172_венге-зеркало графит', code: '172', img: 'Старые рабочие фасады/172_венге-зеркало графит.jpg' },
-      { name: '336_зер.серебро-белый глянец-красный глянец', code: '336', img: 'Старые рабочие фасады/336_зер.серебро-белый глянец-красный глянец.jpg' },
-      { name: '337_сонома светлый-белый глянец', code: '337', img: 'Старые рабочие фасады/337_сонома светлый-белый глянец.jpg' },
-      { name: '341_черный глянец-зеркало графит', code: '341', img: 'Старые рабочие фасады/341_черный глянец-зеркало графит.jpg' },
-      { name: '367_венге-черный глянец', code: '367', img: 'Старые рабочие фасады/367_венге-черный глянец.jpg' },
-      { name: '370_венге-дуб сонома', code: '370', img: 'Старые рабочие фасады/370_венге-дуб сонома.jpg' },
-      { name: '412_дуб сонома трюфель-белый глянец-зеркало серебро (8bD8S2Z1))', code: '412', img: 'Старые рабочие фасады/412_дуб сонома трюфель-белый глянец-зеркало серебро (8bD8S2Z1)).tif' },
-      { name: '414_черный глянец-зер.графит (6cS1Z5)', code: '414', img: 'Старые рабочие фасады/414_черный глянец-зер.графит (6cS1Z5).jpg' },
-      { name: '416_белый глянец-оранжевый глянец (9aS2S6)', code: '416', img: 'Старые рабочие фасады/416_белый глянец-оранжевый глянец (9aS2S6).jpg' },
-      { name: '467_дуб сонома трюфель-белый глянец(7сD8S2)', code: '467', img: 'Старые рабочие фасады/467_дуб сонома трюфель-белый глянец(7сD8S2).jpg' },
-      { name: '469_сонома светлый-белый глянец(3сD7S2)', code: '469', img: 'Старые рабочие фасады/469_сонома светлый-белый глянец(3сD7S2).jpg' },
-      { name: '483_черный глянец-зеркало бронза (4dS1Z3)', code: '483', img: 'Старые рабочие фасады/483_черный глянец-зеркало бронза (4dS1Z3).jpg' },
-      { name: '485_белый глянец-зеркало серебро(3fS2Z1)', code: '485', img: 'Старые рабочие фасады/485_белый глянец-зеркало серебро(3fS2Z1).jpg' },
-      { name: '536_дуб сонома-зеркало графит', code: '536', img: 'Старые рабочие фасады/536_дуб сонома-зеркало графит.jpg' },
-      { name: '538_красный глянец-зеркало бронза-черный глянец', code: '538', img: 'Старые рабочие фасады/538_красный глянец-зеркало бронза-черный глянец.jpg' },
-      { name: '569_стекло серый RAL7024-зеркало серебро(10eS9Z1)', code: '569', img: 'Старые рабочие фасады/569_стекло серый RAL7024-зеркало серебро(10eS9Z1).jpg' },
-      { name: '570_стекло серый RAL7024-зеркало серебро(10eRS9Z1)', code: '570', img: 'Старые рабочие фасады/570_стекло серый RAL7024-зеркало серебро(10eRS9Z1).jpg' },
-      { name: '583_ кремовый RAL 3010-зеркало серебро(2aS8Z1)', code: '583', img: 'Старые рабочие фасады/583_ кремовый RAL 3010-зеркало серебро(2aS8Z1).jpg' },
-      { name: '585_белый глянец-зеркало бронза', code: '585', img: 'Старые рабочие фасады/585_белый глянец-зеркало бронза.jpg' },
-      { name: '586_черный глянец_зеркало бронза(9bS1Z3)', code: '586', img: 'Старые рабочие фасады/586_черный глянец_зеркало бронза(9bS1Z3).jpg' },
-      { name: '599_дуб сонома трюфель- зеркало бронза', code: '599', img: 'Старые рабочие фасады/599_дуб сонома трюфель- зеркало бронза.jpg' },
-      { name: '600_белое дерево-зеркало серебро', code: '600', img: 'Старые рабочие фасады/600_белое дерево-зеркало серебро.jpg' },
-      { name: '620_яблоня локарно-зеркало серебро', code: '620', img: 'Старые рабочие фасады/620_яблоня локарно-зеркало серебро.jpg' },
-      { name: '622_чёрный глянец-зеркало бронза', code: '622', img: 'Старые рабочие фасады/622_чёрный глянец-зеркало бронза.jpg' },
-      { name: '651_белый глянец-зеркало серебро', code: '651', img: 'Старые рабочие фасады/651_белый глянец-зеркало серебро.jpg' },
-      { name: '652_белый глянец-зеркало серебро', code: '652', img: 'Старые рабочие фасады/652_белый глянец-зеркало серебро.jpg' },
-      { name: '679_стекло жемчугRal1013- стекло кремовый Ral 3010 - чёрный глянец', code: '679', img: 'Старые рабочие фасады/679_стекло жемчугRal1013- стекло кремовый Ral 3010 - чёрный глянец.jpg' },
-      { name: '686_черный глянец-белый глянец', code: '686', img: 'Старые рабочие фасады/686_черный глянец-белый глянец.jpg' },
-      { name: '700_дуб сонома трюфель-зеркало серебро', code: '700', img: 'Старые рабочие фасады/700_дуб сонома трюфель-зеркало серебро.jpg' },
-      { name: '701_белый глянец-зеркало серебро', code: '701', img: 'Старые рабочие фасады/701_белый глянец-зеркало серебро.jpg' },
-      { name: '702_белый глянец-пескоструй зеркало серебро', code: '702', img: 'Старые рабочие фасады/702_белый глянец-пескоструй зеркало серебро.jpg' },
-      { name: '713_жемчуг-зеркало серебро-кремовый', code: '713', img: 'Старые рабочие фасады/713_жемчуг-зеркало серебро-кремовый.jpg' },
-      { name: '714_-пескоструй зеркало бронза- зеркало бронза', code: '714', img: 'Старые рабочие фасады/714_-пескоструй зеркало бронза- зеркало бронза.jpg' },
-      { name: '721_синий глянец - зеркало серебро', code: '721', img: 'Старые рабочие фасады/721_синий глянец - зеркало серебро.jpg' },
-      { name: '745_белый глянец_серый глянец', code: '745', img: 'Старые рабочие фасады/745_белый глянец_серый глянец.jpg' },
-      { name: '746_черный глянец-зеркало графит_белый глянец', code: '746', img: 'Старые рабочие фасады/746_черный глянец-зеркало графит_белый глянец.jpg' },
-      { name: '747_венге -зеркало серебро', code: '747', img: 'Старые рабочие фасады/747_венге -зеркало серебро.jpg' },
-      { name: 'ц674_жемчуг глянец-зеркало серебро', code: 'ц674', img: 'Старые рабочие фасады/ц674_жемчуг глянец-зеркало серебро.jpg' }
-    ]
-  },
-];
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+let DATA=null, CAMPS=[];
 
-/* ═══════════════ APP LOGIC ═══════════════ */
-let currentCat = 'all';
-let searchQuery = '';
-
-// Flatten all items with category info
-const allItems = CATALOG.flatMap(cat =>
-  cat.items.map(item => ({ ...item, catId: cat.id, catName: cat.name }))
-);
-
-// Build category nav
-function buildNav() {
-  const nav = document.getElementById('cat-nav');
-  const totalCount = allItems.length;
-
-  const allBtn = document.createElement('button');
-  allBtn.className = 'cat-btn active';
-  allBtn.dataset.cat = 'all';
-  allBtn.innerHTML = `Всі <span class="count-badge">${totalCount}</span>`;
-  allBtn.onclick = () => selectCat('all');
-  nav.appendChild(allBtn);
-
-  CATALOG.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn';
-    btn.dataset.cat = cat.id;
-    btn.innerHTML = `${cat.name} <span class="count-badge">${cat.items.length}</span>`;
-    btn.onclick = () => selectCat(cat.id);
-    nav.appendChild(btn);
-  });
-}
-
-function selectCat(id) {
-  currentCat = id;
-  searchQuery = '';
-  document.getElementById('search').value = '';
-  document.getElementById('search-clear').classList.remove('visible');
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === id));
-  render();
-}
-
-function getFiltered() {
-  let items = currentCat === 'all' ? allItems : allItems.filter(i => i.catId === currentCat);
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    items = allItems.filter(i =>
-      i.name.toLowerCase().includes(q) || (i.code && i.code.toLowerCase().includes(q))
-    );
+// ── переключение аккаунтов ──
+let currentDataFile = 'data.json';
+async function switchAccount(file, name, btn){
+  if(currentDataFile === file) return;
+  document.querySelectorAll('.acc-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  currentDataFile = file;
+  // сбрасываем фильтр кампании
+  activeChartCamp = null;
+  document.getElementById('chart-filter').style.display = 'none';
+  // обновляем заголовок
+  document.querySelector('.eyebrow').textContent = `Эффективность рекламы · ${name}`;
+  // загружаем новые данные
+  try{
+    DATA = await (await fetch(file+'?'+Date.now())).json();
+    initPeriod();
+  }catch(e){
+    document.getElementById('error-box').innerHTML=
+      `<div class="err">Не удалось загрузить <b>${file}</b>. Возможно данные ещё не выгружены.</div>`;
   }
-  return items;
 }
 
-function render() {
-  const items = getFiltered();
-  const grid = document.getElementById('grid');
-  const title = document.getElementById('cat-title');
-  const desc = document.getElementById('cat-desc');
-  const banner = document.getElementById('search-banner');
-  const hCount = document.getElementById('header-count');
+async function load(){
+  try{ DATA=await (await fetch(currentDataFile+'?'+Date.now())).json(); }
+  catch(e){
+    document.getElementById('error-box').innerHTML='<div class="err">Не удалось загрузить <b>data.json</b>. '+
+      'При открытии через file:// браузер блокирует чтение — запусти <code>python -m http.server</code> или открой на GitHub Pages.</div>';
+    DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+  }
+  initPeriod();
+}
 
-  // Heading
-  if (searchQuery) {
-    title.textContent = 'Результати пошуку';
-    desc.textContent = '';
-    banner.textContent = `Знайдено: ${items.length} фасад${items.length === 1 ? '' : items.length < 5 ? 'и' : 'ів'} за запитом «${searchQuery}»`;
-    banner.classList.add('visible');
+// ── фильтр по датам ──
+let FD=[], FB=[];                 // отфильтрованные daily / banners
+let curFrom=null, curTo=null;     // текущий диапазон (ISO-строки)
+
+function allDates(){
+  const s=new Set();
+  (DATA.daily||[]).forEach(r=>r.date&&s.add(r.date));
+  (DATA.banners||[]).forEach(r=>r.date&&s.add(r.date));
+  return [...s].sort();
+}
+function initPeriod(){
+  const dates=allDates();
+  if(dates.length){
+    const maxD=dates[dates.length-1];
+    const minD=dates[0];
+    document.getElementById('date-to').max=maxD;
+    document.getElementById('date-from').max=maxD;
+    document.getElementById('date-from').min=minD;
+    document.getElementById('date-to').min=minD;
+  }
+  // Если данных меньше 14 дней — показываем всё, иначе — 14 дней
+  if(dates.length<=14){
+    setAll(document.querySelector('.pbtn[data-days="0"]'));
   } else {
-    const cat = CATALOG.find(c => c.id === currentCat);
-    title.textContent = cat ? cat.name : 'Всі фасади';
-    desc.textContent = cat ? cat.description || '' : `${allItems.length} позицій у каталозі`;
-    banner.classList.remove('visible');
+    setPeriod(14, document.querySelector('.pbtn[data-days="14"]'));
   }
-
-  hCount.textContent = `${items.length} фасадів`;
-
-  // Cards
-  grid.innerHTML = '';
-
-  if (items.length === 0) {
-    grid.innerHTML = `
-      <div class="empty">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <h3>Нічого не знайдено</h3>
-        <p>Спробуйте інший запит або змініть категорію</p>
-      </div>`;
-    return;
-  }
-
-  // Render first 48, then load more on scroll
-  let rendered = 0;
-  const PAGE = 24;
-
-  function renderBatch() {
-    const batch = items.slice(rendered, rendered + PAGE);
-    batch.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="card-img">
-          ${item.img
-            ? `<img src="${item.img}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML=noImgHTML()">`
-            : noImgHTML()}
-          ${searchQuery ? `<div class="card-cat-tag">${item.catName}</div>` : ''}
-        </div>
-        <div class="card-body">
-          <div class="card-name">${highlight(item.name)}</div>
-          ${item.code ? `<div class="card-code">${highlight(item.code)}</div>` : ''}
-        </div>`;
-      card.onclick = () => openLightbox(item);
-      grid.appendChild(card);
-    });
-    rendered += batch.length;
-
-    // Show load more button if needed
-    const existing = document.getElementById('load-more');
-    if (existing) existing.remove();
-    if (rendered < items.length) {
-      const btn = document.createElement('div');
-      btn.id = 'load-more';
-      btn.style.cssText = 'grid-column:1/-1;text-align:center;padding:32px 0';
-      btn.innerHTML = `<button onclick="renderBatch()" style="background:var(--accent);color:#fff;border:none;padding:12px 40px;border-radius:50px;font-family:Jost,sans-serif;font-size:14px;font-weight:500;cursor:pointer;letter-spacing:0.05em">Показати ще (${items.length - rendered} фасадів)</button>`;
-      grid.appendChild(btn);
+}
+function applyFilter(){
+  FD=(DATA.daily||[]).filter(r=>(!curFrom||r.date>=curFrom)&&(!curTo||r.date<=curTo));
+  FB=(DATA.banners||[]).filter(r=>(!curFrom||r.date>=curFrom)&&(!curTo||r.date<=curTo));
+  const info=document.getElementById('period-info');
+  if(info){
+    const dd=new Set(FD.map(r=>r.date)).size;
+    if(dd===0 && curFrom){
+      info.innerHTML=`<span style="color:var(--accent)">⚠ Нет данных за ${fmtDate(curFrom)}</span>`;
+    } else {
+      info.textContent=`${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.`;
     }
   }
-
-  window.renderBatch = renderBatch;
-  renderBatch();
-}
-
-function noImgHTML() {
-  return `<div class="no-img">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-    <span>Фото незабаром</span>
-  </div>`;
-}
-
-function highlight(text) {
-  if (!searchQuery) return text;
-  const q = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return text.replace(new RegExp(`(${q})`, 'gi'), '<mark style="background:#f0e8de;color:#6b5235;border-radius:2px;padding:0 2px">$1</mark>');
-}
-
-// Lightbox
-function openLightbox(item) {
-  document.getElementById('lb-img').src = item.img || '';
-  document.getElementById('lb-img').style.display = item.img ? 'block' : 'none';
-  document.getElementById('lb-cat').textContent = item.catName;
-  document.getElementById('lb-name').textContent = item.name;
-  document.getElementById('lb-code').textContent = item.code ? `Артикул: ${item.code}` : '';
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-// Search
-document.getElementById('search').addEventListener('input', function() {
-  searchQuery = this.value.trim();
-  document.getElementById('search-clear').classList.toggle('visible', searchQuery.length > 0);
   render();
-});
+}
+function fmtDate(iso){if(!iso)return '—';const [y,m,d]=iso.split('-');return `${d}.${m}.${y}`;}
 
-document.getElementById('search-clear').addEventListener('click', function() {
-  document.getElementById('search').value = '';
-  searchQuery = '';
-  this.classList.remove('visible');
-  render();
-});
+// снимаем active только с кнопок внутри period-bar
+function clearPbtnActive(){
+  document.querySelectorAll('.period-btns .pbtn').forEach(b=>b.classList.remove('active'));
+}
 
-document.getElementById('lb-close').addEventListener('click', closeLightbox);
-document.getElementById('lightbox').addEventListener('click', e => {
-  if (e.target === document.getElementById('lightbox')) closeLightbox();
-});
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+function setPeriod(days,btn){
+  clearPbtnActive();
+  if(btn)btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){curFrom=curTo=null;applyFilter();return;}
+  // Отсчитываем от последней доступной даты В ДАННЫХ (не от сегодня)
+  // Это гарантирует что разные кнопки дают разные диапазоны
+  const maxD=dates[dates.length-1];
+  const minD=dates[0];
+  const to=new Date(maxD+'T00:00:00');
+  const from=new Date(to); from.setDate(from.getDate()-(days-1));
+  const fromIso=from.toISOString().slice(0,10);
+  curFrom=fromIso<minD?minD:fromIso;
+  curTo=maxD;
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
 
-// Init
-buildNav();
-render();
+// Кнопка «Всё» — весь доступный диапазон данных
+function setAll(btn){
+  clearPbtnActive();
+  if(btn)btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){curFrom=curTo=null;applyFilter();return;}
+  curFrom=dates[0];
+  curTo=dates[dates.length-1];
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
+
+// Сегодня / Вчера — реальная дата браузера
+function setPeriodDays(daysAgo, btn){
+  clearPbtnActive();
+  if(btn) btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){curFrom=curTo=null;applyFilter();return;}
+  const today=new Date();
+  today.setDate(today.getDate()-daysAgo);
+  const iso=today.toISOString().slice(0,10);
+  const minD=dates[0]; const maxD=dates[dates.length-1];
+  // Не клэмпим — показываем реальную дату, даже если данных нет
+  // applyFilter покажет предупреждение если dd===0
+  curFrom=iso; curTo=iso;
+  // Устанавливаем в input только если в пределах min/max, иначе очищаем
+  const inRange = iso>=minD && iso<=maxD;
+  document.getElementById('date-from').value=inRange?iso:'';
+  document.getElementById('date-to').value=inRange?iso:'';
+  applyFilter();
+}
+
+function setCustom(){
+  const f=document.getElementById('date-from').value;
+  const t=document.getElementById('date-to').value;
+  if(f&&t&&f>t){return;}  // некорректный диапазон — игнор
+  curFrom=f||null; curTo=t||null;
+  clearPbtnActive();
+  applyFilter();
+}
+
+function aggregate(){
+  const m={};
+  FD.forEach(r=>{
+    if(!m[r.campaign]) m[r.campaign]={campaign:r.campaign,goal:r.goal||'Обращения',spend:0,leads:0};
+    m[r.campaign].spend+=r.spend; m[r.campaign].leads+=r.leads;
+  });
+  const arr=Object.values(m);
+  arr.forEach(c=>c.cost_per_lead=c.leads?c.spend/c.leads:0);
+  return arr;
+}
+
+function render(){
+  document.getElementById('period').textContent=(curFrom&&curTo)?(fmtDate(curFrom)+' — '+fmtDate(curTo)):(DATA.period||'—');
+  document.getElementById('updated').textContent=DATA.generated_at||'—';
+  // период для плашки баннеров
+  const bpEl=document.getElementById('bp-period');
+  if(bpEl) bpEl.textContent=DATA.period||'—';
+  CAMPS=aggregate();
+  const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
+  const totLeads=CAMPS.reduce((a,c)=>a+c.leads,0);
+  CAMPS.forEach(c=>c.share=totSpend?c.spend/totSpend*100:0);
+
+  // средняя цена внутри каждого типа цели (для честной подсветки)
+  const byGoal={};
+  CAMPS.forEach(c=>{
+    if(!byGoal[c.goal]) byGoal[c.goal]={spend:0,leads:0};
+    byGoal[c.goal].spend+=c.spend; byGoal[c.goal].leads+=c.leads;
+  });
+  window._goalAvg={};
+  Object.keys(byGoal).forEach(g=>window._goalAvg[g]=byGoal[g].leads?byGoal[g].spend/byGoal[g].leads:0);
+
+  // разбивка результатов по типам
+  const breakParts=Object.keys(byGoal).map(g=>`${byGoal[g].leads} ${g.toLowerCase()}`).join(' · ');
+  document.getElementById('k-leads').textContent=fmt(totLeads);
+  document.getElementById('k-leads-break').textContent=breakParts||'за период';
+  document.getElementById('k-spend').textContent=fmt(totSpend);
+  document.getElementById('k-camps').textContent=CAMPS.length;
+  document.getElementById('k-goals').textContent=Object.keys(byGoal).length;
+  const days=new Set(FD.map(r=>r.date)).size;
+  document.getElementById('k-days').textContent=days+' дн. в периоде';
+  // лучшая кампания — самая дешёвая относительно среднего по своему типу
+  const ranked=CAMPS.filter(c=>c.leads>0).map(c=>({...c,ratio:c.cost_per_lead/(window._goalAvg[c.goal]||c.cost_per_lead)}));
+  const best=ranked.sort((a,b)=>a.ratio-b.ratio)[0];
+  document.getElementById('k-best').textContent=best?('эффективнее всех: '+best.campaign):'—';
+
+  renderCharts();
+
+  window._avgCpl=0;
+  renderTable('cost_per_lead',true);
+  renderBanners();
+}
+
+// ── Три графика с фильтром по кампании ──
+let activeChartCamp=null;
+
+function resetChartFilter(){
+  activeChartCamp=null;
+  document.getElementById('chart-filter').style.display='none';
+  document.querySelectorAll('#camp-body tr').forEach(r=>r.classList.remove('active-camp'));
+  renderCharts();
+}
+
+function filterChartByCamp(campName){
+  activeChartCamp=campName;
+  document.getElementById('chart-filter').style.display='flex';
+  document.getElementById('cf-name').textContent=campName;
+  document.querySelectorAll('#camp-body tr').forEach(r=>{
+    r.classList.toggle('active-camp',r.dataset.camp===campName);
+  });
+  renderCharts();
+}
+
+function renderCharts(){
+  const data=activeChartCamp
+    ? FD.filter(r=>r.campaign===activeChartCamp)
+    : FD;
+
+  const bydate={};
+  data.forEach(r=>{
+    if(!bydate[r.date]) bydate[r.date]={spend:0,leads:0};
+    bydate[r.date].spend+=r.spend;
+    bydate[r.date].leads+=r.leads;
+  });
+  const dates=Object.keys(bydate).sort();
+
+  // группировка по неделям если дат > 31
+  let labels, spends, leads, cpls;
+  if(dates.length>31){
+    const wk={};
+    dates.forEach(d=>{
+      const dt=new Date(d+'T00:00:00');
+      const onejan=new Date(dt.getFullYear(),0,1);
+      const wn=Math.ceil((((dt-onejan)/86400000)+onejan.getDay()+1)/7);
+      const key=dt.getFullYear()+'-W'+String(wn).padStart(2,'0');
+      if(!wk[key])wk[key]={spend:0,leads:0,first:d};
+      wk[key].spend+=bydate[d].spend;
+      wk[key].leads+=bydate[d].leads;
+    });
+    const keys=Object.keys(wk).sort();
+    labels=keys.map(k=>{const f=wk[k].first;return f.slice(8)+'.'+f.slice(5,7);});
+    spends=keys.map(k=>wk[k].spend);
+    leads=keys.map(k=>wk[k].leads);
+    cpls=keys.map(k=>wk[k].leads?wk[k].spend/wk[k].leads:0);
+  } else {
+    labels=dates.map(d=>d.slice(8)+'.'+d.slice(5,7));
+    spends=dates.map(d=>bydate[d].spend);
+    leads=dates.map(d=>bydate[d].leads);
+    cpls=dates.map(d=>bydate[d].leads?bydate[d].spend/bydate[d].leads:0);
+  }
+
+  drawChart('chart-spend', spends, labels, v=>fmt(v)+' грн', '#c8553d');
+  drawChart('chart-leads', leads, labels, v=>fmt(v), '#3f7d5c');
+  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' грн', '#b8893b');
+}
+
+function drawChart(id, values, labels, fmtFn, color){
+  const el=document.getElementById(id); if(!el)return;
+  const maxv=Math.max(...values,1);
+  el.innerHTML=labels.map((lbl,i)=>{
+    const h=values[i]/maxv*100;
+    return `<div class="col">
+      <div class="barwrap"><div class="bar" data-v="${fmtFn(values[i])}"
+        data-h="${h}" style="height:0;background:linear-gradient(180deg,${color},${color}88)"></div></div>
+      <div class="xl">${lbl}</div>
+    </div>`;
+  }).join('');
+  requestAnimationFrame(()=>setTimeout(()=>el.querySelectorAll('.bar').forEach(b=>b.style.height=b.dataset.h+'%'),60));
+}
+
+let sKey='cost_per_lead',sAsc=true;
+function cplClass(v,goal){
+  const a=(window._goalAvg&&window._goalAvg[goal])||0;
+  if(!a)return 'mid';
+  return v<=a*0.85?'good':v>=a*1.15?'bad':'mid';
+}
+function renderTable(key,asc){
+  sKey=key;sAsc=asc;
+  const s=[...CAMPS].sort((a,b)=>typeof a[key]==='string'?(asc?a[key].localeCompare(b[key]):b[key].localeCompare(a[key])):(asc?a[key]-b[key]:b[key]-a[key]));
+  const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
+  const totLeads=CAMPS.reduce((a,c)=>a+c.leads,0);
+  let html=s.map(c=>`<tr data-camp="${c.campaign}" onclick="filterChartByCamp('${c.campaign.replace(/'/g,"\\'")}')">
+    <td title="${c.campaign}">${c.campaign}</td>
+    <td><span class="goal-tag">${c.goal||'—'}</span></td>
+    <td>${fmt(c.spend)}</td>
+    <td>${fmt(c.leads)}</td>
+    <td><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></td>
+    <td>${c.share.toFixed(0)}%</td>
+  </tr>`).join('');
+  html+=`<tr class="tot-row"><td>ИТОГО</td><td></td><td>${fmt(totSpend)}</td><td>${fmt(totLeads)}</td>
+    <td>—</td><td>100%</td></tr>`;
+  document.getElementById('camp-body').innerHTML=html;
+  // восстанавливаем подсветку активной кампании после перерисовки
+  if(activeChartCamp){
+    document.querySelectorAll('#camp-body tr').forEach(r=>{
+      r.classList.toggle('active-camp',r.dataset.camp===activeChartCamp);
+    });
+  }
+  renderMobCamps(s);
+}
+document.querySelectorAll('#camp-table th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k; renderTable(k,k===sKey?!sAsc:(k==='campaign'||k==='cost_per_lead'));}));
+
+// ── вкладки ──
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  // скрываем панель дат на вкладке баннеров
+  const pb=document.querySelector('.period-bar');
+  if(pb) pb.style.display=name==='banners'?'none':'';
+}
+
+// ── баннеры ──
+let bKey='cost_per_lead', bAsc=true;
+let BANNERS_AGG=[];
+function aggregateBanners(){
+  // баннеры — за весь выгруженный период (точные результаты из API),
+  // не фильтруются по календарю; уже агрегированы скриптом по объявлению
+  const m={};
+  (DATA.banners||[]).forEach(r=>{
+    const k=(r.banner||'')+'|'+(r.campaign||'');
+    if(!m[k]) m[k]={banner:r.banner,campaign:r.campaign,goal:r.goal||'—',
+                    spend:0,leads:0,ctrSum:0,ctrN:0,image:r.image||''};
+    m[k].spend+=r.spend; m[k].leads+=r.leads;
+    if(r.ctr){m[k].ctrSum+=r.ctr;m[k].ctrN++;}
+    if(!m[k].image&&r.image)m[k].image=r.image;
+  });
+  const arr=Object.values(m);
+  arr.forEach(b=>{
+    b.cost_per_lead=b.leads?b.spend/b.leads:0;
+    b.ctr=b.ctrN?b.ctrSum/b.ctrN:0;
+  });
+  return arr;
+}
+function renderBanners(){
+  BANNERS_AGG=aggregateBanners();
+  const bs=BANNERS_AGG;
+  if(!bs.length){
+    document.getElementById('banner-body').innerHTML='<tr><td colspan="9" style="text-align:center;color:#b8a994;padding:24px">Нет данных по баннерам за выбранный период</td></tr>';
+    document.getElementById('b-best').textContent='—';
+    document.getElementById('b-best-cpl').textContent='—';
+    document.getElementById('b-count').textContent='0';
+    document.getElementById('b-avg-cpl').textContent='0';
+    document.getElementById('b-avg-ctr').textContent='—';
+    return;
+  }
+  // средняя цена внутри каждого типа
+  const g={};
+  bs.forEach(b=>{const k=b.goal||'—'; if(!g[k])g[k]={spend:0,leads:0}; g[k].spend+=b.spend; g[k].leads+=b.leads;});
+  window._bGoalAvg={};
+  Object.keys(g).forEach(k=>window._bGoalAvg[k]=g[k].leads?g[k].spend/g[k].leads:0);
+
+  const avgCtr=bs.reduce((a,b)=>a+b.ctr,0)/bs.length;
+  // лучший — самый низкий ratio к среднему по своему типу
+  const ranked=bs.filter(b=>b.cost_per_lead>0).map(b=>({...b,ratio:b.cost_per_lead/((window._bGoalAvg[b.goal||'—'])||b.cost_per_lead)}));
+  const best=ranked.sort((a,b)=>a.ratio-b.ratio)[0];
+
+  document.getElementById('b-best').textContent=best?best.banner:'—';
+  document.getElementById('b-best-cpl').textContent=best?(best.goal+': '+fmt(best.cost_per_lead)+' грн · CTR '+fmt1(best.ctr)+'%'):'—';
+  document.getElementById('b-count').textContent=bs.length;
+  document.getElementById('b-avg-cpl').textContent=Object.keys(g).length;
+  document.getElementById('b-avg-ctr').textContent=fmt1(avgCtr)+'%';
+
+  renderBannerTable(bKey,bAsc);
+}
+function gradeOf(b){
+  if(!b.leads || b.leads===0) return ['—','none'];  // нет результатов — нет оценки
+  const a=(window._bGoalAvg&&window._bGoalAvg[b.goal||'—'])||0;
+  const cpl=b.cost_per_lead;
+  if(!a)return['Средний','mid'];
+  return cpl<=a*0.8?['Лучший','good']:cpl>=a*1.2?['Слабый','bad']:['Средний','mid'];
+}
+function bClass(cpl){return gradeOf(cpl)[1];}
+function renderBannerTable(key,asc){
+  bKey=key;bAsc=asc;
+  const bs=[...BANNERS_AGG];
+  // лучший внутри своего типа
+  const bestSet=new Set();
+  const byG={};
+  bs.forEach(b=>{const k=b.goal||'—'; if(!byG[k]||b.cost_per_lead<byG[k].cost_per_lead) byG[k]=b;});
+  Object.values(byG).forEach(b=>bestSet.add(b.banner+'|'+b.campaign));
+  const s=bs.sort((a,b)=>typeof a[key]==='string'?(asc?a[key].localeCompare(b[key]):b[key].localeCompare(a[key])):(asc?a[key]-b[key]:b[key]-a[key]));
+  document.getElementById('banner-body').innerHTML=s.map(b=>{
+    const [gtxt,gcls]=gradeOf(b);
+    const isBest=bestSet.has(b.banner+'|'+b.campaign);
+    return `<tr class="${isBest?'best-row':''}">
+      <td style="text-align:center;padding:6px">${b.image?`<img class="bthumb" src="${b.image}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.outerHTML='<span class=\\'noimg\\'>▦</span>'">`:'<span class="noimg">—</span>'}</td>
+      <td title="${b.banner}">${b.banner}</td>
+      <td style="font-weight:400;color:var(--ink-soft)">${b.campaign}</td>
+      <td><span class="goal-tag">${b.goal||'—'}</span></td>
+      <td>${fmt(b.spend)}</td>
+      <td>${fmt(b.leads)}</td>
+      <td><b>${fmt(b.cost_per_lead)} грн</b></td>
+      <td>${fmt1(b.ctr)}%</td>
+      <td><span class="grade ${gcls}">${gtxt}</span></td>
+    </tr>`;
+  }).join('');
+  renderMobBanners(s);
+}
+document.querySelectorAll('#banner-table th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k;
+  const defAsc=(k==='banner'||k==='campaign'||k==='cost_per_lead');
+  renderBannerTable(k, k===bKey? !bAsc : defAsc);
+}));
+
+function sortMobCamps(val){
+  const [key,dir]=val.split('_desc').length>1?[val.replace('_desc',''),'desc']:[val.replace('_asc',''),'asc'];
+  const sorted=[...CAMPS].sort((a,b)=>dir==='asc'?a[key]-b[key]:b[key]-a[key]);
+  renderMobCamps(sorted);
+}
+function sortMobBanners(val){
+  const [key,dir]=val.split('_desc').length>1?[val.replace('_desc',''),'desc']:[val.replace('_asc',''),'asc'];
+  const sorted=[...BANNERS_AGG].sort((a,b)=>dir==='asc'?a[key]-b[key]:b[key]-a[key]);
+  renderMobBanners(sorted);
+}
+
+function renderMobCamps(camps){
+  const el=document.getElementById('camp-cards'); if(!el)return;
+  el.innerHTML=camps.map(c=>`
+    <div class="mob-card">
+      <div class="mob-card-head">
+        <div class="mob-card-name">${c.campaign}</div>
+        <span class="goal-tag">${c.goal||'—'}</span>
+      </div>
+      <div class="mob-card-grid">
+        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(c.spend)} <span style="font-size:12px;color:var(--ink-soft)">грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Результатов</div><div class="mv">${fmt(c.leads)}</div></div>
+        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv"><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Доля расхода</div><div class="mv">${c.share.toFixed(0)}%</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderMobBanners(banners){
+  const el=document.getElementById('banner-cards'); if(!el)return;
+  el.innerHTML=banners.map(b=>{
+    const [gtxt,gcls]=gradeOf(b);
+    return `<div class="mob-card">
+      <div class="mob-card-head">
+        ${b.image?`<img class="mob-banner-img" src="${b.image}" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">`:''}
+        <div class="mob-card-name">${b.banner}<br><span style="font-size:12px;color:var(--ink-soft);font-weight:400">${b.campaign}</span></div>
+        <span class="goal-tag">${b.goal||'—'}</span>
+      </div>
+      <div class="mob-card-grid">
+        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(b.spend)} <span style="font-size:12px;color:var(--ink-soft)">грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Результатов</div><div class="mv">${fmt(b.leads)}</div></div>
+        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv">${b.cost_per_lead?fmt(b.cost_per_lead)+' грн':'—'}</div></div>
+        <div class="mob-stat"><div class="ml">CTR · Оценка</div><div class="mv">${fmt1(b.ctr)}% <span class="grade ${gcls}">${gtxt}</span></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+// ── AI-анализ через Claude API ──
+async function genInsights(tab){
+  const btn=document.querySelector(`#ai-${tab} .ai-btn`);
+  const resultEl=document.getElementById(`ai-result-${tab}`);
+  btn.disabled=true; btn.textContent='Анализирую…';
+  resultEl.classList.remove('visible');
+  resultEl.innerHTML='<div class="ai-loading"><div class="ai-spinner"></div>Claude анализирует данные…</div>';
+  resultEl.classList.add('visible');
+
+  try{
+    const prompt = tab==='camps' ? buildCampsPrompt() : buildBannersPrompt();
+    const resp = await fetch("https://matro-ai.playnvm69.workers.dev",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({prompt})
+    });
+    const data=await resp.json();
+    const text=data.content?.[0]?.text||'Не удалось получить ответ.';
+    resultEl.innerHTML=formatAI(text);
+  }catch(e){
+    resultEl.innerHTML=`<span style="color:#f6a0a0">Ошибка: ${e.message}</span>`;
+  }
+  btn.disabled=false; btn.textContent='Обновить выводы';
+}
+
+function buildCampsPrompt(){
+  const period=document.getElementById('period-info').textContent;
+  const rows=CAMPS.map(c=>`• ${c.campaign} [${c.goal}]: расход ${fmt(c.spend)} грн, результатов ${c.leads}, цена результата ${c.cost_per_lead?fmt(c.cost_per_lead)+' грн':'—'}, доля ${c.share.toFixed(0)}%`).join('\n');
+  return `Ты — аналитик по рекламе для мебельного бизнеса Matro (матрасы, кровати, диваны). Проанализируй данные рекламных кампаний Meta Ads за период ${period} и дай конкретные практические выводы на русском языке.
+
+Данные по кампаниям:
+${rows}
+
+Типы результатов: Переписки = начатые диалоги в директе, Покупки = конверсии на сайте.
+
+Дай анализ в следующем формате (используй заголовки с ##):
+## Что работает хорошо
+## Что требует внимания  
+## Конкретные рекомендации (3-5 пунктов)
+
+Будь конкретным, называй кампании по имени. Не используй общие фразы. Объём — 150-250 слов.`;
+}
+
+function buildBannersPrompt(){
+  const bs=BANNERS_AGG.slice(0,20); // топ 20 чтобы не перегружать
+  const rows=bs.map(b=>`• "${b.banner}" [${b.campaign}, ${b.goal}]: расход ${fmt(b.spend)} грн, результатов ${b.leads}, цена ${b.cost_per_lead?fmt(b.cost_per_lead)+' грн':'—'}, CTR ${b.ctr.toFixed(1)}%`).join('\n');
+  return `Ты — аналитик по рекламе для мебельного бизнеса Matro (матрасы, кровати, диваны). Проанализируй эффективность рекламных баннеров Meta Ads и дай конкретные практические выводы на русском языке.
+
+Данные по баннерам:
+${rows}
+
+Дай анализ в следующем формате (используй заголовки с ##):
+## Лучшие баннеры (что масштабировать)
+## Слабые баннеры (что отключить или переделать)
+## Рекомендации по креативам
+
+Будь конкретным, называй баннеры по имени. Сравнивай баннеры внутри одного типа цели (переписки с переписками, покупки с покупками). Объём — 150-250 слов.`;
+}
+
+function formatAI(text){
+  // Конвертируем markdown в HTML
+  return text
+    .replace(/## (.+)/g,'<h4>$1</h4>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^• (.+)$/gm,'<li>$1</li>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g,m=>`<ul>${m}</ul>`)
+    .replace(/\n\n/g,'<br>')
+    .replace(/\n/g,' ');
+}
+
+function openImg(src,cap){
+  document.getElementById('imgmodal-img').src=src;
+  document.getElementById('imgmodal-cap').textContent=cap||'';
+  document.getElementById('imgmodal').classList.add('open');
+}
+function closeImg(){document.getElementById('imgmodal').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImg();});
+
+const fmt1=n=>new Intl.NumberFormat('uk-UA',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n||0);
+
+load();
 </script>
 </body>
 </html>
