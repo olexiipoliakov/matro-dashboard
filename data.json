@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-06-28 08:41",
+  "generated_at": "2026-06-29 09:13",
   "source": "Meta Marketing API",
-  "period": "2026-06-09 — 2026-06-27",
+  "period": "2026-06-09 — 2026-06-28",
   "currency": "грн",
   "daily": [
     {
@@ -683,6 +683,30 @@
       "spend": 0.0,
       "leads": 0,
       "cost_per_lead": 0
+    },
+    {
+      "date": "2026-06-28",
+      "campaign": "DDA | дірект матраси | 9.06",
+      "goal": "Переписки",
+      "spend": 0.0,
+      "leads": 1,
+      "cost_per_lead": 0.0
+    },
+    {
+      "date": "2026-06-28",
+      "campaign": "DDA | дірект кроваті | 12.06",
+      "goal": "Переписки",
+      "spend": 0.0,
+      "leads": 0,
+      "cost_per_lead": 0
+    },
+    {
+      "date": "2026-06-28",
+      "campaign": "DDA | дірект матраси + кроваті| 12.06",
+      "goal": "Переписки",
+      "spend": 0.0,
+      "leads": 0,
+      "cost_per_lead": 0
     }
   ],
   "banners": [
@@ -951,8 +975,8 @@
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
       "spend": 1900.13,
-      "leads": 62,
-      "cost_per_lead": 30.65,
+      "leads": 63,
+      "cost_per_lead": 30.16,
       "ctr": 3.76,
       "image": "images/14728da11710a5ae.png"
     },
