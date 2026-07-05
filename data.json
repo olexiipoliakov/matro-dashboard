@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-04 08:25",
+  "generated_at": "2026-07-05 08:41",
   "source": "Meta Marketing API",
-  "period": "2026-06-09 — 2026-07-03",
+  "period": "2026-06-09 — 2026-07-04",
   "currency": "грн",
   "daily": [
     {
@@ -952,15 +952,15 @@
       "date": "2026-07-03",
       "campaign": "DDA | конверсії матрас+кровать | 16.06.2026",
       "goal": "Покупки",
-      "spend": 461.34,
+      "spend": 461.42,
       "leads": 2,
-      "cost_per_lead": 230.67
+      "cost_per_lead": 230.71
     },
     {
       "date": "2026-07-03",
       "campaign": "DDA | конверсії кровати | 16.06.2026",
       "goal": "Покупки",
-      "spend": 281.68,
+      "spend": 282.09,
       "leads": 0,
       "cost_per_lead": 0
     },
@@ -992,9 +992,57 @@
       "date": "2026-07-03",
       "campaign": "DDA | конверсії кровати | 03.07.2026",
       "goal": "Покупки",
-      "spend": 188.72,
+      "spend": 188.78,
       "leads": 2,
-      "cost_per_lead": 94.36
+      "cost_per_lead": 94.39
+    },
+    {
+      "date": "2026-07-04",
+      "campaign": "DDA | дірект матраси | 9.06",
+      "goal": "Переписки",
+      "spend": 408.76,
+      "leads": 16,
+      "cost_per_lead": 25.55
+    },
+    {
+      "date": "2026-07-04",
+      "campaign": "DDA | дірект кроваті | 12.06",
+      "goal": "Переписки",
+      "spend": 435.9,
+      "leads": 9,
+      "cost_per_lead": 48.43
+    },
+    {
+      "date": "2026-07-04",
+      "campaign": "DDA | конверсії матрас+кровать | 16.06.2026",
+      "goal": "Покупки",
+      "spend": 429.06,
+      "leads": 0,
+      "cost_per_lead": 0
+    },
+    {
+      "date": "2026-07-04",
+      "campaign": "DDA | дірект матраси | 19.06 масштаб",
+      "goal": "Переписки",
+      "spend": 402.29,
+      "leads": 17,
+      "cost_per_lead": 23.66
+    },
+    {
+      "date": "2026-07-04",
+      "campaign": "DDA | дірект матраси + кроваті| 25.06",
+      "goal": "Переписки",
+      "spend": 398.16,
+      "leads": 12,
+      "cost_per_lead": 33.18
+    },
+    {
+      "date": "2026-07-04",
+      "campaign": "DDA | конверсії кровати | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 298.45,
+      "leads": 4,
+      "cost_per_lead": 74.61
     }
   ],
   "banners": [
@@ -1006,7 +1054,7 @@
       "leads": 2,
       "cost_per_lead": 82.86,
       "ctr": 2.23,
-      "image": "images/7e80486cbfe0f20f.png"
+      "image": "images/a259547577a56095.png"
     },
     {
       "banner": "2",
@@ -1016,7 +1064,7 @@
       "leads": 5,
       "cost_per_lead": 79.37,
       "ctr": 2.16,
-      "image": "images/558695dc83037e69.png"
+      "image": "images/dd92e3ae3513263e.png"
     },
     {
       "banner": "3",
@@ -1026,7 +1074,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/fead4cbc48334d1c.png"
+      "image": "images/ff1cd283326766b8.png"
     },
     {
       "banner": "1 статика",
@@ -1036,7 +1084,7 @@
       "leads": 1,
       "cost_per_lead": 43.61,
       "ctr": 4.9,
-      "image": "images/3a342f832b1bcfd4.png"
+      "image": "images/49351591de8e83ca.png"
     },
     {
       "banner": "3 статика",
@@ -1046,17 +1094,17 @@
       "leads": 2,
       "cost_per_lead": 28.94,
       "ctr": 5.56,
-      "image": "images/145c5a2a842de7bd.png"
+      "image": "images/1c31504421af5413.png"
     },
     {
       "banner": "4 статика",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 3466.38,
-      "leads": 100,
-      "cost_per_lead": 34.66,
-      "ctr": 4.68,
-      "image": "images/67f9c6c726303a1c.png"
+      "spend": 3755.18,
+      "leads": 104,
+      "cost_per_lead": 36.11,
+      "ctr": 4.53,
+      "image": "images/e3cfb3eb944a8da3.png"
     },
     {
       "banner": "5 статика",
@@ -1066,27 +1114,27 @@
       "leads": 1,
       "cost_per_lead": 12.01,
       "ctr": 6.67,
-      "image": "images/145c5a2a842de7bd.png"
+      "image": "images/1c31504421af5413.png"
     },
     {
       "banner": "7 статика",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 2376.45,
-      "leads": 104,
-      "cost_per_lead": 22.85,
-      "ctr": 5.3,
-      "image": "images/dc23ad5341d91211.png"
+      "spend": 2450.68,
+      "leads": 108,
+      "cost_per_lead": 22.69,
+      "ctr": 5.29,
+      "image": "images/eff00d159fb9098d.png"
     },
     {
       "banner": "8 статика",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 1007.16,
-      "leads": 22,
-      "cost_per_lead": 45.78,
-      "ctr": 5.69,
-      "image": "images/cf36ddac3a361638.png"
+      "spend": 1080.03,
+      "leads": 23,
+      "cost_per_lead": 46.96,
+      "ctr": 5.66,
+      "image": "images/c19b659636b929a1.png"
     },
     {
       "banner": "2 статика",
@@ -1096,7 +1144,7 @@
       "leads": 3,
       "cost_per_lead": 35.81,
       "ctr": 8.65,
-      "image": "images/eacdd3bdc85ce8f7.png"
+      "image": "images/d32d9f8fb3998145.png"
     },
     {
       "banner": "1",
@@ -1106,7 +1154,7 @@
       "leads": 8,
       "cost_per_lead": 52.64,
       "ctr": 3.55,
-      "image": "images/6664719dacae8209.png"
+      "image": "images/c092d51e949a7142.png"
     },
     {
       "banner": "2",
@@ -1116,7 +1164,7 @@
       "leads": 1,
       "cost_per_lead": 120.57,
       "ctr": 6.76,
-      "image": "images/bd90430e8b092c36.png"
+      "image": "images/bfb92486ac7ccc63.png"
     },
     {
       "banner": "3",
@@ -1126,7 +1174,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.76,
-      "image": "images/ac22ea712161e1d9.png"
+      "image": "images/167e0ae1f972dd31.png"
     },
     {
       "banner": "4",
@@ -1136,7 +1184,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/bde243b55f7b94b3.png"
+      "image": "images/503b340c8fea4e74.png"
     },
     {
       "banner": "5",
@@ -1146,7 +1194,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/3af4a6f8197febdc.png"
+      "image": "images/824d1d79e681c61e.png"
     },
     {
       "banner": "6",
@@ -1156,7 +1204,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.65,
-      "image": "images/a4c0d170a61796b2.png"
+      "image": "images/288b70fa794b407c.png"
     },
     {
       "banner": "7",
@@ -1166,7 +1214,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 7.69,
-      "image": "images/41d8982b7fdba62f.png"
+      "image": "images/bf1da0b3c085f7c2.png"
     },
     {
       "banner": "8",
@@ -1176,7 +1224,7 @@
       "leads": 1,
       "cost_per_lead": 185.56,
       "ctr": 6.22,
-      "image": "images/9e24821378c2d711.png"
+      "image": "images/eb20702d6e1da941.png"
     },
     {
       "banner": "9",
@@ -1186,7 +1234,7 @@
       "leads": 48,
       "cost_per_lead": 48.05,
       "ctr": 6.36,
-      "image": "images/bf41b76eee909a7e.png"
+      "image": "images/55a8a3c171c34bd8.png"
     },
     {
       "banner": "10",
@@ -1196,17 +1244,17 @@
       "leads": 1,
       "cost_per_lead": 80.38,
       "ctr": 5.6,
-      "image": "images/c8e163053f8fa89b.png"
+      "image": "images/ad62b524132db587.png"
     },
     {
       "banner": "4нов",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 3882.98,
-      "leads": 117,
-      "cost_per_lead": 33.19,
-      "ctr": 3.41,
-      "image": "images/53ca11a3edeab875.png"
+      "spend": 3966.02,
+      "leads": 121,
+      "cost_per_lead": 32.78,
+      "ctr": 3.38,
+      "image": "images/8a519d829c6ae2c0.png"
     },
     {
       "banner": "5нов",
@@ -1216,7 +1264,7 @@
       "leads": 5,
       "cost_per_lead": 39.95,
       "ctr": 3.17,
-      "image": "images/6600c2eb64a098f5.png"
+      "image": "images/42d90e665262b226.png"
     },
     {
       "banner": "6нов",
@@ -1226,7 +1274,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/238dd5978743ee58.png"
+      "image": "images/4c0d2abc4312c096.png"
     },
     {
       "banner": "7нов",
@@ -1236,7 +1284,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.35,
-      "image": "images/396db0e335cd6974.png"
+      "image": "images/473c2f9199803f83.png"
     },
     {
       "banner": "8нов",
@@ -1246,7 +1294,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/024c9ef708cfd553.png"
+      "image": "images/71e8c2088dd53304.png"
     },
     {
       "banner": "9нов",
@@ -1256,17 +1304,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.49,
-      "image": "images/9a2f86ca7be4b0ef.png"
+      "image": "images/486386a3cf739465.png"
     },
     {
       "banner": "10нов",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 2740.98,
-      "leads": 93,
-      "cost_per_lead": 29.47,
-      "ctr": 3.45,
-      "image": "images/6841664e1bc07fd8.png"
+      "spend": 3066.7,
+      "leads": 105,
+      "cost_per_lead": 29.21,
+      "ctr": 3.34,
+      "image": "images/1bd88d13df122790.png"
     },
     {
       "banner": "11нов",
@@ -1276,7 +1324,7 @@
       "leads": 2,
       "cost_per_lead": 46.92,
       "ctr": 2.84,
-      "image": "images/fe4b7ea1a7abcfcc.png"
+      "image": "images/1780689bef6690ee.png"
     },
     {
       "banner": "12нов",
@@ -1286,7 +1334,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.79,
-      "image": "images/90d6b3829420967e.png"
+      "image": "images/3e295a8d7715b680.png"
     },
     {
       "banner": "13нов",
@@ -1296,7 +1344,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.51,
-      "image": "images/8466b9f47e80730d.png"
+      "image": "images/48e09115081d75ef.png"
     },
     {
       "banner": "к+м1",
@@ -1306,37 +1354,37 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.31,
-      "image": "images/bf41b76eee909a7e.png"
+      "image": "images/55a8a3c171c34bd8.png"
     },
     {
       "banner": "3",
       "campaign": "DDA | конверсії матрас+кровать | 16.06.2026",
       "goal": "Покупки",
-      "spend": 3057.51,
+      "spend": 3396.28,
       "leads": 2,
-      "cost_per_lead": 1528.76,
-      "ctr": 6.53,
-      "image": "images/53ca11a3edeab875.png"
+      "cost_per_lead": 1698.14,
+      "ctr": 6.44,
+      "image": "images/8a519d829c6ae2c0.png"
     },
     {
       "banner": "2",
       "campaign": "DDA | конверсії матрас+кровать | 16.06.2026",
       "goal": "Покупки",
-      "spend": 192.23,
+      "spend": 192.36,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 6.99,
-      "image": "images/6600c2eb64a098f5.png"
+      "ctr": 6.96,
+      "image": "images/42d90e665262b226.png"
     },
     {
       "banner": "1",
       "campaign": "DDA | конверсії матрас+кровать | 16.06.2026",
       "goal": "Покупки",
-      "spend": 230.84,
+      "spend": 235.15,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 7.73,
-      "image": "images/01d794dd69f07ab4.png"
+      "ctr": 7.85,
+      "image": "images/5d911645b1b5e03c.png"
     },
     {
       "banner": "leo1",
@@ -1346,7 +1394,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/fead4cbc48334d1c.png"
+      "image": "images/ff1cd283326766b8.png"
     },
     {
       "banner": "leo2",
@@ -1356,7 +1404,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/558695dc83037e69.png"
+      "image": "images/dd92e3ae3513263e.png"
     },
     {
       "banner": "leo3",
@@ -1366,7 +1414,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.68,
-      "image": "images/7e80486cbfe0f20f.png"
+      "image": "images/a259547577a56095.png"
     },
     {
       "banner": "1",
@@ -1376,7 +1424,7 @@
       "leads": 10,
       "cost_per_lead": 476.09,
       "ctr": 5.99,
-      "image": "images/dc23ad5341d91211.png"
+      "image": "images/eff00d159fb9098d.png"
     },
     {
       "banner": "2",
@@ -1386,7 +1434,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.94,
-      "image": "images/145c5a2a842de7bd.png"
+      "image": "images/1c31504421af5413.png"
     },
     {
       "banner": "3",
@@ -1396,7 +1444,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 7.23,
-      "image": "images/9d2cfee08f6d15c6.png"
+      "image": "images/28af62679c8a4b5b.png"
     },
     {
       "banner": "4",
@@ -1406,17 +1454,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.01,
-      "image": "images/3a342f832b1bcfd4.png"
+      "image": "images/49351591de8e83ca.png"
     },
     {
       "banner": "5",
       "campaign": "DDA | конверсії кровати | 16.06.2026",
       "goal": "Покупки",
-      "spend": 496.98,
+      "spend": 497.39,
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.99,
-      "image": "images/67f9c6c726303a1c.png"
+      "image": "images/e3cfb3eb944a8da3.png"
     },
     {
       "banner": "6",
@@ -1426,7 +1474,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.03,
-      "image": "images/14e1bb52226aec1d.png"
+      "image": "images/142a291c567d5a1f.png"
     },
     {
       "banner": "7",
@@ -1436,7 +1484,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.0,
-      "image": "images/eacdd3bdc85ce8f7.png"
+      "image": "images/d32d9f8fb3998145.png"
     },
     {
       "banner": "8",
@@ -1446,7 +1494,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.45,
-      "image": "images/cf36ddac3a361638.png"
+      "image": "images/c19b659636b929a1.png"
     },
     {
       "banner": "к+м2",
@@ -1456,27 +1504,27 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.35,
-      "image": "images/9e24821378c2d711.png"
+      "image": "images/eb20702d6e1da941.png"
     },
     {
       "banner": "к+м3",
       "campaign": "DDA | конверсії матрас+кровать | 16.06.2026",
       "goal": "Покупки",
-      "spend": 1798.39,
+      "spend": 1884.32,
       "leads": 4,
-      "cost_per_lead": 449.6,
-      "ctr": 5.75,
-      "image": "images/41d8982b7fdba62f.png"
+      "cost_per_lead": 471.08,
+      "ctr": 5.7,
+      "image": "images/bf1da0b3c085f7c2.png"
     },
     {
       "banner": "10нов",
       "campaign": "DDA | дірект матраси | 19.06 масштаб",
       "goal": "Переписки",
-      "spend": 1441.93,
-      "leads": 43,
-      "cost_per_lead": 33.53,
-      "ctr": 2.75,
-      "image": "images/6841664e1bc07fd8.png"
+      "spend": 1819.39,
+      "leads": 59,
+      "cost_per_lead": 30.84,
+      "ctr": 2.92,
+      "image": "images/1bd88d13df122790.png"
     },
     {
       "banner": "11нов",
@@ -1486,7 +1534,7 @@
       "leads": 11,
       "cost_per_lead": 54.38,
       "ctr": 2.58,
-      "image": "images/fe4b7ea1a7abcfcc.png"
+      "image": "images/1780689bef6690ee.png"
     },
     {
       "banner": "6нов",
@@ -1496,7 +1544,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/238dd5978743ee58.png"
+      "image": "images/4c0d2abc4312c096.png"
     },
     {
       "banner": "2",
@@ -1506,17 +1554,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.9,
-      "image": "images/558695dc83037e69.png"
+      "image": "images/dd92e3ae3513263e.png"
     },
     {
       "banner": "4нов",
       "campaign": "DDA | дірект матраси | 19.06 масштаб",
       "goal": "Переписки",
-      "spend": 2659.25,
-      "leads": 72,
-      "cost_per_lead": 36.93,
-      "ctr": 2.9,
-      "image": "images/53ca11a3edeab875.png"
+      "spend": 2684.08,
+      "leads": 73,
+      "cost_per_lead": 36.77,
+      "ctr": 2.89,
+      "image": "images/8a519d829c6ae2c0.png"
     },
     {
       "banner": "1нов",
@@ -1526,7 +1574,7 @@
       "leads": 1,
       "cost_per_lead": 53.16,
       "ctr": 3.7,
-      "image": "images/8c7f82475ec65174.png"
+      "image": "images/068c984cc4a4ded2.png"
     },
     {
       "banner": "2нов",
@@ -1536,7 +1584,7 @@
       "leads": 1,
       "cost_per_lead": 34.73,
       "ctr": 1.67,
-      "image": "images/ddafc568055e1afc.png"
+      "image": "images/2d91e795bc9dbb88.png"
     },
     {
       "banner": "3нов",
@@ -1546,7 +1594,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.5,
-      "image": "images/a862487d1bdf1159.png"
+      "image": "images/ef54b98a9def28db.png"
     },
     {
       "banner": "4нов",
@@ -1556,7 +1604,7 @@
       "leads": 13,
       "cost_per_lead": 79.14,
       "ctr": 4.89,
-      "image": "images/dc1ed02e27650892.png"
+      "image": "images/6927b9c3b15affb0.png"
     },
     {
       "banner": "5нов",
@@ -1566,7 +1614,7 @@
       "leads": 1,
       "cost_per_lead": 33.0,
       "ctr": 4.23,
-      "image": "images/300b887dab7a9529.png"
+      "image": "images/1ca949fdc22f9b23.png"
     },
     {
       "banner": "6нов",
@@ -1576,7 +1624,7 @@
       "leads": 1,
       "cost_per_lead": 2.94,
       "ctr": 11.11,
-      "image": "images/aa57b91dd8f5c82c.png"
+      "image": "images/423ed1f73b20066c.png"
     },
     {
       "banner": "7нов",
@@ -1586,7 +1634,7 @@
       "leads": 1,
       "cost_per_lead": 36.41,
       "ctr": 4.65,
-      "image": "images/cc21fbdac6086a6e.png"
+      "image": "images/a464d649fe68a7a5.png"
     },
     {
       "banner": "3",
@@ -1596,7 +1644,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.64,
-      "image": "images/9d2cfee08f6d15c6.png"
+      "image": "images/28af62679c8a4b5b.png"
     },
     {
       "banner": "1",
@@ -1606,7 +1654,7 @@
       "leads": 2,
       "cost_per_lead": 562.35,
       "ctr": 4.83,
-      "image": "images/dc23ad5341d91211.png"
+      "image": "images/eff00d159fb9098d.png"
     },
     {
       "banner": "5",
@@ -1616,7 +1664,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.64,
-      "image": "images/67f9c6c726303a1c.png"
+      "image": "images/e3cfb3eb944a8da3.png"
     },
     {
       "banner": "2",
@@ -1626,7 +1674,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.59,
-      "image": "images/2c7f49576d3c4571.png"
+      "image": "images/cd717e9c2c634ee7.png"
     },
     {
       "banner": "1новый",
@@ -1636,7 +1684,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/597160e49e6344e2.png"
+      "image": "images/9619b4f98f5822c8.png"
     },
     {
       "banner": "2новый",
@@ -1646,7 +1694,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/0ea821e9ea9b14c6.png"
+      "image": "images/b607597b46aad2b1.png"
     },
     {
       "banner": "3новый",
@@ -1656,7 +1704,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.43,
-      "image": "images/3a173240846d7490.png"
+      "image": "images/394a72c932ace9f6.png"
     },
     {
       "banner": "4новый",
@@ -1666,7 +1714,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.26,
-      "image": "images/410873ae9a74d979.png"
+      "image": "images/dd7a3c2e76a8aa3e.png"
     },
     {
       "banner": "5новый",
@@ -1676,7 +1724,7 @@
       "leads": 3,
       "cost_per_lead": 61.63,
       "ctr": 2.98,
-      "image": "images/6c6242409e7c5623.png"
+      "image": "images/c3283bdfb20f1aa1.png"
     },
     {
       "banner": "1нов",
@@ -1686,7 +1734,7 @@
       "leads": 2,
       "cost_per_lead": 238.28,
       "ctr": 5.58,
-      "image": "images/597160e49e6344e2.png"
+      "image": "images/9619b4f98f5822c8.png"
     },
     {
       "banner": "2нов",
@@ -1696,7 +1744,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.38,
-      "image": "images/0ea821e9ea9b14c6.png"
+      "image": "images/b607597b46aad2b1.png"
     },
     {
       "banner": "3нов",
@@ -1706,7 +1754,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.13,
-      "image": "images/3a173240846d7490.png"
+      "image": "images/394a72c932ace9f6.png"
     },
     {
       "banner": "4нов",
@@ -1716,7 +1764,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.51,
-      "image": "images/410873ae9a74d979.png"
+      "image": "images/dd7a3c2e76a8aa3e.png"
     },
     {
       "banner": "5нов",
@@ -1726,17 +1774,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.75,
-      "image": "images/6c6242409e7c5623.png"
+      "image": "images/c3283bdfb20f1aa1.png"
     },
     {
       "banner": "5новый",
       "campaign": "DDA | дірект матраси + кроваті| 25.06",
       "goal": "Переписки",
-      "spend": 498.4,
+      "spend": 507.53,
       "leads": 7,
-      "cost_per_lead": 71.2,
-      "ctr": 3.49,
-      "image": "images/6c6242409e7c5623.png"
+      "cost_per_lead": 72.5,
+      "ctr": 3.65,
+      "image": "images/c3283bdfb20f1aa1.png"
     },
     {
       "banner": "3новый",
@@ -1746,7 +1794,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 10.0,
-      "image": "images/3a173240846d7490.png"
+      "image": "images/394a72c932ace9f6.png"
     },
     {
       "banner": "1",
@@ -1756,57 +1804,57 @@
       "leads": 9,
       "cost_per_lead": 46.94,
       "ctr": 4.84,
-      "image": "images/6664719dacae8209.png"
+      "image": "images/c092d51e949a7142.png"
     },
     {
       "banner": "9",
       "campaign": "DDA | дірект матраси + кроваті| 25.06",
       "goal": "Переписки",
-      "spend": 1136.79,
-      "leads": 29,
-      "cost_per_lead": 39.2,
-      "ctr": 5.12,
-      "image": "images/bf41b76eee909a7e.png"
+      "spend": 1525.4,
+      "leads": 41,
+      "cost_per_lead": 37.2,
+      "ctr": 4.99,
+      "image": "images/55a8a3c171c34bd8.png"
     },
     {
       "banner": "1новый",
       "campaign": "DDA | дірект матраси + кроваті| 25.06",
       "goal": "Переписки",
-      "spend": 326.59,
+      "spend": 327.01,
       "leads": 9,
-      "cost_per_lead": 36.29,
+      "cost_per_lead": 36.33,
       "ctr": 4.38,
-      "image": "images/597160e49e6344e2.png"
+      "image": "images/9619b4f98f5822c8.png"
     },
     {
       "banner": "8",
       "campaign": "DDA | конверсії кровати | 03.07.2026",
       "goal": "Покупки",
-      "spend": 10.32,
+      "spend": 24.32,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 4.0,
-      "image": "images/cf36ddac3a361638.png"
+      "ctr": 5.06,
+      "image": "images/c19b659636b929a1.png"
     },
     {
       "banner": "5",
       "campaign": "DDA | конверсії кровати | 03.07.2026",
       "goal": "Покупки",
-      "spend": 121.56,
-      "leads": 2,
-      "cost_per_lead": 60.78,
-      "ctr": 4.46,
-      "image": "images/67f9c6c726303a1c.png"
+      "spend": 347.64,
+      "leads": 6,
+      "cost_per_lead": 57.94,
+      "ctr": 5.22,
+      "image": "images/e3cfb3eb944a8da3.png"
     },
     {
       "banner": "1",
       "campaign": "DDA | конверсії кровати | 03.07.2026",
       "goal": "Покупки",
-      "spend": 56.84,
+      "spend": 115.27,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 6.73,
-      "image": "images/dc23ad5341d91211.png"
+      "ctr": 5.24,
+      "image": "images/eff00d159fb9098d.png"
     }
   ]
 }
