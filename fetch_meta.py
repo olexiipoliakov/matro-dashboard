@@ -124,8 +124,8 @@ def fetch_campaign_goals():
     """
     # кампании: id + название
     camps = paged(f"{BASE}/{ACCOUNT_ID}/campaigns",
-                  {"access_token": ACCESS_TOKEN, "fields": "id,name", "limit": 300})
-    cmap = {c["id"]: {"name": c.get("name", "—"), "goals": {}} for c in camps}
+                  {"access_token": ACCESS_TOKEN, "fields": "id,name,effective_status", "limit": 300})
+    cmap = {c["id"]: {"name": c.get("name", "—"), "goals": {}, "status": c.get("effective_status", "UNKNOWN")} for c in camps}
 
     # группы объявлений: optimization_goal + campaign_id
     adsets = paged(f"{BASE}/{ACCOUNT_ID}/adsets",
@@ -145,6 +145,7 @@ def fetch_campaign_goals():
             "name": info["name"],
             "goal": goal,
             "actions": GOAL_TO_ACTION.get(goal, []),
+            "status": info.get("status", "UNKNOWN"),
         }
     return result
 
@@ -294,14 +295,12 @@ def download_images(banners):
         b["image"] = f"images/{fname}"
 
 
-def build(account_id=None, out_path=None, account_name="", access_token=None):
-    global ACCOUNT_ID, OUT, ACCESS_TOKEN
+def build(account_id=None, out_path=None, account_name=""):
+    global ACCOUNT_ID, OUT
     if account_id:
         ACCOUNT_ID = account_id
     if out_path:
         OUT = out_path
-    if access_token:
-        ACCESS_TOKEN = access_token
 
     label = f"[{account_name}] " if account_name else ""
     seen = set()
@@ -337,6 +336,7 @@ def build(account_id=None, out_path=None, account_name="", access_token=None):
             "spend": round(spend, 2),
             "leads": int(round(res)),
             "cost_per_lead": round(spend / res, 2) if res else 0,
+            "status": info.get("status", "UNKNOWN"),
         })
 
     # 2) баннеры (объявления) — АГРЕГАТ за период с точными результатами.
@@ -432,4 +432,12 @@ if __name__ == "__main__":
             account_name="Plume"
         )
 
-
+        # Аккаунт 2 — Matro
+        print("\n" + "=" * 50)
+        print("АККАУНТ 2: Matro")
+        print("=" * 50)
+        build(
+            account_id=ACCOUNT_ID_2,
+            out_path=Path(__file__).parent / "data2.json",
+            account_name="Matro"
+        )

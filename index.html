@@ -137,6 +137,11 @@
   /* подсветка активной строки кампании */
   #camp-body tr{cursor:pointer}
   #camp-body tr.active-camp{background:#faf0eb;outline:2px solid var(--accent)}
+  .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0}
+  .status-dot.active{background:#3f7d5c}
+  .status-dot.paused{background:#b8893b}
+  .status-dot.stopped{background:#c8553d}
+  .cf-reset{background:var(--accent);color:#fff;border:none;border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit}
   .bp-icon{font-size:16px;flex-shrink:0}
   .banner-period-note b{color:var(--ink)}
   /* ── AI-блок ── */
@@ -224,7 +229,11 @@
   </header>
   <div class="rule"></div>
 
-
+  <!-- переключатель аккаунтов -->
+  <div class="acc-tabs">
+    <button class="acc-tab active" onclick="switchAccount('data.json','Plume',this)">Plume</button>
+    <button class="acc-tab" onclick="switchAccount('data2.json','Matro',this)">Matro</button>
+  </div>
 
   <div id="error-box"></div>
 
@@ -240,7 +249,7 @@
       <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 дней</button>
       <button class="pbtn active" data-days="14" onclick="setPeriod(14,this)">14 дней</button>
       <button class="pbtn" data-days="30" onclick="setPeriod(30,this)">30 дней</button>
-      <button class="pbtn" data-days="0" onclick="setAll(this)">Всё</button>
+      <button class="pbtn" data-days="90" onclick="setPeriod(90,this)">Всё</button>
     </div>
     <div class="period-cal">
       <span class="cal-lbl">или период:</span>
@@ -459,19 +468,15 @@ function allDates(){
 function initPeriod(){
   const dates=allDates();
   if(dates.length){
+    // дефолт — последние 14 дней
     const maxD=dates[dates.length-1];
-    const minD=dates[0];
+    document.getElementById('date-to').value=maxD;
     document.getElementById('date-to').max=maxD;
     document.getElementById('date-from').max=maxD;
-    document.getElementById('date-from').min=minD;
-    document.getElementById('date-to').min=minD;
+    document.getElementById('date-from').min=dates[0];
+    document.getElementById('date-to').min=dates[0];
   }
-  // Если данных меньше 14 дней — показываем всё, иначе — 14 дней
-  if(dates.length<=14){
-    setAll(document.querySelector('.pbtn[data-days="0"]'));
-  } else {
-    setPeriod(14, document.querySelector('.pbtn[data-days="14"]'));
-  }
+  setPeriod(14, document.querySelector('.pbtn[data-days="14"]'));
 }
 function applyFilter(){
   FD=(DATA.daily||[]).filter(r=>(!curFrom||r.date>=curFrom)&&(!curTo||r.date<=curTo));
@@ -479,87 +484,63 @@ function applyFilter(){
   const info=document.getElementById('period-info');
   if(info){
     const dd=new Set(FD.map(r=>r.date)).size;
-    if(dd===0 && curFrom){
-      info.innerHTML=`<span style="color:var(--accent)">⚠ Нет данных за ${fmtDate(curFrom)}</span>`;
-    } else {
-      info.textContent=`${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.`;
-    }
+    info.textContent=`${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.`;
   }
   render();
 }
 function fmtDate(iso){if(!iso)return '—';const [y,m,d]=iso.split('-');return `${d}.${m}.${y}`;}
-
-// снимаем active только с кнопок внутри period-bar
-function clearPbtnActive(){
-  document.querySelectorAll('.period-btns .pbtn').forEach(b=>b.classList.remove('active'));
-}
-
 function setPeriod(days,btn){
-  clearPbtnActive();
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const dates=allDates();
   if(!dates.length){curFrom=curTo=null;applyFilter();return;}
-  // Отсчитываем от последней доступной даты В ДАННЫХ (не от сегодня)
-  // Это гарантирует что разные кнопки дают разные диапазоны
+  // используем реальную сегодняшнюю дату, но не выходим за пределы данных
+  const todayIso=new Date().toISOString().slice(0,10);
   const maxD=dates[dates.length-1];
-  const minD=dates[0];
-  const to=new Date(maxD+'T00:00:00');
+  const toIso=todayIso<=maxD?todayIso:maxD;
+  const to=new Date(toIso+'T00:00:00');
   const from=new Date(to); from.setDate(from.getDate()-(days-1));
   const fromIso=from.toISOString().slice(0,10);
-  curFrom=fromIso<minD?minD:fromIso;
-  curTo=maxD;
+  curFrom=fromIso<dates[0]?dates[0]:fromIso;
+  curTo=toIso;
   document.getElementById('date-from').value=curFrom;
   document.getElementById('date-to').value=curTo;
   applyFilter();
 }
-
-// Кнопка «Всё» — весь доступный диапазон данных
-function setAll(btn){
-  clearPbtnActive();
-  if(btn)btn.classList.add('active');
-  const dates=allDates();
-  if(!dates.length){curFrom=curTo=null;applyFilter();return;}
-  curFrom=dates[0];
-  curTo=dates[dates.length-1];
-  document.getElementById('date-from').value=curFrom;
-  document.getElementById('date-to').value=curTo;
-  applyFilter();
-}
-
-// Сегодня / Вчера — реальная дата браузера
+// сегодня / вчера — конкретная дата, не диапазон
 function setPeriodDays(daysAgo, btn){
-  clearPbtnActive();
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   const dates=allDates();
   if(!dates.length){curFrom=curTo=null;applyFilter();return;}
+  // реальная дата браузера
   const today=new Date();
   today.setDate(today.getDate()-daysAgo);
   const iso=today.toISOString().slice(0,10);
+  // если дата вне диапазона данных — берём ближайшую
   const minD=dates[0]; const maxD=dates[dates.length-1];
-  // Не клэмпим — показываем реальную дату, даже если данных нет
-  // applyFilter покажет предупреждение если dd===0
-  curFrom=iso; curTo=iso;
-  // Устанавливаем в input только если в пределах min/max, иначе очищаем
-  const inRange = iso>=minD && iso<=maxD;
-  document.getElementById('date-from').value=inRange?iso:'';
-  document.getElementById('date-to').value=inRange?iso:'';
+  const clamped=iso<minD?minD:iso>maxD?maxD:iso;
+  curFrom=clamped; curTo=clamped;
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
   applyFilter();
 }
-
 function setCustom(){
   const f=document.getElementById('date-from').value;
   const t=document.getElementById('date-to').value;
   if(f&&t&&f>t){return;}  // некорректный диапазон — игнор
   curFrom=f||null; curTo=t||null;
-  clearPbtnActive();
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
   applyFilter();
 }
 
 function aggregate(){
   const m={};
   FD.forEach(r=>{
-    if(!m[r.campaign]) m[r.campaign]={campaign:r.campaign,goal:r.goal||'Обращения',spend:0,leads:0};
+    if(!m[r.campaign]) m[r.campaign]={campaign:r.campaign,goal:r.goal||'Обращения',spend:0,leads:0,status:r.status||'UNKNOWN'};
     m[r.campaign].spend+=r.spend; m[r.campaign].leads+=r.leads;
+    // статус берём из последней строки (наиболее актуальный)
+    if(r.status) m[r.campaign].status=r.status;
   });
   const arr=Object.values(m);
   arr.forEach(c=>c.cost_per_lead=c.leads?c.spend/c.leads:0);
@@ -607,29 +588,39 @@ function render(){
   renderBanners();
 }
 
-// ── Три графика с фильтром по кампании ──
-let activeChartCamp=null;
+// ── Три графика с фильтром по кампании (мультивыбор) ──
+let activeCamps=new Set();
 
 function resetChartFilter(){
-  activeChartCamp=null;
+  activeCamps.clear();
   document.getElementById('chart-filter').style.display='none';
   document.querySelectorAll('#camp-body tr').forEach(r=>r.classList.remove('active-camp'));
   renderCharts();
 }
 
 function filterChartByCamp(campName){
-  activeChartCamp=campName;
-  document.getElementById('chart-filter').style.display='flex';
-  document.getElementById('cf-name').textContent=campName;
+  if(activeCamps.has(campName)){
+    activeCamps.delete(campName);
+  } else {
+    activeCamps.add(campName);
+  }
+  if(activeCamps.size===0){
+    document.getElementById('chart-filter').style.display='none';
+  } else {
+    document.getElementById('chart-filter').style.display='flex';
+    const names=[...activeCamps];
+    document.getElementById('cf-name').textContent=
+      names.length===1 ? names[0] : names.length+' кампании';
+  }
   document.querySelectorAll('#camp-body tr').forEach(r=>{
-    r.classList.toggle('active-camp',r.dataset.camp===campName);
+    r.classList.toggle('active-camp', activeCamps.has(r.dataset.camp));
   });
   renderCharts();
 }
 
 function renderCharts(){
-  const data=activeChartCamp
-    ? FD.filter(r=>r.campaign===activeChartCamp)
+  const data=activeCamps.size>0
+    ? FD.filter(r=>activeCamps.has(r.campaign))
     : FD;
 
   const bydate={};
@@ -695,8 +686,13 @@ function renderTable(key,asc){
   const s=[...CAMPS].sort((a,b)=>typeof a[key]==='string'?(asc?a[key].localeCompare(b[key]):b[key].localeCompare(a[key])):(asc?a[key]-b[key]:b[key]-a[key]));
   const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
   const totLeads=CAMPS.reduce((a,c)=>a+c.leads,0);
+  function statusDot(s){
+    if(!s||s==='ACTIVE') return '<span class="status-dot active" title="Активна"></span>';
+    if(s==='PAUSED') return '<span class="status-dot paused" title="Остановлена"></span>';
+    return '<span class="status-dot stopped" title="Неактивна"></span>';
+  }
   let html=s.map(c=>`<tr data-camp="${c.campaign}" onclick="filterChartByCamp('${c.campaign.replace(/'/g,"\\'")}')">
-    <td title="${c.campaign}">${c.campaign}</td>
+    <td title="${c.campaign}" style="display:flex;align-items:center;gap:4px">${statusDot(c.status)}${c.campaign}</td>
     <td><span class="goal-tag">${c.goal||'—'}</span></td>
     <td>${fmt(c.spend)}</td>
     <td>${fmt(c.leads)}</td>
@@ -706,10 +702,10 @@ function renderTable(key,asc){
   html+=`<tr class="tot-row"><td>ИТОГО</td><td></td><td>${fmt(totSpend)}</td><td>${fmt(totLeads)}</td>
     <td>—</td><td>100%</td></tr>`;
   document.getElementById('camp-body').innerHTML=html;
-  // восстанавливаем подсветку активной кампании после перерисовки
-  if(activeChartCamp){
+  // восстанавливаем подсветку активных кампаний после перерисовки
+  if(activeCamps.size>0){
     document.querySelectorAll('#camp-body tr').forEach(r=>{
-      r.classList.toggle('active-camp',r.dataset.camp===activeChartCamp);
+      r.classList.toggle('active-camp', activeCamps.has(r.dataset.camp));
     });
   }
   renderMobCamps(s);
