@@ -668,6 +668,7 @@ function _updateTotRow(){
     totRow.cells[0].textContent='ИТОГО';
     totRow.cells[2].textContent=fmt(ts);
     totRow.cells[3].textContent=fmt(tl);
+    totRow.cells[4].textContent=tl?fmt(Math.round(ts/tl))+' грн':'—';
     totRow.cells[5].textContent='100%';
   } else {
     const sel=allCamps.filter(c=>activeCamps.has(c.campaign));
@@ -676,6 +677,7 @@ function _updateTotRow(){
     totRow.cells[0].textContent='ИТОГО (выбр.)';
     totRow.cells[2].textContent=fmt(ts);
     totRow.cells[3].textContent=fmt(tl);
+    totRow.cells[4].textContent=tl?fmt(Math.round(ts/tl))+' грн':'—';
     totRow.cells[5].textContent=(totSpend?ts/totSpend*100:0).toFixed(0)+'%';
   }
 }
@@ -718,9 +720,9 @@ function renderCharts(){
     cpls=dates.map(d=>bydate[d].leads?bydate[d].spend/bydate[d].leads:0);
   }
 
-  drawChart('chart-spend', spends, labels, v=>fmt(v)+' грн', '#c8553d');
+  drawChart('chart-spend', spends, labels, v=>fmt(v)+' грн', '#c8553d', false);
   drawChart('chart-leads', leads, labels, v=>fmt(v), '#3f7d5c', false);
-  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' грн', '#b8893b');
+  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' грн', '#b8893b', false);
 }
 
 function drawChart(id, values, labels, fmtFn, color, showAvg=true){
@@ -770,8 +772,9 @@ function renderTable(key,asc){
     <td><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></td>
     <td>${c.share.toFixed(0)}%</td>
   </tr>`).join('');
+  const totCplVis=totLeadsVis?Math.round(totSpendVis/totLeadsVis):0;
   html+=`<tr class="tot-row"><td>ИТОГО${activeCamps.size>0?' (выбр.)':''}</td><td></td><td>${fmt(totSpendVis)}</td><td>${fmt(totLeadsVis)}</td>
-    <td>—</td><td>${activeCamps.size>0?(totSpendVis/totSpend*100).toFixed(0)+'%':'100%'}</td></tr>`;
+    <td>${totCplVis?fmt(totCplVis)+' грн':'—'}</td><td>${activeCamps.size>0?(totSpendVis/totSpend*100).toFixed(0)+'%':'100%'}</td></tr>`;
   document.getElementById('camp-body').innerHTML=html;
   // восстанавливаем подсветку активных кампаний после перерисовки
   if(activeCamps.size>0){
