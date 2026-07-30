@@ -18,7 +18,7 @@
   .wrap{max-width:1080px;margin:0 auto}
   header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
   .brand{display:flex;align-items:baseline;gap:14px}
-  .logo{font-family:Georgia,serif;font-size:30px;font-weight:700;letter-spacing:-.5px}
+  .logo{font-family:'Segoe UI',system-ui,sans-serif;font-size:30px;font-weight:700;letter-spacing:-.5px}
   .logo .dot{color:var(--accent)}
   .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--ink-soft);font-weight:600}
   .meta-line{text-align:right;font-size:12px;color:var(--ink-soft)}
@@ -29,7 +29,7 @@
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
     padding:18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
-  .kpi .val{font-family:Georgia,serif;font-size:29px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .kpi .val{font-family:'Segoe UI',system-ui,sans-serif;font-size:29px;font-weight:700;letter-spacing:-.5px;line-height:1}
   .kpi .val .cur{font-size:15px;color:var(--ink-soft);font-weight:400}
   .kpi .sub{font-size:12px;color:var(--ink-soft);margin-top:7px}
   .kpi.feature{background:linear-gradient(135deg,#2a241f,#1a1714);color:#f5f1ea;border-color:#2a241f}
@@ -37,7 +37,7 @@
   .kpi.feature::before{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;
     background:radial-gradient(circle,rgba(200,85,61,.45),transparent 70%)}
   .sec-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
-  .sec-head h2{font-family:Georgia,serif;font-size:19px;font-weight:700}
+  .sec-head h2{font-family:'Segoe UI',system-ui,sans-serif;font-size:19px;font-weight:700}
   .sec-head .n{font-size:11px;font-weight:700;color:var(--accent);border:1.5px solid var(--accent);
     border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0}
   .sec-head .ln{flex:1;height:1px;background:var(--line)}
@@ -135,7 +135,7 @@
     border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
   .cf-reset:hover{background:#b3492f}
   /* подсветка активной строки кампании */
-  #camp-body tr{cursor:pointer}
+  #camp-body tr{cursor:pointer;user-select:none}
   #camp-body tr.active-camp{background:#faf0eb;outline:2px solid var(--accent)}
   .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0}
   .status-dot.active{background:#3f7d5c}
@@ -149,7 +149,7 @@
     padding:22px;margin:0 0 28px;color:#f5f1ea}
   .ai-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
   .ai-icon{font-size:22px;flex-shrink:0;margin-top:2px;color:#d98a6b}
-  .ai-title{font-family:Georgia,serif;font-size:17px;font-weight:700;margin-bottom:3px}
+  .ai-title{font-family:'Segoe UI',system-ui,sans-serif;font-size:17px;font-weight:700;margin-bottom:3px}
   .ai-sub{font-size:12px;color:#b8a994;line-height:1.4}
   .ai-btn{margin-left:auto;background:var(--accent);color:#fff;border:none;
     padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;
@@ -186,7 +186,7 @@
   .mob-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .mob-stat{background:#f5f0e8;border-radius:8px;padding:8px 10px}
   .mob-stat .ml{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);font-weight:600;margin-bottom:3px}
-  .mob-stat .mv{font-size:16px;font-weight:700;font-family:Georgia,serif}
+  .mob-stat .mv{font-size:16px;font-weight:700;font-family:'Segoe UI',system-ui,sans-serif}
   .mob-banner-img{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--line);flex-shrink:0}
 
   @media(max-width:600px){
@@ -692,7 +692,7 @@ function renderTable(key,asc){
     return '<span class="status-dot stopped" title="Неактивна"></span>';
   }
   let html=s.map(c=>`<tr data-camp="${c.campaign}" onclick="filterChartByCamp('${c.campaign.replace(/'/g,"\\'")}')">
-    <td title="${c.campaign}" style="display:flex;align-items:center;gap:4px">${statusDot(c.status)}${c.campaign}</td>
+    <td title="${c.campaign}"><span style="display:inline-flex;align-items:center;gap:4px;width:100%">${statusDot(c.status)}${c.campaign}</span></td>
     <td><span class="goal-tag">${c.goal||'—'}</span></td>
     <td>${fmt(c.spend)}</td>
     <td>${fmt(c.leads)}</td>
