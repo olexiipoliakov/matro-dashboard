@@ -137,6 +137,9 @@
   /* подсветка активной строки кампании */
   #camp-body tr{cursor:pointer;user-select:none}
   #camp-body tr.active-camp{background:#faf0eb;outline:2px solid var(--accent)}
+  #camp-body tr.disabled-camp{opacity:0.35;cursor:not-allowed;pointer-events:none}
+  .avg-line{position:absolute;left:0;right:0;border-top:2px dashed rgba(0,0,0,0.2);pointer-events:none;z-index:2}
+  .chart-wrap{position:relative}
   .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0}
   .status-dot.active{background:#3f7d5c}
   .status-dot.paused{background:#b8893b}
@@ -594,8 +597,12 @@ let activeCamps=new Set();
 function resetChartFilter(){
   activeCamps.clear();
   document.getElementById('chart-filter').style.display='none';
-  document.querySelectorAll('#camp-body tr').forEach(r=>r.classList.remove('active-camp'));
+  document.querySelectorAll('#camp-body tr').forEach(r=>{
+    r.classList.remove('active-camp','disabled-camp');
+    r.style.pointerEvents='';
+  });
   renderCharts();
+  renderTable(sKey,sAsc);
 }
 
 function filterChartByCamp(campName){
@@ -606,16 +613,35 @@ function filterChartByCamp(campName){
   }
   if(activeCamps.size===0){
     document.getElementById('chart-filter').style.display='none';
-  } else {
-    document.getElementById('chart-filter').style.display='flex';
-    const names=[...activeCamps];
-    document.getElementById('cf-name').textContent=
-      names.length===1 ? names[0] : names.length+' кампании';
+    // снимаем блокировку всех строк
+    document.querySelectorAll('#camp-body tr').forEach(r=>{
+      r.classList.remove('active-camp','disabled-camp');
+      r.style.pointerEvents='';
+    });
+    renderCharts();
+    renderTable(sKey,sAsc);
+    return;
   }
-  document.querySelectorAll('#camp-body tr').forEach(r=>{
-    r.classList.toggle('active-camp', activeCamps.has(r.dataset.camp));
+  // определяем тип первой выбранной кампании
+  const firstRow=document.querySelector(`#camp-body tr[data-camp]`);
+  let activeGoal='';
+  document.querySelectorAll('#camp-body tr[data-camp]').forEach(r=>{
+    if(activeCamps.has(r.dataset.camp)) activeGoal=r.dataset.goal;
+  });
+  document.getElementById('chart-filter').style.display='flex';
+  const names=[...activeCamps];
+  document.getElementById('cf-name').textContent=
+    names.length===1 ? names[0] : names.length+' кампании';
+  // подсвечиваем выбранные, блокируем другой тип
+  document.querySelectorAll('#camp-body tr[data-camp]').forEach(r=>{
+    const isActive=activeCamps.has(r.dataset.camp);
+    const sameGoal=r.dataset.goal===activeGoal;
+    r.classList.toggle('active-camp', isActive);
+    r.classList.toggle('disabled-camp', !isActive && !sameGoal);
+    r.style.pointerEvents=(!isActive && !sameGoal)?'none':'';
   });
   renderCharts();
+  renderTable(sKey,sAsc);
 }
 
 function renderCharts(){
@@ -664,7 +690,11 @@ function renderCharts(){
 function drawChart(id, values, labels, fmtFn, color){
   const el=document.getElementById(id); if(!el)return;
   const maxv=Math.max(...values,1);
-  el.innerHTML=labels.map((lbl,i)=>{
+  const avg=values.length?values.reduce((a,b)=>a+b,0)/values.length:0;
+  const avgPct=avg/maxv*100;
+  const avgLine=avg>0?`<div class="avg-line" style="bottom:calc(${avgPct.toFixed(1)}% + 22px)" title="Среднее: ${fmtFn(avg)}"></div>`:'';
+  el.style.position='relative';
+  el.innerHTML=avgLine+labels.map((lbl,i)=>{
     const h=values[i]/maxv*100;
     return `<div class="col">
       <div class="barwrap"><div class="bar" data-v="${fmtFn(values[i])}"
@@ -691,7 +721,12 @@ function renderTable(key,asc){
     if(s==='PAUSED') return '<span class="status-dot paused" title="Остановлена"></span>';
     return '<span class="status-dot stopped" title="Неактивна"></span>';
   }
-  let html=s.map(c=>`<tr data-camp="${c.campaign}" onclick="filterChartByCamp('${c.campaign.replace(/'/g,"\\'")}')">
+  // ИТОГО — по выбранным кампаниям если есть выбор, иначе все
+  const activeCampsArr=[...activeCamps];
+  const visibleCamps=activeCampsArr.length>0 ? s.filter(c=>activeCamps.has(c.campaign)) : s;
+  const totSpendVis=visibleCamps.reduce((a,c)=>a+c.spend,0);
+  const totLeadsVis=visibleCamps.reduce((a,c)=>a+c.leads,0);
+  let html=s.map(c=>`<tr data-camp="${c.campaign}" data-goal="${c.goal||''}" onclick="filterChartByCamp('${c.campaign.replace(/'/g,"\\'")}')">
     <td title="${c.campaign}"><span style="display:inline-flex;align-items:center;gap:4px;width:100%">${statusDot(c.status)}${c.campaign}</span></td>
     <td><span class="goal-tag">${c.goal||'—'}</span></td>
     <td>${fmt(c.spend)}</td>
@@ -699,8 +734,8 @@ function renderTable(key,asc){
     <td><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></td>
     <td>${c.share.toFixed(0)}%</td>
   </tr>`).join('');
-  html+=`<tr class="tot-row"><td>ИТОГО</td><td></td><td>${fmt(totSpend)}</td><td>${fmt(totLeads)}</td>
-    <td>—</td><td>100%</td></tr>`;
+  html+=`<tr class="tot-row"><td>ИТОГО${activeCamps.size>0?' (выбр.)':''}</td><td></td><td>${fmt(totSpendVis)}</td><td>${fmt(totLeadsVis)}</td>
+    <td>—</td><td>${activeCamps.size>0?(totSpendVis/totSpend*100).toFixed(0)+'%':'100%'}</td></tr>`;
   document.getElementById('camp-body').innerHTML=html;
   // восстанавливаем подсветку активных кампаний после перерисовки
   if(activeCamps.size>0){
