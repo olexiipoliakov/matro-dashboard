@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 
 # ── Настройки ──────────────────────────────────────────────────────────────
 SITES = [
-    {"id": "sc-domain:matroluxe.ua",  "name": "Matroluxe UA"},
+    {"id": "https://matroluxe.ua/",  "name": "Matroluxe UA"},
 ]
 
 OUT = Path(__file__).parent / "seo_data.json"
