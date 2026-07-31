@@ -431,13 +431,3 @@ if __name__ == "__main__":
             out_path=Path(__file__).parent / "data.json",
             account_name="Plume"
         )
-
-        # Аккаунт 2 — Matro
-        print("\n" + "=" * 50)
-        print("АККАУНТ 2: Matro")
-        print("=" * 50)
-        build(
-            account_id=ACCOUNT_ID_2,
-            out_path=Path(__file__).parent / "data2.json",
-            account_name="Matro"
-        )
