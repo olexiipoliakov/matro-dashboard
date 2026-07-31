@@ -124,8 +124,8 @@ def fetch_campaign_goals():
     """
     # кампании: id + название
     camps = paged(f"{BASE}/{ACCOUNT_ID}/campaigns",
-                  {"access_token": ACCESS_TOKEN, "fields": "id,name,effective_status", "limit": 300})
-    cmap = {c["id"]: {"name": c.get("name", "—"), "goals": {}, "status": c.get("effective_status", "UNKNOWN")} for c in camps}
+                  {"access_token": ACCESS_TOKEN, "fields": "id,name,effective_status,daily_budget,lifetime_budget", "limit": 300})
+    cmap = {c["id"]: {"name": c.get("name", "—"), "goals": {}, "status": c.get("effective_status", "UNKNOWN"), "daily_budget": c.get("daily_budget"), "lifetime_budget": c.get("lifetime_budget")} for c in camps}
 
     # группы объявлений: optimization_goal + campaign_id
     adsets = paged(f"{BASE}/{ACCOUNT_ID}/adsets",
@@ -141,11 +141,18 @@ def fetch_campaign_goals():
     result = {}
     for cid, info in cmap.items():
         goal = max(info["goals"], key=info["goals"].get) if info["goals"] else ""
+        # бюджет: daily_budget в приоритете, иначе lifetime_budget
+        db = info.get("daily_budget")
+        lb = info.get("lifetime_budget")
+        budget = int(db)//100 if db else (int(lb)//100 if lb else 0)
+        budget_type = "день" if db else ("всего" if lb else "")
         result[cid] = {
             "name": info["name"],
             "goal": goal,
             "actions": GOAL_TO_ACTION.get(goal, []),
             "status": info.get("status", "UNKNOWN"),
+            "daily_budget": budget,
+            "budget_type": budget_type,
         }
     return result
 
@@ -337,6 +344,8 @@ def build(account_id=None, out_path=None, account_name=""):
             "leads": int(round(res)),
             "cost_per_lead": round(spend / res, 2) if res else 0,
             "status": info.get("status", "UNKNOWN"),
+            "daily_budget": info.get("daily_budget", 0),
+            "budget_type": info.get("budget_type", ""),
         })
 
     # 2) баннеры (объявления) — АГРЕГАТ за период с точными результатами.
