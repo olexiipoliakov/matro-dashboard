@@ -608,12 +608,29 @@ let activeCamps=new Set();
 function resetChartFilter(){
   activeCamps.clear();
   document.getElementById('chart-filter').style.display='none';
-  document.querySelectorAll('#camp-body tr').forEach(r=>{
-    r.classList.remove('active-camp','disabled-camp');
-    r.style.pointerEvents='';
-  });
+  _applyGoalFilter();
   renderCharts();
-  renderTable(sKey,sAsc);
+  _updateTotRow();
+}
+
+function _applyGoalFilter(){
+  if(activeCamps.size===0){
+    document.querySelectorAll('#camp-body tr[data-camp]').forEach(r=>{
+      r.classList.remove('active-camp','disabled-camp');
+      r.style.pointerEvents='';
+    });
+    return;
+  }
+  // определяем тип выбранных кампаний из CAMPS (не из DOM — DOM может быть старым)
+  let activeGoal='';
+  CAMPS.forEach(c=>{ if(activeCamps.has(c.campaign)) activeGoal=c.goal; });
+  document.querySelectorAll('#camp-body tr[data-camp]').forEach(r=>{
+    const isActive=activeCamps.has(r.dataset.camp);
+    const sameGoal=r.dataset.goal===activeGoal;
+    r.classList.toggle('active-camp', isActive);
+    r.classList.toggle('disabled-camp', !isActive && !sameGoal);
+    r.style.pointerEvents=(!isActive && !sameGoal)?'none':'';
+  });
 }
 
 function filterChartByCamp(campName){
@@ -624,35 +641,38 @@ function filterChartByCamp(campName){
   }
   if(activeCamps.size===0){
     document.getElementById('chart-filter').style.display='none';
-    // снимаем блокировку всех строк
-    document.querySelectorAll('#camp-body tr').forEach(r=>{
-      r.classList.remove('active-camp','disabled-camp');
-      r.style.pointerEvents='';
-    });
-    renderCharts();
-    renderTable(sKey,sAsc);
-    return;
+  } else {
+    document.getElementById('chart-filter').style.display='flex';
+    const names=[...activeCamps];
+    document.getElementById('cf-name').textContent=
+      names.length===1 ? names[0] : names.length+' кампании';
   }
-  // определяем тип первой выбранной кампании
-  const firstRow=document.querySelector(`#camp-body tr[data-camp]`);
-  let activeGoal='';
-  document.querySelectorAll('#camp-body tr[data-camp]').forEach(r=>{
-    if(activeCamps.has(r.dataset.camp)) activeGoal=r.dataset.goal;
-  });
-  document.getElementById('chart-filter').style.display='flex';
-  const names=[...activeCamps];
-  document.getElementById('cf-name').textContent=
-    names.length===1 ? names[0] : names.length+' кампании';
-  // подсвечиваем выбранные, блокируем другой тип
-  document.querySelectorAll('#camp-body tr[data-camp]').forEach(r=>{
-    const isActive=activeCamps.has(r.dataset.camp);
-    const sameGoal=r.dataset.goal===activeGoal;
-    r.classList.toggle('active-camp', isActive);
-    r.classList.toggle('disabled-camp', !isActive && !sameGoal);
-    r.style.pointerEvents=(!isActive && !sameGoal)?'none':'';
-  });
+  _applyGoalFilter();
   renderCharts();
-  renderTable(sKey,sAsc);
+  _updateTotRow();
+}
+
+function _updateTotRow(){
+  const totRow=document.querySelector('#camp-body tr.tot-row');
+  if(!totRow) return;
+  const totSpend=CAMPS.reduce((a,c)=>a+c.spend,0);
+  if(activeCamps.size===0){
+    const tl=CAMPS.reduce((a,c)=>a+c.leads,0);
+    totRow.cells[0].textContent='ИТОГО';
+    totRow.cells[3].textContent=fmt(totSpend);
+    totRow.cells[4].textContent=fmt(tl);
+    totRow.cells[5].textContent=tl?fmt(Math.round(totSpend/tl))+' грн':'—';
+    totRow.cells[6].textContent='100%';
+  } else {
+    const sel=CAMPS.filter(c=>activeCamps.has(c.campaign));
+    const ts=sel.reduce((a,c)=>a+c.spend,0);
+    const tl=sel.reduce((a,c)=>a+c.leads,0);
+    totRow.cells[0].textContent='ИТОГО (выбр.)';
+    totRow.cells[3].textContent=fmt(ts);
+    totRow.cells[4].textContent=fmt(tl);
+    totRow.cells[5].textContent=tl?fmt(Math.round(ts/tl))+' грн':'—';
+    totRow.cells[6].textContent=(totSpend?ts/totSpend*100:0).toFixed(0)+'%';
+  }
 }
 
 function renderCharts(){
@@ -750,12 +770,8 @@ function renderTable(key,asc){
   html+=`<tr class="tot-row"><td>ИТОГО${activeCamps.size>0?' (выбр.)':''}</td><td></td><td></td><td>${fmt(totSpendVis)}</td><td>${fmt(totLeadsVis)}</td>
     <td>${totCplVis2?fmt(totCplVis2)+' грн':'—'}</td><td>${activeCamps.size>0?(totSpendVis/totSpend*100).toFixed(0)+'%':'100%'}</td></tr>`;
   document.getElementById('camp-body').innerHTML=html;
-  // восстанавливаем подсветку активных кампаний после перерисовки
-  if(activeCamps.size>0){
-    document.querySelectorAll('#camp-body tr').forEach(r=>{
-      r.classList.toggle('active-camp', activeCamps.has(r.dataset.camp));
-    });
-  }
+  // восстанавливаем подсветку и блокировку после перерисовки
+  _applyGoalFilter();
   renderMobCamps(s);
 }
 document.querySelectorAll('#camp-table th').forEach(th=>th.addEventListener('click',()=>{
