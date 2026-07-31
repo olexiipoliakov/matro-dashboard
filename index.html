@@ -266,18 +266,21 @@
   <!-- ВКЛАДКА: КАМПАНИИ -->
   <div class="view active" id="view-camps">
   <div class="kpis">
-    <div class="kpi feature"><div class="lbl">Результатов всего</div>
-      <div class="val" id="k-leads">—</div>
-      <div class="sub" id="k-leads-break">—</div></div>
-    <div class="kpi"><div class="lbl">Расход</div>
+    <div class="kpi feature"><div class="lbl">Расход</div>
       <div class="val"><span id="k-spend">—</span> <span class="cur">грн</span></div>
       <div class="sub" id="k-days">—</div></div>
-    <div class="kpi"><div class="lbl">Кампаний активно</div>
-      <div class="val" id="k-camps">—</div>
-      <div class="sub" id="k-best">—</div></div>
-    <div class="kpi"><div class="lbl">Типов целей</div>
-      <div class="val" id="k-goals">—</div>
-      <div class="sub">переписки / лиды / покупки</div></div>
+    <div class="kpi"><div class="lbl">Цена за переписку</div>
+      <div class="val"><span id="k-cpl-conv">—</span> <span class="cur">грн</span></div>
+      <div class="sub" id="k-conv-count">— переписок</div></div>
+    <div class="kpi"><div class="lbl">Переписок</div>
+      <div class="val" id="k-leads-conv">—</div>
+      <div class="sub" id="k-camps-conv">— кампаний</div></div>
+    <div class="kpi"><div class="lbl">Цена за покупку</div>
+      <div class="val"><span id="k-cpl-purch">—</span> <span class="cur">грн</span></div>
+      <div class="sub" id="k-purch-count">— покупок</div></div>
+    <div class="kpi"><div class="lbl">Покупок</div>
+      <div class="val" id="k-leads-purch">—</div>
+      <div class="sub" id="k-camps-purch">— кампаний</div></div>
   </div>
 
   <div class="sec-head"><span class="n">1</span><h2>Кампании: результаты и их цена</h2><span class="ln"></span></div>
@@ -572,19 +575,25 @@ function render(){
   window._goalAvg={};
   Object.keys(byGoal).forEach(g=>window._goalAvg[g]=byGoal[g].leads?byGoal[g].spend/byGoal[g].leads:0);
 
-  // разбивка результатов по типам
-  const breakParts=Object.keys(byGoal).map(g=>`${byGoal[g].leads} ${g.toLowerCase()}`).join(' · ');
-  document.getElementById('k-leads').textContent=fmt(totLeads);
-  document.getElementById('k-leads-break').textContent=breakParts||'за период';
-  document.getElementById('k-spend').textContent=fmt(totSpend);
-  document.getElementById('k-camps').textContent=CAMPS.length;
-  document.getElementById('k-goals').textContent=Object.keys(byGoal).length;
+  // новые KPI карточки
   const days=new Set(FD.map(r=>r.date)).size;
+  document.getElementById('k-spend').textContent=fmt(totSpend);
   document.getElementById('k-days').textContent=days+' дн. в периоде';
-  // лучшая кампания — самая дешёвая относительно среднего по своему типу
-  const ranked=CAMPS.filter(c=>c.leads>0).map(c=>({...c,ratio:c.cost_per_lead/(window._goalAvg[c.goal]||c.cost_per_lead)}));
-  const best=ranked.sort((a,b)=>a.ratio-b.ratio)[0];
-  document.getElementById('k-best').textContent=best?('эффективнее всех: '+best.campaign):'—';
+  const convGoals=['Переписки','Лиды'];
+  const convCamps=CAMPS.filter(c=>convGoals.includes(c.goal));
+  const convLeads=convCamps.reduce((a,c)=>a+c.leads,0);
+  const convSpend=convCamps.reduce((a,c)=>a+c.spend,0);
+  document.getElementById('k-leads-conv').textContent=fmt(convLeads);
+  document.getElementById('k-cpl-conv').textContent=convLeads?fmt(Math.round(convSpend/convLeads)):'—';
+  document.getElementById('k-conv-count').textContent=fmt(convLeads)+' переписок';
+  document.getElementById('k-camps-conv').textContent=convCamps.length+' кампаний';
+  const purchCamps=CAMPS.filter(c=>c.goal==='Покупки');
+  const purchLeads=purchCamps.reduce((a,c)=>a+c.leads,0);
+  const purchSpend=purchCamps.reduce((a,c)=>a+c.spend,0);
+  document.getElementById('k-leads-purch').textContent=fmt(purchLeads);
+  document.getElementById('k-cpl-purch').textContent=purchLeads?fmt(Math.round(purchSpend/purchLeads)):'—';
+  document.getElementById('k-purch-count').textContent=fmt(purchLeads)+' покупок';
+  document.getElementById('k-camps-purch').textContent=purchCamps.length+' кампаний';
 
   renderCharts();
 
@@ -684,17 +693,17 @@ function renderCharts(){
     cpls=dates.map(d=>bydate[d].leads?bydate[d].spend/bydate[d].leads:0);
   }
 
-  drawChart('chart-spend', spends, labels, v=>fmt(v)+' грн', '#c8553d');
-  drawChart('chart-leads', leads, labels, v=>fmt(v), '#3f7d5c');
-  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' грн', '#b8893b');
+  drawChart('chart-spend', spends, labels, v=>fmt(v)+' грн', '#c8553d', false);
+  drawChart('chart-leads', leads, labels, v=>fmt(v), '#3f7d5c', false);
+  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' грн', '#b8893b', false);
 }
 
-function drawChart(id, values, labels, fmtFn, color){
+function drawChart(id, values, labels, fmtFn, color, showAvg=false){
   const el=document.getElementById(id); if(!el)return;
   const maxv=Math.max(...values,1);
   const avg=values.length?values.reduce((a,b)=>a+b,0)/values.length:0;
   const avgPct=avg/maxv*100;
-  const avgLine=avg>0?`<div class="avg-line" style="bottom:calc(${avgPct.toFixed(1)}% + 22px)" title="Среднее: ${fmtFn(avg)}"></div>`:'';
+  const avgLine=(avg>0&&showAvg)?`<div class="avg-line" style="bottom:calc(${avgPct.toFixed(1)}% + 22px)" title="Среднее: ${fmtFn(avg)}"></div>`:'';
   el.style.position='relative';
   el.innerHTML=avgLine+labels.map((lbl,i)=>{
     const h=values[i]/maxv*100;
