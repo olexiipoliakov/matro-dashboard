@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matro · SEO</title>
+<style>
+  :root{
+    --ink:#1a1714; --ink-soft:#5c534a; --paper:#f5f1ea; --card:#fffdf9;
+    --line:#e3dccf; --accent:#2f8f6b; --accent-2:#4f8fdb;
+    --good:#3f7d5c; --good-bg:#e3f0e8; --mid:#b8893b; --mid-bg:#fbf0d8;
+    --bad:#c0432f; --bad-bg:#f6e0db;
+    --r:14px; --shadow:0 1px 2px rgba(26,23,20,.04),0 8px 24px rgba(26,23,20,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;padding:32px 24px 64px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .home-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+    color:var(--ink-soft);text-decoration:none;margin-bottom:14px}
+  .home-link:hover{color:var(--accent)}
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .logo{font-size:30px;font-weight:700;letter-spacing:-.5px}
+  .logo .dot{color:var(--accent)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--ink-soft);font-weight:600}
+  .meta-line{text-align:right;font-size:12px;color:var(--ink-soft)}
+  .meta-line b{color:var(--ink)}
+  .rule{height:2px;background:var(--ink);margin:14px 0 28px;position:relative}
+  .rule::after{content:"";position:absolute;left:0;top:0;height:2px;width:72px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  .site-tabs{display:flex;gap:4px;margin-bottom:20px}
+  .site-tab{padding:8px 22px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;
+    border:2px solid var(--line);background:var(--card);color:var(--ink-soft);
+    border-radius:10px 10px 0 0;border-bottom:none;margin-bottom:-1px;transition:all .15s}
+  .site-tab:hover{color:var(--ink);border-color:var(--ink)}
+  .site-tab.active{background:#fff;color:var(--ink);border-color:var(--ink);border-bottom:2px solid #fff;z-index:1}
+
+  .period-bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:26px;
+    padding:14px 18px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .period-btns{display:flex;gap:6px}
+  .pbtn{padding:7px 16px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:8px;transition:all .15s}
+  .pbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .period-info{margin-left:auto;font-size:12.5px;color:var(--ink-soft);font-weight:600}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:34px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px;box-shadow:var(--shadow)}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
+  .kpi .val{font-size:29px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .kpi .sub{font-size:12px;margin-top:7px}
+  .kpi .sub.up{color:var(--good)}
+  .kpi .sub.down{color:var(--bad)}
+
+  .sec-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+  .sec-head h2{font-size:19px;font-weight:700}
+  .sec-head .n{font-size:11px;font-weight:700;color:var(--accent);border:1.5px solid var(--accent);
+    border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0}
+  .sec-head .ln{flex:1;height:1px;background:var(--line)}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:20px;margin-bottom:34px}
+  .chart{display:flex;align-items:flex-end;gap:6px;height:180px;padding:10px 0 0}
+  .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+  .chart .barwrap{width:100%;display:flex;align-items:flex-end;justify-content:center;flex:1}
+  .chart .bar{width:60%;max-width:34px;background:linear-gradient(180deg,var(--accent),var(--accent-2));
+    border-radius:5px 5px 0 0;transition:height .9s cubic-bezier(.2,.8,.2,1);position:relative;min-height:2px}
+  .chart .bar:hover::after{content:attr(data-v);position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:11px;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .chart .xl{font-size:10px;color:var(--ink-soft);white-space:nowrap}
+
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:820px){.cols2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);
+    font-weight:700;padding:8px 10px;border-bottom:2px solid var(--ink);cursor:pointer;user-select:none;white-space:nowrap}
+  th:first-child{text-align:left}th:hover{color:var(--accent)}
+  td{padding:10px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+  td:first-child{text-align:left;font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  tbody tr:hover{background:#f2f7f4}
+  .pos-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px}
+  .pos-tag.good{background:var(--good-bg);color:var(--good)}
+  .pos-tag.mid{background:var(--mid-bg);color:var(--mid)}
+  .pos-tag.bad{background:var(--bad-bg);color:var(--bad)}
+  footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
+  .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+
+  @media(max-width:600px){
+    body{padding:16px 12px 48px}
+    header{flex-direction:column;align-items:flex-start;gap:6px}
+    .meta-line{text-align:left}
+    .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+    .kpi{padding:14px}
+    .kpi .val{font-size:22px}
+    .period-bar{flex-direction:column;align-items:flex-start;gap:10px;padding:12px}
+    .period-info{margin-left:0;width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="home.html" class="home-link">&larr; Home</a>
+  <header>
+    <div class="brand">
+      <div class="logo">Matro<span class="dot">.</span></div>
+      <div>
+        <div class="eyebrow">SEO</div>
+        <div style="font-size:13px;color:var(--ink-soft)">Google Search Console · органический трафик</div>
+      </div>
+    </div>
+    <div class="meta-line">Период: <b id="period-info">—</b><br>Обновлено: <b id="updated">—</b></div>
+  </header>
+  <div class="rule"></div>
+
+  <div id="error-box"></div>
+  <div class="site-tabs" id="site-tabs"></div>
+
+  <div class="period-bar">
+    <div class="period-btns">
+      <button class="pbtn active" data-mode="daily" onclick="setMode('daily',this)">28 дней</button>
+      <button class="pbtn" data-mode="monthly" onclick="setMode('monthly',this)">12 месяцев</button>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="sec-head"><span class="n">1</span><h2>Кліки по <span id="chart-unit">дням</span></h2><span class="ln"></span></div>
+  <div class="panel">
+    <div class="chart" id="chart"></div>
+  </div>
+
+  <div class="sec-head"><span class="n">2</span><h2>Динаміка позицій по розділах</h2><span class="ln"></span></div>
+  <div class="panel">
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:10px">За останні 12 тижнів · вище лінія — краща позиція</div>
+    <div id="cat-chart"></div>
+    <div id="cat-legend" style="margin-top:10px;display:flex;flex-wrap:wrap"></div>
+  </div>
+
+  <div class="sec-head"><span class="n">3</span><h2>Запросы и страницы</h2><span class="ln"></span></div>
+  <div class="cols2">
+    <div class="panel">
+      <table>
+        <thead><tr><th>Запрос</th><th>Клики</th><th>Показы</th><th>Позиция</th></tr></thead>
+        <tbody id="q-body"></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <table>
+        <thead><tr><th>Страница</th><th>Клики</th><th>CTR</th><th>Позиция</th></tr></thead>
+        <tbody id="p-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>Данные из <code>seo_data.json</code> · Google Search Console API</footer>
+</div>
+
+<script>
+let DATA=null, SITES=[], CUR=0, MODE='daily';
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+const fmt1=n=>new Intl.NumberFormat('uk-UA',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n||0);
+
+async function load(){
+  try{
+    const res=await fetch('seo_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    DATA=await res.json();
+    SITES=DATA.sites||[];
+    if(!SITES.length){ showError('В seo_data.json нет данных по сайтам.'); return; }
+    document.getElementById('updated').textContent=DATA.generated_at||'—';
+    renderSiteTabs();
+    render();
+  }catch(e){
+    showError('Не удалось загрузить seo_data.json: '+e.message);
+  }
+}
+
+function showError(msg){
+  document.getElementById('error-box').innerHTML=`<div class="err">${msg}</div>`;
+}
+
+function renderSiteTabs(){
+  const el=document.getElementById('site-tabs');
+  el.innerHTML=SITES.map((s,i)=>
+    `<button class="site-tab ${i===CUR?'active':''}" onclick="switchSite(${i},this)">${s.site_name}</button>`
+  ).join('');
+}
+
+function switchSite(i,btn){
+  CUR=i;
+  document.querySelectorAll('.site-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setMode(m,btn){
+  MODE=m;
+  document.querySelectorAll('.period-btns .pbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('chart-unit').textContent = m==='daily' ? 'дням' : 'месяцам';
+  render();
+}
+
+function render(){
+  const site=SITES[CUR];
+  if(!site) return;
+  document.getElementById('period-info').textContent = MODE==='daily' ? site.period : 'последние 12 месяцев';
+
+  const rows = MODE==='daily' ? site.daily : site.monthly;
+  renderKpis(rows);
+  renderChart(rows);
+  renderCategoryChart(site.categories||[]);
+  renderQueries(site.queries||[]);
+  renderPages(site.pages||[]);
+}
+
+function renderKpis(rows){
+  const totalClicks=rows.reduce((a,r)=>a+(r.clicks||0),0);
+  const totalImpr=rows.reduce((a,r)=>a+(r.impressions||0),0);
+  const avgCtr=totalImpr? (totalClicks/totalImpr*100) : 0;
+  const avgPos=rows.length? rows.reduce((a,r)=>a+(r.position||0),0)/rows.length : 0;
+
+  const half=Math.floor(rows.length/2)||1;
+  const prevClicks=rows.slice(0,half).reduce((a,r)=>a+(r.clicks||0),0);
+  const curClicks=rows.slice(half).reduce((a,r)=>a+(r.clicks||0),0);
+  const trendPct = prevClicks? ((curClicks-prevClicks)/prevClicks*100) : 0;
+  const trendCls = trendPct>=0 ? 'up' : 'down';
+  const trendTxt = trendPct>=0 ? `+${fmt1(trendPct)}%` : `${fmt1(trendPct)}%`;
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="lbl">Клики</div><div class="val">${fmt(totalClicks)}</div>
+      <div class="sub ${trendCls}">${trendTxt} 2-я половина периода</div></div>
+    <div class="kpi"><div class="lbl">Показы</div><div class="val">${fmt(totalImpr)}</div>
+      <div class="sub">за выбранный период</div></div>
+    <div class="kpi"><div class="lbl">CTR</div><div class="val">${fmt1(avgCtr)}%</div>
+      <div class="sub">клики / показы</div></div>
+    <div class="kpi"><div class="lbl">Средняя позиция</div><div class="val">${fmt1(avgPos)}</div>
+      <div class="sub">чем ниже, тем лучше</div></div>`;
+}
+
+function renderChart(rows){
+  const max=Math.max(1,...rows.map(r=>r.clicks||0));
+  const el=document.getElementById('chart');
+  el.innerHTML=rows.map(r=>{
+    const label = MODE==='daily' ? (r.date||'').slice(5) : (r.month||'');
+    const h=Math.max(2,(r.clicks||0)/max*100);
+    return `<div class="col">
+      <div class="barwrap"><div class="bar" style="height:${h}%" data-v="${fmt(r.clicks)}"></div></div>
+      <div class="xl">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+const CAT_PALETTE=['#2f8f6b','#4f8fdb','#c8553d','#b8893b','#9b6dff','#3ecf8e','#c0432f','#5c534a','#e0a458','#7aa6c2'];
+
+function renderCategoryChart(categories){
+  const el=document.getElementById('cat-chart');
+  const legend=document.getElementById('cat-legend');
+  const active=categories.filter(c=>c.weekly.some(w=>w.clicks>0));
+  if(!active.length){ el.innerHTML='<div style="font-size:13px;color:var(--ink-soft)">Недостатньо даних по розділах за цей період.</div>'; legend.innerHTML=''; return; }
+
+  const weeks=active[0].weekly.map(w=>w.week_start);
+  let allPos=[];
+  active.forEach(c=>c.weekly.forEach(w=>{ if(w.position!=null) allPos.push(w.position); }));
+  const minPos=1, maxPos=Math.max(10,...allPos);
+
+  const W=1000,H=220,padL=6,padR=6,padT=10,padB=20;
+  const innerW=W-padL-padR, innerH=H-padT-padB;
+  const xStep=weeks.length>1?innerW/(weeks.length-1):0;
+  const yFor=p=>padT+((p-minPos)/(maxPos-minPos))*innerH;
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">`;
+  active.forEach((c,i)=>{
+    const color=CAT_PALETTE[i%CAT_PALETTE.length];
+    let d='';
+    c.weekly.forEach((w,idx)=>{
+      if(w.position==null) return;
+      const x=padL+idx*xStep, y=yFor(w.position);
+      d+=(d?'L':'M')+x.toFixed(1)+','+y.toFixed(1)+' ';
+    });
+    if(d) svg+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="2"/>`;
+  });
+  const firstLbl=weeks[0]?weeks[0].slice(5):'';
+  const lastLbl=weeks[weeks.length-1]?weeks[weeks.length-1].slice(5):'';
+  svg+=`<text x="${padL}" y="${H-4}" font-size="10" fill="#8a8272">${firstLbl}</text>`;
+  svg+=`<text x="${W-padR}" y="${H-4}" font-size="10" fill="#8a8272" text-anchor="end">${lastLbl}</text>`;
+  svg+='</svg>';
+  el.innerHTML=svg;
+
+  legend.innerHTML=active.map((c,i)=>{
+    const color=CAT_PALETTE[i%CAT_PALETTE.length];
+    return `<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;margin-bottom:4px;font-size:12px;color:var(--ink-soft)">
+      <span style="width:10px;height:10px;border-radius:2px;background:${color};display:inline-block"></span>${c.name}</span>`;
+  }).join('');
+}
+
+function posClass(p){
+  if(p<=10) return 'good';
+  if(p<=25) return 'mid';
+  return 'bad';
+}
+
+function renderQueries(queries){
+  const sorted=[...queries].sort((a,b)=>b.clicks-a.clicks).slice(0,15);
+  document.getElementById('q-body').innerHTML=sorted.map(q=>`
+    <tr><td>${q.query}</td><td>${fmt(q.clicks)}</td><td>${fmt(q.impressions)}</td>
+    <td><span class="pos-tag ${posClass(q.position)}">${fmt1(q.position)}</span></td></tr>`).join('');
+}
+
+function renderPages(pages){
+  const sorted=[...pages].sort((a,b)=>b.clicks-a.clicks).slice(0,15);
+  document.getElementById('p-body').innerHTML=sorted.map(p=>`
+    <tr><td>${p.page}</td><td>${fmt(p.clicks)}</td><td>${fmt1(p.ctr)}%</td>
+    <td><span class="pos-tag ${posClass(p.position)}">${fmt1(p.position)}</span></td></tr>`).join('');
+}
+
+load();
+</script>
+</body>
+</html>

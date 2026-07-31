@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matro · Digital Operations Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root{
+    --bg:#070B14; --card:#101522; --card-hover:#151B2B;
+    --border:rgba(255,255,255,.06); --border-strong:rgba(255,255,255,.14);
+    --ink:#F7F8FB; --ink-soft:#95A0BF; --ink-dim:#5A6A8A;
+    --accent:#FF8C42; --accent-2:#FF6A2B;
+    --seo:#32D8FF; --seo-2:#5B8DEE;
+    --success:#27E37A; --warning:#FFC84D; --danger:#FF5E6C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{
+    font-family:'Inter',-apple-system,system-ui,sans-serif;
+    color:var(--ink);min-height:100vh;position:relative;overflow-x:hidden;
+    padding:40px clamp(20px,5vw,64px) 64px;
+  }
+
+  /* ── фон: глубокий градиент + сетка + горизонт ── */
+  .bg-fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .bg-fx .glow-1{position:absolute;top:-20%;left:10%;width:60vw;height:60vw;
+    background:radial-gradient(circle,rgba(255,140,66,.10),transparent 65%);filter:blur(40px)}
+  .bg-fx .glow-2{position:absolute;top:-10%;right:-10%;width:50vw;height:50vw;
+    background:radial-gradient(circle,rgba(90,120,255,.12),transparent 65%);filter:blur(40px)}
+  .bg-fx .glow-3{position:absolute;bottom:-30%;left:20%;width:70vw;height:50vw;
+    background:radial-gradient(circle,rgba(138,92,255,.08),transparent 70%);filter:blur(50px)}
+  .bg-fx .grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse at 50% 0%,black 0%,transparent 70%)}
+  .bg-fx .horizon{position:absolute;top:280px;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,140,66,.35),rgba(90,150,255,.25),transparent)}
+
+  .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto}
+
+  /* ── header ── */
+  header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:36px}
+  .brand-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .brand-row .logo{font-size:20px;font-weight:700;letter-spacing:-.3px}
+  .brand-row .logo span{color:var(--accent)}
+  .greeting{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-.5px;margin-bottom:6px;
+    display:flex;align-items:center;gap:10px}
+  .greeting .wave{display:inline-block;animation:wave 2.4s ease-in-out infinite}
+  @keyframes wave{0%,100%{transform:rotate(0deg)}20%{transform:rotate(14deg)}40%{transform:rotate(-8deg)}60%{transform:rotate(14deg)}80%{transform:rotate(0deg)}}
+  .sub{font-size:14px;color:var(--ink-soft)}
+
+  .head-right{display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+  .date-pill{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:8px 14px}
+  .date-pill i{width:15px;height:15px;color:var(--ink-soft)}
+
+  .sys-status{display:flex;flex-direction:column;gap:8px;
+    background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:12px 16px;min-width:230px}
+  .sys-status .sys-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-dim);
+    font-weight:600;margin-bottom:2px}
+  .sys-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;gap:16px}
+  .sys-row .name{color:var(--ink-soft)}
+  .sys-row .pill{display:flex;align-items:center;gap:6px;font-weight:600;font-size:12px}
+  .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .dot.on{background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s ease-in-out infinite}
+  .dot.off{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .pill.on{color:var(--success)}.pill.off{color:var(--danger)}
+
+  /* ── grid карточек ── */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+
+  .glass{
+    background:rgba(16,21,34,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--border); border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,.35);
+    padding:26px; position:relative; overflow:hidden;
+    transition:transform 300ms cubic-bezier(.2,.8,.2,1), box-shadow 300ms cubic-bezier(.2,.8,.2,1),
+               border-color 300ms cubic-bezier(.2,.8,.2,1), background 300ms cubic-bezier(.2,.8,.2,1);
+    opacity:0; transform:translateY(20px); animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+  .glass:nth-of-type(1){animation-delay:.05s}
+  .glass:nth-of-type(2){animation-delay:.1s}
+  .glass:hover{transform:translateY(-6px) scale(1.01);background:var(--card-hover);
+    border-color:var(--border-strong);box-shadow:0 40px 100px rgba(0,0,0,.45)}
+
+  .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .card-id{display:flex;align-items:center;gap:12px}
+  .card-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .card-icon i{width:19px;height:19px}
+  .smm .card-icon{background:rgba(255,140,66,.12);color:var(--accent)}
+  .seo .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
+  .card-name{font-size:16px;font-weight:600}
+  .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .card-tag{font-size:11px;font-weight:600;color:var(--ink-soft);background:rgba(255,255,255,.04);
+    border:1px solid var(--border);padding:5px 11px;border-radius:20px;white-space:nowrap}
+
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .stat .v{font-size:21px;font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+  .stat .d{font-size:11px;margin-top:3px;font-weight:600}
+  .stat .d.up{color:var(--success)}.stat .d.down{color:var(--danger)}
+
+  .chart-box{margin:4px 0 16px;position:relative}
+  .chart-box svg{width:100%;height:auto;display:block;overflow:visible}
+
+  .card-cta{display:flex;align-items:center;justify-content:space-between;padding-top:16px;
+    border-top:1px solid var(--border)}
+  .btn-primary{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#fff;
+    text-decoration:none;padding:9px 16px;border-radius:10px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    transition:transform 200ms ease, box-shadow 200ms ease}
+  .smm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,140,66,.35)}
+  .seo .btn-primary{background:linear-gradient(90deg,var(--seo),var(--seo-2))}
+  .seo .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(50,216,255,.3)}
+  .btn-primary i{width:14px;height:14px}
+  .updated-note{font-size:11px;color:var(--ink-dim)}
+
+  .skeleton{color:var(--ink-dim);font-size:13px;padding:20px 0;text-align:center}
+
+  @media(max-width:600px){
+    body{padding:24px 16px 48px}
+    .stat-row{grid-template-columns:repeat(2,1fr);row-gap:14px}
+    .head-right{align-items:flex-start;width:100%}
+    .sys-status{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-fx">
+  <div class="glow-1"></div><div class="glow-2"></div><div class="glow-3"></div>
+  <div class="grid"></div><div class="horizon"></div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand-row"><span class="logo">Matro<span>.</span></span></div>
+      <div class="greeting"><span class="wave">👋</span> Доброго ранку, Олексію!</div>
+      <div class="sub">Інтернет-підрозділ працює стабільно</div>
+    </div>
+    <div class="head-right">
+      <div class="date-pill"><i data-lucide="calendar"></i><span id="today-date">—</span></div>
+      <div class="sys-status">
+        <div class="sys-title">Системи</div>
+        <div class="sys-row"><span class="name">Meta Ads</span><span class="pill" id="sys-meta"><span class="dot"></span>—</span></div>
+        <div class="sys-row"><span class="name">Google Search Console</span><span class="pill" id="sys-gsc"><span class="dot"></span>—</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid2">
+    <a href="index.html" class="glass smm" style="text-decoration:none;color:inherit;display:block">
+      <div class="card-top">
+        <div class="card-id">
+          <div class="card-icon"><i data-lucide="megaphone"></i></div>
+          <div><div class="card-name">SMM &amp; Реклама</div><div class="card-desc">Meta Ads · Кампанії Plume</div></div>
+        </div>
+        <span class="card-tag" id="smm-tag">—</span>
+      </div>
+      <div class="stat-row" id="smm-stats"><div class="skeleton">Завантаження…</div></div>
+      <div class="chart-box" id="smm-chart"></div>
+      <div class="card-cta">
+        <span class="btn-primary">Відкрити дашборд <i data-lucide="arrow-right"></i></span>
+        <span class="updated-note" id="smm-updated"></span>
+      </div>
+    </a>
+
+    <a href="seo.html" class="glass seo" style="text-decoration:none;color:inherit;display:block">
+      <div class="card-top">
+        <div class="card-id">
+          <div class="card-icon"><i data-lucide="search"></i></div>
+          <div><div class="card-name">SEO</div><div class="card-desc">Google Search Console · matroluxe.ua</div></div>
+        </div>
+        <span class="card-tag" id="seo-tag">—</span>
+      </div>
+      <div class="stat-row" id="seo-stats"><div class="skeleton">Завантаження…</div></div>
+      <div class="chart-box" id="seo-chart"></div>
+      <div class="card-cta">
+        <span class="btn-primary">Відкрити дашборд <i data-lucide="arrow-right"></i></span>
+        <span class="updated-note" id="seo-updated"></span>
+      </div>
+    </a>
+  </div>
+</div>
+
+<script>
+lucide.createIcons();
+
+document.getElementById('today-date').textContent = new Intl.DateTimeFormat('uk-UA',{day:'numeric',month:'long',year:'numeric',weekday:'long'}).format(new Date());
+
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+const fmt1=n=>new Intl.NumberFormat('uk-UA',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n||0);
+
+function setSys(id, ok){
+  const el=document.getElementById(id);
+  el.innerHTML = ok
+    ? '<span class="dot on"></span>ONLINE'
+    : '<span class="dot off"></span>OFFLINE';
+  el.className = 'pill ' + (ok?'on':'off');
+}
+
+function sparkline(values, color){
+  const W=560,H=90,pad=4;
+  const max=Math.max(1,...values), min=Math.min(0,...values);
+  const range=(max-min)||1;
+  const stepX = values.length>1 ? (W-pad*2)/(values.length-1) : 0;
+  let d='', area='';
+  values.forEach((v,i)=>{
+    const x=pad+i*stepX;
+    const y=pad+(1-((v-min)/range))*(H-pad*2);
+    d += (i===0?'M':'L')+x.toFixed(1)+','+y.toFixed(1)+' ';
+  });
+  area = d + `L${(pad+(values.length-1)*stepX).toFixed(1)},${H-pad} L${pad},${H-pad} Z`;
+  const gid='g'+Math.random().toString(36).slice(2,8);
+  return `<svg viewBox="0 0 ${W} ${H}">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${area}" fill="url(#${gid})" stroke="none"/>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+      style="filter:drop-shadow(0 0 6px ${color}80)"/>
+  </svg>`;
+}
+
+async function loadSMM(){
+  try{
+    const res=await fetch('data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    setSys('sys-meta', true);
+    const rows=data.daily||[];
+    const last30=rows.slice(-30);
+    const byDate={};
+    last30.forEach(r=>{ byDate[r.date]=(byDate[r.date]||0)+(r.spend||0); });
+    const dates=Object.keys(byDate).sort();
+    const series=dates.map(d=>byDate[d]);
+
+    const spend=last30.reduce((a,r)=>a+(r.spend||0),0);
+    const leads=last30.reduce((a,r)=>a+(r.leads||0),0);
+    const campaigns=new Set(last30.map(r=>r.campaign)).size;
+    const cpl = leads ? spend/leads : 0;
+
+    document.getElementById('smm-tag').textContent='Останні 30 днів';
+    document.getElementById('smm-stats').innerHTML=`
+      <div class="stat"><div class="v">${fmt(campaigns)}</div><div class="l">Кампаній</div></div>
+      <div class="stat"><div class="v">${fmt(spend)}</div><div class="l">Витрати ₴</div></div>
+      <div class="stat"><div class="v">${fmt(leads)}</div><div class="l">Лідів</div></div>
+      <div class="stat"><div class="v">${fmt(cpl)}</div><div class="l">Ціна ліда ₴</div></div>`;
+    document.getElementById('smm-chart').innerHTML = series.length ? sparkline(series,'#FF8C42') : '';
+    document.getElementById('smm-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
+  }catch(e){
+    setSys('sys-meta', false);
+    document.getElementById('smm-tag').textContent='Немає даних';
+    document.getElementById('smm-stats').innerHTML='<div class="skeleton">Не вдалося завантажити data.json</div>';
+  }
+}
+
+async function loadSEO(){
+  try{
+    const res=await fetch('seo_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    setSys('sys-gsc', true);
+    const site=(data.sites||[])[0];
+    if(!site) throw new Error('no sites');
+    const rows=site.daily||[];
+    const series=rows.map(r=>r.clicks||0);
+
+    const clicks=rows.reduce((a,r)=>a+(r.clicks||0),0);
+    const impr=rows.reduce((a,r)=>a+(r.impressions||0),0);
+    const ctr= impr ? clicks/impr*100 : 0;
+    const avgPos = rows.length ? rows.reduce((a,r)=>a+(r.position||0),0)/rows.length : 0;
+
+    document.getElementById('seo-tag').textContent='28 днів';
+    document.getElementById('seo-stats').innerHTML=`
+      <div class="stat"><div class="v">${fmt(clicks)}</div><div class="l">Кліків</div></div>
+      <div class="stat"><div class="v">${fmt(impr)}</div><div class="l">Показів</div></div>
+      <div class="stat"><div class="v">${fmt1(ctr)}%</div><div class="l">CTR</div></div>
+      <div class="stat"><div class="v">${fmt1(avgPos)}</div><div class="l">Ср. позиція</div></div>`;
+    document.getElementById('seo-chart').innerHTML = series.length ? sparkline(series,'#32D8FF') : '';
+    document.getElementById('seo-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
+  }catch(e){
+    setSys('sys-gsc', false);
+    document.getElementById('seo-tag').textContent='Немає даних';
+    document.getElementById('seo-stats').innerHTML='<div class="skeleton">Не вдалося завантажити seo_data.json</div>';
+  }
+}
+
+loadSMM();
+loadSEO();
+</script>
+</body>
+</html>

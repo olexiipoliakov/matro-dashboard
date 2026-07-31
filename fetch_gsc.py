@@ -2,11 +2,45 @@
 fetch_gsc.py — тянет данные из Google Search Console и сохраняет seo_data.json
 Запускается через GitHub Actions ежедневно.
 """
-import json, os, sys
+import json, os, re, sys
+from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+
+# ── Классификатор разделов сайта по URL ─────────────────────────────────────
+# Порядок важен: сначала более специфичные правила, потом общие типы товара.
+CATEGORY_RULES = [
+    ("horeca",    "HoReCa",                 ["horeca"]),
+    ("komplekty", "Комплекти меблів",       ["komplekty-mebeli", "mebel-dlya"]),
+    ("aksessuary","Текстиль та аксесуари",  ["aksessuary", "odeyala", "podushki",
+                                              "namatrasnik", "zashchita-dlya-matrasa", "chehly"]),
+    ("kuhni",     "Кухні",                  ["kuhni", "kuchni"]),
+    ("korpus",    "Корпусні меблі",         ["korpusnaya", "stoly", "tumby", "komod",
+                                              "polki", "penal", "konsoli"]),
+    ("matrasy",   "Матраци",                ["matras", "mattress", "topper", "futon"]),
+    ("divany",    "Дивани",                 ["divan"]),
+    ("krovati",   "Ліжка",                  ["krovat", "podium"]),
+    ("shkafy",    "Шафи",                   ["shkaf", "shafa"]),
+    ("service",   "Сервісні сторінки",      ["o-kompanii", "markets", "dostavka", "vakansiyi",
+                                              "dlya-dyzayneriv", "kontakty", "aktsii",
+                                              "compare-products", "wishlist", "novelties"]),
+]
+
+def classify_category(page_url):
+    try:
+        path = urlparse(page_url).path.lower()
+    except Exception:
+        path = str(page_url).lower()
+    path = re.sub(r'^/(ua|ru)/', '/', path)
+    if path in ('', '/'):
+        return ("home", "Головна")
+    for key, name, keywords in CATEGORY_RULES:
+        if any(k in path for k in keywords):
+            return (key, name)
+    return ("other", "Інше")
 
 # ── Настройки ──────────────────────────────────────────────────────────────
 SITES = [
@@ -42,6 +76,47 @@ def query(service, site_url, start, end, dimensions, row_limit=1000):
     }
     resp = service.searchanalytics().query(siteUrl=site_url, body=body).execute()
     return resp.get("rows", [])
+
+def fetch_categories(service, url, weeks=12):
+    """Тянет (дата, страница) за последние `weeks` недель и группирует
+    по разделу сайта и неделе: клики, показы, средневзвешенная позиция."""
+    today = date.today()
+    end = today - timedelta(days=3)
+    start = end - timedelta(days=weeks * 7 - 1)
+    rows = query(service, url, start, end, ["date", "page"], row_limit=25000)
+
+    buckets = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0}))
+    cat_names = {}
+    for r in rows:
+        d = date.fromisoformat(r["keys"][0])
+        page = r["keys"][1]
+        key, name = classify_category(page)
+        cat_names[key] = name
+        week_start = str(d - timedelta(days=d.weekday()))
+        clicks = r.get("clicks", 0)
+        impressions = r.get("impressions", 0)
+        b = buckets[week_start][key]
+        b["clicks"] += clicks
+        b["impressions"] += impressions
+        b["pos_w"] += r.get("position", 0) * max(impressions, 1)
+
+    weeks_sorted = sorted(buckets.keys())
+    categories = []
+    for key in sorted(cat_names.keys()):
+        weekly = []
+        for wk in weeks_sorted:
+            b = buckets[wk].get(key)
+            if b and b["impressions"]:
+                weekly.append({
+                    "week_start": wk,
+                    "clicks": b["clicks"],
+                    "impressions": b["impressions"],
+                    "position": round(b["pos_w"] / b["impressions"], 1),
+                })
+            else:
+                weekly.append({"week_start": wk, "clicks": 0, "impressions": 0, "position": None})
+        categories.append({"key": key, "name": cat_names[key], "weekly": weekly})
+    return categories
 
 def fetch_site(service, site):
     url = site["id"]
@@ -109,6 +184,9 @@ def fetch_site(service, site):
             "position":   round(r.get("position", 0), 1),
         })
 
+    print(f"  → Категорії по неділях")
+    categories = fetch_categories(service, url, weeks=12)
+
     return {
         "site_url":  url,
         "site_name": site["name"],
@@ -117,6 +195,7 @@ def fetch_site(service, site):
         "monthly":   monthly,
         "queries":   queries,
         "pages":     pages,
+        "categories": categories,
     }
 
 # ── Main ───────────────────────────────────────────────────────────────────
