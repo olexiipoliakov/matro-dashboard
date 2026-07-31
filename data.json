@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-30 08:35",
+  "generated_at": "2026-07-31 06:59",
   "source": "Meta Marketing API",
-  "period": "2026-06-09 — 2026-07-29",
+  "period": "2026-06-09 — 2026-07-30",
   "currency": "грн",
   "daily": [
     {
@@ -10,7 +10,8 @@
       "goal": "Переписки",
       "spend": 264.92,
       "leads": 2,
-      "cost_per_lead": 132.46
+      "cost_per_lead": 132.46,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-10",
@@ -18,7 +19,8 @@
       "goal": "Переписки",
       "spend": 231.96,
       "leads": 3,
-      "cost_per_lead": 77.32
+      "cost_per_lead": 77.32,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-11",
@@ -26,7 +28,8 @@
       "goal": "Переписки",
       "spend": 185.72,
       "leads": 4,
-      "cost_per_lead": 46.43
+      "cost_per_lead": 46.43,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-12",
@@ -34,7 +37,8 @@
       "goal": "Переписки",
       "spend": 439.61,
       "leads": 3,
-      "cost_per_lead": 146.54
+      "cost_per_lead": 146.54,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-12",
@@ -42,7 +46,8 @@
       "goal": "Переписки",
       "spend": 388.29,
       "leads": 8,
-      "cost_per_lead": 48.54
+      "cost_per_lead": 48.54,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-12",
@@ -50,7 +55,8 @@
       "goal": "Переписки",
       "spend": 464.98,
       "leads": 11,
-      "cost_per_lead": 42.27
+      "cost_per_lead": 42.27,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-13",
@@ -58,7 +64,8 @@
       "goal": "Переписки",
       "spend": 227.23,
       "leads": 7,
-      "cost_per_lead": 32.46
+      "cost_per_lead": 32.46,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-13",
@@ -66,7 +73,8 @@
       "goal": "Переписки",
       "spend": 288.78,
       "leads": 6,
-      "cost_per_lead": 48.13
+      "cost_per_lead": 48.13,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-13",
@@ -74,7 +82,8 @@
       "goal": "Переписки",
       "spend": 213.04,
       "leads": 3,
-      "cost_per_lead": 71.01
+      "cost_per_lead": 71.01,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-14",
@@ -82,7 +91,8 @@
       "goal": "Переписки",
       "spend": 390.29,
       "leads": 9,
-      "cost_per_lead": 43.37
+      "cost_per_lead": 43.37,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-14",
@@ -90,7 +100,8 @@
       "goal": "Переписки",
       "spend": 409.71,
       "leads": 12,
-      "cost_per_lead": 34.14
+      "cost_per_lead": 34.14,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-14",
@@ -98,7 +109,8 @@
       "goal": "Переписки",
       "spend": 370.08,
       "leads": 7,
-      "cost_per_lead": 52.87
+      "cost_per_lead": 52.87,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-15",
@@ -106,7 +118,8 @@
       "goal": "Переписки",
       "spend": 513.16,
       "leads": 15,
-      "cost_per_lead": 34.21
+      "cost_per_lead": 34.21,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-15",
@@ -114,7 +127,8 @@
       "goal": "Переписки",
       "spend": 522.99,
       "leads": 15,
-      "cost_per_lead": 34.87
+      "cost_per_lead": 34.87,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-15",
@@ -122,7 +136,8 @@
       "goal": "Переписки",
       "spend": 532.24,
       "leads": 4,
-      "cost_per_lead": 133.06
+      "cost_per_lead": 133.06,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-16",
@@ -130,7 +145,8 @@
       "goal": "Переписки",
       "spend": 486.87,
       "leads": 10,
-      "cost_per_lead": 48.69
+      "cost_per_lead": 48.69,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-16",
@@ -138,7 +154,8 @@
       "goal": "Переписки",
       "spend": 424.5,
       "leads": 13,
-      "cost_per_lead": 32.65
+      "cost_per_lead": 32.65,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-16",
@@ -146,7 +163,8 @@
       "goal": "Переписки",
       "spend": 497.11,
       "leads": 10,
-      "cost_per_lead": 49.71
+      "cost_per_lead": 49.71,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-16",
@@ -154,7 +172,8 @@
       "goal": "Покупки",
       "spend": 362.36,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-16",
@@ -162,7 +181,8 @@
       "goal": "Покупки",
       "spend": 495.1,
       "leads": 2,
-      "cost_per_lead": 247.55
+      "cost_per_lead": 247.55,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-17",
@@ -170,7 +190,8 @@
       "goal": "Переписки",
       "spend": 362.28,
       "leads": 13,
-      "cost_per_lead": 27.87
+      "cost_per_lead": 27.87,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-17",
@@ -178,7 +199,8 @@
       "goal": "Переписки",
       "spend": 334.97,
       "leads": 8,
-      "cost_per_lead": 41.87
+      "cost_per_lead": 41.87,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-17",
@@ -186,7 +208,8 @@
       "goal": "Переписки",
       "spend": 334.59,
       "leads": 11,
-      "cost_per_lead": 30.42
+      "cost_per_lead": 30.42,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-17",
@@ -194,7 +217,8 @@
       "goal": "Покупки",
       "spend": 558.12,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-17",
@@ -202,7 +226,8 @@
       "goal": "Покупки",
       "spend": 489.59,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-18",
@@ -210,7 +235,8 @@
       "goal": "Переписки",
       "spend": 243.86,
       "leads": 4,
-      "cost_per_lead": 60.97
+      "cost_per_lead": 60.97,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-18",
@@ -218,7 +244,8 @@
       "goal": "Переписки",
       "spend": 233.67,
       "leads": 5,
-      "cost_per_lead": 46.73
+      "cost_per_lead": 46.73,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-18",
@@ -226,7 +253,8 @@
       "goal": "Переписки",
       "spend": 226.36,
       "leads": 7,
-      "cost_per_lead": 32.34
+      "cost_per_lead": 32.34,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-18",
@@ -234,7 +262,8 @@
       "goal": "Покупки",
       "spend": 314.06,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-18",
@@ -242,7 +271,8 @@
       "goal": "Покупки",
       "spend": 277.7,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-19",
@@ -250,7 +280,8 @@
       "goal": "Переписки",
       "spend": 257.05,
       "leads": 5,
-      "cost_per_lead": 51.41
+      "cost_per_lead": 51.41,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-19",
@@ -258,7 +289,8 @@
       "goal": "Переписки",
       "spend": 321.15,
       "leads": 11,
-      "cost_per_lead": 29.2
+      "cost_per_lead": 29.2,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-19",
@@ -266,7 +298,8 @@
       "goal": "Переписки",
       "spend": 210.92,
       "leads": 3,
-      "cost_per_lead": 70.31
+      "cost_per_lead": 70.31,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-19",
@@ -274,7 +307,8 @@
       "goal": "Покупки",
       "spend": 188.02,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-19",
@@ -282,7 +316,8 @@
       "goal": "Покупки",
       "spend": 279.66,
       "leads": 2,
-      "cost_per_lead": 139.83
+      "cost_per_lead": 139.83,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-19",
@@ -290,7 +325,8 @@
       "goal": "Переписки",
       "spend": 351.56,
       "leads": 5,
-      "cost_per_lead": 70.31
+      "cost_per_lead": 70.31,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-20",
@@ -298,7 +334,8 @@
       "goal": "Переписки",
       "spend": 192.08,
       "leads": 11,
-      "cost_per_lead": 17.46
+      "cost_per_lead": 17.46,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-20",
@@ -306,7 +343,8 @@
       "goal": "Переписки",
       "spend": 200.8,
       "leads": 5,
-      "cost_per_lead": 40.16
+      "cost_per_lead": 40.16,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-20",
@@ -314,7 +352,8 @@
       "goal": "Переписки",
       "spend": 273.47,
       "leads": 9,
-      "cost_per_lead": 30.39
+      "cost_per_lead": 30.39,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-20",
@@ -322,7 +361,8 @@
       "goal": "Покупки",
       "spend": 452.3,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-20",
@@ -330,7 +370,8 @@
       "goal": "Покупки",
       "spend": 332.7,
       "leads": 2,
-      "cost_per_lead": 166.35
+      "cost_per_lead": 166.35,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-20",
@@ -338,7 +379,8 @@
       "goal": "Переписки",
       "spend": 342.63,
       "leads": 14,
-      "cost_per_lead": 24.47
+      "cost_per_lead": 24.47,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-21",
@@ -346,7 +388,8 @@
       "goal": "Переписки",
       "spend": 288.39,
       "leads": 11,
-      "cost_per_lead": 26.22
+      "cost_per_lead": 26.22,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-21",
@@ -354,7 +397,8 @@
       "goal": "Переписки",
       "spend": 319.12,
       "leads": 8,
-      "cost_per_lead": 39.89
+      "cost_per_lead": 39.89,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-21",
@@ -362,7 +406,8 @@
       "goal": "Переписки",
       "spend": 398.75,
       "leads": 4,
-      "cost_per_lead": 99.69
+      "cost_per_lead": 99.69,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-21",
@@ -370,7 +415,8 @@
       "goal": "Покупки",
       "spend": 409.8,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-21",
@@ -378,7 +424,8 @@
       "goal": "Покупки",
       "spend": 510.31,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-21",
@@ -386,7 +433,8 @@
       "goal": "Переписки",
       "spend": 321.34,
       "leads": 6,
-      "cost_per_lead": 53.56
+      "cost_per_lead": 53.56,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-22",
@@ -394,7 +442,8 @@
       "goal": "Переписки",
       "spend": 352.96,
       "leads": 7,
-      "cost_per_lead": 50.42
+      "cost_per_lead": 50.42,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-22",
@@ -402,7 +451,8 @@
       "goal": "Переписки",
       "spend": 479.63,
       "leads": 14,
-      "cost_per_lead": 34.26
+      "cost_per_lead": 34.26,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-22",
@@ -410,7 +460,8 @@
       "goal": "Переписки",
       "spend": 341.4,
       "leads": 1,
-      "cost_per_lead": 341.4
+      "cost_per_lead": 341.4,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-22",
@@ -418,7 +469,8 @@
       "goal": "Покупки",
       "spend": 357.41,
       "leads": 2,
-      "cost_per_lead": 178.71
+      "cost_per_lead": 178.71,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-22",
@@ -426,7 +478,8 @@
       "goal": "Покупки",
       "spend": 383.62,
       "leads": 2,
-      "cost_per_lead": 191.81
+      "cost_per_lead": 191.81,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-22",
@@ -434,7 +487,8 @@
       "goal": "Переписки",
       "spend": 351.59,
       "leads": 10,
-      "cost_per_lead": 35.16
+      "cost_per_lead": 35.16,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-23",
@@ -442,7 +496,8 @@
       "goal": "Переписки",
       "spend": 456.99,
       "leads": 12,
-      "cost_per_lead": 38.08
+      "cost_per_lead": 38.08,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-23",
@@ -450,7 +505,8 @@
       "goal": "Переписки",
       "spend": 414.83,
       "leads": 20,
-      "cost_per_lead": 20.74
+      "cost_per_lead": 20.74,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-23",
@@ -458,7 +514,8 @@
       "goal": "Переписки",
       "spend": 335.13,
       "leads": 7,
-      "cost_per_lead": 47.88
+      "cost_per_lead": 47.88,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-23",
@@ -466,7 +523,8 @@
       "goal": "Покупки",
       "spend": 311.42,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-23",
@@ -474,7 +532,8 @@
       "goal": "Покупки",
       "spend": 329.22,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-23",
@@ -482,7 +541,8 @@
       "goal": "Переписки",
       "spend": 395.89,
       "leads": 10,
-      "cost_per_lead": 39.59
+      "cost_per_lead": 39.59,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-24",
@@ -490,7 +550,8 @@
       "goal": "Переписки",
       "spend": 324.71,
       "leads": 11,
-      "cost_per_lead": 29.52
+      "cost_per_lead": 29.52,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-24",
@@ -498,7 +559,8 @@
       "goal": "Переписки",
       "spend": 276.93,
       "leads": 12,
-      "cost_per_lead": 23.08
+      "cost_per_lead": 23.08,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-24",
@@ -506,7 +568,8 @@
       "goal": "Переписки",
       "spend": 297.84,
       "leads": 2,
-      "cost_per_lead": 148.92
+      "cost_per_lead": 148.92,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-24",
@@ -514,7 +577,8 @@
       "goal": "Покупки",
       "spend": 346.52,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-24",
@@ -522,7 +586,8 @@
       "goal": "Покупки",
       "spend": 302.02,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-24",
@@ -530,7 +595,8 @@
       "goal": "Переписки",
       "spend": 317.92,
       "leads": 10,
-      "cost_per_lead": 31.79
+      "cost_per_lead": 31.79,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-24",
@@ -538,7 +604,8 @@
       "goal": "Покупки",
       "spend": 385.01,
       "leads": 2,
-      "cost_per_lead": 192.5
+      "cost_per_lead": 192.5,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-25",
@@ -546,7 +613,8 @@
       "goal": "Переписки",
       "spend": 352.17,
       "leads": 14,
-      "cost_per_lead": 25.16
+      "cost_per_lead": 25.16,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-25",
@@ -554,7 +622,8 @@
       "goal": "Переписки",
       "spend": 276.22,
       "leads": 9,
-      "cost_per_lead": 30.69
+      "cost_per_lead": 30.69,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-25",
@@ -562,7 +631,8 @@
       "goal": "Переписки",
       "spend": 179.05,
       "leads": 1,
-      "cost_per_lead": 179.05
+      "cost_per_lead": 179.05,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-25",
@@ -570,7 +640,8 @@
       "goal": "Покупки",
       "spend": 317.0,
       "leads": 2,
-      "cost_per_lead": 158.5
+      "cost_per_lead": 158.5,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-25",
@@ -578,7 +649,8 @@
       "goal": "Покупки",
       "spend": 341.05,
       "leads": 2,
-      "cost_per_lead": 170.53
+      "cost_per_lead": 170.53,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-25",
@@ -586,7 +658,8 @@
       "goal": "Переписки",
       "spend": 337.26,
       "leads": 9,
-      "cost_per_lead": 37.47
+      "cost_per_lead": 37.47,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-25",
@@ -594,7 +667,8 @@
       "goal": "Покупки",
       "spend": 373.76,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-25",
@@ -602,7 +676,8 @@
       "goal": "Переписки",
       "spend": 58.56,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-26",
@@ -610,7 +685,8 @@
       "goal": "Переписки",
       "spend": 226.85,
       "leads": 9,
-      "cost_per_lead": 25.21
+      "cost_per_lead": 25.21,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-26",
@@ -618,7 +694,8 @@
       "goal": "Переписки",
       "spend": 174.2,
       "leads": 6,
-      "cost_per_lead": 29.03
+      "cost_per_lead": 29.03,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-26",
@@ -626,7 +703,8 @@
       "goal": "Покупки",
       "spend": 347.18,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-26",
@@ -634,7 +712,8 @@
       "goal": "Покупки",
       "spend": 267.69,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-26",
@@ -642,7 +721,8 @@
       "goal": "Переписки",
       "spend": 251.91,
       "leads": 8,
-      "cost_per_lead": 31.49
+      "cost_per_lead": 31.49,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-26",
@@ -650,7 +730,8 @@
       "goal": "Покупки",
       "spend": 246.61,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-26",
@@ -658,7 +739,8 @@
       "goal": "Переписки",
       "spend": 320.05,
       "leads": 8,
-      "cost_per_lead": 40.01
+      "cost_per_lead": 40.01,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-27",
@@ -666,7 +748,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-27",
@@ -674,7 +757,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-27",
@@ -682,7 +766,8 @@
       "goal": "Переписки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-28",
@@ -690,7 +775,8 @@
       "goal": "Переписки",
       "spend": 0.0,
       "leads": 1,
-      "cost_per_lead": 0.0
+      "cost_per_lead": 0.0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-28",
@@ -698,7 +784,8 @@
       "goal": "Переписки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-28",
@@ -706,7 +793,8 @@
       "goal": "Переписки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-29",
@@ -714,7 +802,8 @@
       "goal": "Переписки",
       "spend": 148.5,
       "leads": 3,
-      "cost_per_lead": 49.5
+      "cost_per_lead": 49.5,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-29",
@@ -722,7 +811,8 @@
       "goal": "Переписки",
       "spend": 112.48,
       "leads": 6,
-      "cost_per_lead": 18.75
+      "cost_per_lead": 18.75,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-29",
@@ -730,7 +820,8 @@
       "goal": "Покупки",
       "spend": 153.93,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-29",
@@ -738,7 +829,8 @@
       "goal": "Покупки",
       "spend": 144.32,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-29",
@@ -746,7 +838,8 @@
       "goal": "Переписки",
       "spend": 160.1,
       "leads": 3,
-      "cost_per_lead": 53.37
+      "cost_per_lead": 53.37,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-29",
@@ -754,7 +847,8 @@
       "goal": "Покупки",
       "spend": 166.58,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-29",
@@ -762,7 +856,8 @@
       "goal": "Переписки",
       "spend": 174.48,
       "leads": 3,
-      "cost_per_lead": 58.16
+      "cost_per_lead": 58.16,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-30",
@@ -770,7 +865,8 @@
       "goal": "Переписки",
       "spend": 492.6,
       "leads": 20,
-      "cost_per_lead": 24.63
+      "cost_per_lead": 24.63,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-30",
@@ -778,7 +874,8 @@
       "goal": "Переписки",
       "spend": 553.17,
       "leads": 24,
-      "cost_per_lead": 23.05
+      "cost_per_lead": 23.05,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-30",
@@ -786,7 +883,8 @@
       "goal": "Покупки",
       "spend": 515.63,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-30",
@@ -794,7 +892,8 @@
       "goal": "Покупки",
       "spend": 525.55,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-30",
@@ -802,7 +901,8 @@
       "goal": "Переписки",
       "spend": 506.39,
       "leads": 7,
-      "cost_per_lead": 72.34
+      "cost_per_lead": 72.34,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-06-30",
@@ -810,7 +910,8 @@
       "goal": "Покупки",
       "spend": 588.41,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-06-30",
@@ -818,7 +919,8 @@
       "goal": "Переписки",
       "spend": 562.32,
       "leads": 10,
-      "cost_per_lead": 56.23
+      "cost_per_lead": 56.23,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-01",
@@ -826,7 +928,8 @@
       "goal": "Переписки",
       "spend": 513.46,
       "leads": 24,
-      "cost_per_lead": 21.39
+      "cost_per_lead": 21.39,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-01",
@@ -834,7 +937,8 @@
       "goal": "Переписки",
       "spend": 483.65,
       "leads": 17,
-      "cost_per_lead": 28.45
+      "cost_per_lead": 28.45,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-01",
@@ -842,7 +946,8 @@
       "goal": "Покупки",
       "spend": 556.68,
       "leads": 2,
-      "cost_per_lead": 278.34
+      "cost_per_lead": 278.34,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-01",
@@ -850,7 +955,8 @@
       "goal": "Покупки",
       "spend": 598.92,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-01",
@@ -858,7 +964,8 @@
       "goal": "Переписки",
       "spend": 528.62,
       "leads": 18,
-      "cost_per_lead": 29.37
+      "cost_per_lead": 29.37,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-01",
@@ -866,7 +973,8 @@
       "goal": "Покупки",
       "spend": 609.24,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-01",
@@ -874,7 +982,8 @@
       "goal": "Переписки",
       "spend": 539.63,
       "leads": 15,
-      "cost_per_lead": 35.98
+      "cost_per_lead": 35.98,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-02",
@@ -882,7 +991,8 @@
       "goal": "Переписки",
       "spend": 488.67,
       "leads": 17,
-      "cost_per_lead": 28.75
+      "cost_per_lead": 28.75,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-02",
@@ -890,7 +1000,8 @@
       "goal": "Переписки",
       "spend": 461.0,
       "leads": 16,
-      "cost_per_lead": 28.81
+      "cost_per_lead": 28.81,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-02",
@@ -898,7 +1009,8 @@
       "goal": "Покупки",
       "spend": 507.82,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-02",
@@ -906,7 +1018,8 @@
       "goal": "Покупки",
       "spend": 496.82,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-02",
@@ -914,7 +1027,8 @@
       "goal": "Переписки",
       "spend": 492.63,
       "leads": 14,
-      "cost_per_lead": 35.19
+      "cost_per_lead": 35.19,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-02",
@@ -922,7 +1036,8 @@
       "goal": "Покупки",
       "spend": 328.63,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-02",
@@ -930,7 +1045,8 @@
       "goal": "Переписки",
       "spend": 444.72,
       "leads": 10,
-      "cost_per_lead": 44.47
+      "cost_per_lead": 44.47,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-03",
@@ -938,7 +1054,8 @@
       "goal": "Переписки",
       "spend": 391.9,
       "leads": 9,
-      "cost_per_lead": 43.54
+      "cost_per_lead": 43.54,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-03",
@@ -946,7 +1063,8 @@
       "goal": "Переписки",
       "spend": 394.84,
       "leads": 18,
-      "cost_per_lead": 21.94
+      "cost_per_lead": 21.94,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-03",
@@ -954,7 +1072,8 @@
       "goal": "Покупки",
       "spend": 461.42,
       "leads": 2,
-      "cost_per_lead": 230.71
+      "cost_per_lead": 230.71,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-03",
@@ -962,7 +1081,8 @@
       "goal": "Покупки",
       "spend": 282.09,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-03",
@@ -970,7 +1090,8 @@
       "goal": "Переписки",
       "spend": 354.28,
       "leads": 12,
-      "cost_per_lead": 29.52
+      "cost_per_lead": 29.52,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-03",
@@ -978,7 +1099,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-03",
@@ -986,7 +1108,8 @@
       "goal": "Переписки",
       "spend": 322.65,
       "leads": 8,
-      "cost_per_lead": 40.33
+      "cost_per_lead": 40.33,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-03",
@@ -994,7 +1117,8 @@
       "goal": "Покупки",
       "spend": 188.78,
       "leads": 2,
-      "cost_per_lead": 94.39
+      "cost_per_lead": 94.39,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-04",
@@ -1002,7 +1126,8 @@
       "goal": "Переписки",
       "spend": 408.84,
       "leads": 16,
-      "cost_per_lead": 25.55
+      "cost_per_lead": 25.55,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-04",
@@ -1010,7 +1135,8 @@
       "goal": "Переписки",
       "spend": 435.9,
       "leads": 9,
-      "cost_per_lead": 48.43
+      "cost_per_lead": 48.43,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-04",
@@ -1018,7 +1144,8 @@
       "goal": "Покупки",
       "spend": 429.07,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-04",
@@ -1026,7 +1153,8 @@
       "goal": "Переписки",
       "spend": 402.29,
       "leads": 17,
-      "cost_per_lead": 23.66
+      "cost_per_lead": 23.66,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-04",
@@ -1034,7 +1162,8 @@
       "goal": "Переписки",
       "spend": 398.33,
       "leads": 12,
-      "cost_per_lead": 33.19
+      "cost_per_lead": 33.19,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-04",
@@ -1042,7 +1171,8 @@
       "goal": "Покупки",
       "spend": 298.45,
       "leads": 4,
-      "cost_per_lead": 74.61
+      "cost_per_lead": 74.61,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-05",
@@ -1050,7 +1180,8 @@
       "goal": "Переписки",
       "spend": 354.8,
       "leads": 13,
-      "cost_per_lead": 27.29
+      "cost_per_lead": 27.29,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-05",
@@ -1058,7 +1189,8 @@
       "goal": "Переписки",
       "spend": 348.54,
       "leads": 10,
-      "cost_per_lead": 34.85
+      "cost_per_lead": 34.85,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-05",
@@ -1066,7 +1198,8 @@
       "goal": "Покупки",
       "spend": 532.71,
       "leads": 4,
-      "cost_per_lead": 133.18
+      "cost_per_lead": 133.18,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-05",
@@ -1074,7 +1207,8 @@
       "goal": "Переписки",
       "spend": 384.2,
       "leads": 18,
-      "cost_per_lead": 21.34
+      "cost_per_lead": 21.34,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-05",
@@ -1082,7 +1216,8 @@
       "goal": "Переписки",
       "spend": 369.89,
       "leads": 9,
-      "cost_per_lead": 41.1
+      "cost_per_lead": 41.1,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-05",
@@ -1090,7 +1225,8 @@
       "goal": "Покупки",
       "spend": 517.16,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-06",
@@ -1098,7 +1234,8 @@
       "goal": "Переписки",
       "spend": 350.28,
       "leads": 6,
-      "cost_per_lead": 58.38
+      "cost_per_lead": 58.38,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-06",
@@ -1106,7 +1243,8 @@
       "goal": "Переписки",
       "spend": 387.3,
       "leads": 7,
-      "cost_per_lead": 55.33
+      "cost_per_lead": 55.33,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-06",
@@ -1114,7 +1252,8 @@
       "goal": "Покупки",
       "spend": 457.7,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-06",
@@ -1122,7 +1261,8 @@
       "goal": "Переписки",
       "spend": 341.81,
       "leads": 7,
-      "cost_per_lead": 48.83
+      "cost_per_lead": 48.83,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-06",
@@ -1130,7 +1270,8 @@
       "goal": "Переписки",
       "spend": 333.99,
       "leads": 11,
-      "cost_per_lead": 30.36
+      "cost_per_lead": 30.36,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-06",
@@ -1138,7 +1279,8 @@
       "goal": "Покупки",
       "spend": 457.1,
       "leads": 2,
-      "cost_per_lead": 228.55
+      "cost_per_lead": 228.55,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-07",
@@ -1146,7 +1288,8 @@
       "goal": "Переписки",
       "spend": 300.71,
       "leads": 7,
-      "cost_per_lead": 42.96
+      "cost_per_lead": 42.96,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-07",
@@ -1154,7 +1297,8 @@
       "goal": "Переписки",
       "spend": 295.21,
       "leads": 5,
-      "cost_per_lead": 59.04
+      "cost_per_lead": 59.04,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-07",
@@ -1162,7 +1306,8 @@
       "goal": "Покупки",
       "spend": 314.88,
       "leads": 4,
-      "cost_per_lead": 78.72
+      "cost_per_lead": 78.72,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-07",
@@ -1170,7 +1315,8 @@
       "goal": "Переписки",
       "spend": 298.34,
       "leads": 10,
-      "cost_per_lead": 29.83
+      "cost_per_lead": 29.83,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-07",
@@ -1178,7 +1324,8 @@
       "goal": "Переписки",
       "spend": 305.11,
       "leads": 12,
-      "cost_per_lead": 25.43
+      "cost_per_lead": 25.43,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-07",
@@ -1186,7 +1333,8 @@
       "goal": "Покупки",
       "spend": 286.64,
       "leads": 2,
-      "cost_per_lead": 143.32
+      "cost_per_lead": 143.32,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-07",
@@ -1194,7 +1342,8 @@
       "goal": "Покупки",
       "spend": 475.32,
       "leads": 2,
-      "cost_per_lead": 237.66
+      "cost_per_lead": 237.66,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-08",
@@ -1202,7 +1351,8 @@
       "goal": "Переписки",
       "spend": 292.94,
       "leads": 11,
-      "cost_per_lead": 26.63
+      "cost_per_lead": 26.63,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-08",
@@ -1210,7 +1360,8 @@
       "goal": "Переписки",
       "spend": 288.19,
       "leads": 10,
-      "cost_per_lead": 28.82
+      "cost_per_lead": 28.82,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-08",
@@ -1218,7 +1369,8 @@
       "goal": "Покупки",
       "spend": 315.39,
       "leads": 4,
-      "cost_per_lead": 78.85
+      "cost_per_lead": 78.85,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-08",
@@ -1226,7 +1378,8 @@
       "goal": "Переписки",
       "spend": 276.71,
       "leads": 9,
-      "cost_per_lead": 30.75
+      "cost_per_lead": 30.75,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-08",
@@ -1234,7 +1387,8 @@
       "goal": "Переписки",
       "spend": 290.64,
       "leads": 6,
-      "cost_per_lead": 48.44
+      "cost_per_lead": 48.44,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-08",
@@ -1242,7 +1396,8 @@
       "goal": "Покупки",
       "spend": 346.82,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-08",
@@ -1250,7 +1405,8 @@
       "goal": "Покупки",
       "spend": 454.36,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-09",
@@ -1258,7 +1414,8 @@
       "goal": "Переписки",
       "spend": 373.45,
       "leads": 16,
-      "cost_per_lead": 23.34
+      "cost_per_lead": 23.34,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-09",
@@ -1266,7 +1423,8 @@
       "goal": "Переписки",
       "spend": 333.22,
       "leads": 17,
-      "cost_per_lead": 19.6
+      "cost_per_lead": 19.6,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-09",
@@ -1274,7 +1432,8 @@
       "goal": "Покупки",
       "spend": 380.17,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-09",
@@ -1282,7 +1441,8 @@
       "goal": "Переписки",
       "spend": 279.51,
       "leads": 6,
-      "cost_per_lead": 46.59
+      "cost_per_lead": 46.59,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-09",
@@ -1290,7 +1450,8 @@
       "goal": "Переписки",
       "spend": 349.91,
       "leads": 7,
-      "cost_per_lead": 49.99
+      "cost_per_lead": 49.99,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-09",
@@ -1298,7 +1459,8 @@
       "goal": "Покупки",
       "spend": 391.34,
       "leads": 2,
-      "cost_per_lead": 195.67
+      "cost_per_lead": 195.67,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-09",
@@ -1306,7 +1468,8 @@
       "goal": "Покупки",
       "spend": 345.6,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-10",
@@ -1314,7 +1477,8 @@
       "goal": "Переписки",
       "spend": 324.85,
       "leads": 8,
-      "cost_per_lead": 40.61
+      "cost_per_lead": 40.61,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-10",
@@ -1322,7 +1486,8 @@
       "goal": "Переписки",
       "spend": 393.38,
       "leads": 10,
-      "cost_per_lead": 39.34
+      "cost_per_lead": 39.34,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-10",
@@ -1330,7 +1495,8 @@
       "goal": "Покупки",
       "spend": 340.73,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-10",
@@ -1338,7 +1504,8 @@
       "goal": "Переписки",
       "spend": 420.81,
       "leads": 7,
-      "cost_per_lead": 60.12
+      "cost_per_lead": 60.12,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-10",
@@ -1346,7 +1513,8 @@
       "goal": "Переписки",
       "spend": 370.06,
       "leads": 13,
-      "cost_per_lead": 28.47
+      "cost_per_lead": 28.47,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-10",
@@ -1354,7 +1522,8 @@
       "goal": "Покупки",
       "spend": 350.55,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-10",
@@ -1362,7 +1531,8 @@
       "goal": "Покупки",
       "spend": 294.08,
       "leads": 2,
-      "cost_per_lead": 147.04
+      "cost_per_lead": 147.04,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-11",
@@ -1370,7 +1540,8 @@
       "goal": "Переписки",
       "spend": 440.05,
       "leads": 13,
-      "cost_per_lead": 33.85
+      "cost_per_lead": 33.85,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-11",
@@ -1378,7 +1549,8 @@
       "goal": "Переписки",
       "spend": 389.22,
       "leads": 14,
-      "cost_per_lead": 27.8
+      "cost_per_lead": 27.8,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-11",
@@ -1386,7 +1558,8 @@
       "goal": "Покупки",
       "spend": 283.2,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-11",
@@ -1394,7 +1567,8 @@
       "goal": "Переписки",
       "spend": 427.99,
       "leads": 5,
-      "cost_per_lead": 85.6
+      "cost_per_lead": 85.6,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-11",
@@ -1402,7 +1576,8 @@
       "goal": "Переписки",
       "spend": 405.28,
       "leads": 9,
-      "cost_per_lead": 45.03
+      "cost_per_lead": 45.03,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-11",
@@ -1410,7 +1585,8 @@
       "goal": "Покупки",
       "spend": 274.02,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-11",
@@ -1418,7 +1594,8 @@
       "goal": "Покупки",
       "spend": 305.31,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-11",
@@ -1426,7 +1603,8 @@
       "goal": "Покупки",
       "spend": 374.82,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-12",
@@ -1434,7 +1612,8 @@
       "goal": "Переписки",
       "spend": 362.78,
       "leads": 12,
-      "cost_per_lead": 30.23
+      "cost_per_lead": 30.23,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-12",
@@ -1442,7 +1621,8 @@
       "goal": "Переписки",
       "spend": 349.75,
       "leads": 8,
-      "cost_per_lead": 43.72
+      "cost_per_lead": 43.72,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-12",
@@ -1450,7 +1630,8 @@
       "goal": "Покупки",
       "spend": 455.36,
       "leads": 2,
-      "cost_per_lead": 227.68
+      "cost_per_lead": 227.68,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-12",
@@ -1458,7 +1639,8 @@
       "goal": "Переписки",
       "spend": 375.86,
       "leads": 12,
-      "cost_per_lead": 31.32
+      "cost_per_lead": 31.32,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-12",
@@ -1466,7 +1648,8 @@
       "goal": "Переписки",
       "spend": 386.91,
       "leads": 12,
-      "cost_per_lead": 32.24
+      "cost_per_lead": 32.24,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-12",
@@ -1474,7 +1657,8 @@
       "goal": "Покупки",
       "spend": 507.38,
       "leads": 2,
-      "cost_per_lead": 253.69
+      "cost_per_lead": 253.69,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-12",
@@ -1482,7 +1666,8 @@
       "goal": "Покупки",
       "spend": 472.93,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-12",
@@ -1490,7 +1675,8 @@
       "goal": "Покупки",
       "spend": 522.03,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-13",
@@ -1498,7 +1684,8 @@
       "goal": "Переписки",
       "spend": 349.09,
       "leads": 6,
-      "cost_per_lead": 58.18
+      "cost_per_lead": 58.18,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-13",
@@ -1506,7 +1693,8 @@
       "goal": "Переписки",
       "spend": 297.44,
       "leads": 8,
-      "cost_per_lead": 37.18
+      "cost_per_lead": 37.18,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-13",
@@ -1514,7 +1702,8 @@
       "goal": "Покупки",
       "spend": 402.6,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-13",
@@ -1522,7 +1711,8 @@
       "goal": "Переписки",
       "spend": 410.86,
       "leads": 4,
-      "cost_per_lead": 102.72
+      "cost_per_lead": 102.72,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-13",
@@ -1530,7 +1720,8 @@
       "goal": "Переписки",
       "spend": 300.37,
       "leads": 3,
-      "cost_per_lead": 100.12
+      "cost_per_lead": 100.12,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-13",
@@ -1538,7 +1729,8 @@
       "goal": "Покупки",
       "spend": 420.08,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-13",
@@ -1546,7 +1738,8 @@
       "goal": "Покупки",
       "spend": 382.43,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-13",
@@ -1554,7 +1747,8 @@
       "goal": "Покупки",
       "spend": 400.26,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-14",
@@ -1562,7 +1756,8 @@
       "goal": "Переписки",
       "spend": 463.6,
       "leads": 7,
-      "cost_per_lead": 66.23
+      "cost_per_lead": 66.23,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-14",
@@ -1570,7 +1765,8 @@
       "goal": "Переписки",
       "spend": 480.88,
       "leads": 12,
-      "cost_per_lead": 40.07
+      "cost_per_lead": 40.07,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-14",
@@ -1578,7 +1774,8 @@
       "goal": "Покупки",
       "spend": 422.33,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-14",
@@ -1586,7 +1783,8 @@
       "goal": "Переписки",
       "spend": 422.85,
       "leads": 9,
-      "cost_per_lead": 46.98
+      "cost_per_lead": 46.98,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-14",
@@ -1594,7 +1792,8 @@
       "goal": "Переписки",
       "spend": 455.06,
       "leads": 12,
-      "cost_per_lead": 37.92
+      "cost_per_lead": 37.92,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-14",
@@ -1602,7 +1801,8 @@
       "goal": "Покупки",
       "spend": 385.65,
       "leads": 2,
-      "cost_per_lead": 192.82
+      "cost_per_lead": 192.82,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-14",
@@ -1610,7 +1810,8 @@
       "goal": "Покупки",
       "spend": 401.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-14",
@@ -1618,7 +1819,8 @@
       "goal": "Покупки",
       "spend": 387.58,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-15",
@@ -1626,7 +1828,8 @@
       "goal": "Переписки",
       "spend": 320.7,
       "leads": 9,
-      "cost_per_lead": 35.63
+      "cost_per_lead": 35.63,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-15",
@@ -1634,7 +1837,8 @@
       "goal": "Переписки",
       "spend": 392.59,
       "leads": 8,
-      "cost_per_lead": 49.07
+      "cost_per_lead": 49.07,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-15",
@@ -1642,7 +1846,8 @@
       "goal": "Покупки",
       "spend": 172.57,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-15",
@@ -1650,7 +1855,8 @@
       "goal": "Переписки",
       "spend": 340.22,
       "leads": 7,
-      "cost_per_lead": 48.6
+      "cost_per_lead": 48.6,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-15",
@@ -1658,7 +1864,8 @@
       "goal": "Переписки",
       "spend": 361.58,
       "leads": 11,
-      "cost_per_lead": 32.87
+      "cost_per_lead": 32.87,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-15",
@@ -1666,7 +1873,8 @@
       "goal": "Покупки",
       "spend": 370.1,
       "leads": 2,
-      "cost_per_lead": 185.05
+      "cost_per_lead": 185.05,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-15",
@@ -1674,7 +1882,8 @@
       "goal": "Покупки",
       "spend": 138.11,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-15",
@@ -1682,7 +1891,8 @@
       "goal": "Покупки",
       "spend": 168.18,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-15",
@@ -1690,7 +1900,8 @@
       "goal": "Покупки",
       "spend": 305.53,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-15",
@@ -1698,7 +1909,8 @@
       "goal": "Покупки",
       "spend": 232.85,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-16",
@@ -1706,7 +1918,8 @@
       "goal": "Переписки",
       "spend": 321.33,
       "leads": 5,
-      "cost_per_lead": 64.27
+      "cost_per_lead": 64.27,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-16",
@@ -1714,7 +1927,8 @@
       "goal": "Переписки",
       "spend": 318.43,
       "leads": 9,
-      "cost_per_lead": 35.38
+      "cost_per_lead": 35.38,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-16",
@@ -1722,7 +1936,8 @@
       "goal": "Переписки",
       "spend": 324.21,
       "leads": 13,
-      "cost_per_lead": 24.94
+      "cost_per_lead": 24.94,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-16",
@@ -1730,7 +1945,8 @@
       "goal": "Переписки",
       "spend": 312.75,
       "leads": 8,
-      "cost_per_lead": 39.09
+      "cost_per_lead": 39.09,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-16",
@@ -1738,7 +1954,8 @@
       "goal": "Покупки",
       "spend": 352.69,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-16",
@@ -1746,7 +1963,8 @@
       "goal": "Покупки",
       "spend": 375.04,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-16",
@@ -1754,7 +1972,8 @@
       "goal": "Покупки",
       "spend": 427.73,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-17",
@@ -1762,7 +1981,8 @@
       "goal": "Переписки",
       "spend": 323.08,
       "leads": 11,
-      "cost_per_lead": 29.37
+      "cost_per_lead": 29.37,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-17",
@@ -1770,7 +1990,8 @@
       "goal": "Переписки",
       "spend": 321.89,
       "leads": 10,
-      "cost_per_lead": 32.19
+      "cost_per_lead": 32.19,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-17",
@@ -1778,7 +1999,8 @@
       "goal": "Переписки",
       "spend": 298.32,
       "leads": 9,
-      "cost_per_lead": 33.15
+      "cost_per_lead": 33.15,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-17",
@@ -1786,7 +2008,8 @@
       "goal": "Переписки",
       "spend": 325.68,
       "leads": 10,
-      "cost_per_lead": 32.57
+      "cost_per_lead": 32.57,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-17",
@@ -1794,7 +2017,8 @@
       "goal": "Покупки",
       "spend": 329.47,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-17",
@@ -1802,7 +2026,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-17",
@@ -1810,7 +2035,8 @@
       "goal": "Покупки",
       "spend": 340.7,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-17",
@@ -1818,7 +2044,8 @@
       "goal": "Покупки",
       "spend": 356.59,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-18",
@@ -1826,7 +2053,8 @@
       "goal": "Переписки",
       "spend": 306.31,
       "leads": 12,
-      "cost_per_lead": 25.53
+      "cost_per_lead": 25.53,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-18",
@@ -1834,7 +2062,8 @@
       "goal": "Переписки",
       "spend": 284.73,
       "leads": 12,
-      "cost_per_lead": 23.73
+      "cost_per_lead": 23.73,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-18",
@@ -1842,7 +2071,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-18",
@@ -1850,7 +2080,8 @@
       "goal": "Переписки",
       "spend": 274.45,
       "leads": 7,
-      "cost_per_lead": 39.21
+      "cost_per_lead": 39.21,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-18",
@@ -1858,7 +2089,8 @@
       "goal": "Переписки",
       "spend": 297.69,
       "leads": 8,
-      "cost_per_lead": 37.21
+      "cost_per_lead": 37.21,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-18",
@@ -1866,7 +2098,8 @@
       "goal": "Покупки",
       "spend": 259.27,
       "leads": 2,
-      "cost_per_lead": 129.63
+      "cost_per_lead": 129.63,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-18",
@@ -1874,7 +2107,8 @@
       "goal": "Покупки",
       "spend": 272.9,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-18",
@@ -1882,7 +2116,8 @@
       "goal": "Покупки",
       "spend": 277.1,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-19",
@@ -1890,7 +2125,8 @@
       "goal": "Переписки",
       "spend": 370.89,
       "leads": 9,
-      "cost_per_lead": 41.21
+      "cost_per_lead": 41.21,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-19",
@@ -1898,7 +2134,8 @@
       "goal": "Переписки",
       "spend": 338.38,
       "leads": 6,
-      "cost_per_lead": 56.4
+      "cost_per_lead": 56.4,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-19",
@@ -1906,7 +2143,8 @@
       "goal": "Переписки",
       "spend": 331.31,
       "leads": 6,
-      "cost_per_lead": 55.22
+      "cost_per_lead": 55.22,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-19",
@@ -1914,7 +2152,8 @@
       "goal": "Переписки",
       "spend": 357.16,
       "leads": 5,
-      "cost_per_lead": 71.43
+      "cost_per_lead": 71.43,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-19",
@@ -1922,7 +2161,8 @@
       "goal": "Покупки",
       "spend": 422.76,
       "leads": 2,
-      "cost_per_lead": 211.38
+      "cost_per_lead": 211.38,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-19",
@@ -1930,7 +2170,8 @@
       "goal": "Покупки",
       "spend": 478.73,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-19",
@@ -1938,7 +2179,8 @@
       "goal": "Покупки",
       "spend": 410.96,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-20",
@@ -1946,7 +2188,8 @@
       "goal": "Переписки",
       "spend": 427.64,
       "leads": 13,
-      "cost_per_lead": 32.9
+      "cost_per_lead": 32.9,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-20",
@@ -1954,7 +2197,8 @@
       "goal": "Переписки",
       "spend": 428.43,
       "leads": 15,
-      "cost_per_lead": 28.56
+      "cost_per_lead": 28.56,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-20",
@@ -1962,7 +2206,8 @@
       "goal": "Переписки",
       "spend": 417.39,
       "leads": 13,
-      "cost_per_lead": 32.11
+      "cost_per_lead": 32.11,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-20",
@@ -1970,7 +2215,8 @@
       "goal": "Переписки",
       "spend": 378.17,
       "leads": 10,
-      "cost_per_lead": 37.82
+      "cost_per_lead": 37.82,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-20",
@@ -1978,7 +2224,8 @@
       "goal": "Покупки",
       "spend": 439.08,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-20",
@@ -1986,7 +2233,8 @@
       "goal": "Покупки",
       "spend": 127.95,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-20",
@@ -1994,7 +2242,8 @@
       "goal": "Покупки",
       "spend": 120.45,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-20",
@@ -2002,7 +2251,8 @@
       "goal": "Покупки",
       "spend": 278.7,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-20",
@@ -2010,7 +2260,8 @@
       "goal": "Покупки",
       "spend": 294.7,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-21",
@@ -2018,7 +2269,8 @@
       "goal": "Переписки",
       "spend": 377.22,
       "leads": 7,
-      "cost_per_lead": 53.89
+      "cost_per_lead": 53.89,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-21",
@@ -2026,7 +2278,8 @@
       "goal": "Переписки",
       "spend": 387.62,
       "leads": 7,
-      "cost_per_lead": 55.37
+      "cost_per_lead": 55.37,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-21",
@@ -2034,7 +2287,8 @@
       "goal": "Переписки",
       "spend": 382.51,
       "leads": 10,
-      "cost_per_lead": 38.25
+      "cost_per_lead": 38.25,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-21",
@@ -2042,7 +2296,8 @@
       "goal": "Переписки",
       "spend": 386.8,
       "leads": 14,
-      "cost_per_lead": 27.63
+      "cost_per_lead": 27.63,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-21",
@@ -2050,7 +2305,8 @@
       "goal": "Покупки",
       "spend": 427.75,
       "leads": 2,
-      "cost_per_lead": 213.88
+      "cost_per_lead": 213.88,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-21",
@@ -2058,7 +2314,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-21",
@@ -2066,7 +2323,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-21",
@@ -2074,7 +2332,8 @@
       "goal": "Покупки",
       "spend": 404.42,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-21",
@@ -2082,7 +2341,8 @@
       "goal": "Покупки",
       "spend": 408.32,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-22",
@@ -2090,7 +2350,8 @@
       "goal": "Переписки",
       "spend": 342.71,
       "leads": 4,
-      "cost_per_lead": 85.68
+      "cost_per_lead": 85.68,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-22",
@@ -2098,7 +2359,8 @@
       "goal": "Переписки",
       "spend": 332.3,
       "leads": 13,
-      "cost_per_lead": 25.56
+      "cost_per_lead": 25.56,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-22",
@@ -2106,7 +2368,8 @@
       "goal": "Переписки",
       "spend": 323.95,
       "leads": 8,
-      "cost_per_lead": 40.49
+      "cost_per_lead": 40.49,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-22",
@@ -2114,7 +2377,8 @@
       "goal": "Переписки",
       "spend": 337.29,
       "leads": 5,
-      "cost_per_lead": 67.46
+      "cost_per_lead": 67.46,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-22",
@@ -2122,7 +2386,8 @@
       "goal": "Покупки",
       "spend": 286.02,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-22",
@@ -2130,7 +2395,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-22",
@@ -2138,7 +2404,8 @@
       "goal": "Покупки",
       "spend": 325.67,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-22",
@@ -2146,7 +2413,8 @@
       "goal": "Покупки",
       "spend": 303.91,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-23",
@@ -2154,7 +2422,8 @@
       "goal": "Переписки",
       "spend": 190.41,
       "leads": 3,
-      "cost_per_lead": 63.47
+      "cost_per_lead": 63.47,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-23",
@@ -2162,7 +2431,8 @@
       "goal": "Переписки",
       "spend": 212.23,
       "leads": 9,
-      "cost_per_lead": 23.58
+      "cost_per_lead": 23.58,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-23",
@@ -2170,7 +2440,8 @@
       "goal": "Переписки",
       "spend": 214.57,
       "leads": 5,
-      "cost_per_lead": 42.91
+      "cost_per_lead": 42.91,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-23",
@@ -2178,7 +2449,8 @@
       "goal": "Переписки",
       "spend": 295.36,
       "leads": 6,
-      "cost_per_lead": 49.23
+      "cost_per_lead": 49.23,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-23",
@@ -2186,7 +2458,8 @@
       "goal": "Покупки",
       "spend": 236.86,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-23",
@@ -2194,7 +2467,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-23",
@@ -2202,7 +2476,8 @@
       "goal": "Покупки",
       "spend": 39.4,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-23",
@@ -2210,7 +2485,8 @@
       "goal": "Покупки",
       "spend": 63.52,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-23",
@@ -2218,7 +2494,8 @@
       "goal": "Покупки",
       "spend": 271.24,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-23",
@@ -2226,7 +2503,8 @@
       "goal": "Покупки",
       "spend": 188.07,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-24",
@@ -2234,7 +2512,8 @@
       "goal": "Переписки",
       "spend": 361.82,
       "leads": 12,
-      "cost_per_lead": 30.15
+      "cost_per_lead": 30.15,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-24",
@@ -2242,7 +2521,8 @@
       "goal": "Переписки",
       "spend": 361.2,
       "leads": 18,
-      "cost_per_lead": 20.07
+      "cost_per_lead": 20.07,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-24",
@@ -2250,7 +2530,8 @@
       "goal": "Переписки",
       "spend": 302.4,
       "leads": 6,
-      "cost_per_lead": 50.4
+      "cost_per_lead": 50.4,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-24",
@@ -2258,7 +2539,8 @@
       "goal": "Переписки",
       "spend": 314.07,
       "leads": 10,
-      "cost_per_lead": 31.41
+      "cost_per_lead": 31.41,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-24",
@@ -2266,7 +2548,8 @@
       "goal": "Покупки",
       "spend": 438.43,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-24",
@@ -2274,7 +2557,8 @@
       "goal": "Покупки",
       "spend": 421.1,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-24",
@@ -2282,7 +2566,8 @@
       "goal": "Покупки",
       "spend": 415.33,
       "leads": 4,
-      "cost_per_lead": 103.83
+      "cost_per_lead": 103.83,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-25",
@@ -2290,7 +2575,8 @@
       "goal": "Переписки",
       "spend": 367.51,
       "leads": 11,
-      "cost_per_lead": 33.41
+      "cost_per_lead": 33.41,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-25",
@@ -2298,7 +2584,8 @@
       "goal": "Переписки",
       "spend": 381.14,
       "leads": 12,
-      "cost_per_lead": 31.76
+      "cost_per_lead": 31.76,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-25",
@@ -2306,7 +2593,8 @@
       "goal": "Переписки",
       "spend": 472.93,
       "leads": 9,
-      "cost_per_lead": 52.55
+      "cost_per_lead": 52.55,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-25",
@@ -2314,7 +2602,8 @@
       "goal": "Переписки",
       "spend": 360.17,
       "leads": 14,
-      "cost_per_lead": 25.73
+      "cost_per_lead": 25.73,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-25",
@@ -2322,7 +2611,8 @@
       "goal": "Покупки",
       "spend": 374.0,
       "leads": 2,
-      "cost_per_lead": 187.0
+      "cost_per_lead": 187.0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-25",
@@ -2330,7 +2620,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-25",
@@ -2338,7 +2629,8 @@
       "goal": "Покупки",
       "spend": 214.98,
       "leads": 2,
-      "cost_per_lead": 107.49
+      "cost_per_lead": 107.49,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-25",
@@ -2346,7 +2638,8 @@
       "goal": "Покупки",
       "spend": 303.41,
       "leads": 2,
-      "cost_per_lead": 151.71
+      "cost_per_lead": 151.71,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-26",
@@ -2354,7 +2647,8 @@
       "goal": "Переписки",
       "spend": 344.54,
       "leads": 13,
-      "cost_per_lead": 26.5
+      "cost_per_lead": 26.5,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-26",
@@ -2362,7 +2656,8 @@
       "goal": "Переписки",
       "spend": 351.42,
       "leads": 13,
-      "cost_per_lead": 27.03
+      "cost_per_lead": 27.03,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-26",
@@ -2370,7 +2665,8 @@
       "goal": "Переписки",
       "spend": 346.88,
       "leads": 5,
-      "cost_per_lead": 69.38
+      "cost_per_lead": 69.38,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-26",
@@ -2378,7 +2674,8 @@
       "goal": "Переписки",
       "spend": 295.59,
       "leads": 9,
-      "cost_per_lead": 32.84
+      "cost_per_lead": 32.84,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-26",
@@ -2386,7 +2683,8 @@
       "goal": "Покупки",
       "spend": 479.97,
       "leads": 2,
-      "cost_per_lead": 239.99
+      "cost_per_lead": 239.99,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-26",
@@ -2394,7 +2692,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-26",
@@ -2402,7 +2701,8 @@
       "goal": "Покупки",
       "spend": 480.93,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-26",
@@ -2410,7 +2710,8 @@
       "goal": "Покупки",
       "spend": 546.32,
       "leads": 2,
-      "cost_per_lead": 273.16
+      "cost_per_lead": 273.16,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-27",
@@ -2418,7 +2719,8 @@
       "goal": "Переписки",
       "spend": 425.88,
       "leads": 10,
-      "cost_per_lead": 42.59
+      "cost_per_lead": 42.59,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-27",
@@ -2426,7 +2728,8 @@
       "goal": "Переписки",
       "spend": 431.87,
       "leads": 8,
-      "cost_per_lead": 53.98
+      "cost_per_lead": 53.98,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-27",
@@ -2434,7 +2737,8 @@
       "goal": "Переписки",
       "spend": 334.04,
       "leads": 6,
-      "cost_per_lead": 55.67
+      "cost_per_lead": 55.67,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-27",
@@ -2442,7 +2746,8 @@
       "goal": "Переписки",
       "spend": 396.26,
       "leads": 11,
-      "cost_per_lead": 36.02
+      "cost_per_lead": 36.02,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-27",
@@ -2450,7 +2755,8 @@
       "goal": "Покупки",
       "spend": 484.04,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-27",
@@ -2458,7 +2764,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-27",
@@ -2466,7 +2773,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-27",
@@ -2474,7 +2782,8 @@
       "goal": "Покупки",
       "spend": 438.78,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-27",
@@ -2482,7 +2791,8 @@
       "goal": "Покупки",
       "spend": 412.38,
       "leads": 2,
-      "cost_per_lead": 206.19
+      "cost_per_lead": 206.19,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-28",
@@ -2490,7 +2800,8 @@
       "goal": "Переписки",
       "spend": 388.07,
       "leads": 10,
-      "cost_per_lead": 38.81
+      "cost_per_lead": 38.81,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-28",
@@ -2498,7 +2809,8 @@
       "goal": "Переписки",
       "spend": 422.93,
       "leads": 21,
-      "cost_per_lead": 20.14
+      "cost_per_lead": 20.14,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-28",
@@ -2506,7 +2818,8 @@
       "goal": "Переписки",
       "spend": 451.7,
       "leads": 10,
-      "cost_per_lead": 45.17
+      "cost_per_lead": 45.17,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-28",
@@ -2514,15 +2827,17 @@
       "goal": "Переписки",
       "spend": 469.18,
       "leads": 13,
-      "cost_per_lead": 36.09
+      "cost_per_lead": 36.09,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-28",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 423.99,
+      "spend": 424.38,
       "leads": 2,
-      "cost_per_lead": 212.0
+      "cost_per_lead": 212.19,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-28",
@@ -2530,7 +2845,8 @@
       "goal": "Покупки",
       "spend": 300.44,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-28",
@@ -2538,7 +2854,8 @@
       "goal": "Покупки",
       "spend": 371.32,
       "leads": 2,
-      "cost_per_lead": 185.66
+      "cost_per_lead": 185.66,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-29",
@@ -2546,7 +2863,8 @@
       "goal": "Переписки",
       "spend": 326.63,
       "leads": 16,
-      "cost_per_lead": 20.41
+      "cost_per_lead": 20.41,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-29",
@@ -2554,7 +2872,8 @@
       "goal": "Переписки",
       "spend": 336.24,
       "leads": 15,
-      "cost_per_lead": 22.42
+      "cost_per_lead": 22.42,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-29",
@@ -2562,7 +2881,8 @@
       "goal": "Переписки",
       "spend": 327.98,
       "leads": 6,
-      "cost_per_lead": 54.66
+      "cost_per_lead": 54.66,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-29",
@@ -2570,15 +2890,17 @@
       "goal": "Переписки",
       "spend": 387.22,
       "leads": 16,
-      "cost_per_lead": 24.2
+      "cost_per_lead": 24.2,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-29",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 328.89,
+      "spend": 329.02,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-29",
@@ -2586,7 +2908,8 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-29",
@@ -2594,23 +2917,98 @@
       "goal": "Покупки",
       "spend": 0.0,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "PAUSED"
     },
     {
       "date": "2026-07-29",
       "campaign": "DDA | конверсії матраси | 23.07.2026",
       "goal": "Покупки",
-      "spend": 299.53,
+      "spend": 299.73,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     },
     {
       "date": "2026-07-29",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 512.79,
+      "spend": 514.48,
       "leads": 0,
-      "cost_per_lead": 0
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | дірект матраси | 9.06",
+      "goal": "Переписки",
+      "spend": 321.82,
+      "leads": 15,
+      "cost_per_lead": 21.45,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | дірект кроваті | 12.06",
+      "goal": "Переписки",
+      "spend": 297.35,
+      "leads": 11,
+      "cost_per_lead": 27.03,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | дірект матраси | 19.06 масштаб",
+      "goal": "Переписки",
+      "spend": 292.59,
+      "leads": 8,
+      "cost_per_lead": 36.57,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | дірект общ матраси + кроваті | 25.06",
+      "goal": "Переписки",
+      "spend": 297.82,
+      "leads": 11,
+      "cost_per_lead": 27.07,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 331.41,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | конверсії общ матраси + кроваті | 23.07.2026",
+      "goal": "Покупки",
+      "spend": 0.0,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "PAUSED"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | конверсії матраси | 23.07.2026",
+      "goal": "Покупки",
+      "spend": 362.24,
+      "leads": 2,
+      "cost_per_lead": 181.12,
+      "status": "ACTIVE"
+    },
+    {
+      "date": "2026-07-30",
+      "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
+      "goal": "Покупки",
+      "spend": 412.21,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "ACTIVE"
     }
   ],
   "banners": [
@@ -2668,10 +3066,10 @@
       "banner": "4 статика",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 4582.53,
-      "leads": 119,
-      "cost_per_lead": 38.51,
-      "ctr": 4.51,
+      "spend": 4592.99,
+      "leads": 120,
+      "cost_per_lead": 38.27,
+      "ctr": 4.53,
       "image": "images/48cd1f3cfc316156.png"
     },
     {
@@ -2688,19 +3086,19 @@
       "banner": "7 статика",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 9076.43,
-      "leads": 330,
-      "cost_per_lead": 27.5,
-      "ctr": 5.41,
+      "spend": 9362.79,
+      "leads": 340,
+      "cost_per_lead": 27.54,
+      "ctr": 5.42,
       "image": "images/f25eb39a6f350910.png"
     },
     {
       "banner": "8 статика",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 2491.46,
+      "spend": 2491.99,
       "leads": 63,
-      "cost_per_lead": 39.55,
+      "cost_per_lead": 39.56,
       "ctr": 5.51,
       "image": "images/b32af6014e400980.png"
     },
@@ -2818,9 +3216,9 @@
       "banner": "4нов",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 6307.87,
+      "spend": 6308.61,
       "leads": 187,
-      "cost_per_lead": 33.73,
+      "cost_per_lead": 33.74,
       "ctr": 3.17,
       "image": "images/bd892e1880090ea7.png"
     },
@@ -2878,10 +3276,10 @@
       "banner": "10нов",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 9191.75,
-      "leads": 277,
-      "cost_per_lead": 33.18,
-      "ctr": 3.08,
+      "spend": 9509.82,
+      "leads": 292,
+      "cost_per_lead": 32.57,
+      "ctr": 3.07,
       "image": "images/5bbb1b033a429988.png"
     },
     {
@@ -3088,9 +3486,9 @@
       "banner": "10нов",
       "campaign": "DDA | дірект матраси | 19.06 масштаб",
       "goal": "Переписки",
-      "spend": 6352.8,
+      "spend": 6356.53,
       "leads": 174,
-      "cost_per_lead": 36.51,
+      "cost_per_lead": 36.53,
       "ctr": 3.05,
       "image": "images/5bbb1b033a429988.png"
     },
@@ -3128,9 +3526,9 @@
       "banner": "4нов",
       "campaign": "DDA | дірект матраси | 19.06 масштаб",
       "goal": "Переписки",
-      "spend": 3789.75,
-      "leads": 97,
-      "cost_per_lead": 39.07,
+      "spend": 3813.42,
+      "leads": 98,
+      "cost_per_lead": 38.91,
       "ctr": 3.0,
       "image": "images/bd892e1880090ea7.png"
     },
@@ -3388,10 +3786,10 @@
       "banner": "7",
       "campaign": "DDA | дірект общ матраси + кроваті | 25.06",
       "goal": "Переписки",
-      "spend": 2288.62,
-      "leads": 72,
-      "cost_per_lead": 31.79,
-      "ctr": 5.06,
+      "spend": 2586.44,
+      "leads": 83,
+      "cost_per_lead": 31.16,
+      "ctr": 4.97,
       "image": "images/7ea3e4539ece4296.png"
     },
     {
@@ -3418,10 +3816,10 @@
       "banner": "5",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 4782.72,
+      "spend": 4809.1,
       "leads": 20,
-      "cost_per_lead": 239.14,
-      "ctr": 4.38,
+      "cost_per_lead": 240.46,
+      "ctr": 4.39,
       "image": "images/48cd1f3cfc316156.png"
     },
     {
@@ -3628,40 +4026,40 @@
       "banner": "1нов",
       "campaign": "DDA | дірект матраси | 19.06 масштаб",
       "goal": "Переписки",
-      "spend": 375.68,
+      "spend": 378.1,
       "leads": 6,
-      "cost_per_lead": 62.61,
-      "ctr": 2.51,
+      "cost_per_lead": 63.02,
+      "ctr": 2.49,
       "image": "images/4895f8c43b0e703b.png"
     },
     {
       "banner": "3нов",
       "campaign": "DDA | дірект матраси | 19.06 масштаб",
       "goal": "Переписки",
-      "spend": 2702.03,
-      "leads": 59,
-      "cost_per_lead": 45.8,
-      "ctr": 3.51,
+      "spend": 2964.8,
+      "leads": 66,
+      "cost_per_lead": 44.92,
+      "ctr": 3.45,
       "image": "images/260237fbc2caa971.png"
     },
     {
       "banner": "1новый",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 183.88,
+      "spend": 186.33,
       "leads": 5,
-      "cost_per_lead": 36.78,
-      "ctr": 2.24,
+      "cost_per_lead": 37.27,
+      "ctr": 2.21,
       "image": "images/4895f8c43b0e703b.png"
     },
     {
       "banner": "3новый",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 156.59,
+      "spend": 157.15,
       "leads": 1,
-      "cost_per_lead": 156.59,
-      "ctr": 3.64,
+      "cost_per_lead": 157.15,
+      "ctr": 3.6,
       "image": "images/260237fbc2caa971.png"
     },
     {
@@ -3788,20 +4186,20 @@
       "banner": "1 нов",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 31.84,
+      "spend": 36.62,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 9.15,
+      "ctr": 8.15,
       "image": "images/0fc0a8cc7c153124.png"
     },
     {
       "banner": "2 нов",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 3409.15,
+      "spend": 3709.92,
       "leads": 6,
-      "cost_per_lead": 568.19,
-      "ctr": 4.51,
+      "cost_per_lead": 618.32,
+      "ctr": 4.5,
       "image": "images/03e9f98f45a16096.png"
     },
     {
@@ -4018,20 +4416,20 @@
       "banner": "нов 1",
       "campaign": "DDA | конверсії матраси | 23.07.2026",
       "goal": "Покупки",
-      "spend": 1981.04,
-      "leads": 12,
-      "cost_per_lead": 165.09,
-      "ctr": 3.45,
+      "spend": 2322.13,
+      "leads": 14,
+      "cost_per_lead": 165.87,
+      "ctr": 3.65,
       "image": "images/07051f7ef210a651.png"
     },
     {
       "banner": "6",
       "campaign": "DDA | конверсії матраси | 23.07.2026",
       "goal": "Покупки",
-      "spend": 229.44,
+      "spend": 250.79,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 5.89,
+      "ctr": 6.1,
       "image": "images/bd892e1880090ea7.png"
     },
     {
@@ -4048,70 +4446,70 @@
       "banner": "к м нов 3",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 10.44,
+      "spend": 12.21,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 4.88,
+      "ctr": 4.76,
       "image": "images/639bce5e264b2538.png"
     },
     {
       "banner": "к+м3",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 42.86,
+      "spend": 48.71,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 7.34,
+      "ctr": 7.54,
       "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "1",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 58.47,
+      "spend": 82.38,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 6.44,
+      "ctr": 6.5,
       "image": "images/baef1763e9680c08.png"
     },
     {
       "banner": "к м нов 2",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 26.42,
+      "spend": 27.53,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 3.64,
+      "ctr": 4.52,
       "image": "images/c62eac896f362f68.png"
     },
     {
       "banner": "3",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 159.16,
+      "spend": 391.14,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 5.52,
+      "ctr": 5.48,
       "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "к м нов 1",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 41.09,
+      "spend": 101.24,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 8.63,
+      "ctr": 7.74,
       "image": "images/0ed424fc5b8ec48d.png"
     },
     {
       "banner": "к м нов 5",
       "campaign": "DDA | конверсії общ матраси + кроваті | 29.07.2026",
       "goal": "Покупки",
-      "spend": 174.35,
+      "spend": 263.48,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 5.5,
+      "ctr": 6.09,
       "image": "images/86e90b1fab11a915.png"
     }
   ]
