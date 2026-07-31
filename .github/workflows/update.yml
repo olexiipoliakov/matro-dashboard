@@ -1,4 +1,4 @@
-name: Update Meta Ads Data
+name: Update Dashboard Data
 
 on:
   schedule:
@@ -21,19 +21,24 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests google-auth google-auth-httplib2 google-api-python-client
 
-      - name: Run fetch script
+      - name: Run Meta Ads fetch
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
           META_ACCOUNT_ID: ${{ secrets.META_ACCOUNT_ID }}
           META_ACCOUNT_ID_2: ${{ secrets.META_ACCOUNT_ID_2 }}
         run: python fetch_meta.py
 
+      - name: Run GSC fetch
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+        run: python fetch_gsc.py
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json images/
-          git diff --staged --quiet || git commit -m "Update Meta Ads data $(date +'%Y-%m-%d')"
+          git add data.json images/ seo_data.json
+          git diff --staged --quiet || git commit -m "Update dashboard data $(date +'%Y-%m-%d')"
           git push
