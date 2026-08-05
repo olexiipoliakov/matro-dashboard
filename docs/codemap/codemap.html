@@ -83,6 +83,17 @@
   .detail .rel-item:hover{color:var(--ink);border-color:var(--ink-dim)}
   .empty-note{color:var(--ink-dim);font-style:italic;font-size:11.5px}
 
+  .copy-box{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-bottom:12px}
+  .copy-box-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;
+    font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-dim);font-weight:700}
+  .copy-btn{font-size:11px;font-weight:600;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+    border-radius:6px;padding:4px 10px;cursor:pointer;transition:all .15s}
+  .copy-btn:hover{border-color:var(--ink-dim)}
+  .copy-btn.copied{color:var(--c-data);border-color:var(--c-data)}
+  #copy-text{width:100%;height:110px;resize:vertical;background:var(--panel);border:1px solid var(--line);
+    border-radius:7px;color:var(--ink-soft);font-family:monospace;font-size:11px;line-height:1.5;
+    padding:8px;outline:none}
+
   .zoom-controls{position:absolute;bottom:16px;left:16px;display:flex;flex-direction:column;gap:4px;z-index:6}
   .zoom-btn{width:30px;height:30px;border-radius:8px;background:var(--panel);border:1px solid var(--line);
     color:var(--ink-soft);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -125,6 +136,15 @@
       <span class="close" id="detail-close">&times;</span>
       <h2 id="d-name"></h2>
       <div class="path" id="d-path"></div>
+
+      <div class="copy-box">
+        <div class="copy-box-head">
+          <span>Скопировать для чата</span>
+          <button id="copy-btn" class="copy-btn">Копировать</button>
+        </div>
+        <textarea id="copy-text" readonly onclick="this.select()"></textarea>
+      </div>
+
       <div class="role" id="d-role"></div>
       <div id="d-constraints"></div>
       <h4>Upstream callers</h4>
@@ -320,6 +340,9 @@ function showDetail(id, upstream, downstream){
   panel.classList.add('show');
   document.getElementById('d-name').textContent = n.id;
   document.getElementById('d-path').textContent = n.path;
+
+  document.getElementById('copy-text').value = buildCopyText(n, upstream, downstream);
+
   document.getElementById('d-role').textContent = n.role;
 
   const consEl = document.getElementById('d-constraints');
@@ -357,6 +380,46 @@ function showDetail(id, upstream, downstream){
   evEl.innerHTML = n.evidence.map(x=>`<li>${escapeHtml(x)}</li>`).join('') || '<li class="empty-note">none</li>';
 }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function buildCopyText(n, upstream, downstream){
+  const relatedFlows = CM.flows.filter(f=>f.steps.includes(n.id));
+  const lines = [];
+  lines.push(`Модуль: ${n.id} (${n.path})`);
+  lines.push(`Роль: ${n.role}`);
+  if(n.entrypoints && n.entrypoints.length) lines.push(`Точки входа: ${n.entrypoints.join('; ')}`);
+  if(n.constraints && n.constraints.length){
+    lines.push('Ограничения / особенности:');
+    n.constraints.forEach(c=>lines.push(`  - ${c}`));
+  }
+  lines.push(`Вызывается из (upstream): ${upstream.length ? upstream.join(', ') : 'нет'}`);
+  lines.push(`Зависит от (downstream): ${downstream.length ? downstream.join(', ') : 'нет'}`);
+  if(relatedFlows.length){
+    lines.push('Сценарии, где участвует:');
+    relatedFlows.forEach(f=>lines.push(`  - ${f.trigger} → ${f.outcome}`));
+  }
+  if(n.evidence && n.evidence.length){
+    lines.push('Где именно в коде (evidence):');
+    n.evidence.forEach(e=>lines.push(`  - ${e}`));
+  }
+  return lines.join('\n');
+}
+
+document.getElementById('copy-btn').addEventListener('click', async (ev)=>{
+  ev.stopPropagation();
+  const ta = document.getElementById('copy-text');
+  ta.select();
+  const btn = document.getElementById('copy-btn');
+  try{
+    await navigator.clipboard.writeText(ta.value);
+  }catch(e){
+    document.execCommand('copy');
+  }
+  btn.textContent = 'Скопировано ✓';
+  btn.classList.add('copied');
+  setTimeout(()=>{ btn.textContent='Копировать'; btn.classList.remove('copied'); }, 1600);
+});
+
+document.getElementById('detail').addEventListener('click', (ev)=>{ ev.stopPropagation(); });
 
 document.getElementById('detail-close').addEventListener('click', ()=>{
   document.getElementById('detail').classList.remove('show');
