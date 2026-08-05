@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>matro-dashboard · Code Map</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#12161f; --panel-2:#171c28; --line:#242c3d;
+    --ink:#e7ecf7; --ink-soft:#8892a8; --ink-dim:#525c72;
+    --c-ci:#f5c842; --c-script:#5b8dee; --c-ui:#ff8c42; --c-data:#3ecf8e; --c-external:#9b6dff;
+    --hi:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);height:100%}
+  body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;color:var(--ink);overflow:hidden}
+
+  .topbar{display:flex;align-items:center;gap:18px;padding:10px 18px;background:var(--panel);
+    border-bottom:1px solid var(--line);position:relative;z-index:5}
+  .topbar h1{font-size:14px;font-weight:700}
+  .topbar .meta{font-size:11.5px;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap}
+  .topbar .meta b{color:var(--ink-dim);font-weight:600}
+  .topbar .spacer{flex:1}
+  .search{display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:5px 10px}
+  .search input{background:none;border:none;color:var(--ink);font-size:12.5px;outline:none;width:170px}
+  .search input::placeholder{color:var(--ink-dim)}
+
+  .layout{display:flex;height:calc(100% - 45px)}
+  .side{width:260px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);
+    overflow-y:auto;padding:14px}
+  .side h3{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-dim);
+    margin:16px 0 8px;font-weight:700}
+  .side h3:first-child{margin-top:0}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:5px 6px;border-radius:6px;
+    cursor:pointer;color:var(--ink-soft);transition:background .15s}
+  .legend-item:hover{background:var(--panel-2)}
+  .legend-item.off{opacity:.35}
+  .swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+  .flow-item{font-size:12px;padding:8px 9px;border-radius:8px;cursor:pointer;margin-bottom:6px;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--ink-soft);line-height:1.4;
+    transition:all .15s}
+  .flow-item:hover{border-color:var(--ink-dim);color:var(--ink)}
+  .flow-item.active{border-color:var(--hi);color:var(--ink);background:#1c2233}
+  .flow-item .fnum{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;
+    border-radius:50%;background:var(--panel);font-size:9.5px;font-weight:700;margin-right:6px}
+  .clear-btn{font-size:11px;color:var(--ink-dim);cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
+  .clear-btn:hover{color:var(--ink)}
+
+  .canvas-wrap{flex:1;position:relative;overflow:hidden;cursor:grab}
+  .canvas-wrap.dragging{cursor:grabbing}
+  svg#graph{width:100%;height:100%;display:block}
+
+  .node-box{fill:var(--panel-2);stroke:var(--line);stroke-width:1.5;rx:12;cursor:pointer;transition:stroke .15s, filter .15s}
+  .node-box:hover{stroke:var(--ink-dim)}
+  .node-label{fill:var(--ink);font-size:12px;font-weight:600;pointer-events:none}
+  .node-sub{fill:var(--ink-dim);font-size:9.5px;pointer-events:none}
+  .node-dot{pointer-events:none}
+  .edge-line{stroke:var(--ink-dim);stroke-width:1.4;fill:none;opacity:.55;transition:all .15s}
+  .edge-label{fill:var(--ink-dim);font-size:8.5px;pointer-events:none;opacity:0;transition:opacity .15s}
+
+  .dim{opacity:.15}
+  .hi-node .node-box{stroke:var(--hi);stroke-width:2.2;filter:drop-shadow(0 0 8px rgba(255,255,255,.25))}
+  .hi-edge{opacity:1 !important;stroke-width:2.2 !important}
+  .hi-edge .edge-label{opacity:1}
+  .flow-hi .node-box{stroke:#ffd166;stroke-width:2.4;filter:drop-shadow(0 0 10px rgba(255,209,102,.4))}
+  .flow-hi-edge{stroke:#ffd166 !important;opacity:1 !important;stroke-width:2.6 !important}
+
+  .detail{position:absolute;top:14px;right:14px;width:320px;max-height:calc(100% - 28px);overflow-y:auto;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;
+    box-shadow:0 20px 50px rgba(0,0,0,.5);display:none;font-size:12.5px;z-index:6}
+  .detail.show{display:block}
+  .detail .close{position:absolute;top:10px;right:12px;cursor:pointer;color:var(--ink-dim);font-size:16px}
+  .detail h2{font-size:15px;margin-bottom:4px;padding-right:20px}
+  .detail .path{font-size:11px;color:var(--ink-soft);font-family:monospace;margin-bottom:10px;word-break:break-all}
+  .detail .role{color:var(--ink-soft);line-height:1.55;margin-bottom:12px}
+  .detail h4{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-dim);margin:12px 0 5px}
+  .detail ul{padding-left:16px;color:var(--ink-soft);line-height:1.55}
+  .detail li{margin-bottom:3px}
+  .detail .rel-list{display:flex;flex-direction:column;gap:5px}
+  .detail .rel-item{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:6px 9px;
+    font-size:11.5px;cursor:pointer;color:var(--ink-soft)}
+  .detail .rel-item:hover{color:var(--ink);border-color:var(--ink-dim)}
+  .empty-note{color:var(--ink-dim);font-style:italic;font-size:11.5px}
+
+  .zoom-controls{position:absolute;bottom:16px;left:16px;display:flex;flex-direction:column;gap:4px;z-index:6}
+  .zoom-btn{width:30px;height:30px;border-radius:8px;background:var(--panel);border:1px solid var(--line);
+    color:var(--ink-soft);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .zoom-btn:hover{color:var(--ink);border-color:var(--ink-dim)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1 id="repo-name">matro-dashboard</h1>
+  <div class="meta">
+    <span><b>generated:</b> <span id="gen-at"></span></span>
+    <span><b>commit:</b> <span id="gen-commit"></span></span>
+  </div>
+  <div class="spacer"></div>
+  <div class="search">
+    <span style="color:var(--ink-dim);font-size:12px">&#128269;</span>
+    <input id="search-input" type="text" placeholder="Search nodes…">
+  </div>
+</div>
+
+<div class="layout">
+  <div class="side">
+    <h3>Module types</h3>
+    <div id="legend"></div>
+
+    <h3>Key flows</h3>
+    <div id="flow-list"></div>
+    <span class="clear-btn" id="clear-flow">Clear flow highlight</span>
+  </div>
+
+  <div class="canvas-wrap" id="canvas-wrap">
+    <svg id="graph" viewBox="0 0 1180 520"></svg>
+    <div class="zoom-controls">
+      <div class="zoom-btn" id="zoom-in">+</div>
+      <div class="zoom-btn" id="zoom-out">–</div>
+      <div class="zoom-btn" id="zoom-reset" title="Reset view">⤢</div>
+    </div>
+    <div class="detail" id="detail">
+      <span class="close" id="detail-close">&times;</span>
+      <h2 id="d-name"></h2>
+      <div class="path" id="d-path"></div>
+      <div class="role" id="d-role"></div>
+      <div id="d-constraints"></div>
+      <h4>Upstream callers</h4>
+      <div class="rel-list" id="d-upstream"></div>
+      <h4>Downstream dependencies</h4>
+      <div class="rel-list" id="d-downstream"></div>
+      <h4>Flows involving this module</h4>
+      <div class="rel-list" id="d-flows"></div>
+      <h4>Evidence</h4>
+      <ul id="d-evidence"></ul>
+    </div>
+  </div>
+</div>
+
+<script id="codemap-data" type="application/json">
+{"generated_at": "2026-08-05T00:00:00Z", "generated_from_commit": "eda39c66b8b8984109e8c1167924c442e6374f10", "scope": [".github/workflows/update.yml", "README.md", "data.json", "fetch_gsc.py", "fetch_meta.py", "home.html", "index.html", "seo.html"], "nodes": [{"id": "update-workflow", "path": ".github/workflows/update.yml", "type": "ci", "role": "CI/CD pipeline: daily cron + manual trigger that runs the Meta and GSC fetch scripts, then commits and pushes updated data files back to the repo.", "entrypoints": ["on.schedule (cron '0 6 * * *')", "on.workflow_dispatch"], "tests": [], "constraints": ["requires secrets META_ACCESS_TOKEN, META_ACCOUNT_ID, META_ACCOUNT_ID_2, GSC_SERVICE_ACCOUNT_JSON", "job permissions: contents: write (needed to git push)"], "evidence": [".github/workflows/update.yml:1-33"]}, {"id": "fetch-meta", "path": "fetch_meta.py", "type": "script", "role": "Python script: pulls Meta Marketing API campaign/ad insights for the Plume ad account, computes per-campaign results by optimization goal, writes data.json and downloads banner thumbnails.", "entrypoints": ["__main__ (fetch_meta.py:430)"], "tests": [], "constraints": ["requires env META_ACCESS_TOKEN, META_ACCOUNT_ID", "API_VERSION = v21.0, DATE_PRESET = last_90d (fetch_meta.py:27-29)", "only builds the Plume account (ACCOUNT_ID) in __main__; ACCOUNT_ID_2/'Matro' account is defined but never built here (fetch_meta.py:430-441)"], "evidence": ["fetch_meta.py:23-30", "fetch_meta.py:305-412 (build())", "fetch_meta.py:430-441 (__main__)"]}, {"id": "fetch-gsc", "path": "fetch_gsc.py", "type": "script", "role": "Python script: pulls Google Search Console daily/monthly/query/page data plus a URL-keyword category classifier producing weekly per-section position trends; writes seo_data.json.", "entrypoints": ["__main__ (fetch_gsc.py:202)"], "tests": [], "constraints": ["requires env GSC_SERVICE_ACCOUNT_JSON or local gsc_key.json (fetch_gsc.py:20-22)", "SITES = [{'id':'https://matroluxe.ua/','name':'Matroluxe UA'}] \u2014 URL-prefix property, only one site configured (fetch_gsc.py:46-49)", "classify_category() keyword-matches URL slugs since the site has no /catalog/ path prefix \u2014 heuristic, may misclassify some product URLs (fetch_gsc.py:32-44)"], "evidence": ["fetch_gsc.py:46-50", "fetch_gsc.py:32-44 (classify_category())", "fetch_gsc.py:58-67 (get_service())", "fetch_gsc.py:202-225 (__main__)"]}, {"id": "data-json", "path": "data.json", "type": "data", "role": "Data artifact: Meta Ads daily campaign rows + banner/ad rows, regenerated by fetch-meta and read by index.html and home.html.", "entrypoints": [], "tests": [], "constraints": ["schema: {generated_at, source, period, currency, daily[], banners[]} (fetch_meta.py:405-411)"], "evidence": ["fetch_meta.py:405-411", "index.html:456", "home.html:277"]}, {"id": "seo-data-json", "path": "seo_data.json", "type": "data", "role": "Data artifact: GSC daily/monthly/query/page rows plus weekly category-position series, regenerated by fetch-gsc and read by seo.html and home.html. Not present in the current checkout \u2014 the fetch workflow has not yet completed a successful run that reaches the write step.", "entrypoints": [], "tests": [], "constraints": ["schema: {generated_at, sites:[{site_url, site_name, period, daily[], monthly[], queries[], pages[], categories[]}]} (fetch_gsc.py:121-160, 218-225)"], "evidence": ["fetch_gsc.py:50", "fetch_gsc.py:218-225", "seo.html:169", "home.html:310"]}, {"id": "index-html", "path": "index.html", "type": "ui", "role": "SMM & \u0420\u0435\u043a\u043b\u0430\u043c\u0430 dashboard: campaign table (goal-type multi-select, sortable, totals), banner-effectiveness tab, 3 day-by-day charts, and an AI-insights panel.", "entrypoints": ["page load (DOMContentLoaded-style init calling fetch(currentDataFile))"], "tests": [], "constraints": ["account switcher includes a 'Matro' tab wired to fetch data2.json (index.html:238), but no script in this repo writes data2.json \u2014 likely stale/unused UI path", "cost-per-lead color coding (cheap/mid/expensive) computed relative to the average within campaign type (function cplClass)"], "evidence": ["index.html:434-456 (currentDataFile / switchAccount)", "index.html:931-950 (genInsights())", "index.html:237-238 (account tabs)"]}, {"id": "seo-html", "path": "seo.html", "type": "ui", "role": "SEO dashboard: per-site tabs, daily/monthly period toggle, 4 KPI cards, daily clicks bar chart, weekly category position-dynamics line chart, top-queries and top-pages tables.", "entrypoints": ["load() called at script end (seo.html)"], "tests": [], "constraints": ["fails open with a visible error box if seo_data.json is missing or invalid JSON (seo.html: load()/showError())"], "evidence": ["seo.html:167-176 (load())"]}, {"id": "home-html", "path": "home.html", "type": "ui", "role": "Navigation hub / operations-center overview: dark glassmorphism theme, live system-status pills (Meta Ads, GSC), and two summary cards (SMM, SEO) with sparkline charts, linking out to index.html and seo.html.", "entrypoints": ["loadSMM() and loadSEO() called at script end (home.html)"], "tests": [], "constraints": ["ONLINE/OFFLINE status pills are derived purely from whether the corresponding fetch() succeeds, not from any real health-check endpoint (home.html: setSys())"], "evidence": ["home.html:275-330 (loadSMM/loadSEO)", "home.html:200 (link to index.html)", "home.html:216 (link to seo.html)", "home.html:168-178 (sidebar external links)"]}, {"id": "meta-api", "path": "external:graph.facebook.com", "type": "external", "role": "Meta Marketing Graph API (v21.0) \u2014 source of ad account campaign/ad insights and creative thumbnails.", "entrypoints": [], "tests": [], "constraints": [], "evidence": ["fetch_meta.py:31 (BASE)", "fetch_meta.py:96-118 (_get/paged)"]}, {"id": "gsc-api", "path": "external:searchconsole.googleapis.com", "type": "external", "role": "Google Search Console API (searchAnalytics.query) \u2014 source of search performance data for matroluxe.ua.", "entrypoints": [], "tests": [], "constraints": [], "evidence": ["fetch_gsc.py:58-67 (get_service())", "fetch_gsc.py:69-79 (query())"]}, {"id": "ai-worker", "path": "external:matro-ai.playnvm69.workers.dev", "type": "external", "role": "Cloudflare Worker called by index.html to generate AI analysis text for the campaigns/banners tabs. Its internal implementation (e.g. which model API it calls) is outside this repo and is not evidenced here \u2014 marked unknown.", "entrypoints": [], "tests": [], "constraints": ["response shape consumed as data.content[0].text (index.html genInsights()) \u2014 unknown what produces that shape server-side"], "evidence": ["index.html:941-946 (fetch call)", "index.html:947 (data.content?.[0]?.text)"]}, {"id": "cdn-assets", "path": "external:fonts.googleapis.com, unpkg.com/lucide", "type": "external", "role": "Static third-party assets used by home.html: Inter font (Google Fonts) and Lucide icon library (unpkg CDN).", "entrypoints": [], "tests": [], "constraints": [], "evidence": ["home.html:7-10"]}, {"id": "github-pages", "path": "external:github-pages", "type": "external", "role": "Static hosting that serves index.html, seo.html, and home.html (plus data.json/seo_data.json) directly from the repo's main branch root.", "entrypoints": [], "tests": [], "constraints": [], "evidence": ["README.md (\u0414\u0435\u043f\u043b\u043e\u0439 \u043d\u0430 GitHub Pages section)"]}], "edges": [{"from": "update-workflow", "to": "fetch-meta", "type": "calls", "evidence": [".github/workflows/update.yml (step 'Run Meta Ads fetch': run: python fetch_meta.py)"]}, {"from": "update-workflow", "to": "fetch-gsc", "type": "calls", "evidence": [".github/workflows/update.yml (step 'Run GSC fetch': run: python fetch_gsc.py)"]}, {"from": "fetch-meta", "to": "meta-api", "type": "calls", "evidence": ["fetch_meta.py:31", "fetch_meta.py:96-118 (_get/paged)"]}, {"from": "fetch-gsc", "to": "gsc-api", "type": "calls", "evidence": ["fetch_gsc.py:58-67 (get_service())", "fetch_gsc.py:69-79 (query())"]}, {"from": "fetch-meta", "to": "data-json", "type": "writes", "evidence": ["fetch_meta.py:405-411 (OUT.write_text(...))"]}, {"from": "fetch-gsc", "to": "seo-data-json", "type": "writes", "evidence": ["fetch_gsc.py:50 (OUT = ... 'seo_data.json')", "fetch_gsc.py:218-225 (OUT.write_text(...))"]}, {"from": "update-workflow", "to": "data-json", "type": "publishes", "evidence": [".github/workflows/update.yml (step 'Commit updated data': git add data.json images/ seo_data.json; git commit; git push)"]}, {"from": "update-workflow", "to": "seo-data-json", "type": "publishes", "evidence": [".github/workflows/update.yml (step 'Commit updated data': git add data.json images/ seo_data.json; git commit; git push)"]}, {"from": "index-html", "to": "data-json", "type": "reads", "evidence": ["index.html:434 (let currentDataFile = 'data.json')", "index.html:456 (fetch(currentDataFile+...))"]}, {"from": "index-html", "to": "ai-worker", "type": "calls", "evidence": ["index.html:941-946 (fetch('https://matro-ai.playnvm69.workers.dev', {method:'POST', ...}))"]}, {"from": "seo-html", "to": "seo-data-json", "type": "reads", "evidence": ["seo.html:169 (fetch('seo_data.json?_='+Date.now()))"]}, {"from": "home-html", "to": "data-json", "type": "reads", "evidence": ["home.html:277 (fetch('data.json?_='+Date.now()))"]}, {"from": "home-html", "to": "seo-data-json", "type": "reads", "evidence": ["home.html:310 (fetch('seo_data.json?_='+Date.now()))"]}, {"from": "home-html", "to": "index-html", "type": "calls", "evidence": ["home.html:200 (<a href=\"index.html\" class=\"glass smm\">)"]}, {"from": "home-html", "to": "seo-html", "type": "calls", "evidence": ["home.html:216 (<a href=\"seo.html\" class=\"glass seo\">)"]}, {"from": "home-html", "to": "cdn-assets", "type": "imports", "evidence": ["home.html:7-10 (Google Fonts <link>, Lucide <script src>)"]}, {"from": "github-pages", "to": "index-html", "type": "publishes", "evidence": ["README.md (\u0414\u0435\u043f\u043b\u043e\u0439 \u043d\u0430 GitHub Pages)"]}, {"from": "github-pages", "to": "home-html", "type": "publishes", "evidence": ["README.md (\u0414\u0435\u043f\u043b\u043e\u0439 \u043d\u0430 GitHub Pages)"]}, {"from": "github-pages", "to": "seo-html", "type": "publishes", "evidence": ["README.md (\u0414\u0435\u043f\u043b\u043e\u0439 \u043d\u0430 GitHub Pages)"]}], "flows": [{"trigger": "GitHub Actions cron (06:00 UTC daily) or manual workflow_dispatch", "steps": ["update-workflow", "fetch-meta", "meta-api", "data-json"], "outcome": "data.json (and banner thumbnails) regenerated and committed/pushed, ready for index.html and home.html to display fresh Meta Ads numbers."}, {"trigger": "GitHub Actions cron (06:00 UTC daily) or manual workflow_dispatch", "steps": ["update-workflow", "fetch-gsc", "gsc-api", "seo-data-json"], "outcome": "seo_data.json regenerated and committed/pushed, ready for seo.html and home.html to display fresh SEO metrics and category position trends."}, {"trigger": "User opens index.html via GitHub Pages", "steps": ["github-pages", "index-html", "data-json"], "outcome": "Campaign table, KPI cards, and charts render from the latest committed data.json."}, {"trigger": "User clicks '\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u0438 \u0432\u0438\u0441\u043d\u043e\u0432\u043a\u0438' (genInsights) on index.html", "steps": ["index-html", "ai-worker"], "outcome": "AI-generated analysis text is returned and rendered inline; the worker's own internal logic is outside this repo (unknown)."}, {"trigger": "User opens home.html, then clicks '\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0434\u0430\u0448\u0431\u043e\u0440\u0434' on the SEO card", "steps": ["github-pages", "home-html", "seo-data-json", "seo-html"], "outcome": "User sees a live SEO summary on the hub, then lands on seo.html which independently re-fetches seo_data.json for the full dashboard."}]}
+</script>
+
+<script>
+const CM = JSON.parse(document.getElementById('codemap-data').textContent);
+
+document.getElementById('repo-name').textContent = 'matro-dashboard';
+document.getElementById('gen-at').textContent = CM.generated_at;
+document.getElementById('gen-commit').textContent = CM.generated_from_commit.slice(0,10);
+
+const TYPE_COLOR = {ci:'var(--c-ci)', script:'var(--c-script)', ui:'var(--c-ui)', data:'var(--c-data)', external:'var(--c-external)'};
+const TYPE_LABEL = {ci:'CI / Workflow', script:'Script (Python)', ui:'UI (browser page)', data:'Data artifact', external:'External dependency'};
+
+// ── manual layered layout: minimizes crossings for this pipeline-shaped graph ──
+const POS = {
+  'meta-api':        {x:70,  y:150},
+  'gsc-api':         {x:70,  y:355},
+  'update-workflow': {x:330, y:40},
+  'fetch-meta':      {x:330, y:150},
+  'fetch-gsc':       {x:330, y:355},
+  'data-json':       {x:590, y:150},
+  'seo-data-json':   {x:590, y:355},
+  'index-html':      {x:850, y:80},
+  'home-html':       {x:850, y:255},
+  'seo-html':        {x:850, y:430},
+  'ai-worker':       {x:1100,y:80},
+  'cdn-assets':      {x:1100,y:255},
+  'github-pages':    {x:1100,y:430},
+};
+const NODE_W=170, NODE_H=54;
+
+const svg = document.getElementById('graph');
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs){ const e=document.createElementNS(NS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+const gRoot = el('g', {id:'root-g'});
+svg.appendChild(gRoot);
+const gEdges = el('g', {id:'edges'});
+const gNodes = el('g', {id:'nodes'});
+gRoot.appendChild(gEdges);
+gRoot.appendChild(gNodes);
+
+function anchorFor(fromId, toId){
+  const a=POS[fromId], b=POS[toId];
+  const ax = a.x < b.x ? a.x+NODE_W : (a.x>b.x ? a.x : a.x+NODE_W/2);
+  const ay = a.y+NODE_H/2;
+  const bx = a.x < b.x ? b.x : (a.x>b.x ? b.x+NODE_W : b.x+NODE_W/2);
+  const by = b.y+NODE_H/2;
+  return {ax,ay,bx,by};
+}
+
+// arrow marker
+const defs = el('defs', {});
+const marker = el('marker', {id:'arrow', viewBox:'0 0 10 10', refX:'9', refY:'5', markerWidth:'7', markerHeight:'7', orient:'auto-start-reverse'});
+const arrowPath = el('path', {d:'M0,0 L10,5 L0,10 z', fill:'var(--ink-dim)'});
+marker.appendChild(arrowPath);
+defs.appendChild(marker);
+svg.appendChild(defs);
+
+const edgeEls = [];
+CM.edges.forEach((e, i)=>{
+  const {ax,ay,bx,by} = anchorFor(e.from, e.to);
+  const midx=(ax+bx)/2;
+  const d = `M${ax},${ay} C${midx},${ay} ${midx},${by} ${bx},${by}`;
+  const path = el('path', {d, class:'edge-line', 'marker-end':'url(#arrow)', 'data-from':e.from, 'data-to':e.to, 'data-type':e.type});
+  gEdges.appendChild(path);
+  const lx=(ax+bx)/2, ly=(ay+by)/2;
+  const label = el('text', {x:lx, y:ly-4, class:'edge-label', 'text-anchor':'middle'});
+  label.textContent = e.type;
+  gEdges.appendChild(label);
+  edgeEls.push({e, path, label});
+});
+
+const nodeEls = {};
+CM.nodes.forEach(n=>{
+  const p = POS[n.id]; if(!p) return;
+  const g = el('g', {class:'node-g', 'data-id':n.id, transform:`translate(${p.x},${p.y})`});
+  const box = el('rect', {class:'node-box', width:NODE_W, height:NODE_H, rx:12});
+  const dot = el('circle', {class:'node-dot', cx:14, cy:16, r:5, fill:TYPE_COLOR[n.type]||'#888'});
+  const label = el('text', {class:'node-label', x:26, y:21});
+  label.textContent = n.id;
+  const sub = el('text', {class:'node-sub', x:14, y:40});
+  sub.textContent = n.path.length>30 ? n.path.slice(0,28)+'…' : n.path;
+  g.appendChild(box); g.appendChild(dot); g.appendChild(label); g.appendChild(sub);
+  gNodes.appendChild(g);
+  nodeEls[n.id] = g;
+  g.addEventListener('click', (ev)=>{ ev.stopPropagation(); selectNode(n.id); });
+});
+
+// ── legend ──
+const legendEl = document.getElementById('legend');
+const hiddenTypes = new Set();
+Object.keys(TYPE_LABEL).forEach(t=>{
+  const item = document.createElement('div');
+  item.className='legend-item';
+  item.innerHTML = `<span class="swatch" style="background:${TYPE_COLOR[t]}"></span>${TYPE_LABEL[t]}`;
+  item.addEventListener('click', ()=>{
+    if(hiddenTypes.has(t)){ hiddenTypes.delete(t); item.classList.remove('off'); }
+    else { hiddenTypes.add(t); item.classList.add('off'); }
+    applyTypeFilter();
+  });
+  legendEl.appendChild(item);
+});
+function applyTypeFilter(){
+  CM.nodes.forEach(n=>{
+    const g = nodeEls[n.id]; if(!g) return;
+    g.style.display = hiddenTypes.has(n.type) ? 'none' : '';
+  });
+  edgeEls.forEach(({e,path,label})=>{
+    const fromN = CM.nodes.find(n=>n.id===e.from), toN = CM.nodes.find(n=>n.id===e.to);
+    const hide = hiddenTypes.has(fromN.type) || hiddenTypes.has(toN.type);
+    path.style.display = hide ? 'none' : '';
+    label.style.display = hide ? 'none' : '';
+  });
+}
+
+// ── flows ──
+const flowListEl = document.getElementById('flow-list');
+let activeFlow = null;
+CM.flows.forEach((f, idx)=>{
+  const item = document.createElement('div');
+  item.className='flow-item';
+  item.innerHTML = `<span class="fnum">${idx+1}</span>${f.trigger}`;
+  item.addEventListener('click', ()=>{
+    document.querySelectorAll('.flow-item').forEach(x=>x.classList.remove('active'));
+    item.classList.add('active');
+    highlightFlow(f);
+  });
+  flowListEl.appendChild(item);
+});
+document.getElementById('clear-flow').addEventListener('click', ()=>{
+  document.querySelectorAll('.flow-item').forEach(x=>x.classList.remove('active'));
+  clearHighlights();
+});
+
+function clearHighlights(){
+  activeFlow=null;
+  Object.values(nodeEls).forEach(g=>g.classList.remove('hi-node','flow-hi','dim'));
+  edgeEls.forEach(({path,label})=>{ path.classList.remove('hi-edge','flow-hi-edge'); path.classList.remove('dim'); });
+}
+
+function highlightFlow(f){
+  clearHighlights();
+  activeFlow = f;
+  const stepSet = new Set(f.steps);
+  Object.entries(nodeEls).forEach(([id,g])=>{
+    if(stepSet.has(id)) g.classList.add('flow-hi'); else g.classList.add('dim');
+  });
+  edgeEls.forEach(({e,path})=>{
+    const consecutive = f.steps.some((s,i)=> i<f.steps.length-1 && s===e.from && f.steps[i+1]===e.to);
+    if(consecutive){ path.classList.add('flow-hi-edge'); } else { path.classList.add('dim'); }
+  });
+}
+
+// ── node selection: highlight upstream/downstream + detail panel ──
+let selectedId = null;
+function selectNode(id){
+  selectedId = id;
+  document.querySelectorAll('.flow-item').forEach(x=>x.classList.remove('active'));
+  clearHighlights();
+  const upstream = CM.edges.filter(e=>e.to===id).map(e=>e.from);
+  const downstream = CM.edges.filter(e=>e.from===id).map(e=>e.to);
+  const related = new Set([id, ...upstream, ...downstream]);
+  Object.entries(nodeEls).forEach(([nid,g])=>{
+    if(related.has(nid)){ g.classList.add(nid===id?'hi-node':'hi-node'); } else { g.classList.add('dim'); }
+  });
+  edgeEls.forEach(({e,path})=>{
+    if(e.from===id || e.to===id){ path.classList.add('hi-edge'); } else { path.classList.add('dim'); }
+  });
+  showDetail(id, upstream, downstream);
+}
+
+function nodeById(id){ return CM.nodes.find(n=>n.id===id); }
+
+function showDetail(id, upstream, downstream){
+  const n = nodeById(id);
+  const panel = document.getElementById('detail');
+  panel.classList.add('show');
+  document.getElementById('d-name').textContent = n.id;
+  document.getElementById('d-path').textContent = n.path;
+  document.getElementById('d-role').textContent = n.role;
+
+  const consEl = document.getElementById('d-constraints');
+  consEl.innerHTML = n.constraints.length ? `<h4>Constraints</h4><ul>${n.constraints.map(c=>`<li>${escapeHtml(c)}</li>`).join('')}</ul>` : '';
+
+  const upEl = document.getElementById('d-upstream');
+  upEl.innerHTML = '';
+  if(!upstream.length) upEl.innerHTML = '<span class="empty-note">none</span>';
+  upstream.forEach(uid=>{
+    const d = document.createElement('div'); d.className='rel-item'; d.textContent = uid;
+    d.addEventListener('click', (ev)=>{ev.stopPropagation(); selectNode(uid);});
+    upEl.appendChild(d);
+  });
+
+  const dnEl = document.getElementById('d-downstream');
+  dnEl.innerHTML = '';
+  if(!downstream.length) dnEl.innerHTML = '<span class="empty-note">none</span>';
+  downstream.forEach(did=>{
+    const d = document.createElement('div'); d.className='rel-item'; d.textContent = did;
+    d.addEventListener('click', (ev)=>{ev.stopPropagation(); selectNode(did);});
+    dnEl.appendChild(d);
+  });
+
+  const flEl = document.getElementById('d-flows');
+  flEl.innerHTML = '';
+  const relatedFlows = CM.flows.filter(f=>f.steps.includes(id));
+  if(!relatedFlows.length) flEl.innerHTML = '<span class="empty-note">none</span>';
+  relatedFlows.forEach(f=>{
+    const d = document.createElement('div'); d.className='rel-item'; d.textContent = f.trigger;
+    d.addEventListener('click', (ev)=>{ev.stopPropagation(); highlightFlow(f);});
+    flEl.appendChild(d);
+  });
+
+  const evEl = document.getElementById('d-evidence');
+  evEl.innerHTML = n.evidence.map(x=>`<li>${escapeHtml(x)}</li>`).join('') || '<li class="empty-note">none</li>';
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+document.getElementById('detail-close').addEventListener('click', ()=>{
+  document.getElementById('detail').classList.remove('show');
+  clearHighlights();
+  selectedId=null;
+});
+document.getElementById('canvas-wrap').addEventListener('click', ()=>{
+  document.getElementById('detail').classList.remove('show');
+  clearHighlights();
+  selectedId=null;
+  document.querySelectorAll('.flow-item').forEach(x=>x.classList.remove('active'));
+});
+
+// ── search ──
+document.getElementById('search-input').addEventListener('input', (ev)=>{
+  const q = ev.target.value.trim().toLowerCase();
+  if(!q){ Object.values(nodeEls).forEach(g=>{ g.classList.remove('dim'); }); edgeEls.forEach(({path})=>path.classList.remove('dim')); return; }
+  const matched = new Set(CM.nodes.filter(n=> n.id.toLowerCase().includes(q) || n.path.toLowerCase().includes(q) || n.role.toLowerCase().includes(q)).map(n=>n.id));
+  Object.entries(nodeEls).forEach(([id,g])=>{ g.classList.toggle('dim', !matched.has(id)); });
+  edgeEls.forEach(({e,path})=>{ path.classList.toggle('dim', !(matched.has(e.from)&&matched.has(e.to))); });
+});
+
+// ── zoom / pan ──
+let viewBox = {x:0,y:0,w:1180,h:520};
+svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`);
+function applyVB(){ svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`); }
+function zoom(factor){
+  const cx = viewBox.x + viewBox.w/2, cy = viewBox.y + viewBox.h/2;
+  viewBox.w *= factor; viewBox.h *= factor;
+  viewBox.w = Math.max(300, Math.min(3200, viewBox.w));
+  viewBox.h = Math.max(140, Math.min(1500, viewBox.h));
+  viewBox.x = cx - viewBox.w/2; viewBox.y = cy - viewBox.h/2;
+  applyVB();
+}
+document.getElementById('zoom-in').addEventListener('click', ()=>zoom(0.85));
+document.getElementById('zoom-out').addEventListener('click', ()=>zoom(1.18));
+document.getElementById('zoom-reset').addEventListener('click', ()=>{ viewBox={x:0,y:0,w:1180,h:520}; applyVB(); });
+
+const wrap = document.getElementById('canvas-wrap');
+wrap.addEventListener('wheel', (ev)=>{ ev.preventDefault(); zoom(ev.deltaY>0?1.08:0.93); }, {passive:false});
+
+let dragging=false, dragStart=null, vbStart=null;
+wrap.addEventListener('mousedown', (ev)=>{
+  if(ev.target.closest('.node-g') || ev.target.closest('.detail')) return;
+  dragging=true; wrap.classList.add('dragging');
+  dragStart={x:ev.clientX,y:ev.clientY}; vbStart={...viewBox};
+});
+window.addEventListener('mousemove', (ev)=>{
+  if(!dragging) return;
+  const rect = wrap.getBoundingClientRect();
+  const dx = (ev.clientX-dragStart.x) * (viewBox.w/rect.width);
+  const dy = (ev.clientY-dragStart.y) * (viewBox.h/rect.height);
+  viewBox.x = vbStart.x - dx; viewBox.y = vbStart.y - dy;
+  applyVB();
+});
+window.addEventListener('mouseup', ()=>{ dragging=false; wrap.classList.remove('dragging'); });
+</script>
+</body>
+</html>

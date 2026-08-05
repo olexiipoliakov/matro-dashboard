@@ -1,0 +1,70 @@
+{
+  "commit": "eda39c66b8b8984109e8c1167924c442e6374f10",
+  "working_tree_dirty": false,
+  "generated_at": "2026-08-05T00:00:00Z",
+  "scanned_scope": [
+    ".github/workflows/update.yml",
+    "fetch_meta.py",
+    "fetch_gsc.py",
+    "index.html",
+    "seo.html",
+    "home.html",
+    "data.json",
+    "README.md"
+  ],
+  "excluded_dirs": [
+    "images/",
+    ".git/"
+  ],
+  "fingerprint_algorithm": "sha256(sorted tracked file paths + file contents, concatenated)",
+  "modules": {
+    ".github/workflows/update.yml": {
+      "fingerprint": "7d54bc7c13af1a04ef57d0fc5c67770b19cd92f752a748ed40b18b189561dff0",
+      "files": [
+        ".github/workflows/update.yml"
+      ]
+    },
+    "fetch_meta.py": {
+      "fingerprint": "105f9011057c46086f44f2380b75e7d25cb462db506c54e9552b80abd4676ee4",
+      "files": [
+        "fetch_meta.py"
+      ]
+    },
+    "fetch_gsc.py": {
+      "fingerprint": "59faaaa800f8b2564734e9e4a403498e612036a6e5e67d0350f378f7c44ed5c6",
+      "files": [
+        "fetch_gsc.py"
+      ]
+    },
+    "index.html": {
+      "fingerprint": "7845f7949339cb9fc19b992ea710d8d5f5ad23f5bac0ae00caaa22d339588e77",
+      "files": [
+        "index.html"
+      ]
+    },
+    "seo.html": {
+      "fingerprint": "0e8fabf7615ba040cca09c5af4e44c4bfaacb916e493a0b10ff74aa02493279d",
+      "files": [
+        "seo.html"
+      ]
+    },
+    "home.html": {
+      "fingerprint": "c207884a1f573fdd0824533671f5806bf2d5e92982151246db1f56994387152f",
+      "files": [
+        "home.html"
+      ]
+    },
+    "data.json": {
+      "fingerprint": "6f0eb761530c3837312af4e92eb5bed28c6f2d9b7c1b8671dc2ff248e89b7cff",
+      "files": [
+        "data.json"
+      ]
+    },
+    "README.md": {
+      "fingerprint": "9aac50d59e4e7321d7ad31772d124086c313f5d987d1b5aa343ebcf87e160f89",
+      "files": [
+        "README.md"
+      ]
+    }
+  }
+}
