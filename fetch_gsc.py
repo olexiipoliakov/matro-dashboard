@@ -143,9 +143,10 @@ def fetch_categories(service, url, weeks=12):
 
 def fetch_query_categories(service, url, start, end, row_limit=10000):
     """Тянет ВСІ пошукові запити за період (не топ-50, як у fetch_site) і групує
-    їх за категорією: брендовий трафік / матраци / топери / дивани / ліжка / шафи / інше."""
+    їх за категорією: брендовий трафік / матраци / топери / дивани / ліжка / шафи / інше.
+    Кожна категорія несе список запитів, що в неї потрапили (для перегляду по кліку)."""
     rows = query(service, url, start, end, ["query"], row_limit=row_limit)
-    buckets = defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0, "queries": 0})
+    buckets = defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0, "queries": []})
     cat_names = {}
     for r in rows:
         q_text = r["keys"][0]
@@ -153,23 +154,29 @@ def fetch_query_categories(service, url, start, end, row_limit=10000):
         cat_names[key] = name
         clicks = r.get("clicks", 0)
         impressions = r.get("impressions", 0)
+        position = r.get("position", 0)
         b = buckets[key]
         b["clicks"] += clicks
         b["impressions"] += impressions
-        b["pos_w"] += r.get("position", 0) * max(impressions, 1)
-        b["queries"] += 1
+        b["pos_w"] += position * max(impressions, 1)
+        b["queries"].append({
+            "query": q_text, "clicks": clicks, "impressions": impressions,
+            "position": round(position, 1),
+        })
 
     total_clicks = sum(b["clicks"] for b in buckets.values()) or 1
     result = []
     for key, b in buckets.items():
+        b["queries"].sort(key=lambda x: -x["clicks"])
         result.append({
             "key": key,
             "name": cat_names[key],
             "clicks": b["clicks"],
             "impressions": b["impressions"],
             "position": round(b["pos_w"] / b["impressions"], 1) if b["impressions"] else None,
-            "queries_count": b["queries"],
+            "queries_count": len(b["queries"]),
             "share": round(b["clicks"] / total_clicks * 100, 1),
+            "queries": b["queries"],
         })
     result.sort(key=lambda x: -x["clicks"])
     return result

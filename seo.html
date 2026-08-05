@@ -89,14 +89,24 @@
   .hist-cell{display:flex;align-items:center;justify-content:flex-end;gap:8px}
   .hist-cell svg{display:block}
   .hist-latest{font-size:12px;font-weight:700;min-width:30px;text-align:right}
-  .qcat-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:14px;padding:9px 0;
-    border-bottom:1px solid var(--line)}
+  .qcat-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:14px;padding:9px 6px;
+    border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px;transition:background .15s}
+  .qcat-row:hover{background:#f2f7f4}
+  .qcat-row.active{background:#eef4f0;box-shadow:inset 3px 0 0 var(--accent)}
   .qcat-row:last-child{border-bottom:none}
   .qcat-name{font-size:13px;font-weight:600}
   .qcat-track{height:10px;background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
   .qcat-fill{height:100%;border-radius:6px 0 0 6px}
   .qcat-nums{font-size:12px;color:var(--ink-soft);text-align:right;white-space:nowrap}
   .qcat-nums b{color:var(--ink)}
+  #qcat-detail{margin-top:16px;padding-top:16px;border-top:2px solid var(--ink)}
+  .qcat-detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .qcat-detail-head h3{font-size:15px;font-weight:700}
+  .qcat-close{font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;border:1px solid var(--line);
+    border-radius:8px;padding:5px 12px;background:#fff}
+  .qcat-close:hover{color:var(--ink);border-color:var(--ink-soft)}
+  .qcat-kw-table{width:100%;max-height:420px;overflow-y:auto;display:block}
+  .qcat-kw-table table{width:100%}
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
 
@@ -153,8 +163,9 @@
 
   <div class="sec-head"><span class="n">3</span><h2>Запити за категоріями</h2><span class="ln"></span></div>
   <div class="panel">
-    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">Бренд / Матраци / Топери / Дивани / Ліжка / Шафи · за останні 28 днів, по всіх запитах (не тільки топ-15)</div>
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">Бренд / Матраци / Топери / Дивани / Ліжка / Шафи · за останні 28 днів, по всіх запитах (не тільки топ-15) · натисніть на категорію, щоб побачити всі ключові слова</div>
     <div id="qcat-bars"></div>
+    <div id="qcat-detail" style="display:none"></div>
   </div>
 
   <div class="sec-head"><span class="n">4</span><h2>Запросы и страницы</h2><span class="ln"></span></div>
@@ -334,19 +345,67 @@ const QCAT_COLORS = {
   other:   '#8a8272',
 };
 
+let CURRENT_QCATS = [];
+let ACTIVE_QCAT_KEY = null;
+
 function renderQueryCategories(cats){
+  CURRENT_QCATS = cats;
   const el=document.getElementById('qcat-bars');
-  if(!cats.length){ el.innerHTML='<div style="font-size:13px;color:var(--ink-soft)">Немає даних по запитах за цей період.</div>'; return; }
+  if(!cats.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--ink-soft)">Немає даних по запитах за цей період.</div>';
+    document.getElementById('qcat-detail').style.display='none';
+    return;
+  }
   const maxClicks=Math.max(1,...cats.map(c=>c.clicks));
   el.innerHTML=cats.map(c=>{
     const color=QCAT_COLORS[c.key]||'#8a8272';
     const w=Math.max(2,(c.clicks/maxClicks*100));
-    return `<div class="qcat-row">
+    const isActive = c.key===ACTIVE_QCAT_KEY;
+    return `<div class="qcat-row ${isActive?'active':''}" onclick="selectQueryCategory('${c.key}')">
       <div class="qcat-name" style="color:${color}">${c.name}</div>
       <div class="qcat-track"><div class="qcat-fill" style="width:${w}%;background:${color}"></div></div>
-      <div class="qcat-nums"><b>${fmt(c.clicks)}</b> кл. · ${fmt1(c.share)}% · ${c.position!=null?fmt1(c.position):'—'} поз.</div>
+      <div class="qcat-nums"><b>${fmt(c.clicks)}</b> кл. · ${fmt1(c.share)}% · ${c.position!=null?fmt1(c.position):'—'} поз. · ${c.queries_count} зап.</div>
     </div>`;
   }).join('');
+
+  // якщо категорія вже була вибрана (наприклад, при зміні періоду) — перемалювати деталі
+  if(ACTIVE_QCAT_KEY){
+    const stillExists = cats.find(c=>c.key===ACTIVE_QCAT_KEY);
+    if(stillExists) selectQueryCategory(ACTIVE_QCAT_KEY, true);
+    else closeQueryCategory();
+  }
+}
+
+function selectQueryCategory(key, silent){
+  ACTIVE_QCAT_KEY = key;
+  if(!silent) renderQueryCategories(CURRENT_QCATS);
+
+  const cat = CURRENT_QCATS.find(c=>c.key===key);
+  const detail = document.getElementById('qcat-detail');
+  if(!cat){ detail.style.display='none'; return; }
+  const color = QCAT_COLORS[key]||'#8a8272';
+  const kws = cat.queries||[];
+  detail.style.display='block';
+  detail.innerHTML = `
+    <div class="qcat-detail-head">
+      <h3 style="color:${color}">${cat.name} — усі ключові слова (${kws.length})</h3>
+      <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span>
+    </div>
+    <div class="qcat-kw-table">
+      <table>
+        <thead><tr><th>Запит</th><th>Клики</th><th>Показы</th><th>Позиция</th></tr></thead>
+        <tbody>${kws.map(q=>`
+          <tr><td>${q.query}</td><td>${fmt(q.clicks)}</td><td>${fmt(q.impressions)}</td>
+          <td><span class="pos-tag ${posClass(q.position)}">${fmt1(q.position)}</span></td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function closeQueryCategory(){
+  ACTIVE_QCAT_KEY = null;
+  document.getElementById('qcat-detail').style.display='none';
+  renderQueryCategories(CURRENT_QCATS);
 }
 
 function posSparkline(weekly){
