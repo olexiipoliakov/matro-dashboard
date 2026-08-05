@@ -259,6 +259,19 @@ def fetch_site(service, site):
             "position":   round(r.get("position", 0), 1),
         })
 
+    prev_start = start_28 - timedelta(days=28)
+    prev_end   = start_28 - timedelta(days=1)
+    print(f"  → Попередній період (порівняння) {prev_start} — {prev_end}")
+    prev_rows = query(service, url, prev_start, prev_end, [], row_limit=1)  # без dimensions = один рядок-агрегат
+    prev_agg = prev_rows[0] if prev_rows else {}
+    prev_period = {
+        "period":      f"{prev_start} — {prev_end}",
+        "clicks":      prev_agg.get("clicks", 0),
+        "impressions": prev_agg.get("impressions", 0),
+        "ctr":         round(prev_agg.get("ctr", 0) * 100, 2),
+        "position":    round(prev_agg.get("position", 0), 1) if prev_agg else None,
+    }
+
     print(f"  → Месячные данные {start_12m} — {end}")
     monthly_rows = query(service, url, start_12m, end, ["date"])
     # группируем по месяцу
@@ -329,6 +342,7 @@ def fetch_site(service, site):
         "query_categories": query_categories,
         "query_history": query_history,
         "page_history": page_history,
+        "prev_period": prev_period,
     }
 
 # ── Main ───────────────────────────────────────────────────────────────────

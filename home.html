@@ -123,6 +123,12 @@
   .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
   .card-tag{font-size:11px;font-weight:600;color:var(--ink-soft);background:rgba(255,255,255,.04);
     border:1px solid var(--border);padding:5px 11px;border-radius:20px;white-space:nowrap}
+  .trend-badge{font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;display:none;
+    align-items:center;gap:3px;white-space:nowrap}
+  .trend-badge.show{display:inline-flex}
+  .trend-badge.up{color:var(--success);background:rgba(39,227,122,.12)}
+  .trend-badge.down{color:var(--danger);background:rgba(255,94,108,.12)}
+  .trend-badge.flat{color:var(--ink-soft);background:rgba(255,255,255,.04)}
 
   .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
   .stat .v{font-size:21px;font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
@@ -203,7 +209,10 @@
           <div class="card-icon"><i data-lucide="megaphone"></i></div>
           <div><div class="card-name">SMM &amp; Реклама</div><div class="card-desc">Meta Ads · Кампанії Plume</div></div>
         </div>
-        <span class="card-tag" id="smm-tag">—</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="trend-badge" id="smm-trend"></span>
+          <span class="card-tag" id="smm-tag">—</span>
+        </div>
       </div>
       <div class="stat-row" id="smm-stats"><div class="skeleton">Завантаження…</div></div>
       <div class="chart-box" id="smm-chart"></div>
@@ -219,7 +228,10 @@
           <div class="card-icon"><i data-lucide="search"></i></div>
           <div><div class="card-name">SEO</div><div class="card-desc">Google Search Console · matroluxe.ua</div></div>
         </div>
-        <span class="card-tag" id="seo-tag">—</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="trend-badge" id="seo-trend"></span>
+          <span class="card-tag" id="seo-tag">—</span>
+        </div>
       </div>
       <div class="stat-row" id="seo-stats"><div class="skeleton">Завантаження…</div></div>
       <div class="chart-box" id="seo-chart"></div>
@@ -272,6 +284,16 @@ function sparkline(values, color){
   </svg>`;
 }
 
+function renderTrend(elId, current, previous, label){
+  const el=document.getElementById(elId);
+  if(!previous){ el.classList.remove('show'); return; }
+  const pct = (current-previous)/previous*100;
+  const dir = pct>0.5?'up':(pct<-0.5?'down':'flat');
+  el.className = 'trend-badge show '+dir;
+  const sign = pct>=0 ? '+' : '';
+  el.textContent = `${sign}${fmt1(pct)}% ${label}`;
+}
+
 async function loadSMM(){
   try{
     const res=await fetch('data.json?_='+Date.now());
@@ -279,16 +301,23 @@ async function loadSMM(){
     const data=await res.json();
     setSys('sys-meta', true);
     const rows=data.daily||[];
-    const last30=rows.slice(-30);
+    const allDates=[...new Set(rows.map(r=>r.date))].sort();
+    const curDates=new Set(allDates.slice(-30));
+    const prevDates=new Set(allDates.slice(-60,-30));
+    const curRows=rows.filter(r=>curDates.has(r.date));
+    const prevRows=rows.filter(r=>prevDates.has(r.date));
+
     const byDate={};
-    last30.forEach(r=>{ byDate[r.date]=(byDate[r.date]||0)+(r.spend||0); });
+    curRows.forEach(r=>{ byDate[r.date]=(byDate[r.date]||0)+(r.spend||0); });
     const dates=Object.keys(byDate).sort();
     const series=dates.map(d=>byDate[d]);
 
-    const spend=last30.reduce((a,r)=>a+(r.spend||0),0);
-    const leads=last30.reduce((a,r)=>a+(r.leads||0),0);
-    const campaigns=new Set(last30.map(r=>r.campaign)).size;
+    const spend=curRows.reduce((a,r)=>a+(r.spend||0),0);
+    const leads=curRows.reduce((a,r)=>a+(r.leads||0),0);
+    const campaigns=new Set(curRows.map(r=>r.campaign)).size;
     const cpl = leads ? spend/leads : 0;
+    const prevLeads=prevRows.reduce((a,r)=>a+(r.leads||0),0);
+    renderTrend('smm-trend', leads, prevLeads, 'лідів');
 
     document.getElementById('smm-tag').textContent='Останні 30 днів';
     document.getElementById('smm-stats').innerHTML=`
@@ -301,6 +330,7 @@ async function loadSMM(){
   }catch(e){
     setSys('sys-meta', false);
     document.getElementById('smm-tag').textContent='Немає даних';
+    document.getElementById('smm-trend').classList.remove('show');
     document.getElementById('smm-stats').innerHTML='<div class="skeleton">Не вдалося завантажити data.json</div>';
   }
 }
@@ -321,6 +351,9 @@ async function loadSEO(){
     const ctr= impr ? clicks/impr*100 : 0;
     const avgPos = rows.length ? rows.reduce((a,r)=>a+(r.position||0),0)/rows.length : 0;
 
+    const prevClicks = site.prev_period ? site.prev_period.clicks : null;
+    renderTrend('seo-trend', clicks, prevClicks, 'кліків');
+
     document.getElementById('seo-tag').textContent='28 днів';
     document.getElementById('seo-stats').innerHTML=`
       <div class="stat"><div class="v">${fmt(clicks)}</div><div class="l">Кліків</div></div>
@@ -332,6 +365,7 @@ async function loadSEO(){
   }catch(e){
     setSys('sys-gsc', false);
     document.getElementById('seo-tag').textContent='Немає даних';
+    document.getElementById('seo-trend').classList.remove('show');
     document.getElementById('seo-stats').innerHTML='<div class="skeleton">Не вдалося завантажити seo_data.json</div>';
   }
 }

@@ -65,7 +65,8 @@
         "classify_category() keyword-matches URL slugs since the site has no /catalog/ path prefix — heuristic, may misclassify some product URLs (fetch_gsc.py:32-44)",
         "classify_query() is also a keyword heuristic (brand names + product-type words in the query text) — same caveat as classify_category()",
         "query/page weekly history is fetched fresh from the GSC API for the requested date range each run (not accumulated locally across runs) — GSC retains ~16 months of history, so no local persistence is needed",
-        "query_categories now embeds the full list of individual queries per category (not just aggregates) so the UI can drill down from a category into its keywords"
+        "query_categories now embeds the full list of individual queries per category (not just aggregates) so the UI can drill down from a category into its keywords",
+        "also fetches a previous-28-day aggregate (no dimensions, single row) as 'prev_period', used by home.html to compute period-over-period trend"
       ],
       "evidence": [
         "fetch_gsc.py:69-72",
@@ -77,7 +78,8 @@
         "fetch_gsc.py:177-214 (_weekly_history())",
         "fetch_gsc.py:216-224 (fetch_query_history())",
         "fetch_gsc.py:226-233 (fetch_page_history())",
-        "fetch_gsc.py:144-178 (fetch_query_categories(), now returns per-category queries[])"
+        "fetch_gsc.py:144-178 (fetch_query_categories(), now returns per-category queries[])",
+        "fetch_gsc.py:262-274 (prev_period fetch)"
       ]
     },
     {
@@ -156,7 +158,7 @@
       "id": "home-html",
       "path": "home.html",
       "type": "ui",
-      "role": "Navigation hub / operations-center overview: dark glassmorphism theme, live system-status pills (Meta Ads, GSC), and two summary cards (SMM, SEO) with sparkline charts, linking out to index.html and seo.html.",
+      "role": "Navigation hub / operations-center overview: dark glassmorphism theme, live system-status pills (Meta Ads, GSC), and two summary cards (SMM, SEO) with sparkline charts, linking out to index.html and seo.html. Each card also shows a period-over-period trend badge (SMM: leads, last 30d vs previous 30d computed client-side from data.json's 90-day history; SEO: clicks, last 28d vs prev_period from seo_data.json).",
       "entrypoints": [
         "loadSMM() and loadSEO() called at script end (home.html)"
       ],
@@ -168,7 +170,8 @@
         "home.html:275-330 (loadSMM/loadSEO)",
         "home.html:200 (link to index.html)",
         "home.html:216 (link to seo.html)",
-        "home.html:168-178 (sidebar external links)"
+        "home.html:168-178 (sidebar external links)",
+        "home.html:287-296 (renderTrend())"
       ]
     },
     {
