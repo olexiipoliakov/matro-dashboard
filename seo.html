@@ -86,6 +86,17 @@
   .pos-tag.good{background:var(--good-bg);color:var(--good)}
   .pos-tag.mid{background:var(--mid-bg);color:var(--mid)}
   .pos-tag.bad{background:var(--bad-bg);color:var(--bad)}
+  .hist-cell{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+  .hist-cell svg{display:block}
+  .hist-latest{font-size:12px;font-weight:700;min-width:30px;text-align:right}
+  .qcat-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:14px;padding:9px 0;
+    border-bottom:1px solid var(--line)}
+  .qcat-row:last-child{border-bottom:none}
+  .qcat-name{font-size:13px;font-weight:600}
+  .qcat-track{height:10px;background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .qcat-fill{height:100%;border-radius:6px 0 0 6px}
+  .qcat-nums{font-size:12px;color:var(--ink-soft);text-align:right;white-space:nowrap}
+  .qcat-nums b{color:var(--ink)}
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
 
@@ -140,21 +151,29 @@
     <div id="cat-legend" style="margin-top:10px;display:flex;flex-wrap:wrap"></div>
   </div>
 
-  <div class="sec-head"><span class="n">3</span><h2>Запросы и страницы</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">3</span><h2>Запити за категоріями</h2><span class="ln"></span></div>
+  <div class="panel">
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">Бренд / Матраци / Топери / Дивани / Ліжка / Шафи · за останні 28 днів, по всіх запитах (не тільки топ-15)</div>
+    <div id="qcat-bars"></div>
+  </div>
+
+  <div class="sec-head"><span class="n">4</span><h2>Запросы и страницы</h2><span class="ln"></span></div>
+  <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px" id="history-note">Тижнева історія позицій · оновлено —</div>
   <div class="cols2">
     <div class="panel">
       <table>
-        <thead><tr><th>Запрос</th><th>Клики</th><th>Показы</th><th>Позиция</th></tr></thead>
+        <thead><tr><th>Запрос</th><th>Клики</th><th>Позиція (12 тижнів)</th></tr></thead>
         <tbody id="q-body"></tbody>
       </table>
     </div>
     <div class="panel">
       <table>
-        <thead><tr><th>Страница</th><th>Клики</th><th>CTR</th><th>Позиция</th></tr></thead>
+        <thead><tr><th>Страница</th><th>Клики</th><th>Позиція (12 тижнів)</th></tr></thead>
         <tbody id="p-body"></tbody>
       </table>
     </div>
   </div>
+
 
   <footer>Данные из <code>seo_data.json</code> · Google Search Console API</footer>
 </div>
@@ -214,8 +233,9 @@ function render(){
   renderKpis(rows);
   renderChart(rows);
   renderCategoryChart(site.categories||[]);
-  renderQueries(site.queries||[]);
-  renderPages(site.pages||[]);
+  renderQueryCategories(site.query_categories||[]);
+  renderQueries(site.query_history||[]);
+  renderPages(site.page_history||[]);
 }
 
 function renderKpis(rows){
@@ -304,18 +324,83 @@ function posClass(p){
   return 'bad';
 }
 
-function renderQueries(queries){
-  const sorted=[...queries].sort((a,b)=>b.clicks-a.clicks).slice(0,15);
-  document.getElementById('q-body').innerHTML=sorted.map(q=>`
-    <tr><td>${q.query}</td><td>${fmt(q.clicks)}</td><td>${fmt(q.impressions)}</td>
-    <td><span class="pos-tag ${posClass(q.position)}">${fmt1(q.position)}</span></td></tr>`).join('');
+const QCAT_COLORS = {
+  brand:   '#2f8f6b',
+  matrasy: '#4f8fdb',
+  topery:  '#9b6dff',
+  divany:  '#c8553d',
+  lizhka:  '#b8893b',
+  shafy:   '#3ecf8e',
+  other:   '#8a8272',
+};
+
+function renderQueryCategories(cats){
+  const el=document.getElementById('qcat-bars');
+  if(!cats.length){ el.innerHTML='<div style="font-size:13px;color:var(--ink-soft)">Немає даних по запитах за цей період.</div>'; return; }
+  const maxClicks=Math.max(1,...cats.map(c=>c.clicks));
+  el.innerHTML=cats.map(c=>{
+    const color=QCAT_COLORS[c.key]||'#8a8272';
+    const w=Math.max(2,(c.clicks/maxClicks*100));
+    return `<div class="qcat-row">
+      <div class="qcat-name" style="color:${color}">${c.name}</div>
+      <div class="qcat-track"><div class="qcat-fill" style="width:${w}%;background:${color}"></div></div>
+      <div class="qcat-nums"><b>${fmt(c.clicks)}</b> кл. · ${fmt1(c.share)}% · ${c.position!=null?fmt1(c.position):'—'} поз.</div>
+    </div>`;
+  }).join('');
 }
 
-function renderPages(pages){
-  const sorted=[...pages].sort((a,b)=>b.clicks-a.clicks).slice(0,15);
-  document.getElementById('p-body').innerHTML=sorted.map(p=>`
-    <tr><td>${p.page}</td><td>${fmt(p.clicks)}</td><td>${fmt1(p.ctr)}%</td>
-    <td><span class="pos-tag ${posClass(p.position)}">${fmt1(p.position)}</span></td></tr>`).join('');
+function posSparkline(weekly){
+  const pts = weekly.filter(w=>w.position!=null);
+  if(!pts.length) return {svg:'<span class="empty-note">—</span>', latest:null, latestDate:null};
+  const W=90,H=26,pad=3;
+  const positions = pts.map(p=>p.position);
+  const maxPos=Math.max(5,...positions), minPos=Math.min(1,...positions);
+  const range=(maxPos-minPos)||1;
+  const stepX = weekly.length>1 ? (W-pad*2)/(weekly.length-1) : 0;
+  let d='';
+  weekly.forEach((w,i)=>{
+    if(w.position==null) return;
+    const x=pad+i*stepX;
+    const y=pad+((w.position-minPos)/range)*(H-pad*2);
+    d += (d?'L':'M')+x.toFixed(1)+','+y.toFixed(1)+' ';
+  });
+  const latest = pts[pts.length-1];
+  const latestColor = latest.position<=10?'var(--good)':(latest.position<=25?'var(--mid)':'var(--bad)');
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <path d="${d}" fill="none" stroke="${latestColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+  return {svg, latest: latest.position, latestDate: latest.week_start, color: latestColor};
+}
+
+function historyTip(weekly){
+  return weekly.filter(w=>w.position!=null)
+    .map(w=>`${w.week_start}: ${fmt1(w.position)}`).join(' | ');
+}
+
+function renderQueries(history){
+  const sorted=[...history].sort((a,b)=>b.total_clicks-a.total_clicks).slice(0,15);
+  document.getElementById('q-body').innerHTML=sorted.map(q=>{
+    const {svg, latest, latestDate} = posSparkline(q.weekly);
+    return `<tr><td>${q.query}</td><td>${fmt(q.total_clicks)}</td>
+    <td><div class="hist-cell" title="${historyTip(q.weekly)}">${svg}<span class="hist-latest">${latest!=null?fmt1(latest):'—'}</span></div></td></tr>`;
+  }).join('');
+  updateHistoryNote(sorted[0]);
+}
+
+function renderPages(history){
+  const sorted=[...history].sort((a,b)=>b.total_clicks-a.total_clicks).slice(0,15);
+  document.getElementById('p-body').innerHTML=sorted.map(p=>{
+    const {svg, latest} = posSparkline(p.weekly);
+    return `<tr><td>${p.page}</td><td>${fmt(p.total_clicks)}</td>
+    <td><div class="hist-cell" title="${historyTip(p.weekly)}">${svg}<span class="hist-latest">${latest!=null?fmt1(latest):'—'}</span></div></td></tr>`;
+  }).join('');
+}
+
+function updateHistoryNote(sampleRow){
+  const note=document.getElementById('history-note');
+  if(!sampleRow || !sampleRow.weekly.length){ note.textContent='Тижнева історія позицій · даних поки немає'; return; }
+  const last = sampleRow.weekly[sampleRow.weekly.length-1];
+  note.textContent = `Тижнева історія позицій · останній зріз: тиждень з ${last.week_start} · наведіть на графік — побачите всі дати`;
 }
 
 load();

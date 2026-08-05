@@ -54,7 +54,7 @@
       "id": "fetch-gsc",
       "path": "fetch_gsc.py",
       "type": "script",
-      "role": "Python script: pulls Google Search Console daily/monthly/query/page data plus a URL-keyword category classifier producing weekly per-section position trends; writes seo_data.json.",
+      "role": "Python script: pulls Google Search Console daily/monthly/query/page data; a URL-keyword category classifier producing weekly per-section position trends; a query-text classifier grouping ALL queries into brand/матраци/топери/дивани/ліжка/шафи buckets; and dated weekly position history (week_start-keyed) for the top 20 queries and top 20 pages by clicks. Writes all of it to seo_data.json.",
       "entrypoints": [
         "__main__ (fetch_gsc.py:202)"
       ],
@@ -62,13 +62,20 @@
       "constraints": [
         "requires env GSC_SERVICE_ACCOUNT_JSON or local gsc_key.json (fetch_gsc.py:20-22)",
         "SITES = [{'id':'https://matroluxe.ua/','name':'Matroluxe UA'}] — URL-prefix property, only one site configured (fetch_gsc.py:46-49)",
-        "classify_category() keyword-matches URL slugs since the site has no /catalog/ path prefix — heuristic, may misclassify some product URLs (fetch_gsc.py:32-44)"
+        "classify_category() keyword-matches URL slugs since the site has no /catalog/ path prefix — heuristic, may misclassify some product URLs (fetch_gsc.py:32-44)",
+        "classify_query() is also a keyword heuristic (brand names + product-type words in the query text) — same caveat as classify_category()",
+        "query/page weekly history is fetched fresh from the GSC API for the requested date range each run (not accumulated locally across runs) — GSC retains ~16 months of history, so no local persistence is needed"
       ],
       "evidence": [
-        "fetch_gsc.py:46-50",
+        "fetch_gsc.py:69-72",
         "fetch_gsc.py:32-44 (classify_category())",
-        "fetch_gsc.py:58-67 (get_service())",
-        "fetch_gsc.py:202-225 (__main__)"
+        "fetch_gsc.py:81-90 (get_service())",
+        "fetch_gsc.py:328-349 (__main__)",
+        "fetch_gsc.py:59-76 (classify_query())",
+        "fetch_gsc.py:144-168 (fetch_query_categories())",
+        "fetch_gsc.py:177-214 (_weekly_history())",
+        "fetch_gsc.py:216-224 (fetch_query_history())",
+        "fetch_gsc.py:226-233 (fetch_page_history())"
       ]
     },
     {
@@ -127,7 +134,7 @@
       "id": "seo-html",
       "path": "seo.html",
       "type": "ui",
-      "role": "SEO dashboard: per-site tabs, daily/monthly period toggle, 4 KPI cards, daily clicks bar chart, weekly category position-dynamics line chart, top-queries and top-pages tables.",
+      "role": "SEO dashboard: per-site tabs, daily/monthly period toggle, 4 KPI cards, daily clicks bar chart, weekly category position-dynamics line chart, a query-category breakdown (brand vs product type), and top-queries/top-pages tables where each row shows a dated 12-week position sparkline (hover for the exact weekly values) instead of a single static number.",
       "entrypoints": [
         "load() called at script end (seo.html)"
       ],
@@ -136,7 +143,10 @@
         "fails open with a visible error box if seo_data.json is missing or invalid JSON (seo.html: load()/showError())"
       ],
       "evidence": [
-        "seo.html:167-176 (load())"
+        "seo.html:167-176 (load())",
+        "seo.html:333-346 (renderQueryCategories())",
+        "seo.html:352-373 (posSparkline())",
+        "seo.html:380-397 (renderQueries()/renderPages())"
       ]
     },
     {
@@ -180,8 +190,8 @@
       "tests": [],
       "constraints": [],
       "evidence": [
-        "fetch_gsc.py:58-67 (get_service())",
-        "fetch_gsc.py:69-79 (query())"
+        "fetch_gsc.py:81-90 (get_service())",
+        "fetch_gsc.py:92-101 (query())"
       ]
     },
     {
@@ -255,8 +265,8 @@
       "to": "gsc-api",
       "type": "calls",
       "evidence": [
-        "fetch_gsc.py:58-67 (get_service())",
-        "fetch_gsc.py:69-79 (query())"
+        "fetch_gsc.py:81-90 (get_service())",
+        "fetch_gsc.py:92-101 (query())"
       ]
     },
     {

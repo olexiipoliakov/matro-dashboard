@@ -1,6 +1,6 @@
 {
   "commit": "eda39c66b8b8984109e8c1167924c442e6374f10",
-  "working_tree_dirty": false,
+  "working_tree_dirty": true,
   "generated_at": "2026-08-05T00:00:00Z",
   "scanned_scope": [
     ".github/workflows/update.yml",
@@ -31,7 +31,7 @@
       ]
     },
     "fetch_gsc.py": {
-      "fingerprint": "59faaaa800f8b2564734e9e4a403498e612036a6e5e67d0350f378f7c44ed5c6",
+      "fingerprint": "bf05710d2000508f1d8b07cfb338c17cb93718d29d59d6fc04b03d5ffee8364d",
       "files": [
         "fetch_gsc.py"
       ]
@@ -43,7 +43,7 @@
       ]
     },
     "seo.html": {
-      "fingerprint": "0e8fabf7615ba040cca09c5af4e44c4bfaacb916e493a0b10ff74aa02493279d",
+      "fingerprint": "0d1489227882673fb4e164321452f982f15287945ccd2b3ad255f8eeffe09d82",
       "files": [
         "seo.html"
       ]
