@@ -89,7 +89,7 @@
   .hist-cell{display:flex;align-items:center;justify-content:flex-end;gap:8px}
   .hist-cell svg{display:block}
   .hist-latest{font-size:12px;font-weight:700;min-width:30px;text-align:right}
-  .qcat-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:14px;padding:9px 6px;
+  .qcat-row{display:grid;grid-template-columns:130px 1fr auto;align-items:center;gap:10px 14px;padding:9px 6px;
     border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px;transition:background .15s}
   .qcat-row:hover{background:#f2f7f4}
   .qcat-row.active{background:#eef4f0;box-shadow:inset 3px 0 0 var(--accent)}
@@ -119,6 +119,8 @@
     .kpi .val{font-size:22px}
     .period-bar{flex-direction:column;align-items:flex-start;gap:10px;padding:12px}
     .period-info{margin-left:0;width:100%}
+    .qcat-row{grid-template-columns:1fr;gap:6px}
+    .qcat-nums{text-align:left;white-space:normal}
   }
 </style>
 </head>
