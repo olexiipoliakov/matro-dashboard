@@ -66,7 +66,8 @@
         "classify_query() is also a keyword heuristic (brand names + product-type words in the query text) — same caveat as classify_category()",
         "query/page weekly history is fetched fresh from the GSC API for the requested date range each run (not accumulated locally across runs) — GSC retains ~16 months of history, so no local persistence is needed",
         "query_categories now embeds the full list of individual queries per category (not just aggregates) so the UI can drill down from a category into its keywords",
-        "also fetches a previous-28-day aggregate (no dimensions, single row) as 'prev_period', used by home.html to compute period-over-period trend"
+        "also fetches a previous-28-day aggregate (no dimensions, single row) as 'prev_period', used by home.html to compute period-over-period trend",
+        "query/page history is now sliced into 14-day (biweekly) periods instead of weekly, since the person wants period-over-period comparison arrows; total_impressions is included per query/page as a proxy for search 'frequency' — GSC has no real search-volume metric, that would need an external tool (Keyword Planner/Ahrefs/Serpstat)"
       ],
       "evidence": [
         "fetch_gsc.py:69-72",
@@ -75,9 +76,9 @@
         "fetch_gsc.py:328-349 (__main__)",
         "fetch_gsc.py:59-76 (classify_query())",
         "fetch_gsc.py:144-168 (fetch_query_categories())",
-        "fetch_gsc.py:177-214 (_weekly_history())",
-        "fetch_gsc.py:216-224 (fetch_query_history())",
-        "fetch_gsc.py:226-233 (fetch_page_history())",
+        "fetch_gsc.py:184-224 (_period_history())",
+        "fetch_gsc.py:231-238 (fetch_query_history())",
+        "fetch_gsc.py:240-247 (fetch_page_history())",
         "fetch_gsc.py:144-178 (fetch_query_categories(), now returns per-category queries[])",
         "fetch_gsc.py:262-274 (prev_period fetch)"
       ]
@@ -139,7 +140,7 @@
       "id": "seo-html",
       "path": "seo.html",
       "type": "ui",
-      "role": "SEO dashboard: per-site tabs, daily/monthly period toggle, 4 KPI cards, daily clicks bar chart, weekly category position-dynamics line chart, a query-category breakdown (brand vs product type), and top-queries/top-pages tables where each row shows a dated 12-week position sparkline (hover for the exact weekly values) instead of a single static number. The query-category bars are clickable — selecting one opens a table of every keyword in that category.",
+      "role": "SEO dashboard: per-site tabs, daily/monthly period toggle, 4 KPI cards, daily clicks bar chart, weekly category position-dynamics line chart, a query-category breakdown (brand vs product type), and top-queries/top-pages sections are now pivot tables: one column per 14-day period showing position + a colored up/down delta arrow vs the previous period, plus a 'Покази' column standing in for search frequency (GSC has no true search-volume metric). The query-category bars are clickable — selecting one opens a table of every keyword in that category.",
       "entrypoints": [
         "load() called at script end (seo.html)"
       ],
@@ -150,8 +151,8 @@
       "evidence": [
         "seo.html:167-176 (load())",
         "seo.html:333-346 (renderQueryCategories())",
-        "seo.html:352-373 (posSparkline())",
-        "seo.html:380-397 (renderQueries()/renderPages())",
+        "seo.html:435-455 (renderPivotTable())",
+        "seo.html:457-465 (renderQueries()/renderPages())",
         "seo.html:351-410 (renderQueryCategories()/selectQueryCategory()/closeQueryCategory())"
       ]
     },
