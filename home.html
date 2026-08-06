@@ -291,7 +291,8 @@ function renderTrend(elId, current, previous, label){
   const dir = pct>0.5?'up':(pct<-0.5?'down':'flat');
   el.className = 'trend-badge show '+dir;
   const sign = pct>=0 ? '+' : '';
-  el.textContent = `${sign}${fmt1(pct)}% ${label}`;
+  const arrow = dir==='up' ? '▲' : (dir==='down' ? '▼' : '▬');
+  el.innerHTML = `<span>${arrow}</span> ${sign}${fmt1(pct)}% ${label}`;
 }
 
 async function loadSMM(){
