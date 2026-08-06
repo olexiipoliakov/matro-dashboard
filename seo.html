@@ -101,6 +101,22 @@
   .qcat-nums b{color:var(--ink)}
   #qcat-detail{margin-top:16px;padding-top:16px;border-top:2px solid var(--ink)}
   .qcat-detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .qcat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .qcat-sum-tag{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:20px}
+  .qcat-sum-tag.up{color:var(--good);background:var(--good-bg)}
+  .qcat-sum-tag.down{color:var(--bad);background:var(--bad-bg)}
+  .qcat-sum-tag.flat{color:var(--ink-soft);background:var(--paper);border:1px solid var(--line)}
+  .qcat-controls{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+  .qcat-controls input[type="text"]{font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--line);
+    border-radius:8px;background:#fff;min-width:220px;outline:none}
+  .qcat-controls input[type="text"]:focus{border-color:var(--accent)}
+  .qcat-checkbox{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);cursor:pointer}
+  .qcat-row-good{background:var(--good-bg)}
+  .qcat-row-bad{background:var(--bad-bg)}
+  .qcat-row-good td:first-child{background:var(--good-bg)}
+  .qcat-row-bad td:first-child{background:var(--bad-bg)}
+  .hist-table-wrap tbody tr.qcat-row-good:hover td,
+  .hist-table-wrap tbody tr.qcat-row-bad:hover td{background:inherit;filter:brightness(0.97)}
   .qcat-detail-head h3{font-size:15px;font-weight:700}
   .qcat-close{font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;border:1px solid var(--line);
     border-radius:8px;padding:5px 12px;background:#fff}
@@ -380,50 +396,140 @@ function renderQueryCategories(cats){
   }
 }
 
+let QCAT_STATE = { key:null, search:'', sortField:'clicks', sortDir:'desc', onlyChanged:false };
+
 function selectQueryCategory(key, silent){
   ACTIVE_QCAT_KEY = key;
   if(!silent) renderQueryCategories(CURRENT_QCATS);
-
-  const cat = CURRENT_QCATS.find(c=>c.key===key);
-  const detail = document.getElementById('qcat-detail');
-  if(!cat){ detail.style.display='none'; return; }
-  const color = QCAT_COLORS[key]||'#8a8272';
-  const kws = cat.queries||[];
-  detail.style.display='block';
-
-  let tableHtml;
-  if(!kws.length){
-    tableHtml = `<div class="empty-note">Немає ключових слів у цій категорії.</div>`;
-  } else if(!kws[0].periods){
-    tableHtml = `<div class="empty-note">Формат даних застарів — дочекайтесь наступного успішного запуску fetch_gsc.py.</div>`;
-  } else {
-    const periods = kws[0].periods.map(p=>p.period_start);
-    const head = `<thead><tr><th>Запит</th><th>Показы (28д)</th>${periods.map(p=>`<th>${periodLabel(p)}</th>`).join('')}</tr></thead>`;
-    const body = kws.map(q=>{
-      const cells = (q.periods||[]).map((p,i)=>{
-        const prev = i>0 ? q.periods[i-1] : null;
-        if(p.position==null) return `<td class="hist-na">—</td>`;
-        const badge = prev ? deltaBadge(p.position, prev.position) : '';
-        return `<td>${fmt1(p.position)}${badge}</td>`;
-      }).join('');
-      return `<tr><td>${q.query}</td><td>${fmt(q.impressions)}</td>${cells}</tr>`;
-    }).join('');
-    tableHtml = `<div class="hist-table-wrap qcat-kw-table"><table>${head}<tbody>${body}</tbody></table></div>`;
-  }
-
-  detail.innerHTML = `
-    <div class="qcat-detail-head">
-      <h3 style="color:${color}">${cat.name} — усі ключові слова (${kws.length})</h3>
-      <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span>
-    </div>
-    <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:10px">Зрізи по 2 тижні · стрілка — зміна позиції відносно попереднього зрізу</div>
-    ${tableHtml}`;
+  QCAT_STATE = { key, search:'', sortField:'clicks', sortDir:'desc', onlyChanged:false };
+  renderQcatDetail();
 }
 
 function closeQueryCategory(){
   ACTIVE_QCAT_KEY = null;
+  QCAT_STATE.key = null;
   document.getElementById('qcat-detail').style.display='none';
   renderQueryCategories(CURRENT_QCATS);
+}
+
+function qcatLastDelta(q){
+  // зміна позиції між двома останніми зрізами, що мають дані. null якщо порівняти нема з чим.
+  const pts = (q.periods||[]).filter(p=>p.position!=null);
+  if(pts.length<2) return null;
+  const last = pts[pts.length-1], prev = pts[pts.length-2];
+  return Math.round((prev.position-last.position)*10)/10; // >0 = покращення
+}
+
+function qcatSetSearch(val){ QCAT_STATE.search = val; renderQcatDetail(true); }
+function qcatToggleChanged(){ QCAT_STATE.onlyChanged = !QCAT_STATE.onlyChanged; renderQcatDetail(); }
+function qcatSort(field){
+  if(QCAT_STATE.sortField===field){ QCAT_STATE.sortDir = QCAT_STATE.sortDir==='desc'?'asc':'desc'; }
+  else { QCAT_STATE.sortField = field; QCAT_STATE.sortDir = field==='query' ? 'asc' : 'desc'; }
+  renderQcatDetail();
+}
+
+function renderQcatDetail(keepFocus){
+  const key = QCAT_STATE.key;
+  const cat = CURRENT_QCATS.find(c=>c.key===key);
+  const detail = document.getElementById('qcat-detail');
+  if(!cat){ detail.style.display='none'; return; }
+  const color = QCAT_COLORS[key]||'#8a8272';
+  const allKws = cat.queries||[];
+  detail.style.display='block';
+
+  if(!allKws.length){
+    detail.innerHTML = `<div class="qcat-detail-head"><h3 style="color:${color}">${cat.name}</h3>
+      <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span></div>
+      <div class="empty-note">Немає ключових слів у цій категорії.</div>`;
+    return;
+  }
+  if(!allKws[0].periods){
+    detail.innerHTML = `<div class="qcat-detail-head"><h3 style="color:${color}">${cat.name}</h3>
+      <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span></div>
+      <div class="empty-note">Формат даних застарів — дочекайтесь наступного успішного запуску fetch_gsc.py.</div>`;
+    return;
+  }
+
+  // зведення по всій категорії (не залежить від пошуку/фільтра)
+  let up=0, down=0, flat=0;
+  allKws.forEach(q=>{
+    const d = qcatLastDelta(q);
+    if(d==null) return;
+    if(d>0.05) up++; else if(d<-0.05) down++; else flat++;
+  });
+
+  const periods = allKws[0].periods.map(p=>p.period_start);
+
+  // фільтр
+  let rows = allKws;
+  if(QCAT_STATE.search.trim()){
+    const q = QCAT_STATE.search.trim().toLowerCase();
+    rows = rows.filter(r=>r.query.toLowerCase().includes(q));
+  }
+  if(QCAT_STATE.onlyChanged){
+    rows = rows.filter(r=>{ const d=qcatLastDelta(r); return d!=null && Math.abs(d)>0.05; });
+  }
+
+  // сортування
+  const sf = QCAT_STATE.sortField, dir = QCAT_STATE.sortDir==='asc'?1:-1;
+  rows = [...rows].sort((a,b)=>{
+    let av, bv;
+    if(sf==='query'){ av=a.query; bv=b.query; return dir*av.localeCompare(bv); }
+    if(sf==='impressions'){ av=a.impressions||0; bv=b.impressions||0; }
+    else if(sf==='clicks'){ av=a.clicks||0; bv=b.clicks||0; }
+    else if(sf.startsWith('period_')){
+      const idx = parseInt(sf.slice(7),10);
+      av = a.periods[idx] && a.periods[idx].position!=null ? a.periods[idx].position : 999;
+      bv = b.periods[idx] && b.periods[idx].position!=null ? b.periods[idx].position : 999;
+    } else { av=a.clicks||0; bv=b.clicks||0; }
+    return dir*(av-bv);
+  });
+
+  const sortArrow = f => QCAT_STATE.sortField===f ? (QCAT_STATE.sortDir==='asc'?' ▲':' ▼') : '';
+  const head = `<thead><tr>
+    <th onclick="qcatSort('query')" style="cursor:pointer">Запит${sortArrow('query')}</th>
+    <th onclick="qcatSort('impressions')" style="cursor:pointer">Показы (28д)${sortArrow('impressions')}</th>
+    ${periods.map((p,i)=>`<th onclick="qcatSort('period_${i}')" style="cursor:pointer">${periodLabel(p)}${sortArrow('period_'+i)}</th>`).join('')}
+  </tr></thead>`;
+
+  const body = rows.map(q=>{
+    const d = qcatLastDelta(q);
+    const rowCls = d!=null && Math.abs(d)>=5 ? (d>0?'qcat-row-good':'qcat-row-bad') : '';
+    const cells = (q.periods||[]).map((p,i)=>{
+      const prev = i>0 ? q.periods[i-1] : null;
+      if(p.position==null) return `<td class="hist-na">—</td>`;
+      const badge = prev ? deltaBadge(p.position, prev.position) : '';
+      return `<td>${fmt1(p.position)}${badge}</td>`;
+    }).join('');
+    return `<tr class="${rowCls}"><td>${q.query}</td><td>${fmt(q.impressions)}</td>${cells}</tr>`;
+  }).join('');
+
+  const tableHtml = rows.length
+    ? `<div class="hist-table-wrap qcat-kw-table"><table>${head}<tbody>${body}</tbody></table></div>`
+    : `<div class="empty-note">Нічого не знайдено за цим фільтром.</div>`;
+
+  detail.innerHTML = `
+    <div class="qcat-detail-head">
+      <h3 style="color:${color}">${cat.name} — усі ключові слова (${allKws.length})</h3>
+      <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span>
+    </div>
+    <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:10px">Зрізи по 2 тижні · стрілка — зміна позиції відносно попереднього зрізу</div>
+    <div class="qcat-summary">
+      <span class="qcat-sum-tag up">▲ ${up} покращили позицію</span>
+      <span class="qcat-sum-tag down">▼ ${down} погіршили</span>
+      <span class="qcat-sum-tag flat">▬ ${flat} без змін</span>
+    </div>
+    <div class="qcat-controls">
+      <input type="text" id="qcat-search" placeholder="Пошук за запитом…" value="${QCAT_STATE.search.replace(/"/g,'&quot;')}"
+        oninput="qcatSetSearch(this.value)" ${keepFocus?'autofocus':''}>
+      <label class="qcat-checkbox"><input type="checkbox" ${QCAT_STATE.onlyChanged?'checked':''} onchange="qcatToggleChanged()"> лише зі змінами</label>
+    </div>
+    ${tableHtml}`;
+
+  if(keepFocus){
+    const inp=document.getElementById('qcat-search');
+    if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }
 }
 
 function periodLabel(p){
