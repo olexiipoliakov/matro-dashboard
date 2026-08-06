@@ -180,19 +180,14 @@
 
   <div class="sec-head"><span class="n">3</span><h2>Запити за категоріями</h2><span class="ln"></span></div>
   <div class="panel">
-    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">Бренд / Матраци / Топери / Дивани / Ліжка / Шафи · за останні 28 днів, по всіх запитах (не тільки топ-15) · натисніть на категорію, щоб побачити всі ключові слова</div>
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">Бренд / Матраци / Топери / Дивани / Ліжка / Шафи · за останні 28 днів, по всіх запитах (не тільки топ-15) · натисніть на категорію, щоб побачити всі ключові слова разом із динамікою позицій</div>
     <div id="qcat-bars"></div>
     <div id="qcat-detail" style="display:none"></div>
   </div>
 
-  <div class="sec-head"><span class="n">4</span><h2>Запити — динаміка по періодах</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">4</span><h2>Сторінки — динаміка по періодах</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px" id="history-note">Зрізи по 2 тижні · оновлено —</div>
-  <div class="panel" style="margin-bottom:20px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:10px">Топ запити</div>
-    <div class="hist-table-wrap"><table id="q-table"></table></div>
-  </div>
   <div class="panel">
-    <div style="font-size:13px;font-weight:600;margin-bottom:10px">Топ сторінки</div>
     <div class="hist-table-wrap"><table id="p-table"></table></div>
   </div>
 
@@ -255,7 +250,6 @@ function render(){
   renderChart(rows);
   renderCategoryChart(site.categories||[]);
   renderQueryCategories(site.query_categories||[]);
-  renderQueries(site.query_history||[]);
   renderPages(site.page_history||[]);
 }
 
@@ -396,20 +390,34 @@ function selectQueryCategory(key, silent){
   const color = QCAT_COLORS[key]||'#8a8272';
   const kws = cat.queries||[];
   detail.style.display='block';
+
+  let tableHtml;
+  if(!kws.length){
+    tableHtml = `<div class="empty-note">Немає ключових слів у цій категорії.</div>`;
+  } else if(!kws[0].periods){
+    tableHtml = `<div class="empty-note">Формат даних застарів — дочекайтесь наступного успішного запуску fetch_gsc.py.</div>`;
+  } else {
+    const periods = kws[0].periods.map(p=>p.period_start);
+    const head = `<thead><tr><th>Запит</th><th>Показы (28д)</th>${periods.map(p=>`<th>${periodLabel(p)}</th>`).join('')}</tr></thead>`;
+    const body = kws.map(q=>{
+      const cells = (q.periods||[]).map((p,i)=>{
+        const prev = i>0 ? q.periods[i-1] : null;
+        if(p.position==null) return `<td class="hist-na">—</td>`;
+        const badge = prev ? deltaBadge(p.position, prev.position) : '';
+        return `<td>${fmt1(p.position)}${badge}</td>`;
+      }).join('');
+      return `<tr><td>${q.query}</td><td>${fmt(q.impressions)}</td>${cells}</tr>`;
+    }).join('');
+    tableHtml = `<div class="hist-table-wrap qcat-kw-table"><table>${head}<tbody>${body}</tbody></table></div>`;
+  }
+
   detail.innerHTML = `
     <div class="qcat-detail-head">
       <h3 style="color:${color}">${cat.name} — усі ключові слова (${kws.length})</h3>
       <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span>
     </div>
-    <div class="qcat-kw-table">
-      <table>
-        <thead><tr><th>Запит</th><th>Клики</th><th>Показы</th><th>Позиция</th></tr></thead>
-        <tbody>${kws.map(q=>`
-          <tr><td>${q.query}</td><td>${fmt(q.clicks)}</td><td>${fmt(q.impressions)}</td>
-          <td><span class="pos-tag ${posClass(q.position)}">${fmt1(q.position)}</span></td></tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
+    <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:10px">Зрізи по 2 тижні · стрілка — зміна позиції відносно попереднього зрізу</div>
+    ${tableHtml}`;
 }
 
 function closeQueryCategory(){
@@ -436,38 +444,39 @@ function renderPivotTable(tableId, history, nameLabel){
   const table=document.getElementById(tableId);
   const sorted=[...history].sort((a,b)=>b.total_clicks-a.total_clicks).slice(0,15);
   if(!sorted.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
+  if(!sorted[0].periods){
+    table.innerHTML=`<tr><td class="empty-note">Формат даних застарів — дочекайтесь наступного успішного запуску fetch_gsc.py, щоб seo_data.json оновився.</td></tr>`;
+    return;
+  }
 
   const periods = sorted[0].periods.map(p=>p.period_start);
   const head = `<thead><tr><th>${nameLabel}</th><th>Покази</th>${periods.map(p=>`<th>${periodLabel(p)}</th>`).join('')}</tr></thead>`;
 
   const body = sorted.map(row=>{
     const nameVal = row.query!==undefined ? row.query : row.page;
-    const cells = row.periods.map((p,i)=>{
+    const cells = (row.periods||[]).map((p,i)=>{
       const prev = i>0 ? row.periods[i-1] : null;
       if(p.position==null) return `<td class="hist-na">—</td>`;
       const badge = prev ? deltaBadge(p.position, prev.position) : '';
       return `<td>${fmt1(p.position)}${badge}</td>`;
     }).join('');
-    return `<tr><td>${nameVal}</td><td>${fmt(row.total_impressions)}</td>${cells}</tr>`;
+    return `<tr><td>${nameVal}</td><td>${fmt(row.total_impressions||0)}</td>${cells}</tr>`;
   }).join('');
 
   table.innerHTML = head + `<tbody>${body}</tbody>`;
 }
 
-function renderQueries(history){
-  renderPivotTable('q-table', history, 'Запит');
-  updateHistoryNote(history[0]);
-}
-
 function renderPages(history){
   renderPivotTable('p-table', history, 'Сторінка');
+  const sorted=[...history].sort((a,b)=>b.total_clicks-a.total_clicks);
+  updateHistoryNote(sorted[0]);
 }
 
 function updateHistoryNote(sampleRow){
   const note=document.getElementById('history-note');
-  if(!sampleRow || !sampleRow.periods.length){ note.textContent='Зрізи по 2 тижні · даних поки немає'; return; }
+  if(!sampleRow || !sampleRow.periods || !sampleRow.periods.length){ note.textContent='Зрізи по 2 тижні · даних поки немає (можливо, потрібен новий запуск fetch_gsc.py)'; return; }
   const last = sampleRow.periods[sampleRow.periods.length-1];
-  note.textContent = `Зрізи по 2 тижні · останній зріз від ${periodLabel(last.period_start)} · стрілка — зміна позиції відносно попереднього зрізу · «Покази» — орієнтир частоти запиту (GSC не дає точний обсяг пошукового попиту)`;
+  note.textContent = `Зрізи по 2 тижні · останній зріз від ${periodLabel(last.period_start)} · стрілка — зміна позиції відносно попереднього зрізу`;
 }
 
 load();

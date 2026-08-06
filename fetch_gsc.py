@@ -141,42 +141,91 @@ def fetch_categories(service, url, weeks=12):
         categories.append({"key": key, "name": cat_names[key], "weekly": weekly})
     return categories
 
-def fetch_query_categories(service, url, start, end, row_limit=10000):
-    """Тянет ВСІ пошукові запити за період (не топ-50, як у fetch_site) і групує
-    їх за категорією: брендовий трафік / матраци / топери / дивани / ліжка / шафи / інше.
-    Кожна категорія несе список запитів, що в неї потрапили (для перегляду по кліку)."""
-    rows = query(service, url, start, end, ["query"], row_limit=row_limit)
-    buckets = defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0, "queries": []})
+def fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14, row_limit=25000):
+    """Тягне (date, query) за `weeks` тижнів (щоб мати й 28-денний зріз, і повну історію),
+    класифікує кожен запит у категорію, і будує:
+      - агрегати категорій за останні 28 днів (для барів і сортування)
+      - для кожного запиту в категорії — клики/показы/позиція за 28 днів
+        ТА історію позицій зрізами по `period_days` днів за весь період `weeks` тижнів."""
+    start_hist = end - timedelta(days=weeks * 7 - 1)
+    rows = query(service, url, start_hist, end, ["date", "query"], row_limit=row_limit)
+
+    cat_of_cache = {}
     cat_names = {}
+    def cat_of(q):
+        if q not in cat_of_cache:
+            key, name = classify_query(q)
+            cat_of_cache[q] = key
+            cat_names[key] = name
+        return cat_of_cache[q]
+
+    cat_agg = defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0})
+    query_28 = defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0})
+    period_buckets = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0}))
+
     for r in rows:
-        q_text = r["keys"][0]
-        key, name = classify_query(q_text)
-        cat_names[key] = name
+        d = date.fromisoformat(r["keys"][0])
+        q_text = r["keys"][1]
+        key = cat_of(q_text)
         clicks = r.get("clicks", 0)
         impressions = r.get("impressions", 0)
         position = r.get("position", 0)
-        b = buckets[key]
-        b["clicks"] += clicks
-        b["impressions"] += impressions
-        b["pos_w"] += position * max(impressions, 1)
-        b["queries"].append({
-            "query": q_text, "clicks": clicks, "impressions": impressions,
-            "position": round(position, 1),
+
+        if start_28 <= d <= end:
+            b = cat_agg[key]
+            b["clicks"] += clicks
+            b["impressions"] += impressions
+            b["pos_w"] += position * max(impressions, 1)
+            qb = query_28[q_text]
+            qb["clicks"] += clicks
+            qb["impressions"] += impressions
+            qb["pos_w"] += position * max(impressions, 1)
+
+        idx = (d - start_hist).days // period_days
+        period_start = str(start_hist + timedelta(days=idx * period_days))
+        pb = period_buckets[q_text][period_start]
+        pb["clicks"] += clicks
+        pb["impressions"] += impressions
+        pb["pos_w"] += position * max(impressions, 1)
+
+    periods_sorted = sorted({p for qd in period_buckets.values() for p in qd.keys()})
+    all_queries = set(query_28.keys()) | set(period_buckets.keys())
+
+    queries_by_cat = defaultdict(list)
+    for q_text in all_queries:
+        key = cat_of(q_text)
+        qb = query_28.get(q_text)
+        periods = []
+        for p in periods_sorted:
+            pb = period_buckets[q_text].get(p)
+            if pb and pb["impressions"]:
+                periods.append({
+                    "period_start": p, "clicks": pb["clicks"], "impressions": pb["impressions"],
+                    "position": round(pb["pos_w"] / pb["impressions"], 1),
+                })
+            else:
+                periods.append({"period_start": p, "clicks": 0, "impressions": 0, "position": None})
+        queries_by_cat[key].append({
+            "query": q_text,
+            "clicks": qb["clicks"] if qb else 0,
+            "impressions": qb["impressions"] if qb else 0,
+            "position": round(qb["pos_w"] / qb["impressions"], 1) if qb and qb["impressions"] else None,
+            "periods": periods,
         })
 
-    total_clicks = sum(b["clicks"] for b in buckets.values()) or 1
+    total_clicks = sum(b["clicks"] for b in cat_agg.values()) or 1
     result = []
-    for key, b in buckets.items():
-        b["queries"].sort(key=lambda x: -x["clicks"])
+    for key, b in cat_agg.items():
+        qs = sorted(queries_by_cat[key], key=lambda x: -x["clicks"])
         result.append({
             "key": key,
             "name": cat_names[key],
             "clicks": b["clicks"],
             "impressions": b["impressions"],
             "position": round(b["pos_w"] / b["impressions"], 1) if b["impressions"] else None,
-            "queries_count": len(b["queries"]),
+            "queries_count": len(qs),
             "share": round(b["clicks"] / total_clicks * 100, 1),
-            "queries": b["queries"],
+            "queries": qs,
         })
     result.sort(key=lambda x: -x["clicks"])
     return result
@@ -227,15 +276,6 @@ def _period_history(rows, key_index, top_n, start, period_days=14):
             "periods": periods,
         })
     return result
-
-def fetch_query_history(service, url, weeks=12, top_n=20, period_days=14):
-    """Історія позицій зрізами по 2 тижні для топ-N запитів за останні `weeks` тижнів."""
-    today = date.today()
-    end = today - timedelta(days=3)
-    start = end - timedelta(days=weeks * 7 - 1)
-    rows = query(service, url, start, end, ["date", "query"], row_limit=25000)
-    history = _period_history(rows, key_index=1, top_n=top_n, start=start, period_days=period_days)
-    return [{"query": h["key"], "total_clicks": h["total_clicks"], "total_impressions": h["total_impressions"], "periods": h["periods"]} for h in history]
 
 def fetch_page_history(service, url, weeks=12, top_n=20, period_days=14):
     """Історія позицій зрізами по 2 тижні для топ-N сторінок за останні `weeks` тижнів."""
@@ -328,14 +368,11 @@ def fetch_site(service, site):
     print(f"  → Категорії по неділях")
     categories = fetch_categories(service, url, weeks=12)
 
-    print(f"  → Запити за категоріями (бренд/матраци/топери/дивани/ліжка/шафи)")
-    query_categories = fetch_query_categories(service, url, start_28, end)
+    print(f"  → Запити за категоріями (бренд/матраци/топери/дивани/ліжка/шафи) + історія позицій по 2 тижні")
+    query_categories = fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14)
 
-    print(f"  → Тижнева історія позицій: топ-запити")
-    query_history = fetch_query_history(service, url, weeks=12, top_n=20)
-
-    print(f"  → Тижнева історія позицій: топ-сторінки")
-    page_history = fetch_page_history(service, url, weeks=12, top_n=20)
+    print(f"  → Історія позицій по 2 тижні: топ-сторінки")
+    page_history = fetch_page_history(service, url, weeks=12, top_n=20, period_days=14)
 
     return {
         "site_url":  url,
@@ -347,7 +384,6 @@ def fetch_site(service, site):
         "pages":     pages,
         "categories": categories,
         "query_categories": query_categories,
-        "query_history": query_history,
         "page_history": page_history,
         "prev_period": prev_period,
     }
