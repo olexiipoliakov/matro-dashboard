@@ -16,6 +16,9 @@
   body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
     background:var(--paper);color:var(--ink);line-height:1.5;padding:32px 24px 64px}
   .wrap{max-width:1080px;margin:0 auto}
+  .home-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+    color:var(--ink-soft);text-decoration:none;margin-bottom:14px}
+  .home-link:hover{color:var(--accent)}
   header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
   .brand{display:flex;align-items:baseline;gap:14px}
   .logo{font-family:'Segoe UI',system-ui,sans-serif;font-size:30px;font-weight:700;letter-spacing:-.5px}
@@ -220,6 +223,7 @@
 </head>
 <body>
 <div class="wrap">
+  <a href="home.html" class="home-link">&larr; Home</a>
   <header>
     <div class="brand">
       <div class="logo">Matro<span class="dot">.</span></div>

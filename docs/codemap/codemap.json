@@ -131,7 +131,8 @@
       "evidence": [
         "index.html:434-456 (currentDataFile / switchAccount)",
         "index.html:931-950 (genInsights())",
-        "index.html:237-238 (account tabs)"
+        "index.html:237-238 (account tabs)",
+        "index.html:222-224 (Home link back to home.html)"
       ]
     },
     {
@@ -395,6 +396,14 @@
       "type": "publishes",
       "evidence": [
         "README.md (Деплой на GitHub Pages)"
+      ]
+    },
+    {
+      "from": "index-html",
+      "to": "home-html",
+      "type": "calls",
+      "evidence": [
+        "index.html:222-224 (<a href=\"home.html\" class=\"home-link\">&larr; Home</a>)"
       ]
     }
   ],
