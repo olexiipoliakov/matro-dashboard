@@ -544,7 +544,8 @@ function renderQcatDetail(keepFocus){
       <h3 style="color:${color}">${cat.name} — усі ключові слова (${allKws.length})</h3>
       <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span>
     </div>
-    <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:10px">Зрізи по 2 тижні · стрілка — зміна позиції відносно попереднього зрізу</div>
+    <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:4px">Зрізи по 2 тижні · стрілка — зміна позиції відносно попереднього зрізу</div>
+    <div style="font-size:11px;color:var(--mid);margin-bottom:10px">⚠ Останній зріз закінчується за 3 дні до сьогодні (лаг Google Search Console) — "випали з ранжування" в ньому варто перевіряти вручну в Google перед висновками, особливо для конкурентних коротких запитів</div>
     <div class="qcat-summary">
       <span class="qcat-sum-tag up ${QCAT_STATE.statusFilter==='up'?'active':''}" onclick="qcatSetStatusFilter('up')">▲ ${up} покращили позицію</span>
       <span class="qcat-sum-tag down ${QCAT_STATE.statusFilter==='down'?'active':''}" onclick="qcatSetStatusFilter('down')">▼ ${down} погіршили</span>
