@@ -102,10 +102,17 @@
   #qcat-detail{margin-top:16px;padding-top:16px;border-top:2px solid var(--ink)}
   .qcat-detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
   .qcat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  .qcat-sum-tag{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:20px}
+  .qcat-sum-tag{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:20px;
+    cursor:pointer;border:1.5px solid transparent;transition:filter .12s,transform .12s;user-select:none}
+  .qcat-sum-tag:hover{filter:brightness(0.95);transform:translateY(-1px)}
   .qcat-sum-tag.up{color:var(--good);background:var(--good-bg)}
   .qcat-sum-tag.down{color:var(--bad);background:var(--bad-bg)}
   .qcat-sum-tag.flat{color:var(--ink-soft);background:var(--paper);border:1px solid var(--line)}
+  .qcat-sum-tag.dropped{color:var(--mid);background:var(--mid-bg)}
+  .qcat-sum-tag.active{border-color:currentColor;box-shadow:0 0 0 2px rgba(0,0,0,.05) inset}
+  .qcat-row-dropped{background:var(--mid-bg)}
+  .qcat-row-dropped td:first-child{background:var(--mid-bg)}
+  .hist-table-wrap tbody tr.qcat-row-dropped:hover td{background:inherit;filter:brightness(0.97)}
   .qcat-controls{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
   .qcat-controls input[type="text"]{font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--line);
     border-radius:8px;background:#fff;min-width:220px;outline:none}
@@ -396,12 +403,12 @@ function renderQueryCategories(cats){
   }
 }
 
-let QCAT_STATE = { key:null, search:'', sortField:'clicks', sortDir:'desc', onlyChanged:false };
+let QCAT_STATE = { key:null, search:'', sortField:'clicks', sortDir:'desc', onlyChanged:false, statusFilter:null };
 
 function selectQueryCategory(key, silent){
   ACTIVE_QCAT_KEY = key;
   if(!silent) renderQueryCategories(CURRENT_QCATS);
-  QCAT_STATE = { key, search:'', sortField:'clicks', sortDir:'desc', onlyChanged:false };
+  QCAT_STATE = { key, search:'', sortField:'clicks', sortDir:'desc', onlyChanged:false, statusFilter:null };
   renderQcatDetail();
 }
 
@@ -422,6 +429,21 @@ function qcatLastDelta(q){
 
 function qcatSetSearch(val){ QCAT_STATE.search = val; renderQcatDetail(true); }
 function qcatToggleChanged(){ QCAT_STATE.onlyChanged = !QCAT_STATE.onlyChanged; renderQcatDetail(); }
+function qcatSetStatusFilter(status){
+  QCAT_STATE.statusFilter = QCAT_STATE.statusFilter===status ? null : status;
+  renderQcatDetail();
+}
+function qcatStatus(q){
+  // 'up' | 'down' | 'flat' | 'dropped' | null (недостатньо даних для порівняння)
+  const pts = (q.periods||[]).filter(p=>p.position!=null);
+  const last = q.periods && q.periods.length ? q.periods[q.periods.length-1] : null;
+  if(pts.length && last && last.position==null) return 'dropped'; // був у видачі, зараз зник
+  const d = qcatLastDelta(q);
+  if(d==null) return null;
+  if(d>0.05) return 'up';
+  if(d<-0.05) return 'down';
+  return 'flat';
+}
 function qcatSort(field){
   if(QCAT_STATE.sortField===field){ QCAT_STATE.sortDir = QCAT_STATE.sortDir==='desc'?'asc':'desc'; }
   else { QCAT_STATE.sortField = field; QCAT_STATE.sortDir = field==='query' ? 'asc' : 'desc'; }
@@ -451,11 +473,10 @@ function renderQcatDetail(keepFocus){
   }
 
   // зведення по всій категорії (не залежить від пошуку/фільтра)
-  let up=0, down=0, flat=0;
+  let up=0, down=0, flat=0, dropped=0;
   allKws.forEach(q=>{
-    const d = qcatLastDelta(q);
-    if(d==null) return;
-    if(d>0.05) up++; else if(d<-0.05) down++; else flat++;
+    const s = qcatStatus(q);
+    if(s==='up') up++; else if(s==='down') down++; else if(s==='flat') flat++; else if(s==='dropped') dropped++;
   });
 
   const periods = allKws[0].periods.map(p=>p.period_start);
@@ -468,6 +489,9 @@ function renderQcatDetail(keepFocus){
   }
   if(QCAT_STATE.onlyChanged){
     rows = rows.filter(r=>{ const d=qcatLastDelta(r); return d!=null && Math.abs(d)>0.05; });
+  }
+  if(QCAT_STATE.statusFilter){
+    rows = rows.filter(r=>qcatStatus(r)===QCAT_STATE.statusFilter);
   }
 
   // сортування
@@ -494,7 +518,9 @@ function renderQcatDetail(keepFocus){
 
   const body = rows.map(q=>{
     const d = qcatLastDelta(q);
-    const rowCls = d!=null && Math.abs(d)>=5 ? (d>0?'qcat-row-good':'qcat-row-bad') : '';
+    const status = qcatStatus(q);
+    let rowCls = d!=null && Math.abs(d)>=5 ? (d>0?'qcat-row-good':'qcat-row-bad') : '';
+    if(status==='dropped') rowCls = 'qcat-row-dropped';
     const cells = (q.periods||[]).map((p,i)=>{
       const prev = i>0 ? q.periods[i-1] : null;
       if(p.position==null) return `<td class="hist-na">—</td>`;
@@ -515,9 +541,11 @@ function renderQcatDetail(keepFocus){
     </div>
     <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:10px">Зрізи по 2 тижні · стрілка — зміна позиції відносно попереднього зрізу</div>
     <div class="qcat-summary">
-      <span class="qcat-sum-tag up">▲ ${up} покращили позицію</span>
-      <span class="qcat-sum-tag down">▼ ${down} погіршили</span>
-      <span class="qcat-sum-tag flat">▬ ${flat} без змін</span>
+      <span class="qcat-sum-tag up ${QCAT_STATE.statusFilter==='up'?'active':''}" onclick="qcatSetStatusFilter('up')">▲ ${up} покращили позицію</span>
+      <span class="qcat-sum-tag down ${QCAT_STATE.statusFilter==='down'?'active':''}" onclick="qcatSetStatusFilter('down')">▼ ${down} погіршили</span>
+      <span class="qcat-sum-tag flat ${QCAT_STATE.statusFilter==='flat'?'active':''}" onclick="qcatSetStatusFilter('flat')">▬ ${flat} без змін</span>
+      <span class="qcat-sum-tag dropped ${QCAT_STATE.statusFilter==='dropped'?'active':''}" onclick="qcatSetStatusFilter('dropped')">⛔ ${dropped} випали з ранжування</span>
+      ${QCAT_STATE.statusFilter ? `<span class="qcat-sum-tag flat" onclick="qcatSetStatusFilter(null)" style="opacity:.7">× скинути фільтр</span>` : ''}
     </div>
     <div class="qcat-controls">
       <input type="text" id="qcat-search" placeholder="Пошук за запитом…" value="${QCAT_STATE.search.replace(/"/g,'&quot;')}"
