@@ -68,7 +68,8 @@
         "query_categories now embeds the full list of individual queries per category (not just aggregates) so the UI can drill down from a category into its keywords",
         "also fetches a previous-28-day aggregate (no dimensions, single row) as 'prev_period', used by home.html to compute period-over-period trend",
         "query/page history is now sliced into 14-day (biweekly) periods instead of weekly, since the person wants period-over-period comparison arrows; total_impressions is included per query/page as a proxy for search 'frequency' — GSC has no real search-volume metric, that would need an external tool (Keyword Planner/Ahrefs/Serpstat)",
-        "query/page/device/cannibalization fetches all reuse or extend the same (date,query) or (query,*) row sets fetched once per run, not one API call per feature, to keep GSC API usage bounded"
+        "query/page/device/cannibalization fetches all reuse or extend the same (date,query) or (query,*) row sets fetched once per run, not one API call per feature, to keep GSC API usage bounded",
+        "performance fix: granularity buckets are computed ONCE per run (single pass over all fetched rows per granularity), not once per query — the first version called the bucketing function inside the per-query loop, which on real data volumes (thousands of queries) meant re-scanning all rows per query and could run for hours; benchmarked fix: 9000 queries / 200k rows in ~4s"
       ],
       "evidence": [
         "fetch_gsc.py:69-72",

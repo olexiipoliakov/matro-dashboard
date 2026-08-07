@@ -63,13 +63,21 @@ def _periods_list(buckets, key, periods_sorted):
 # Доступні розрізи для срезів позицій — тиждень / 2 тижні (за замовчуванням) / місяць
 GRANULARITIES = {"7": 7, "14": 14, "30": 30}
 
-def _periods_by_all_granularities(rows, key_index, key, start):
-    """Для одного ключа (запит/сторінка) повертає {"7":[...], "14":[...], "30":[...]}
-    — той самий набір рядків розбивається на зрізи трьома способами відразу,
-    без повторних запитів до GSC API."""
+def _precompute_all_granularities(rows, key_index, start):
+    """Рахує buckets для ВСІХ трьох гранулярностей ОДИН РАЗ по всьому набору рядків
+    (а не окремо для кожного запиту/сторінки — так було в першій версії і це давало
+    O(запитів × рядків), тобто на тисячах запитів запуск міг тривати годинами).
+    Повертає {"7": (periods_sorted, buckets), "14": (...), "30": (...)}."""
     out = {}
     for gkey, days in GRANULARITIES.items():
-        periods_sorted, buckets = _bucket_by_period(rows, key_index, start, days)
+        out[gkey] = _bucket_by_period(rows, key_index, start, days)
+    return out
+
+def _periods_by_for_key(precomputed, key):
+    """Швидко (O(periods), без повторного проходу по rows) бере periods_by для
+    одного ключа з уже порахованих buckets."""
+    out = {}
+    for gkey, (periods_sorted, buckets) in precomputed.items():
         out[gkey] = _periods_list(buckets, key, periods_sorted)
     return out
 
@@ -324,6 +332,11 @@ def fetch_query_categories(service, url, start_28, end, weeks=12, row_limit=2500
 
     all_queries = set(query_28.keys())
 
+    # ОДИН прохід по всіх rows на кожну гранулярність (не на кожен запит!) —
+    # раніше тут був виклик, що заново перебирав rows для кожного з тисяч
+    # запитів і міг тривати годинами на реальних обсягах даних.
+    precomputed = _precompute_all_granularities(rows, key_index=1, start=start_hist)
+
     queries_by_cat = defaultdict(list)
     for q_text in all_queries:
         key = cat_of(q_text)
@@ -336,7 +349,7 @@ def fetch_query_categories(service, url, start_28, end, weeks=12, row_limit=2500
             "impressions": qb_impr,
             "ctr": round(qb_clicks / qb_impr * 100, 2) if qb_impr else 0,
             "position": round(qb["pos_w"] / qb["impressions"], 1) if qb and qb["impressions"] else None,
-            "periods_by": _periods_by_all_granularities(rows, key_index=1, key=q_text, start=start_hist),
+            "periods_by": _periods_by_for_key(precomputed, q_text),
             "devices": devices.get(q_text, {}),
         })
 
@@ -368,13 +381,15 @@ def _period_history(rows, key_index, top_n, start):
         totals[k]["impressions"] += r.get("impressions", 0)
     top_keys = sorted(totals.keys(), key=lambda k: -totals[k]["clicks"])[:top_n]
 
+    precomputed = _precompute_all_granularities(rows, key_index=key_index, start=start)
+
     result = []
     for k in top_keys:
         result.append({
             "key": k,
             "total_clicks": totals[k]["clicks"],
             "total_impressions": totals[k]["impressions"],  # аналог "частотності" — реального обсягу пошукового попиту GSC не дає
-            "periods_by": _periods_by_all_granularities(rows, key_index=key_index, key=k, start=start),
+            "periods_by": _periods_by_for_key(precomputed, k),
         })
     return result
 
