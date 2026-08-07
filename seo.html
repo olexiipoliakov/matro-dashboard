@@ -435,9 +435,14 @@ function qcatSetStatusFilter(status){
 }
 function qcatStatus(q){
   // 'up' | 'down' | 'flat' | 'dropped' | null (недостатньо даних для порівняння)
-  const pts = (q.periods||[]).filter(p=>p.position!=null);
-  const last = q.periods && q.periods.length ? q.periods[q.periods.length-1] : null;
-  if(pts.length && last && last.position==null) return 'dropped'; // був у видачі, зараз зник
+  // 'dropped' навмисно суворе: рахується лише коли позиція БУЛА в попередньому зрізі
+  // і зникла саме зараз — це реальний сигнал втрати, а не шум довгого хвоста
+  // (короткочасні низькочастотні запити можуть мати 0 показів в окремому зрізі
+  // просто через відсутність пошуків, навіть якщо сторінка й далі ранжується)
+  const periods = q.periods||[];
+  const last = periods.length ? periods[periods.length-1] : null;
+  const prev = periods.length>=2 ? periods[periods.length-2] : null;
+  if(last && last.position==null && prev && prev.position!=null) return 'dropped';
   const d = qcatLastDelta(q);
   if(d==null) return null;
   if(d>0.05) return 'up';
@@ -544,7 +549,7 @@ function renderQcatDetail(keepFocus){
       <span class="qcat-sum-tag up ${QCAT_STATE.statusFilter==='up'?'active':''}" onclick="qcatSetStatusFilter('up')">▲ ${up} покращили позицію</span>
       <span class="qcat-sum-tag down ${QCAT_STATE.statusFilter==='down'?'active':''}" onclick="qcatSetStatusFilter('down')">▼ ${down} погіршили</span>
       <span class="qcat-sum-tag flat ${QCAT_STATE.statusFilter==='flat'?'active':''}" onclick="qcatSetStatusFilter('flat')">▬ ${flat} без змін</span>
-      <span class="qcat-sum-tag dropped ${QCAT_STATE.statusFilter==='dropped'?'active':''}" onclick="qcatSetStatusFilter('dropped')">⛔ ${dropped} випали з ранжування</span>
+      <span class="qcat-sum-tag dropped ${QCAT_STATE.statusFilter==='dropped'?'active':''}" onclick="qcatSetStatusFilter('dropped')" title="Позиція була в попередньому зрізі й зникла саме зараз (не рахує запити, які просто рідко шукають)">⛔ ${dropped} випали з ранжування</span>
       ${QCAT_STATE.statusFilter ? `<span class="qcat-sum-tag flat" onclick="qcatSetStatusFilter(null)" style="opacity:.7">× скинути фільтр</span>` : ''}
     </div>
     <div class="qcat-controls">
