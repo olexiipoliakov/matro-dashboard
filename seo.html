@@ -113,6 +113,14 @@
   .qcat-row-dropped{background:var(--mid-bg)}
   .qcat-row-dropped td:first-child{background:var(--mid-bg)}
   .hist-table-wrap tbody tr.qcat-row-dropped:hover td{background:inherit;filter:brightness(0.97)}
+  .hist-table-wrap tbody tr{cursor:default}
+  .qcat-tooltip{position:fixed;z-index:999;display:none;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;box-shadow:var(--shadow);padding:12px 14px;pointer-events:none;max-width:300px}
+  .qcat-tip-q{font-size:13px;font-weight:700;margin-bottom:6px;word-break:break-word}
+  .qcat-tip-stats{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--ink-soft);margin-bottom:6px}
+  .qcat-tip-stats b{color:var(--ink)}
+  .qcat-tip-range{font-size:10.5px;color:var(--ink-soft);margin-top:4px}
+  .qcat-tip-nodata{font-size:11.5px;color:var(--ink-soft);padding:10px 0}
   .qcat-controls{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
   .qcat-controls input[type="text"]{font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--line);
     border-radius:8px;background:#fff;min-width:220px;outline:none}
@@ -521,7 +529,7 @@ function renderQcatDetail(keepFocus){
     ${periods.map((p,i)=>`<th onclick="qcatSort('period_${i}')" style="cursor:pointer">${periodLabel(p)}${sortArrow('period_'+i)}</th>`).join('')}
   </tr></thead>`;
 
-  const body = rows.map(q=>{
+  const body = rows.map((q,idx)=>{
     const d = qcatLastDelta(q);
     const status = qcatStatus(q);
     let rowCls = d!=null && Math.abs(d)>=5 ? (d>0?'qcat-row-good':'qcat-row-bad') : '';
@@ -532,8 +540,9 @@ function renderQcatDetail(keepFocus){
       const badge = prev ? deltaBadge(p.position, prev.position) : '';
       return `<td>${fmt1(p.position)}${badge}</td>`;
     }).join('');
-    return `<tr class="${rowCls}"><td>${q.query}</td><td>${fmt(q.impressions)}</td>${cells}</tr>`;
+    return `<tr class="${rowCls}" onmouseenter="qcatShowTip(event,${idx})" onmouseleave="qcatHideTip()" onmousemove="qcatMoveTip(event)"><td>${q.query}</td><td>${fmt(q.impressions)}</td>${cells}</tr>`;
   }).join('');
+  QCAT_ROWS_CURRENT = rows;
 
   const tableHtml = rows.length
     ? `<div class="hist-table-wrap qcat-kw-table"><table>${head}<tbody>${body}</tbody></table></div>`
@@ -569,6 +578,72 @@ function renderQcatDetail(keepFocus){
 function periodLabel(p){
   const d = new Date(p+'T00:00:00');
   return d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'});
+}
+
+// ── Hover-попап з міні-графіком (за зрізами по 2 тижні — денних даних не зберігаємо) ──
+let QCAT_ROWS_CURRENT = [];
+let qcatTipEl = null;
+
+function qcatBuildTipSvg(q){
+  const pts = q.periods.filter(p=>p.position!=null);
+  const W=260, H=90, PAD=8;
+  if(pts.length<2){
+    return `<div class="qcat-tip-nodata">Недостатньо даних для графіка</div>`;
+  }
+  const positions = pts.map(p=>p.position);
+  let lo = Math.min(...positions), hi = Math.max(...positions);
+  if(hi-lo < 1){ hi += 0.5; lo -= 0.5; }
+  const idxs = q.periods.map((p,i)=>i).filter(i=>q.periods[i].position!=null);
+  const xFor = i => PAD + (idxs.indexOf(i)/(idxs.length-1))*(W-2*PAD);
+  const yFor = pos => PAD + ((pos-lo)/(hi-lo))*(H-2*PAD); // нижче позиція = краще = вище на графіку, тож не інвертуємо ще раз тут — інверсія в SVG viewBox через яForNorm
+  const yForNorm = pos => H-PAD-((hi-pos)/(hi-lo))*(H-2*PAD); // менша позиція (краще) -> ближче до верху графіка
+  const linePts = idxs.map(i=>`${xFor(i).toFixed(1)},${yForNorm(q.periods[i].position).toFixed(1)}`).join(' ');
+  const dots = idxs.map(i=>`<circle cx="${xFor(i).toFixed(1)}" cy="${yForNorm(q.periods[i].position).toFixed(1)}" r="2.6" fill="var(--accent-2)"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <polyline points="${linePts}" fill="none" stroke="var(--accent-2)" stroke-width="2"/>
+    ${dots}
+  </svg>`;
+}
+
+function qcatShowTip(evt, idx){
+  const q = QCAT_ROWS_CURRENT[idx];
+  if(!q) return;
+  if(!qcatTipEl){
+    qcatTipEl = document.createElement('div');
+    qcatTipEl.className = 'qcat-tooltip';
+    document.body.appendChild(qcatTipEl);
+  }
+  const totalClicks = q.periods.reduce((s,p)=>s+(p.clicks||0),0);
+  const totalImpr = q.periods.reduce((s,p)=>s+(p.impressions||0),0);
+  const pts = q.periods.filter(p=>p.position!=null);
+  const first = pts[0], last = pts[pts.length-1];
+  const range = pts.length ? `${periodLabel(first.period_start)} – ${periodLabel(q.periods[q.periods.length-1].period_start)}` : '';
+  qcatTipEl.innerHTML = `
+    <div class="qcat-tip-q">${q.query}</div>
+    <div class="qcat-tip-stats">
+      <span><b>${fmt(totalClicks)}</b> клік${totalClicks===1?'':'ів'}</span>
+      <span><b>${fmt(totalImpr)}</b> показів</span>
+      <span><b>${last&&last.position!=null?fmt1(last.position):'—'}</b> поз. (останній зріз)</span>
+    </div>
+    ${qcatBuildTipSvg(q)}
+    <div class="qcat-tip-range">${range} · зрізи по 2 тижні</div>`;
+  qcatTipEl.style.display = 'block';
+  qcatMoveTip(evt);
+}
+
+function qcatMoveTip(evt){
+  if(!qcatTipEl || qcatTipEl.style.display==='none') return;
+  const pad = 16;
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  const rect = qcatTipEl.getBoundingClientRect();
+  if(x + rect.width > window.innerWidth - 8) x = evt.clientX - rect.width - pad;
+  if(y + rect.height > window.innerHeight - 8) y = evt.clientY - rect.height - pad;
+  qcatTipEl.style.left = x+'px';
+  qcatTipEl.style.top = y+'px';
+}
+
+function qcatHideTip(){
+  if(qcatTipEl) qcatTipEl.style.display = 'none';
 }
 
 function deltaBadge(cur, prev){

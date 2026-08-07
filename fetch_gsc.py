@@ -89,16 +89,34 @@ def get_service():
     return build("searchconsole", "v1", credentials=creds, cache_discovery=False)
 
 # ── Запрос данных ──────────────────────────────────────────────────────────
+GSC_API_PAGE_LIMIT = 25000  # жорсткий максимум GSC API за один запит
+
 def query(service, site_url, start, end, dimensions, row_limit=1000):
-    body = {
-        "startDate": str(start),
-        "endDate":   str(end),
-        "dimensions": dimensions,
-        "rowLimit": row_limit,
-        "dataState": "final",
-    }
-    resp = service.searchanalytics().query(siteUrl=site_url, body=body).execute()
-    return resp.get("rows", [])
+    """Тягне рядки з GSC, автоматично пагінуючи через startRow, якщо
+    row_limit перевищує ліміт API одного запиту (25000) — інакше дані
+    за частину дат/запитів обрізаються мовчки (спостерігалось на практиці:
+    навіть популярні запити типу "дивани" зникали з останнього періоду)."""
+    all_rows = []
+    start_row = 0
+    remaining = row_limit
+    while remaining > 0:
+        page_size = min(remaining, GSC_API_PAGE_LIMIT)
+        body = {
+            "startDate": str(start),
+            "endDate":   str(end),
+            "dimensions": dimensions,
+            "rowLimit": page_size,
+            "startRow": start_row,
+            "dataState": "final",
+        }
+        resp = service.searchanalytics().query(siteUrl=site_url, body=body).execute()
+        rows = resp.get("rows", [])
+        all_rows.extend(rows)
+        if len(rows) < page_size:
+            break  # останній рядок — далі даних немає
+        start_row += page_size
+        remaining -= page_size
+    return all_rows
 
 def fetch_categories(service, url, weeks=12):
     """Тянет (дата, страница) за последние `weeks` недель и группирует
@@ -141,7 +159,7 @@ def fetch_categories(service, url, weeks=12):
         categories.append({"key": key, "name": cat_names[key], "weekly": weekly})
     return categories
 
-def fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14, row_limit=25000):
+def fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14, row_limit=250000):
     """Тягне (date, query) за `weeks` тижнів (щоб мати й 28-денний зріз, і повну історію),
     класифікує кожен запит у категорію, і будує:
       - агрегати категорій за останні 28 днів (для барів і сортування)
