@@ -29,6 +29,127 @@ CATEGORY_RULES = [
                                               "compare-products", "wishlist", "novelties"]),
 ]
 
+def _bucket_by_period(rows, key_index, start, period_days):
+    """Групує рядки (date, <key>, ...) у зрізи по `period_days` днів.
+    Повертає (periods_sorted, buckets[key][period_start] = {clicks,impressions,pos_w})."""
+    buckets = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0}))
+    for r in rows:
+        d = date.fromisoformat(r["keys"][0])
+        k = r["keys"][key_index]
+        idx = (d - start).days // period_days
+        period_start = str(start + timedelta(days=idx * period_days))
+        clicks = r.get("clicks", 0)
+        impressions = r.get("impressions", 0)
+        b = buckets[k][period_start]
+        b["clicks"] += clicks
+        b["impressions"] += impressions
+        b["pos_w"] += r.get("position", 0) * max(impressions, 1)
+    periods_sorted = sorted({p for kd in buckets.values() for p in kd.keys()})
+    return periods_sorted, buckets
+
+def _periods_list(buckets, key, periods_sorted):
+    periods = []
+    for p in periods_sorted:
+        b = buckets.get(key, {}).get(p)
+        if b and b["impressions"]:
+            periods.append({
+                "period_start": p, "clicks": b["clicks"], "impressions": b["impressions"],
+                "position": round(b["pos_w"] / b["impressions"], 1),
+            })
+        else:
+            periods.append({"period_start": p, "clicks": 0, "impressions": 0, "position": None})
+    return periods
+
+# Доступні розрізи для срезів позицій — тиждень / 2 тижні (за замовчуванням) / місяць
+GRANULARITIES = {"7": 7, "14": 14, "30": 30}
+
+def _periods_by_all_granularities(rows, key_index, key, start):
+    """Для одного ключа (запит/сторінка) повертає {"7":[...], "14":[...], "30":[...]}
+    — той самий набір рядків розбивається на зрізи трьома способами відразу,
+    без повторних запитів до GSC API."""
+    out = {}
+    for gkey, days in GRANULARITIES.items():
+        periods_sorted, buckets = _bucket_by_period(rows, key_index, start, days)
+        out[gkey] = _periods_list(buckets, key, periods_sorted)
+    return out
+
+def fetch_query_devices(service, url, start, end, row_limit=250000):
+    """Розбивка позиції/кліків по пристроях (desktop/mobile/tablet) для кожного
+    запиту за 28-денний період — без історії по періодах (щоб не роздувати дані)."""
+    rows = query(service, url, start, end, ["query", "device"], row_limit=row_limit)
+    agg = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0}))
+    for r in rows:
+        q_text, device = r["keys"][0], r["keys"][1]
+        clicks = r.get("clicks", 0)
+        impressions = r.get("impressions", 0)
+        b = agg[q_text][device.lower()]
+        b["clicks"] += clicks
+        b["impressions"] += impressions
+        b["pos_w"] += r.get("position", 0) * max(impressions, 1)
+    out = {}
+    for q_text, devs in agg.items():
+        out[q_text] = {}
+        for device, b in devs.items():
+            out[q_text][device] = {
+                "clicks": b["clicks"],
+                "impressions": b["impressions"],
+                "position": round(b["pos_w"] / b["impressions"], 1) if b["impressions"] else None,
+            }
+    return out
+
+def fetch_device_summary(service, url, start, end):
+    """Загальна розбивка сайту по пристроях за 28 днів — для картки на дашборді."""
+    rows = query(service, url, start, end, ["device"], row_limit=10)
+    out = []
+    for r in rows:
+        clicks = r.get("clicks", 0)
+        impressions = r.get("impressions", 0)
+        out.append({
+            "device": r["keys"][0],
+            "clicks": clicks,
+            "impressions": impressions,
+            "ctr": round(r.get("ctr", 0) * 100, 2),
+            "position": round(r.get("position", 0), 1),
+        })
+    out.sort(key=lambda x: -x["clicks"])
+    return out
+
+def fetch_cannibalization(service, url, start, end, row_limit=250000, top_n=80, min_share=0.1):
+    """Знаходить запити, за якими в топі одночасно кілька сторінок сайту
+    (канібалізація) — коли друга сторінка отримує не менше `min_share`
+    показів відносно першої, інакше це просто шумовий хвіст."""
+    rows = query(service, url, start, end, ["query", "page"], row_limit=row_limit)
+    by_query = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0}))
+    for r in rows:
+        q_text, page = r["keys"][0], r["keys"][1]
+        clicks = r.get("clicks", 0)
+        impressions = r.get("impressions", 0)
+        b = by_query[q_text][page]
+        b["clicks"] += clicks
+        b["impressions"] += impressions
+        b["pos_w"] += r.get("position", 0) * max(impressions, 1)
+
+    result = []
+    for q_text, pages in by_query.items():
+        plist = []
+        for page, b in pages.items():
+            plist.append({
+                "page": page, "clicks": b["clicks"], "impressions": b["impressions"],
+                "position": round(b["pos_w"] / b["impressions"], 1) if b["impressions"] else None,
+            })
+        plist.sort(key=lambda x: -x["impressions"])
+        if len(plist) < 2:
+            continue
+        top_impr = plist[0]["impressions"] or 1
+        competing = [p for p in plist if p["impressions"] >= top_impr * min_share]
+        if len(competing) < 2:
+            continue
+        total_clicks = sum(p["clicks"] for p in plist)
+        result.append({"query": q_text, "total_clicks": total_clicks, "pages": competing})
+
+    result.sort(key=lambda x: -x["total_clicks"])
+    return result[:top_n]
+
 def classify_category(page_url):
     try:
         path = urlparse(page_url).path.lower()
@@ -159,14 +280,17 @@ def fetch_categories(service, url, weeks=12):
         categories.append({"key": key, "name": cat_names[key], "weekly": weekly})
     return categories
 
-def fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14, row_limit=250000):
+def fetch_query_categories(service, url, start_28, end, weeks=12, row_limit=250000, devices=None):
     """Тягне (date, query) за `weeks` тижнів (щоб мати й 28-денний зріз, і повну історію),
     класифікує кожен запит у категорію, і будує:
       - агрегати категорій за останні 28 днів (для барів і сортування)
-      - для кожного запиту в категорії — клики/показы/позиція за 28 днів
-        ТА історію позицій зрізами по `period_days` днів за весь період `weeks` тижнів."""
+      - для кожного запиту в категорії — клики/показы/CTR/позиція за 28 днів
+        ТА історію позицій одразу в 3 розрізах (тиждень/2 тижні/місяць) за весь період `weeks` тижнів
+      - розбивку по пристроях (desktop/mobile/tablet), якщо переданий словник `devices`
+        (див. fetch_query_devices) — щоб не робити зайвий запит до API."""
     start_hist = end - timedelta(days=weeks * 7 - 1)
     rows = query(service, url, start_hist, end, ["date", "query"], row_limit=row_limit)
+    devices = devices or {}
 
     cat_of_cache = {}
     cat_names = {}
@@ -179,7 +303,6 @@ def fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14
 
     cat_agg = defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0})
     query_28 = defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0})
-    period_buckets = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0}))
 
     for r in rows:
         d = date.fromisoformat(r["keys"][0])
@@ -199,36 +322,22 @@ def fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14
             qb["impressions"] += impressions
             qb["pos_w"] += position * max(impressions, 1)
 
-        idx = (d - start_hist).days // period_days
-        period_start = str(start_hist + timedelta(days=idx * period_days))
-        pb = period_buckets[q_text][period_start]
-        pb["clicks"] += clicks
-        pb["impressions"] += impressions
-        pb["pos_w"] += position * max(impressions, 1)
-
-    periods_sorted = sorted({p for qd in period_buckets.values() for p in qd.keys()})
-    all_queries = set(query_28.keys()) | set(period_buckets.keys())
+    all_queries = set(query_28.keys())
 
     queries_by_cat = defaultdict(list)
     for q_text in all_queries:
         key = cat_of(q_text)
         qb = query_28.get(q_text)
-        periods = []
-        for p in periods_sorted:
-            pb = period_buckets[q_text].get(p)
-            if pb and pb["impressions"]:
-                periods.append({
-                    "period_start": p, "clicks": pb["clicks"], "impressions": pb["impressions"],
-                    "position": round(pb["pos_w"] / pb["impressions"], 1),
-                })
-            else:
-                periods.append({"period_start": p, "clicks": 0, "impressions": 0, "position": None})
+        qb_clicks = qb["clicks"] if qb else 0
+        qb_impr = qb["impressions"] if qb else 0
         queries_by_cat[key].append({
             "query": q_text,
-            "clicks": qb["clicks"] if qb else 0,
-            "impressions": qb["impressions"] if qb else 0,
+            "clicks": qb_clicks,
+            "impressions": qb_impr,
+            "ctr": round(qb_clicks / qb_impr * 100, 2) if qb_impr else 0,
             "position": round(qb["pos_w"] / qb["impressions"], 1) if qb and qb["impressions"] else None,
-            "periods": periods,
+            "periods_by": _periods_by_all_granularities(rows, key_index=1, key=q_text, start=start_hist),
+            "devices": devices.get(q_text, {}),
         })
 
     total_clicks = sum(b["clicks"] for b in cat_agg.values()) or 1
@@ -248,61 +357,35 @@ def fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14
     result.sort(key=lambda x: -x["clicks"])
     return result
 
-def _period_history(rows, key_index, top_n, start, period_days=14):
-    """Спільна логіка: із рядків (date, <key>) будує історію позицій зрізами по
-    `period_days` днів для top_n найкліковіших значень <key> (запит або сторінка)."""
+def _period_history(rows, key_index, top_n, start):
+    """Спільна логіка: із рядків (date, <key>) визначає top_n найкліковіших значень
+    <key> (запит або сторінка) і будує їм історію позицій одразу в 3 розрізах
+    (тиждень/2 тижні/місяць)."""
     totals = defaultdict(lambda: {"clicks": 0, "impressions": 0})
     for r in rows:
         k = r["keys"][key_index]
         totals[k]["clicks"] += r.get("clicks", 0)
         totals[k]["impressions"] += r.get("impressions", 0)
     top_keys = sorted(totals.keys(), key=lambda k: -totals[k]["clicks"])[:top_n]
-    top_set = set(top_keys)
 
-    buckets = defaultdict(lambda: defaultdict(lambda: {"clicks": 0, "impressions": 0, "pos_w": 0.0}))
-    for r in rows:
-        k = r["keys"][key_index]
-        if k not in top_set:
-            continue
-        d = date.fromisoformat(r["keys"][0])
-        idx = (d - start).days // period_days
-        period_start = str(start + timedelta(days=idx * period_days))
-        clicks = r.get("clicks", 0)
-        impressions = r.get("impressions", 0)
-        b = buckets[k][period_start]
-        b["clicks"] += clicks
-        b["impressions"] += impressions
-        b["pos_w"] += r.get("position", 0) * max(impressions, 1)
-
-    periods_sorted = sorted({p for kd in buckets.values() for p in kd.keys()})
     result = []
     for k in top_keys:
-        periods = []
-        for p in periods_sorted:
-            b = buckets[k].get(p)
-            if b and b["impressions"]:
-                periods.append({
-                    "period_start": p, "clicks": b["clicks"], "impressions": b["impressions"],
-                    "position": round(b["pos_w"] / b["impressions"], 1),
-                })
-            else:
-                periods.append({"period_start": p, "clicks": 0, "impressions": 0, "position": None})
         result.append({
             "key": k,
             "total_clicks": totals[k]["clicks"],
             "total_impressions": totals[k]["impressions"],  # аналог "частотності" — реального обсягу пошукового попиту GSC не дає
-            "periods": periods,
+            "periods_by": _periods_by_all_granularities(rows, key_index=key_index, key=k, start=start),
         })
     return result
 
-def fetch_page_history(service, url, weeks=12, top_n=20, period_days=14):
-    """Історія позицій зрізами по 2 тижні для топ-N сторінок за останні `weeks` тижнів."""
+def fetch_page_history(service, url, weeks=12, top_n=20):
+    """Історія позицій топ-N сторінок за останні `weeks` тижнів, одразу в 3 розрізах."""
     today = date.today()
     end = today - timedelta(days=3)
     start = end - timedelta(days=weeks * 7 - 1)
     rows = query(service, url, start, end, ["date", "page"], row_limit=25000)
-    history = _period_history(rows, key_index=1, top_n=top_n, start=start, period_days=period_days)
-    return [{"page": h["key"], "total_clicks": h["total_clicks"], "total_impressions": h["total_impressions"], "periods": h["periods"]} for h in history]
+    history = _period_history(rows, key_index=1, top_n=top_n, start=start)
+    return [{"page": h["key"], "total_clicks": h["total_clicks"], "total_impressions": h["total_impressions"], "periods_by": h["periods_by"]} for h in history]
 
 def fetch_site(service, site):
     url = site["id"]
@@ -386,11 +469,18 @@ def fetch_site(service, site):
     print(f"  → Категорії по неділях")
     categories = fetch_categories(service, url, weeks=12)
 
-    print(f"  → Запити за категоріями (бренд/матраци/топери/дивани/ліжка/шафи) + історія позицій по 2 тижні")
-    query_categories = fetch_query_categories(service, url, start_28, end, weeks=12, period_days=14)
+    print(f"  → Розбивка по пристроях (desktop/mobile/tablet)")
+    device_summary = fetch_device_summary(service, url, start_28, end)
+    query_devices = fetch_query_devices(service, url, start_28, end)
 
-    print(f"  → Історія позицій по 2 тижні: топ-сторінки")
-    page_history = fetch_page_history(service, url, weeks=12, top_n=20, period_days=14)
+    print(f"  → Канібалізація запитів (кілька сторінок в топі за один запит)")
+    cannibalization = fetch_cannibalization(service, url, start_28, end)
+
+    print(f"  → Запити за категоріями (бренд/матраци/топери/дивани/ліжка/шафи) + історія позицій (тиждень/2 тижні/місяць)")
+    query_categories = fetch_query_categories(service, url, start_28, end, weeks=12, devices=query_devices)
+
+    print(f"  → Історія позицій топ-сторінок (тиждень/2 тижні/місяць)")
+    page_history = fetch_page_history(service, url, weeks=12, top_n=20)
 
     return {
         "site_url":  url,
@@ -404,6 +494,8 @@ def fetch_site(service, site):
         "query_categories": query_categories,
         "page_history": page_history,
         "prev_period": prev_period,
+        "device_summary": device_summary,
+        "cannibalization": cannibalization,
     }
 
 # ── Main ───────────────────────────────────────────────────────────────────

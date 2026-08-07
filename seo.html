@@ -156,6 +156,32 @@
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
 
+  .gran-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .gran-bar .lbl{font-size:12px;color:var(--ink-soft)}
+  .gran-btns{display:flex;gap:4px}
+  .gbtn{padding:6px 14px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:8px;transition:all .15s}
+  .gbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .gbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  .dev-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:34px}
+  .dev-card{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:16px 18px;box-shadow:var(--shadow)}
+  .dev-card .dv-name{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);font-weight:600;margin-bottom:6px}
+  .dev-card .dv-val{font-size:22px;font-weight:700}
+  .dev-card .dv-sub{font-size:11.5px;color:var(--ink-soft);margin-top:4px}
+  .dev-bar-track{height:6px;background:var(--paper);border-radius:4px;overflow:hidden;margin-top:10px}
+  .dev-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  .cann-item{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff}
+  .cann-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;gap:10px}
+  .cann-q{font-size:13.5px;font-weight:700}
+  .cann-total{font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+  .cann-pages{width:100%;font-size:12px;border-collapse:collapse}
+  .cann-pages td{padding:5px 8px;border-top:1px solid var(--line);text-align:right}
+  .cann-pages td:first-child{text-align:left;font-weight:500;max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cann-list{max-height:520px;overflow-y:auto}
+
   @media(max-width:600px){
     body{padding:16px 12px 48px}
     header{flex-direction:column;align-items:flex-start;gap:6px}
@@ -196,6 +222,7 @@
   </div>
 
   <div class="kpis" id="kpis"></div>
+  <div class="dev-row" id="dev-row"></div>
 
   <div class="sec-head"><span class="n">1</span><h2>Кліки по <span id="chart-unit">дням</span></h2><span class="ln"></span></div>
   <div class="panel">
@@ -210,6 +237,10 @@
   </div>
 
   <div class="sec-head"><span class="n">3</span><h2>Запити за категоріями</h2><span class="ln"></span></div>
+  <div class="gran-bar">
+    <span class="lbl">Зрізи позицій:</span>
+    <div class="gran-btns" id="gran-btns"></div>
+  </div>
   <div class="panel">
     <div style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">Бренд / Матраци / Топери / Дивани / Ліжка / Шафи · за останні 28 днів, по всіх запитах (не тільки топ-15) · натисніть на категорію, щоб побачити всі ключові слова разом із динамікою позицій</div>
     <div id="qcat-bars"></div>
@@ -217,9 +248,19 @@
   </div>
 
   <div class="sec-head"><span class="n">4</span><h2>Сторінки — динаміка по періодах</h2><span class="ln"></span></div>
-  <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px" id="history-note">Зрізи по 2 тижні · оновлено —</div>
+  <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px" id="history-note">Оновлено —</div>
   <div class="panel">
+    <div id="page-summary-wrap"></div>
+    <div id="page-controls-wrap"></div>
     <div class="hist-table-wrap"><table id="p-table"></table></div>
+  </div>
+
+  <div class="sec-head"><span class="n">5</span><h2>Канібалізація запитів</h2><span class="ln"></span></div>
+  <div class="panel">
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px">Запити, за якими одночасно ранжується кілька сторінок сайту — Google "розмиває" сигнал між ними; варто об'єднати контент або проставити canonical</div>
+    <input type="text" id="cann-search" placeholder="Пошук за запитом…" style="font-family:inherit;font-size:13px;padding:8px 12px;
+      border:1px solid var(--line);border-radius:8px;min-width:240px;outline:none;margin-bottom:14px" oninput="renderCannibalization(this.value)">
+    <div id="cann-list" class="cann-list"></div>
   </div>
 
   <footer>Данные из <code>seo_data.json</code> · Google Search Console API</footer>
@@ -271,6 +312,24 @@ function setMode(m,btn){
   render();
 }
 
+let GRANULARITY = '14';
+const GRAN_LABELS = {'7':'Тиждень','14':'2 тижні','30':'Місяць'};
+let CURRENT_PAGE_HISTORY = [];
+let CURRENT_CANNIBALIZATION = [];
+
+function renderGranBtns(){
+  const el=document.getElementById('gran-btns');
+  el.innerHTML = Object.keys(GRAN_LABELS).map(g=>
+    `<button class="gbtn ${g===GRANULARITY?'active':''}" onclick="setGranularity('${g}')">${GRAN_LABELS[g]}</button>`
+  ).join('');
+}
+function setGranularity(g){
+  GRANULARITY = g;
+  renderGranBtns();
+  if(QCAT_STATE.key) renderQcatDetail(); else renderQueryCategories(CURRENT_QCATS);
+  renderPageHistory();
+}
+
 function render(){
   const site=SITES[CUR];
   if(!site) return;
@@ -278,10 +337,31 @@ function render(){
 
   const rows = MODE==='daily' ? site.daily : site.monthly;
   renderKpis(rows);
+  renderDeviceSummary(site.device_summary||[]);
   renderChart(rows);
   renderCategoryChart(site.categories||[]);
+  renderGranBtns();
   renderQueryCategories(site.query_categories||[]);
-  renderPages(site.page_history||[]);
+  CURRENT_PAGE_HISTORY = site.page_history||[];
+  renderPageHistory();
+  CURRENT_CANNIBALIZATION = site.cannibalization||[];
+  renderCannibalization('');
+}
+
+const DEVICE_LABELS = {DESKTOP:'Десктоп', MOBILE:'Мобільний', TABLET:'Планшет'};
+function renderDeviceSummary(devices){
+  const el=document.getElementById('dev-row');
+  if(!devices.length){ el.innerHTML=''; return; }
+  const totalClicks = devices.reduce((a,d)=>a+(d.clicks||0),0) || 1;
+  el.innerHTML = devices.map(d=>{
+    const share = d.clicks/totalClicks*100;
+    return `<div class="dev-card">
+      <div class="dv-name">${DEVICE_LABELS[d.device]||d.device}</div>
+      <div class="dv-val">${fmt(d.clicks)} <span style="font-size:13px;color:var(--ink-soft);font-weight:400">кл.</span></div>
+      <div class="dv-sub">${fmt1(share)}% трафіку · CTR ${fmt1(d.ctr)}% · поз. ${d.position!=null?fmt1(d.position):'—'}</div>
+      <div class="dev-bar-track"><div class="dev-bar-fill" style="width:${share}%"></div></div>
+    </div>`;
+  }).join('');
 }
 
 function renderKpis(rows){
@@ -427,9 +507,20 @@ function closeQueryCategory(){
   renderQueryCategories(CURRENT_QCATS);
 }
 
+function devPos(q, device){
+  const d = q.devices && q.devices[device];
+  return d && d.position!=null ? d.position : 999;
+}
+function devPosFmt(q, device){
+  const d = q.devices && q.devices[device];
+  return d && d.position!=null ? fmt1(d.position) : '—';
+}
+
+function qPeriods(q){ return (q.periods_by && q.periods_by[GRANULARITY]) || []; }
+
 function qcatLastDelta(q){
   // зміна позиції між двома останніми зрізами, що мають дані. null якщо порівняти нема з чим.
-  const pts = (q.periods||[]).filter(p=>p.position!=null);
+  const pts = qPeriods(q).filter(p=>p.position!=null);
   if(pts.length<2) return null;
   const last = pts[pts.length-1], prev = pts[pts.length-2];
   return Math.round((prev.position-last.position)*10)/10; // >0 = покращення
@@ -447,7 +538,7 @@ function qcatStatus(q){
   // і зникла саме зараз — це реальний сигнал втрати, а не шум довгого хвоста
   // (короткочасні низькочастотні запити можуть мати 0 показів в окремому зрізі
   // просто через відсутність пошуків, навіть якщо сторінка й далі ранжується)
-  const periods = q.periods||[];
+  const periods = qPeriods(q);
   const last = periods.length ? periods[periods.length-1] : null;
   const prev = periods.length>=2 ? periods[periods.length-2] : null;
   if(last && last.position==null && prev && prev.position!=null) return 'dropped';
@@ -478,7 +569,7 @@ function renderQcatDetail(keepFocus){
       <div class="empty-note">Немає ключових слів у цій категорії.</div>`;
     return;
   }
-  if(!allKws[0].periods){
+  if(!allKws[0].periods_by){
     detail.innerHTML = `<div class="qcat-detail-head"><h3 style="color:${color}">${cat.name}</h3>
       <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span></div>
       <div class="empty-note">Формат даних застарів — дочекайтесь наступного успішного запуску fetch_gsc.py.</div>`;
@@ -492,7 +583,7 @@ function renderQcatDetail(keepFocus){
     if(s==='up') up++; else if(s==='down') down++; else if(s==='flat') flat++; else if(s==='dropped') dropped++;
   });
 
-  const periods = allKws[0].periods.map(p=>p.period_start);
+  const periods = qPeriods(allKws[0]).map(p=>p.period_start);
 
   // фільтр
   let rows = allKws;
@@ -513,11 +604,15 @@ function renderQcatDetail(keepFocus){
     let av, bv;
     if(sf==='query'){ av=a.query; bv=b.query; return dir*av.localeCompare(bv); }
     if(sf==='impressions'){ av=a.impressions||0; bv=b.impressions||0; }
+    else if(sf==='ctr'){ av=a.ctr||0; bv=b.ctr||0; }
+    else if(sf==='dev_desktop'){ av=devPos(a,'desktop'); bv=devPos(b,'desktop'); }
+    else if(sf==='dev_mobile'){ av=devPos(a,'mobile'); bv=devPos(b,'mobile'); }
     else if(sf==='clicks'){ av=a.clicks||0; bv=b.clicks||0; }
     else if(sf.startsWith('period_')){
       const idx = parseInt(sf.slice(7),10);
-      av = a.periods[idx] && a.periods[idx].position!=null ? a.periods[idx].position : 999;
-      bv = b.periods[idx] && b.periods[idx].position!=null ? b.periods[idx].position : 999;
+      const pa = qPeriods(a), pb = qPeriods(b);
+      av = pa[idx] && pa[idx].position!=null ? pa[idx].position : 999;
+      bv = pb[idx] && pb[idx].position!=null ? pb[idx].position : 999;
     } else { av=a.clicks||0; bv=b.clicks||0; }
     return dir*(av-bv);
   });
@@ -526,6 +621,9 @@ function renderQcatDetail(keepFocus){
   const head = `<thead><tr>
     <th onclick="qcatSort('query')" style="cursor:pointer">Запит${sortArrow('query')}</th>
     <th onclick="qcatSort('impressions')" style="cursor:pointer">Показы (28д)${sortArrow('impressions')}</th>
+    <th onclick="qcatSort('ctr')" style="cursor:pointer">CTR${sortArrow('ctr')}</th>
+    <th onclick="qcatSort('dev_desktop')" style="cursor:pointer" title="Позиція на десктопі">🖥️ Десктоп${sortArrow('dev_desktop')}</th>
+    <th onclick="qcatSort('dev_mobile')" style="cursor:pointer" title="Позиція на мобільному">📱 Мобільний${sortArrow('dev_mobile')}</th>
     ${periods.map((p,i)=>`<th onclick="qcatSort('period_${i}')" style="cursor:pointer">${periodLabel(p)}${sortArrow('period_'+i)}</th>`).join('')}
   </tr></thead>`;
 
@@ -534,13 +632,16 @@ function renderQcatDetail(keepFocus){
     const status = qcatStatus(q);
     let rowCls = d!=null && Math.abs(d)>=5 ? (d>0?'qcat-row-good':'qcat-row-bad') : '';
     if(status==='dropped') rowCls = 'qcat-row-dropped';
-    const cells = (q.periods||[]).map((p,i)=>{
-      const prev = i>0 ? q.periods[i-1] : null;
+    const qp = qPeriods(q);
+    const cells = qp.map((p,i)=>{
+      const prev = i>0 ? qp[i-1] : null;
       if(p.position==null) return `<td class="hist-na">—</td>`;
       const badge = prev ? deltaBadge(p.position, prev.position) : '';
       return `<td>${fmt1(p.position)}${badge}</td>`;
     }).join('');
-    return `<tr class="${rowCls}" onmouseenter="qcatShowTip(event,${idx})" onmouseleave="qcatHideTip()" onmousemove="qcatMoveTip(event)"><td>${q.query}</td><td>${fmt(q.impressions)}</td>${cells}</tr>`;
+    const ctrTxt = q.impressions ? fmt1(q.ctr)+'%' : '—';
+    const dDesk = devPosFmt(q,'desktop'), dMob = devPosFmt(q,'mobile');
+    return `<tr class="${rowCls}" onmouseenter="qcatShowTip(event,${idx})" onmouseleave="qcatHideTip()" onmousemove="qcatMoveTip(event)"><td>${q.query}</td><td>${fmt(q.impressions)}</td><td>${ctrTxt}</td><td>${dDesk}</td><td>${dMob}</td>${cells}</tr>`;
   }).join('');
   QCAT_ROWS_CURRENT = rows;
 
@@ -553,7 +654,7 @@ function renderQcatDetail(keepFocus){
       <h3 style="color:${color}">${cat.name} — усі ключові слова (${allKws.length})</h3>
       <span class="qcat-close" onclick="closeQueryCategory()">Закрити ×</span>
     </div>
-    <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:4px">Зрізи по 2 тижні · стрілка — зміна позиції відносно попереднього зрізу</div>
+    <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:4px">Зрізи: ${GRAN_LABELS[GRANULARITY]} · стрілка — зміна позиції відносно попереднього зрізу</div>
     <div style="font-size:11px;color:var(--mid);margin-bottom:10px">⚠ Останній зріз закінчується за 3 дні до сьогодні (лаг Google Search Console) — "випали з ранжування" в ньому варто перевіряти вручну в Google перед висновками, особливо для конкурентних коротких запитів</div>
     <div class="qcat-summary">
       <span class="qcat-sum-tag up ${QCAT_STATE.statusFilter==='up'?'active':''}" onclick="qcatSetStatusFilter('up')">▲ ${up} покращили позицію</span>
@@ -585,7 +686,8 @@ let QCAT_ROWS_CURRENT = [];
 let qcatTipEl = null;
 
 function qcatBuildTipSvg(q){
-  const pts = q.periods.filter(p=>p.position!=null);
+  const periods = qPeriods(q);
+  const pts = periods.filter(p=>p.position!=null);
   const W=260, H=90, PAD=8;
   if(pts.length<2){
     return `<div class="qcat-tip-nodata">Недостатньо даних для графіка</div>`;
@@ -593,12 +695,11 @@ function qcatBuildTipSvg(q){
   const positions = pts.map(p=>p.position);
   let lo = Math.min(...positions), hi = Math.max(...positions);
   if(hi-lo < 1){ hi += 0.5; lo -= 0.5; }
-  const idxs = q.periods.map((p,i)=>i).filter(i=>q.periods[i].position!=null);
+  const idxs = periods.map((p,i)=>i).filter(i=>periods[i].position!=null);
   const xFor = i => PAD + (idxs.indexOf(i)/(idxs.length-1))*(W-2*PAD);
-  const yFor = pos => PAD + ((pos-lo)/(hi-lo))*(H-2*PAD); // нижче позиція = краще = вище на графіку, тож не інвертуємо ще раз тут — інверсія в SVG viewBox через яForNorm
   const yForNorm = pos => H-PAD-((hi-pos)/(hi-lo))*(H-2*PAD); // менша позиція (краще) -> ближче до верху графіка
-  const linePts = idxs.map(i=>`${xFor(i).toFixed(1)},${yForNorm(q.periods[i].position).toFixed(1)}`).join(' ');
-  const dots = idxs.map(i=>`<circle cx="${xFor(i).toFixed(1)}" cy="${yForNorm(q.periods[i].position).toFixed(1)}" r="2.6" fill="var(--accent-2)"/>`).join('');
+  const linePts = idxs.map(i=>`${xFor(i).toFixed(1)},${yForNorm(periods[i].position).toFixed(1)}`).join(' ');
+  const dots = idxs.map(i=>`<circle cx="${xFor(i).toFixed(1)}" cy="${yForNorm(periods[i].position).toFixed(1)}" r="2.6" fill="var(--accent-2)"/>`).join('');
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
     <polyline points="${linePts}" fill="none" stroke="var(--accent-2)" stroke-width="2"/>
     ${dots}
@@ -613,11 +714,12 @@ function qcatShowTip(evt, idx){
     qcatTipEl.className = 'qcat-tooltip';
     document.body.appendChild(qcatTipEl);
   }
-  const totalClicks = q.periods.reduce((s,p)=>s+(p.clicks||0),0);
-  const totalImpr = q.periods.reduce((s,p)=>s+(p.impressions||0),0);
-  const pts = q.periods.filter(p=>p.position!=null);
+  const periods = qPeriods(q);
+  const totalClicks = periods.reduce((s,p)=>s+(p.clicks||0),0);
+  const totalImpr = periods.reduce((s,p)=>s+(p.impressions||0),0);
+  const pts = periods.filter(p=>p.position!=null);
   const first = pts[0], last = pts[pts.length-1];
-  const range = pts.length ? `${periodLabel(first.period_start)} – ${periodLabel(q.periods[q.periods.length-1].period_start)}` : '';
+  const range = pts.length ? `${periodLabel(first.period_start)} – ${periodLabel(periods[periods.length-1].period_start)}` : '';
   qcatTipEl.innerHTML = `
     <div class="qcat-tip-q">${q.query}</div>
     <div class="qcat-tip-stats">
@@ -626,7 +728,7 @@ function qcatShowTip(evt, idx){
       <span><b>${last&&last.position!=null?fmt1(last.position):'—'}</b> поз. (останній зріз)</span>
     </div>
     ${qcatBuildTipSvg(q)}
-    <div class="qcat-tip-range">${range} · зрізи по 2 тижні</div>`;
+    <div class="qcat-tip-range">${range} · зрізи: ${GRAN_LABELS[GRANULARITY]}</div>`;
   qcatTipEl.style.display = 'block';
   qcatMoveTip(evt);
 }
@@ -655,43 +757,164 @@ function deltaBadge(cur, prev){
   return `<span class="hist-delta ${dir}">${arrow}${fmt1(Math.abs(diff))}</span>`;
 }
 
-function renderPivotTable(tableId, history, nameLabel){
-  const table=document.getElementById(tableId);
-  const sorted=[...history].sort((a,b)=>b.total_clicks-a.total_clicks).slice(0,15);
-  if(!sorted.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
-  if(!sorted[0].periods){
-    table.innerHTML=`<tr><td class="empty-note">Формат даних застарів — дочекайтесь наступного успішного запуску fetch_gsc.py, щоб seo_data.json оновився.</td></tr>`;
+let PAGE_STATE = { search:'', sortField:'total_clicks', sortDir:'desc', onlyChanged:false, statusFilter:null };
+
+function pgPeriods(row){ return (row.periods_by && row.periods_by[GRANULARITY]) || []; }
+function pgLastDelta(row){
+  const pts = pgPeriods(row).filter(p=>p.position!=null);
+  if(pts.length<2) return null;
+  const last = pts[pts.length-1], prev = pts[pts.length-2];
+  return Math.round((prev.position-last.position)*10)/10;
+}
+function pgStatus(row){
+  const periods = pgPeriods(row);
+  const last = periods.length ? periods[periods.length-1] : null;
+  const prev = periods.length>=2 ? periods[periods.length-2] : null;
+  if(last && last.position==null && prev && prev.position!=null) return 'dropped';
+  const d = pgLastDelta(row);
+  if(d==null) return null;
+  if(d>0.05) return 'up';
+  if(d<-0.05) return 'down';
+  return 'flat';
+}
+function pgSetSearch(val){ PAGE_STATE.search = val; renderPageHistory(true); }
+function pgToggleChanged(){ PAGE_STATE.onlyChanged = !PAGE_STATE.onlyChanged; renderPageHistory(); }
+function pgSetStatusFilter(status){
+  PAGE_STATE.statusFilter = PAGE_STATE.statusFilter===status ? null : status;
+  renderPageHistory();
+}
+function pgSort(field){
+  if(PAGE_STATE.sortField===field){ PAGE_STATE.sortDir = PAGE_STATE.sortDir==='desc'?'asc':'desc'; }
+  else { PAGE_STATE.sortField = field; PAGE_STATE.sortDir = field==='page' ? 'asc' : 'desc'; }
+  renderPageHistory();
+}
+
+function renderPageHistory(keepFocus){
+  const history = CURRENT_PAGE_HISTORY;
+  const table = document.getElementById('p-table');
+  const summaryWrap = document.getElementById('page-summary-wrap');
+  const controlsWrap = document.getElementById('page-controls-wrap');
+  const note = document.getElementById('history-note');
+
+  if(!history.length){
+    table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`;
+    summaryWrap.innerHTML=''; controlsWrap.innerHTML='';
+    note.textContent='Даних поки немає';
+    return;
+  }
+  if(!history[0].periods_by){
+    table.innerHTML=`<tr><td class="empty-note">Формат даних застарів — дочекайтесь наступного успішного запуску fetch_gsc.py.</td></tr>`;
+    summaryWrap.innerHTML=''; controlsWrap.innerHTML='';
+    note.textContent='Формат даних застарів';
     return;
   }
 
-  const periods = sorted[0].periods.map(p=>p.period_start);
-  const head = `<thead><tr><th>${nameLabel}</th><th>Покази</th>${periods.map(p=>`<th>${periodLabel(p)}</th>`).join('')}</tr></thead>`;
+  const lastP = pgPeriods(history[0]);
+  note.textContent = lastP.length ? `Зрізи: ${GRAN_LABELS[GRANULARITY]} · останній зріз від ${periodLabel(lastP[lastP.length-1].period_start)}` : `Зрізи: ${GRAN_LABELS[GRANULARITY]}`;
 
-  const body = sorted.map(row=>{
-    const nameVal = row.query!==undefined ? row.query : row.page;
-    const cells = (row.periods||[]).map((p,i)=>{
-      const prev = i>0 ? row.periods[i-1] : null;
+  let up=0, down=0, flat=0, dropped=0;
+  history.forEach(r=>{
+    const s = pgStatus(r);
+    if(s==='up') up++; else if(s==='down') down++; else if(s==='flat') flat++; else if(s==='dropped') dropped++;
+  });
+  summaryWrap.innerHTML = `<div class="qcat-summary">
+    <span class="qcat-sum-tag up ${PAGE_STATE.statusFilter==='up'?'active':''}" onclick="pgSetStatusFilter('up')">▲ ${up} покращили позицію</span>
+    <span class="qcat-sum-tag down ${PAGE_STATE.statusFilter==='down'?'active':''}" onclick="pgSetStatusFilter('down')">▼ ${down} погіршили</span>
+    <span class="qcat-sum-tag flat ${PAGE_STATE.statusFilter==='flat'?'active':''}" onclick="pgSetStatusFilter('flat')">▬ ${flat} без змін</span>
+    <span class="qcat-sum-tag dropped ${PAGE_STATE.statusFilter==='dropped'?'active':''}" onclick="pgSetStatusFilter('dropped')" title="Сторінка була в топі в попередньому зрізі й зникла саме зараз">⛔ ${dropped} просіли</span>
+    ${PAGE_STATE.statusFilter ? `<span class="qcat-sum-tag flat" onclick="pgSetStatusFilter(null)" style="opacity:.7">× скинути фільтр</span>` : ''}
+  </div>`;
+  controlsWrap.innerHTML = `<div class="qcat-controls">
+    <input type="text" id="pg-search" placeholder="Пошук за сторінкою…" value="${PAGE_STATE.search.replace(/"/g,'&quot;')}"
+      oninput="pgSetSearch(this.value)" ${keepFocus?'autofocus':''}>
+    <label class="qcat-checkbox"><input type="checkbox" ${PAGE_STATE.onlyChanged?'checked':''} onchange="pgToggleChanged()"> лише зі змінами</label>
+  </div>`;
+  if(keepFocus){
+    const inp=document.getElementById('pg-search');
+    if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }
+
+  let rows = history;
+  if(PAGE_STATE.search.trim()){
+    const q = PAGE_STATE.search.trim().toLowerCase();
+    rows = rows.filter(r=>r.page.toLowerCase().includes(q));
+  }
+  if(PAGE_STATE.onlyChanged){
+    rows = rows.filter(r=>{ const d=pgLastDelta(r); return d!=null && Math.abs(d)>0.05; });
+  }
+  if(PAGE_STATE.statusFilter){
+    rows = rows.filter(r=>pgStatus(r)===PAGE_STATE.statusFilter);
+  }
+
+  const sf = PAGE_STATE.sortField, dir = PAGE_STATE.sortDir==='asc'?1:-1;
+  rows = [...rows].sort((a,b)=>{
+    let av, bv;
+    if(sf==='page'){ return dir*a.page.localeCompare(b.page); }
+    if(sf==='total_impressions'){ av=a.total_impressions||0; bv=b.total_impressions||0; }
+    else if(sf.startsWith('period_')){
+      const idx = parseInt(sf.slice(7),10);
+      const pa=pgPeriods(a), pb=pgPeriods(b);
+      av = pa[idx] && pa[idx].position!=null ? pa[idx].position : 999;
+      bv = pb[idx] && pb[idx].position!=null ? pb[idx].position : 999;
+    } else { av=a.total_clicks||0; bv=b.total_clicks||0; }
+    return dir*(av-bv);
+  });
+
+  const periods = pgPeriods(history[0]).map(p=>p.period_start);
+  const sortArrow = f => PAGE_STATE.sortField===f ? (PAGE_STATE.sortDir==='asc'?' ▲':' ▼') : '';
+  const head = `<thead><tr>
+    <th onclick="pgSort('page')" style="cursor:pointer">Сторінка${sortArrow('page')}</th>
+    <th onclick="pgSort('total_impressions')" style="cursor:pointer">Показы${sortArrow('total_impressions')}</th>
+    ${periods.map((p,i)=>`<th onclick="pgSort('period_${i}')" style="cursor:pointer">${periodLabel(p)}${sortArrow('period_'+i)}</th>`).join('')}
+  </tr></thead>`;
+
+  const body = rows.map(row=>{
+    const d = pgLastDelta(row);
+    const status = pgStatus(row);
+    let rowCls = d!=null && Math.abs(d)>=5 ? (d>0?'qcat-row-good':'qcat-row-bad') : '';
+    if(status==='dropped') rowCls = 'qcat-row-dropped';
+    const rp = pgPeriods(row);
+    const cells = rp.map((p,i)=>{
+      const prev = i>0 ? rp[i-1] : null;
       if(p.position==null) return `<td class="hist-na">—</td>`;
       const badge = prev ? deltaBadge(p.position, prev.position) : '';
       return `<td>${fmt1(p.position)}${badge}</td>`;
     }).join('');
-    return `<tr><td>${nameVal}</td><td>${fmt(row.total_impressions||0)}</td>${cells}</tr>`;
+    return `<tr class="${rowCls}"><td>${row.page}</td><td>${fmt(row.total_impressions||0)}</td>${cells}</tr>`;
   }).join('');
 
-  table.innerHTML = head + `<tbody>${body}</tbody>`;
+  table.innerHTML = rows.length ? (head + `<tbody>${body}</tbody>`) : `<tr><td class="empty-note">Нічого не знайдено.</td></tr>`;
 }
 
-function renderPages(history){
-  renderPivotTable('p-table', history, 'Сторінка');
-  const sorted=[...history].sort((a,b)=>b.total_clicks-a.total_clicks);
-  updateHistoryNote(sorted[0]);
-}
-
-function updateHistoryNote(sampleRow){
-  const note=document.getElementById('history-note');
-  if(!sampleRow || !sampleRow.periods || !sampleRow.periods.length){ note.textContent='Зрізи по 2 тижні · даних поки немає (можливо, потрібен новий запуск fetch_gsc.py)'; return; }
-  const last = sampleRow.periods[sampleRow.periods.length-1];
-  note.textContent = `Зрізи по 2 тижні · останній зріз від ${periodLabel(last.period_start)} · стрілка — зміна позиції відносно попереднього зрізу`;
+const CANN_COLORS = ['#4f8fdb','#c8553d','#2f8f6b','#9b6dff','#b8893b'];
+function renderCannibalization(searchVal){
+  const el = document.getElementById('cann-list');
+  let items = CURRENT_CANNIBALIZATION;
+  if(searchVal && searchVal.trim()){
+    const q = searchVal.trim().toLowerCase();
+    items = items.filter(x=>x.query.toLowerCase().includes(q));
+  }
+  if(!items.length){
+    el.innerHTML = `<div class="empty-note">${CURRENT_CANNIBALIZATION.length ? 'Нічого не знайдено.' : 'Канібалізації не знайдено — за кожним запитом ранжується переважно одна сторінка. Це добре.'}</div>`;
+    return;
+  }
+  el.innerHTML = items.map(item=>{
+    const rows = item.pages.map((p,i)=>`<tr>
+      <td style="color:${CANN_COLORS[i%CANN_COLORS.length]}">${p.page}</td>
+      <td>${fmt(p.clicks)}</td><td>${fmt(p.impressions)}</td>
+      <td><span class="pos-tag ${posClass(p.position)}">${p.position!=null?fmt1(p.position):'—'}</span></td>
+    </tr>`).join('');
+    return `<div class="cann-item">
+      <div class="cann-head">
+        <div class="cann-q">${item.query}</div>
+        <div class="cann-total">${item.pages.length} сторінки · ${fmt(item.total_clicks)} кл. всього</div>
+      </div>
+      <table class="cann-pages">
+        <tr style="color:var(--ink-soft);font-size:11px"><td>Сторінка</td><td>Клики</td><td>Показы</td><td>Позиція</td></tr>
+        ${rows}
+      </table>
+    </div>`;
+  }).join('');
 }
 
 load();
