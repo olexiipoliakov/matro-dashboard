@@ -171,7 +171,7 @@
       "id": "home-html",
       "path": "home.html",
       "type": "ui",
-      "role": "Navigation hub / operations-center overview: dark glassmorphism theme, live system-status pills (Meta Ads, GSC), and two summary cards (SMM, SEO) with sparkline charts, linking out to index.html and seo.html. Each card also shows a period-over-period trend badge (SMM: leads, last 30d vs previous 30d computed client-side from data.json's 90-day history; SEO: clicks, last 28d vs prev_period from seo_data.json). A third glass card (CRM) mirrors SMM/SEO: live stats from bitrix_data.json (deals, won, lost, leads), a purple sparkline, a period-over-period trend badge (deals count, last 30d vs prev 30d), a Bitrix24 system-status pill, and a link to bitrix.html. Card grid layout switched from a fixed 2-column grid to auto-fit (minmax 340px) to accommodate a variable number of cards.",
+      "role": "Navigation hub / operations-center overview: dark glassmorphism theme, live system-status pills (Meta Ads, GSC), and two summary cards (SMM, SEO) with sparkline charts, linking out to index.html and seo.html. Each card also shows a period-over-period trend badge (SMM: leads, last 30d vs previous 30d computed client-side from data.json's 90-day history; SEO: clicks, last 28d vs prev_period from seo_data.json). A third glass card (CRM) mirrors SMM/SEO: live stats aggregated client-side from bitrix_data.json's raw deals/leads arrays (deals, won, lost, leads) using stage semantics from meta.stages, a purple sparkline, a period-over-period trend badge (deals count, last 30d vs prev 30d), a Bitrix24 system-status pill, and a link to bitrix.html. Card grid layout switched from a fixed 2-column grid to auto-fit (minmax 340px) to accommodate a variable number of cards.",
       "entrypoints": [
         "loadSMM() and loadSEO() called at script end (home.html)"
       ],
@@ -257,7 +257,7 @@
       "id": "fetch-bitrix",
       "path": "fetch_bitrix.py",
       "type": "script",
-      "role": "Python script: pulls Deals and Leads from Bitrix24 CRM via REST API (incoming webhook auth), aggregates deal funnel (by stage, using the official SEMANTICS field — S=won/F=lost, not string matching on stage name), lead breakdown (by status, by source, conversion + rejection rate via STATUS_SEMANTIC_ID), UTM-tagged deal/lead analytics with sums, and overdue (incomplete, past-deadline) tasks. Writes bitrix_data.json.",
+      "role": "Python script: pulls Deals and Leads from Bitrix24 CRM via REST API (incoming webhook auth) and writes them as SLIM ROW-PER-RECORD data (date, stage/status, amount, manager_id, UTM fields) plus reference dictionaries (stage semantics, lead statuses/sources, user names) — mirroring how fetch_meta.py ships data.json, so bitrix.html can freely re-aggregate by any date range/dimension client-side instead of being locked to server-precomputed summaries. Also fetches overdue (incomplete, past-deadline) tasks with responsible-manager names attached.",
       "entrypoints": [
         "__main__ (fetch_bitrix.py:176)"
       ],
@@ -265,10 +265,12 @@
       "constraints": [
         "pulls last 90 days (DAYS_BACK) of Deals/Leads by DATE_CREATE",
         "WON-stage detection is heuristic: stage_id == 'WON' or ends with ':WON' (Bitrix's convention for non-default pipelines) — a portal with custom stage IDs not following this convention would need adjustment",
-        "requires env BITRIX_WEBHOOK_URL (GitHub Secret) — incoming webhook only, no OAuth; overdue-tasks fetch additionally needs the webhook's \"task\" scope, and fails gracefully (bitrix_data.json still written with deals/leads, overdue_tasks.error set) if that scope is missing",
         "pulls last 90 days (DAYS_BACK) of Deals/Leads by DATE_CREATE",
         "won/lost deal detection uses crm.dealcategory.stage.list's SEMANTICS field (S/F/P) merged onto each deal's STAGE_ID — robust across custom pipelines, unlike matching \"WON\"/\"LOSE\" substrings",
-        "UTM analytics (build_utm_summary) groups by (UTM_SOURCE, UTM_CAMPAIGN, UTM_MEDIUM) for both deals (with OPPORTUNITY sum) and leads, capped to top 40 by sum"
+        "requires env BITRIX_WEBHOOK_URL (GitHub Secret) — incoming webhook only, no OAuth; overdue-tasks fetch additionally needs the webhook's \"task\" scope, and fails gracefully (bitrix_data.json still written with deals/leads, overdue_tasks.error set) if that scope/method is unavailable",
+        "pulls last 90 days (DAYS_BACK) of Deals/Leads by DATE_CREATE",
+        "won/lost deal detection uses crm.dealcategory.stage.list's SEMANTICS field (S/F/P), shipped in meta.stages so the frontend can classify deals the same way without re-fetching",
+        "fixed a 400 error from tasks.task.list: dropped the \"!DEADLINE\":\"\" filter and stripped microseconds from the deadline timestamp, both of which some Bitrix portals reject"
       ],
       "evidence": [
         "fetch_bitrix.py:25-52 (call(), paginated REST wrapper)",
@@ -276,14 +278,17 @@
         "fetch_bitrix.py:176-206 (__main__)",
         "fetch_bitrix.py:115-126 (fetch_overdue_tasks())",
         "fetch_bitrix.py:128-146 (build_overdue_summary())",
-        "fetch_bitrix.py:152-168 (build_utm_summary())"
+        "fetch_bitrix.py:152-168 (build_utm_summary())",
+        "fetch_bitrix.py:95-101 (fetch_users())",
+        "fetch_bitrix.py:144-165 (build_overdue())",
+        "fetch_bitrix.py:173-201 (slim_deals()/slim_leads())"
       ]
     },
     {
       "id": "bitrix-data-json",
       "path": "bitrix_data.json",
       "type": "data",
-      "role": "Data artifact: Bitrix24 deal funnel (with won/lost via stage SEMANTICS), lead breakdown, UTM-tagged analytics with sums, and overdue tasks — regenerated by fetch-bitrix and read by bitrix.html. Not present in the current checkout — no successful fetch_bitrix.py run yet.",
+      "role": "Data artifact: raw per-deal/per-lead rows (date, stage/status, amount, manager_id, UTM fields) plus reference dictionaries (stage semantics, lead statuses/sources, user names) and overdue tasks — regenerated by fetch-bitrix and read by bitrix.html and home.html. Present in the current checkout but still in the OLDER pre-aggregated schema (deals/leads as summary objects, not arrays) — needs one more successful fetch_bitrix.py run to pick up the new raw-row schema; both bitrix.html and home.html detect the schema mismatch and show a clear message rather than silently breaking.",
       "entrypoints": [],
       "tests": [],
       "constraints": [
@@ -298,7 +303,7 @@
       "id": "bitrix-html",
       "path": "bitrix.html",
       "type": "ui",
-      "role": "CRM dashboard: 5 KPI cards (deals, won, deal conversion, leads, lead conversion), daily deals chart, deal funnel by stage, daily leads chart, lead breakdown by status and by source. Also shows: rejected-deals/rejected-leads KPI cards, an overdue-tasks table (with a clear warning if the webhook lacks task-scope access), and UTM-tagged deal/lead breakdown tables with sums.",
+      "role": "CRM dashboard: a date-range picker (Сьогодні/Вчора/7/14/30 днів/Всі + custom range, same pattern as index.html) drives client-side aggregation of the raw deals/leads arrays into KPI cards, a daily deals/leads chart, a deal funnel by stage, a per-manager stats table (deals, won, lost, leads, conversions), lead status/source breakdowns, and UTM-tagged analytics with sums. A separate (period-independent) overdue-tasks section shows bucket counts (1-3/4-7/8-14/15+ days), a per-responsible breakdown, and the oldest overdue items.",
       "entrypoints": [
         "load() called at script end (bitrix.html)"
       ],
@@ -308,7 +313,10 @@
       ],
       "evidence": [
         "bitrix.html: load()/render()",
-        "bitrix.html: renderOverdue()/renderUtmTable()"
+        "bitrix.html:267-320 (setPeriod()/setPeriodDays()/setCustom(), mirrors index.html's picker)",
+        "bitrix.html:322-380 (aggregateDeals()/aggregateLeads(), client-side re-aggregation for any date range)",
+        "bitrix.html:441-450 (renderManagers())",
+        "bitrix.html:478-520 (renderOverdue(), bucket + per-responsible stats)"
       ]
     },
     {

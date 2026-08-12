@@ -1,10 +1,17 @@
 """
 fetch_bitrix.py — тянет Угоди (Deals), Ліди (Leads) та прострочені задачі
 з Bitrix24 REST API через вхідний вебхук і зберігає bitrix_data.json.
-Запускається через GitHub Actions за тим самим принципом, що й fetch_meta.py / fetch_gsc.py.
+
+Формат виводу навмисно "сирий" (по рядку на угоду/лід — так само, як
+fetch_meta.py віддає по рядку на (дата, кампанія) в data.json) — це дозволяє
+bitrix.html самостійно перерахувати будь-яку розбивку (воронку, менеджерів,
+UTM, статуси) під довільно вибраний період, а не тільки під той, що був
+зафіксований на момент генерації файлу.
+
+Запускається через GitHub Actions за тим самим принципом, що й
+fetch_meta.py / fetch_gsc.py.
 """
 import json, os, sys
-from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 import urllib.request
@@ -20,7 +27,6 @@ import urllib.parse
 WEBHOOK_URL = os.environ.get("BITRIX_WEBHOOK_URL", "").rstrip("/")
 
 DAYS_BACK = 90  # той самий горизонт, що й у fetch_meta.py (DATE_PRESET=last_90d)
-UTM_TOP_N = 40  # скільки рядків UTM-аналітики зберігати (сортовано за сумою)
 
 OUT = Path(__file__).parent / "bitrix_data.json"
 
@@ -58,10 +64,10 @@ def call(method, params=None, tries=3, result_key=None):
         start = nxt
     return all_items
 
-# ── Довідники (стадії угод, статуси лідів, джерела) ─────────────────────────
+# ── Довідники (стадії угод, статуси/джерела лідів, користувачі) ────────────
 def fetch_deal_stages():
-    """Повертає {stage_id: {"name":..., "sort":..., "category_id":..., "semantics":...}}.
-    semantics: 'S' (успішна), 'F' (провалена/забракована), 'P' (в роботі) — це
+    """{stage_id: {"name":..., "sort":..., "category_id":..., "semantics":...}}.
+    semantics: 'S' (успішна), 'F' (провалена/забракована), 'P' (в роботі) —
     офіційне поле Bitrix, надійніше за пошук підрядка "WON"/"LOSE" в STAGE_ID."""
     stages = {}
     categories = call("crm.dealcategory.list")
@@ -86,50 +92,60 @@ def fetch_lead_sources():
     rows = call("crm.status.list", {"filter[ENTITY_ID]": "SOURCE"})
     return {r["STATUS_ID"]: r["NAME"] for r in rows}
 
+def fetch_users():
+    """{user_id: "Ім'я Прізвище"} — для підпису менеджерів у сделках/лідах/задачах."""
+    rows = call("user.get", {"ACTIVE": "true"})
+    out = {}
+    for u in rows:
+        name = f"{u.get('NAME','')} {u.get('LAST_NAME','')}".strip()
+        out[str(u["ID"])] = name or u.get("EMAIL") or f"ID {u['ID']}"
+    return out
+
 # ── Угоди (Deals) ────────────────────────────────────────────────────────────
 DEAL_FIELDS = ["ID", "TITLE", "STAGE_ID", "CATEGORY_ID", "OPPORTUNITY", "CURRENCY_ID",
                "DATE_CREATE", "CLOSEDATE", "CLOSED", "SOURCE_ID", "ASSIGNED_BY_ID",
                "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM"]
 
 def fetch_deals(start_date):
-    rows = call("crm.deal.list", {
+    return call("crm.deal.list", {
         "filter[>=DATE_CREATE]": start_date.isoformat(),
         "select": DEAL_FIELDS,
         "order[DATE_CREATE]": "ASC",
     })
-    return rows
 
 # ── Ліди (Leads) ──────────────────────────────────────────────────────────
-LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CREATE", "STATUS_SEMANTIC_ID",
+LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CREATE",
+               "STATUS_SEMANTIC_ID", "ASSIGNED_BY_ID",
                "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM"]
 
 def fetch_leads(start_date):
-    rows = call("crm.lead.list", {
+    return call("crm.lead.list", {
         "filter[>=DATE_CREATE]": start_date.isoformat(),
         "select": LEAD_FIELDS,
         "order[DATE_CREATE]": "ASC",
     })
-    return rows
 
 # ── Прострочені задачі ────────────────────────────────────────────────────
 def fetch_overdue_tasks():
     """Задачі з дедлайном у минулому, які не позначені виконаними.
-    Потребує scope 'task' у вебхука — якщо його нема, Bitrix поверне помилку
-    доступу; викликач (main) ловить це окремо і не валить весь скрипт."""
-    now_iso = datetime.now().isoformat()
+    Потребує scope 'task' у вебхука — якщо його нема (чи фільтр не підходить
+    під конкретний портал), Bitrix поверне помилку; викликач (main) ловить
+    це окремо і не валить весь скрипт."""
+    # Без мікросекунд і без "!DEADLINE": "" — саме ця комбінація раніше
+    # ламала запит з HTTP 400 на деяких порталах.
+    now_str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     rows = call("tasks.task.list", {
-        "filter[<DEADLINE]": now_iso,
-        "filter[!DEADLINE]": "",       # виключає задачі без дедлайну взагалі
-        "filter[!STATUS]": 5,          # 5 = Завершена
+        "filter[<DEADLINE]": now_str,
+        "filter[!STATUS]": 5,  # 5 = Завершена
         "select": ["ID", "TITLE", "DEADLINE", "STATUS", "RESPONSIBLE_ID", "GROUP_ID"],
     }, result_key="tasks")
     return rows
 
-def build_overdue_summary(tasks):
+def build_overdue(tasks, user_names):
     today = date.today()
     items = []
     for t in tasks:
-        if str(t.get("STATUS")) == "5":  # 5 = Завершена — підстраховка на випадок, якщо фільтр API не спрацював
+        if str(t.get("STATUS")) == "5":  # підстраховка, якщо фільтр API не спрацював
             continue
         deadline_str = t.get("DEADLINE")
         if not deadline_str:
@@ -141,121 +157,50 @@ def build_overdue_summary(tasks):
         days_overdue = (today - d).days
         if days_overdue <= 0:
             continue
+        rid = str(t.get("RESPONSIBLE_ID") or "")
         items.append({
             "id": t.get("ID"), "title": t.get("TITLE"), "deadline": deadline_str[:10],
-            "days_overdue": days_overdue, "responsible_id": t.get("RESPONSIBLE_ID"),
+            "days_overdue": days_overdue, "responsible_id": rid,
+            "responsible_name": user_names.get(rid, rid or "(не призначено)"),
         })
     items.sort(key=lambda x: -x["days_overdue"])
     return items
 
-# ── UTM-аналітика (спільна для лідів і угод) ────────────────────────────────
-def build_utm_summary(items, amount_field="OPPORTUNITY", top_n=UTM_TOP_N):
-    groups = defaultdict(lambda: {"count": 0, "sum": 0.0})
-    for it in items:
-        source = (it.get("UTM_SOURCE") or "").strip() or "(не вказано)"
-        campaign = (it.get("UTM_CAMPAIGN") or "").strip() or "(не вказано)"
-        medium = (it.get("UTM_MEDIUM") or "").strip()
-        key = (source, campaign, medium)
-        g = groups[key]
-        g["count"] += 1
-        g["sum"] += float(it.get(amount_field) or 0)
-    result = []
-    for (source, campaign, medium), g in groups.items():
-        result.append({
-            "source": source, "campaign": campaign, "medium": medium,
-            "count": g["count"], "sum": round(g["sum"], 2),
-        })
-    result.sort(key=lambda x: (-x["sum"], -x["count"]))
-    return result[:top_n]
-
-# ── Агрегація ────────────────────────────────────────────────────────────────
+# ── Перетворення в компактні "сирі" рядки для фронтенду ─────────────────────
 def to_date(dt_str):
-    # Bitrix віддає ISO-8601 з таймзоною, напр. "2026-08-01T12:34:56+03:00"
-    return dt_str[:10] if dt_str else None
+    return dt_str[:10] if dt_str else None  # Bitrix віддає ISO-8601 з таймзоною
 
-def build_deals_summary(deals, stage_names):
-    daily = defaultdict(lambda: {"count": 0, "sum": 0.0})
-    by_stage = defaultdict(lambda: {"count": 0, "sum": 0.0})
-    won_count, won_sum = 0, 0.0
-    lost_count, lost_sum = 0, 0.0
+def slim_deals(deals):
+    out = []
     for d in deals:
-        day = to_date(d.get("DATE_CREATE"))
-        amount = float(d.get("OPPORTUNITY") or 0)
-        if day:
-            b = daily[day]
-            b["count"] += 1
-            b["sum"] += amount
-        stage_id = d.get("STAGE_ID", "")
-        sb = by_stage[stage_id]
-        sb["count"] += 1
-        sb["sum"] += amount
-        semantics = stage_names.get(stage_id, {}).get("semantics", "")
-        if semantics == "S":
-            won_count += 1
-            won_sum += amount
-        elif semantics == "F":
-            lost_count += 1
-            lost_sum += amount
-
-    daily_list = [{"date": d, "count": b["count"], "sum": round(b["sum"], 2)} for d, b in sorted(daily.items())]
-    stages_list = []
-    for stage_id, b in sorted(by_stage.items(), key=lambda x: -x[1]["count"]):
-        info = stage_names.get(stage_id, {})
-        stages_list.append({
-            "stage_id": stage_id,
-            "name": info.get("name", stage_id),
-            "semantics": info.get("semantics", ""),
-            "count": b["count"],
-            "sum": round(b["sum"], 2),
+        out.append({
+            "id": d.get("ID"),
+            "date": to_date(d.get("DATE_CREATE")),
+            "stage_id": d.get("STAGE_ID", ""),
+            "amount": float(d.get("OPPORTUNITY") or 0),
+            "manager_id": str(d.get("ASSIGNED_BY_ID") or ""),
+            "utm_source": (d.get("UTM_SOURCE") or "").strip(),
+            "utm_campaign": (d.get("UTM_CAMPAIGN") or "").strip(),
+            "utm_medium": (d.get("UTM_MEDIUM") or "").strip(),
         })
-    return {
-        "total_count": len(deals),
-        "total_sum": round(sum(b["sum"] for b in daily.values()), 2),
-        "won_count": won_count,
-        "won_sum": round(won_sum, 2),
-        "lost_count": lost_count,     # "забраковані" угоди — стадія з semantics == 'F'
-        "lost_sum": round(lost_sum, 2),
-        "daily": daily_list,
-        "by_stage": stages_list,
-        "utm": build_utm_summary(deals, amount_field="OPPORTUNITY"),
-    }
+    return out
 
-def build_leads_summary(leads, status_names, source_names):
-    daily = defaultdict(int)
-    by_status = defaultdict(int)
-    by_source = defaultdict(int)
-    converted = 0
-    rejected = 0  # "забраковані" ліди — STATUS_SEMANTIC_ID == 'F' (в Bitrix це, як правило, статус "Некваліфікований"/"JUNK")
+def slim_leads(leads):
+    out = []
     for l in leads:
-        day = to_date(l.get("DATE_CREATE"))
-        if day:
-            daily[day] += 1
-        by_status[l.get("STATUS_ID", "")] += 1
-        by_source[l.get("SOURCE_ID", "")] += 1
-        semantic = l.get("STATUS_SEMANTIC_ID")
-        if semantic == "C":
-            converted += 1
-        elif semantic == "F":
-            rejected += 1
-
-    daily_list = [{"date": d, "count": c} for d, c in sorted(daily.items())]
-    status_list = sorted(
-        [{"status_id": sid, "name": status_names.get(sid, sid), "count": c} for sid, c in by_status.items()],
-        key=lambda x: -x["count"])
-    source_list = sorted(
-        [{"source_id": sid, "name": source_names.get(sid, sid or "(не вказано)"), "count": c} for sid, c in by_source.items()],
-        key=lambda x: -x["count"])
-    return {
-        "total_count": len(leads),
-        "converted_count": converted,
-        "conversion_rate": round(converted / len(leads) * 100, 1) if leads else 0,
-        "rejected_count": rejected,
-        "rejected_rate": round(rejected / len(leads) * 100, 1) if leads else 0,
-        "daily": daily_list,
-        "by_status": status_list,
-        "by_source": source_list,
-        "utm": build_utm_summary(leads, amount_field="OPPORTUNITY"),
-    }
+        out.append({
+            "id": l.get("ID"),
+            "date": to_date(l.get("DATE_CREATE")),
+            "status_id": l.get("STATUS_ID", ""),
+            "source_id": l.get("SOURCE_ID", ""),
+            "semantic": l.get("STATUS_SEMANTIC_ID", ""),
+            "amount": float(l.get("OPPORTUNITY") or 0),
+            "manager_id": str(l.get("ASSIGNED_BY_ID") or ""),
+            "utm_source": (l.get("UTM_SOURCE") or "").strip(),
+            "utm_campaign": (l.get("UTM_CAMPAIGN") or "").strip(),
+            "utm_medium": (l.get("UTM_MEDIUM") or "").strip(),
+        })
+    return out
 
 # ── Main ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
@@ -267,23 +212,29 @@ if __name__ == "__main__":
     start_date = date.today() - timedelta(days=DAYS_BACK)
     ok = True
     result = {"generated_at": str(date.today()), "period_from": str(start_date)}
+    user_names = {}
     try:
-        print("  → Довідники (стадії угод, статуси й джерела лідів)")
+        print("  → Довідники (стадії угод, статуси/джерела лідів, користувачі)")
         stage_names = fetch_deal_stages()
         status_names = fetch_lead_statuses()
         source_names = fetch_lead_sources()
+        user_names = fetch_users()
+        result["meta"] = {
+            "stages": stage_names,
+            "lead_statuses": status_names,
+            "lead_sources": source_names,
+            "users": user_names,
+        }
 
         print(f"  → Угоди (Deals) з {start_date}")
         deals = fetch_deals(start_date)
         print(f"     знайдено: {len(deals)}")
-        result["deals"] = build_deals_summary(deals, stage_names)
+        result["deals"] = slim_deals(deals)
 
         print(f"  → Ліди (Leads) з {start_date}")
         leads = fetch_leads(start_date)
         print(f"     знайдено: {len(leads)}")
-        result["leads"] = build_leads_summary(leads, status_names, source_names)
-
-        print(f"     угод забраковано: {result['deals']['lost_count']}, лідів забраковано: {result['leads']['rejected_count']}")
+        result["leads"] = slim_leads(leads)
     except Exception as e:
         print(f"  ✗ ошибка (deals/leads): {e}")
         ok = False
@@ -291,8 +242,8 @@ if __name__ == "__main__":
     try:
         print("  → Прострочені задачі")
         overdue_raw = fetch_overdue_tasks()
-        overdue = build_overdue_summary(overdue_raw)
-        result["overdue_tasks"] = {"count": len(overdue), "items": overdue[:200]}
+        overdue = build_overdue(overdue_raw, user_names)
+        result["overdue_tasks"] = {"count": len(overdue), "items": overdue[:300]}
         print(f"     прострочено: {len(overdue)}")
     except Exception as e:
         # Найчастіша причина — у вебхука немає scope 'task'. Не валимо весь
@@ -302,7 +253,7 @@ if __name__ == "__main__":
 
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2))
     if "deals" in result and "leads" in result:
-        print(f"\n✓ bitrix_data.json сохранён: {result['deals']['total_count']} угод, {result['leads']['total_count']} лідів")
+        print(f"\n✓ bitrix_data.json сохранён: {len(result['deals'])} угод, {len(result['leads'])} лідів")
     else:
         print("\n⚠ bitrix_data.json сохранён частково (deals/leads не вдалося отримати)")
 

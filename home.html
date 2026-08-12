@@ -400,28 +400,36 @@ async function loadCRM(){
     const res=await fetch('bitrix_data.json?_='+Date.now());
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
+    if(!Array.isArray(data.deals) || !Array.isArray(data.leads)) throw new Error('формат даних застарів');
     setSys('sys-bitrix', true);
-    const deals = data.deals || {};
-    const leads = data.leads || {};
-    const rows = deals.daily || [];
 
-    const allDates=[...new Set(rows.map(r=>r.date))].sort();
+    const stages = (data.meta && data.meta.stages) || {};
+    const deals = data.deals, leads = data.leads;
+
+    const byDate={};
+    let wonCount=0, lostCount=0;
+    deals.forEach(d=>{
+      if(!byDate[d.date]) byDate[d.date]=0;
+      byDate[d.date]++;
+      const sem = (stages[d.stage_id]||{}).semantics;
+      if(sem==='S') wonCount++;
+      else if(sem==='F') lostCount++;
+    });
+    const allDates=Object.keys(byDate).sort();
     const curDates=new Set(allDates.slice(-30));
     const prevDates=new Set(allDates.slice(-60,-30));
-    const curRows=rows.filter(r=>curDates.has(r.date));
-    const prevRows=rows.filter(r=>prevDates.has(r.date));
-    const curCount=curRows.reduce((a,r)=>a+(r.count||0),0);
-    const prevCount=prevRows.reduce((a,r)=>a+(r.count||0),0);
+    const curCount=allDates.filter(d=>curDates.has(d)).reduce((a,d)=>a+byDate[d],0);
+    const prevCount=allDates.filter(d=>prevDates.has(d)).reduce((a,d)=>a+byDate[d],0);
     renderTrend('crm-trend', curCount, prevCount, 'угод');
 
-    const series = rows.map(r=>r.count||0);
+    const series = allDates.map(d=>byDate[d]);
 
     document.getElementById('crm-tag').textContent='Останні 90 днів';
     document.getElementById('crm-stats').innerHTML=`
-      <div class="stat"><div class="v">${fmt(deals.total_count)}</div><div class="l">Угод</div></div>
-      <div class="stat"><div class="v">${fmt(deals.won_count)}</div><div class="l">Виграно</div></div>
-      <div class="stat"><div class="v">${fmt(deals.lost_count)}</div><div class="l">Забраковано</div></div>
-      <div class="stat"><div class="v">${fmt(leads.total_count)}</div><div class="l">Лідів</div></div>`;
+      <div class="stat"><div class="v">${fmt(deals.length)}</div><div class="l">Угод</div></div>
+      <div class="stat"><div class="v">${fmt(wonCount)}</div><div class="l">Виграно</div></div>
+      <div class="stat"><div class="v">${fmt(lostCount)}</div><div class="l">Забраковано</div></div>
+      <div class="stat"><div class="v">${fmt(leads.length)}</div><div class="l">Лідів</div></div>`;
     document.getElementById('crm-chart').innerHTML = series.length ? sparkline(series,'#9B7FE8') : '';
     document.getElementById('crm-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
   }catch(e){
