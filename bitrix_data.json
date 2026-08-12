@@ -73295,9 +73295,21 @@
     {
       "id": "158802",
       "date": "2026-08-12",
-      "status_id": "NEW",
+      "status_id": "JUNK",
       "source_id": "CALL",
-      "semantic": "P",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158804",
+      "date": "2026-08-12",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "",
