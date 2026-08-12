@@ -4,13 +4,15 @@
   "generated_at": "2026-08-05T00:00:00Z",
   "scanned_scope": [
     ".github/workflows/update.yml",
-    "fetch_meta.py",
-    "fetch_gsc.py",
-    "index.html",
-    "seo.html",
-    "home.html",
+    "README.md",
+    "bitrix.html",
     "data.json",
-    "README.md"
+    "fetch_bitrix.py",
+    "fetch_gsc.py",
+    "fetch_meta.py",
+    "home.html",
+    "index.html",
+    "seo.html"
   ],
   "excluded_dirs": [
     "images/",
@@ -19,7 +21,7 @@
   "fingerprint_algorithm": "sha256(sorted tracked file paths + file contents, concatenated)",
   "modules": {
     ".github/workflows/update.yml": {
-      "fingerprint": "7d54bc7c13af1a04ef57d0fc5c67770b19cd92f752a748ed40b18b189561dff0",
+      "fingerprint": "fea98e1f6196371f9c4f19c0b2919a752d49070b66e47b4c85a4dedab992fc7d",
       "files": [
         ".github/workflows/update.yml"
       ]
@@ -49,7 +51,7 @@
       ]
     },
     "home.html": {
-      "fingerprint": "6f47101e0d79e06a6610f9bdb05309b6cc214a6791ef862326b9864002b9885b",
+      "fingerprint": "c8a5b9bc6cc5e260793ce8c2bd46602d5f223b77d9a547616517e50125191506",
       "files": [
         "home.html"
       ]
@@ -64,6 +66,18 @@
       "fingerprint": "9aac50d59e4e7321d7ad31772d124086c313f5d987d1b5aa343ebcf87e160f89",
       "files": [
         "README.md"
+      ]
+    },
+    "fetch_bitrix.py": {
+      "fingerprint": "2c9c2c8f99b44d2ee2cab2b881914ae2d213c7b1065fb54b2bd4342133e7738d",
+      "files": [
+        "fetch_bitrix.py"
+      ]
+    },
+    "bitrix.html": {
+      "fingerprint": "fcf7e29e97149d333ef6ba982357c2c4a93ebb48838792b54829b124a3372ba3",
+      "files": [
+        "bitrix.html"
       ]
     }
   }

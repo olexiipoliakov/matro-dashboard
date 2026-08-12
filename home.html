@@ -15,6 +15,7 @@
     --ink:#F7F8FB; --ink-soft:#95A0BF; --ink-dim:#5A6A8A;
     --accent:#FF8C42; --accent-2:#FF6A2B;
     --seo:#32D8FF; --seo-2:#5B8DEE;
+    --crm:#9B7FE8; --crm-2:#7D5FD6;
     --success:#27E37A; --warning:#FFC84D; --danger:#FF5E6C;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -96,8 +97,7 @@
   .pill.on{color:var(--success)}.pill.off{color:var(--danger)}
 
   /* ── grid карточек ── */
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
 
   .glass{
     background:rgba(16,21,34,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
@@ -110,6 +110,7 @@
   @keyframes rise{to{opacity:1;transform:translateY(0)}}
   .glass:nth-of-type(1){animation-delay:.05s}
   .glass:nth-of-type(2){animation-delay:.1s}
+  .glass:nth-of-type(3){animation-delay:.15s}
   .glass:hover{transform:translateY(-6px) scale(1.01);background:var(--card-hover);
     border-color:var(--border-strong);box-shadow:0 40px 100px rgba(0,0,0,.45)}
 
@@ -119,6 +120,7 @@
   .card-icon i{width:19px;height:19px}
   .smm .card-icon{background:rgba(255,140,66,.12);color:var(--accent)}
   .seo .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
+  .crm .card-icon{background:rgba(155,127,232,.15);color:var(--crm)}
   .card-name{font-size:16px;font-weight:600}
   .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
   .card-tag{font-size:11px;font-weight:600;color:var(--ink-soft);background:rgba(255,255,255,.04);
@@ -148,6 +150,8 @@
   .smm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,140,66,.35)}
   .seo .btn-primary{background:linear-gradient(90deg,var(--seo),var(--seo-2))}
   .seo .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(50,216,255,.3)}
+  .crm .btn-primary{background:linear-gradient(90deg,var(--crm),var(--crm-2))}
+  .crm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(155,127,232,.35)}
   .btn-primary i{width:14px;height:14px}
   .updated-note{font-size:11px;color:var(--ink-dim)}
 
@@ -198,6 +202,7 @@
         <div class="sys-title">Системи</div>
         <div class="sys-row"><span class="name">Meta Ads</span><span class="pill" id="sys-meta"><span class="dot"></span>—</span></div>
         <div class="sys-row"><span class="name">Google Search Console</span><span class="pill" id="sys-gsc"><span class="dot"></span>—</span></div>
+        <div class="sys-row"><span class="name">Bitrix24 CRM</span><span class="pill" id="sys-bitrix"><span class="dot"></span>—</span></div>
       </div>
     </div>
   </header>
@@ -238,6 +243,25 @@
       <div class="card-cta">
         <span class="btn-primary">Відкрити дашборд <i data-lucide="arrow-right"></i></span>
         <span class="updated-note" id="seo-updated"></span>
+      </div>
+    </a>
+
+    <a href="bitrix.html" class="glass crm" style="text-decoration:none;color:inherit;display:block">
+      <div class="card-top">
+        <div class="card-id">
+          <div class="card-icon"><i data-lucide="briefcase"></i></div>
+          <div><div class="card-name">CRM</div><div class="card-desc">Bitrix24 · угоди та ліди</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="trend-badge" id="crm-trend"></span>
+          <span class="card-tag" id="crm-tag">—</span>
+        </div>
+      </div>
+      <div class="stat-row" id="crm-stats"><div class="skeleton">Завантаження…</div></div>
+      <div class="chart-box" id="crm-chart"></div>
+      <div class="card-cta">
+        <span class="btn-primary">Відкрити дашборд <i data-lucide="arrow-right"></i></span>
+        <span class="updated-note" id="crm-updated"></span>
       </div>
     </a>
   </div>
@@ -371,8 +395,46 @@ async function loadSEO(){
   }
 }
 
+async function loadCRM(){
+  try{
+    const res=await fetch('bitrix_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    setSys('sys-bitrix', true);
+    const deals = data.deals || {};
+    const leads = data.leads || {};
+    const rows = deals.daily || [];
+
+    const allDates=[...new Set(rows.map(r=>r.date))].sort();
+    const curDates=new Set(allDates.slice(-30));
+    const prevDates=new Set(allDates.slice(-60,-30));
+    const curRows=rows.filter(r=>curDates.has(r.date));
+    const prevRows=rows.filter(r=>prevDates.has(r.date));
+    const curCount=curRows.reduce((a,r)=>a+(r.count||0),0);
+    const prevCount=prevRows.reduce((a,r)=>a+(r.count||0),0);
+    renderTrend('crm-trend', curCount, prevCount, 'угод');
+
+    const series = rows.map(r=>r.count||0);
+
+    document.getElementById('crm-tag').textContent='Останні 90 днів';
+    document.getElementById('crm-stats').innerHTML=`
+      <div class="stat"><div class="v">${fmt(deals.total_count)}</div><div class="l">Угод</div></div>
+      <div class="stat"><div class="v">${fmt(deals.won_count)}</div><div class="l">Виграно</div></div>
+      <div class="stat"><div class="v">${fmt(deals.lost_count)}</div><div class="l">Забраковано</div></div>
+      <div class="stat"><div class="v">${fmt(leads.total_count)}</div><div class="l">Лідів</div></div>`;
+    document.getElementById('crm-chart').innerHTML = series.length ? sparkline(series,'#9B7FE8') : '';
+    document.getElementById('crm-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
+  }catch(e){
+    setSys('sys-bitrix', false);
+    document.getElementById('crm-tag').textContent='Немає даних';
+    document.getElementById('crm-trend').classList.remove('show');
+    document.getElementById('crm-stats').innerHTML='<div class="skeleton">Не вдалося завантажити bitrix_data.json</div>';
+  }
+}
+
 loadSMM();
 loadSEO();
+loadCRM();
 </script>
 </body>
 </html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matro · CRM</title>
+<style>
+  :root{
+    --ink:#1a1714; --ink-soft:#5c534a; --paper:#f5f1ea; --card:#fffdf9;
+    --line:#e3dccf; --accent:#7d5fd6; --accent-2:#a78bfa;
+    --good:#3f7d5c; --good-bg:#e3f0e8; --mid:#b8893b; --mid-bg:#fbf0d8;
+    --bad:#c0432f; --bad-bg:#f6e0db;
+    --r:14px; --shadow:0 1px 2px rgba(26,23,20,.04),0 8px 24px rgba(26,23,20,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;padding:32px 24px 64px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .home-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+    color:var(--ink-soft);text-decoration:none;margin-bottom:14px}
+  .home-link:hover{color:var(--accent)}
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .logo{font-size:30px;font-weight:700;letter-spacing:-.5px}
+  .logo .dot{color:var(--accent)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--ink-soft);font-weight:600}
+  .meta-line{text-align:right;font-size:12px;color:var(--ink-soft)}
+  .meta-line b{color:var(--ink)}
+  .rule{height:2px;background:var(--ink);margin:14px 0 28px;position:relative}
+  .rule::after{content:"";position:absolute;left:0;top:0;height:2px;width:72px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:34px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px;box-shadow:var(--shadow)}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
+  .kpi .val{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .kpi .sub{font-size:12px;margin-top:7px;color:var(--ink-soft)}
+
+  .sec-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+  .sec-head h2{font-size:19px;font-weight:700}
+  .sec-head .n{font-size:11px;font-weight:700;color:var(--accent);border:1.5px solid var(--accent);
+    border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0}
+  .sec-head .ln{flex:1;height:1px;background:var(--line)}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:20px;margin-bottom:34px}
+  .chart{display:flex;align-items:flex-end;gap:3px;height:180px;padding:10px 0 0;overflow-x:auto}
+  .chart .col{flex:1;min-width:4px;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+  .chart .barwrap{width:100%;display:flex;align-items:flex-end;justify-content:center;flex:1}
+  .chart .bar{width:70%;max-width:22px;background:linear-gradient(180deg,var(--accent),var(--accent-2));
+    border-radius:4px 4px 0 0;transition:height .9s cubic-bezier(.2,.8,.2,1);position:relative;min-height:2px}
+  .chart .bar:hover::after{content:attr(data-v);position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:11px;padding:2px 7px;border-radius:5px;white-space:nowrap;z-index:2}
+
+  .funnel-row{display:grid;grid-template-columns:170px 1fr 150px;align-items:center;gap:14px;padding:9px 6px;
+    border-bottom:1px solid var(--line)}
+  .funnel-row:last-child{border-bottom:none}
+  .funnel-name{font-size:13px;font-weight:600}
+  .funnel-track{height:10px;background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .funnel-fill{height:100%;border-radius:6px 0 0 6px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .funnel-fill.won{background:linear-gradient(90deg,var(--good),#6fbf94)}
+  .funnel-fill.lose{background:linear-gradient(90deg,var(--bad),#e08a76)}
+  .funnel-nums{font-size:12px;color:var(--ink-soft);text-align:right;white-space:nowrap}
+  .funnel-nums b{color:var(--ink)}
+
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:820px){.cols2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+
+  .bd-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .bd-row:last-child{border-bottom:none}
+  .bd-name{flex:1;font-weight:500}
+  .bd-track{width:90px;height:7px;background:var(--paper);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .bd-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .bd-count{width:36px;text-align:right;font-weight:700}
+
+  footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
+  .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  .empty-note{color:var(--ink-soft);font-style:italic;font-size:12.5px}
+
+  table.data-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.data-table th{text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);
+    font-weight:700;padding:8px 10px;border-bottom:2px solid var(--ink)}
+  table.data-table th:first-child{text-align:left}
+  table.data-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+  table.data-table td:first-child{text-align:left;font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  table.data-table tbody tr:hover td{background:#f4f1fb}
+  .overdue-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px}
+  .overdue-badge.mid{background:var(--mid-bg);color:var(--mid)}
+  .overdue-badge.bad{background:var(--bad-bg);color:var(--bad)}
+  .table-scroll{max-height:420px;overflow-y:auto}
+
+  @media(max-width:600px){
+    body{padding:16px 12px 48px}
+    header{flex-direction:column;align-items:flex-start;gap:6px}
+    .meta-line{text-align:left}
+    .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+    .kpi{padding:14px}
+    .kpi .val{font-size:20px}
+    .funnel-row{grid-template-columns:1fr;gap:6px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="home.html" class="home-link">&larr; Home</a>
+  <header>
+    <div class="brand">
+      <div class="logo">Matro<span class="dot">.</span></div>
+      <div>
+        <div class="eyebrow">CRM</div>
+        <div style="font-size:13px;color:var(--ink-soft)">Bitrix24 · угоди та ліди</div>
+      </div>
+    </div>
+    <div class="meta-line">Період: <b id="period-info">—</b><br>Оновлено: <b id="updated">—</b></div>
+  </header>
+  <div class="rule"></div>
+
+  <div id="error-box"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="sec-head"><span class="n">1</span><h2>Угоди по днях</h2><span class="ln"></span></div>
+  <div class="panel">
+    <div class="chart" id="deals-chart"></div>
+  </div>
+
+  <div class="sec-head"><span class="n">2</span><h2>Воронка угод</h2><span class="ln"></span></div>
+  <div class="panel">
+    <div id="funnel"></div>
+  </div>
+
+  <div class="sec-head"><span class="n">3</span><h2>Ліди по днях</h2><span class="ln"></span></div>
+  <div class="panel">
+    <div class="chart" id="leads-chart"></div>
+  </div>
+
+  <div class="sec-head"><span class="n">4</span><h2>Ліди — статуси та джерела</h2><span class="ln"></span></div>
+  <div class="cols2">
+    <div class="panel">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">За статусом</div>
+      <div id="lead-statuses"></div>
+    </div>
+    <div class="panel">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">За джерелом</div>
+      <div id="lead-sources"></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><span class="n">5</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
+  <div class="panel">
+    <div id="overdue-note" style="font-size:12px;color:var(--ink-soft);margin-bottom:12px"></div>
+    <div class="table-scroll"><table class="data-table" id="overdue-table"></table></div>
+  </div>
+
+  <div class="sec-head"><span class="n">6</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
+  <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Джерела трафіку, що привели угоди/ліди — з сумою (для угод) за останні 90 днів</div>
+  <div class="cols2">
+    <div class="panel">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Угоди за UTM</div>
+      <div class="table-scroll"><table class="data-table" id="utm-deals-table"></table></div>
+    </div>
+    <div class="panel">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Ліди за UTM</div>
+      <div class="table-scroll"><table class="data-table" id="utm-leads-table"></table></div>
+    </div>
+  </div>
+
+  <footer>Данные из <code>bitrix_data.json</code> · Bitrix24 REST API</footer>
+</div>
+
+<script>
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+const fmt1=n=>new Intl.NumberFormat('uk-UA',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n||0);
+
+async function load(){
+  try{
+    const res=await fetch('bitrix_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    document.getElementById('updated').textContent=data.generated_at||'—';
+    document.getElementById('period-info').textContent = data.period_from ? `з ${data.period_from}` : '—';
+    render(data);
+  }catch(e){
+    showError('Не удалось загрузить bitrix_data.json: '+e.message);
+  }
+}
+function showError(msg){
+  document.getElementById('error-box').innerHTML=`<div class="err">${msg}</div>`;
+}
+
+function render(data){
+  const deals = data.deals || {};
+  const leads = data.leads || {};
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="lbl">Угод</div><div class="val">${fmt(deals.total_count)}</div><div class="sub">${fmt(deals.total_sum)} грн всього</div></div>
+    <div class="kpi"><div class="lbl">Виграно</div><div class="val">${fmt(deals.won_count)}</div><div class="sub">${fmt(deals.won_sum)} грн</div></div>
+    <div class="kpi"><div class="lbl">Забраковано угод</div><div class="val" style="color:var(--bad)">${fmt(deals.lost_count)}</div><div class="sub">${fmt(deals.lost_sum)} грн втрачено</div></div>
+    <div class="kpi"><div class="lbl">Лідів</div><div class="val">${fmt(leads.total_count)}</div><div class="sub">${fmt(leads.converted_count)} конвертовано</div></div>
+    <div class="kpi"><div class="lbl">Забраковано лідів</div><div class="val" style="color:var(--bad)">${fmt(leads.rejected_count)}</div><div class="sub">${fmt1(leads.rejected_rate)}% від усіх</div></div>
+    <div class="kpi"><div class="lbl">Прострочено задач</div><div class="val" style="color:${(data.overdue_tasks&&data.overdue_tasks.count)?'var(--bad)':'var(--ink)'}">${data.overdue_tasks&&data.overdue_tasks.count!=null?fmt(data.overdue_tasks.count):'—'}</div><div class="sub">${data.overdue_tasks&&data.overdue_tasks.error?'доступ обмежено':'на сьогодні'}</div></div>`;
+
+  renderChart('deals-chart', deals.daily||[], r=>r.count, r=>`${fmt(r.count)} угод, ${fmt(r.sum)} грн`);
+  renderChart('leads-chart', leads.daily||[], r=>r.count, r=>`${fmt(r.count)} лідів`);
+  renderFunnel(deals.by_stage||[]);
+  renderBreakdown('lead-statuses', leads.by_status||[], x=>x.name, x=>x.count);
+  renderBreakdown('lead-sources', leads.by_source||[], x=>x.name, x=>x.count);
+  renderOverdue(data.overdue_tasks||{});
+  renderUtmTable('utm-deals-table', deals.utm||[], true);
+  renderUtmTable('utm-leads-table', leads.utm||[], false);
+}
+
+function renderChart(elId, rows, valueFn, tipFn){
+  const el=document.getElementById(elId);
+  if(!rows.length){ el.innerHTML='<div class="empty-note">Немає даних.</div>'; return; }
+  const max=Math.max(1,...rows.map(valueFn));
+  el.innerHTML=rows.map(r=>{
+    const v=valueFn(r);
+    const h=Math.max(2,v/max*100);
+    return `<div class="col">
+      <div class="barwrap"><div class="bar" style="height:${h}%" data-v="${tipFn(r)}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderFunnel(stages){
+  const el=document.getElementById('funnel');
+  if(!stages.length){ el.innerHTML='<div class="empty-note">Немає даних по воронці.</div>'; return; }
+  const max=Math.max(1,...stages.map(s=>s.count));
+  el.innerHTML=stages.map(s=>{
+    const w=Math.max(2,s.count/max*100);
+    const cls = s.semantics==='S' ? 'won' : (s.semantics==='F' ? 'lose' : '');
+    return `<div class="funnel-row">
+      <div class="funnel-name">${s.name}</div>
+      <div class="funnel-track"><div class="funnel-fill ${cls}" style="width:${w}%"></div></div>
+      <div class="funnel-nums"><b>${fmt(s.count)}</b> угод · ${fmt(s.sum)} грн</div>
+    </div>`;
+  }).join('');
+}
+
+function renderOverdue(overdue){
+  const note=document.getElementById('overdue-note');
+  const table=document.getElementById('overdue-table');
+  if(overdue.error){
+    note.innerHTML = `<span style="color:var(--bad)">⚠ Не вдалося отримати задачі — схоже, вебхуку не вистачає доступу "Задачі" (task). Додай цей scope у вхідному вебхуку Bitrix24.</span>`;
+    table.innerHTML='';
+    return;
+  }
+  const items = overdue.items||[];
+  note.textContent = `Всього прострочено: ${fmt(overdue.count||0)}`;
+  if(!items.length){
+    table.innerHTML = `<tr><td class="empty-note">Прострочених задач немає 🎉</td></tr>`;
+    return;
+  }
+  const rows = items.map(t=>{
+    const cls = t.days_overdue>=7 ? 'bad' : 'mid';
+    return `<tr><td>${t.title||('Задача #'+t.id)}</td><td>${t.deadline}</td>
+      <td><span class="overdue-badge ${cls}">${t.days_overdue} дн.</span></td></tr>`;
+  }).join('');
+  table.innerHTML = `<thead><tr><th>Задача</th><th>Дедлайн</th><th>Прострочено</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+function renderUtmTable(elId, items, withSum){
+  const table=document.getElementById(elId);
+  if(!items.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних по UTM.</td></tr>`; return; }
+  const head = withSum
+    ? `<thead><tr><th>Джерело</th><th>Кампанія</th><th>К-сть</th><th>Сума</th></tr></thead>`
+    : `<thead><tr><th>Джерело</th><th>Кампанія</th><th>К-сть</th></tr></thead>`;
+  const rows = items.map(x=>{
+    const sumCell = withSum ? `<td>${fmt(x.sum)} грн</td>` : '';
+    return `<tr><td>${x.source}</td><td>${x.campaign}</td><td>${fmt(x.count)}</td>${sumCell}</tr>`;
+  }).join('');
+  table.innerHTML = head + `<tbody>${rows}</tbody>`;
+}
+
+function renderBreakdown(elId, items, nameFn, countFn){
+  const el=document.getElementById(elId);
+  if(!items.length){ el.innerHTML='<div class="empty-note">Немає даних.</div>'; return; }
+  const max=Math.max(1,...items.map(countFn));
+  el.innerHTML=items.slice(0,12).map(x=>{
+    const c=countFn(x), w=Math.max(2,c/max*100);
+    return `<div class="bd-row">
+      <div class="bd-name">${nameFn(x)}</div>
+      <div class="bd-track"><div class="bd-fill" style="width:${w}%"></div></div>
+      <div class="bd-count">${fmt(c)}</div>
+    </div>`;
+  }).join('');
+}
+
+load();
+</script>
+</body>
+</html>
