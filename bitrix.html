@@ -197,6 +197,10 @@
       <div id="lead-sources"></div>
     </div>
   </div>
+  <div class="panel">
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--bad)">Причини забракування лідів</div>
+    <div id="lead-reject-reasons"></div>
+  </div>
 
   <div class="sec-head"><span class="n">6</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Джерела трафіку, що привели угоди/ліди за вибраний період — з сумою</div>
@@ -314,7 +318,18 @@ function applyFilter(){
   render(deals, leads);
 }
 
-function stageMeta(id){ return (META.stages&&META.stages[id]) || {name:id||'(без стадії)', semantics:''}; }
+function stageMeta(id){
+  const raw = (META.stages&&META.stages[id]) || {name:id||'(без стадії)', semantics:''};
+  let sem = raw.semantics;
+  if(!sem){
+    // На деяких порталах Bitrix поле SEMANTICS в crm.dealcategory.stage.list
+    // приходить порожнім навіть для WON — тоді визначаємо за назвою STAGE_ID
+    // (стандартна конвенція Bitrix: WON / C{n}:WON, LOSE / C{n}:LOSE).
+    if(/WON/i.test(id)) sem='S';
+    else if(/LOSE|FAIL|LOSS/i.test(id)) sem='F';
+  }
+  return {...raw, semantics: sem};
+}
 function managerName(id){ return (META.users&&META.users[id]) || (id ? 'ID '+id : '(не призначено)'); }
 function statusName(id){ return (META.lead_statuses&&META.lead_statuses[id]) || id || '(невідомо)'; }
 function sourceName(id){ return (META.lead_sources&&META.lead_sources[id]) || id || '(не вказано)'; }
@@ -354,7 +369,7 @@ function aggregateDeals(deals){
 }
 
 function aggregateLeads(leads, byManagerFromDeals){
-  const daily={}, byStatus={}, bySource={}, byUtm={};
+  const daily={}, byStatus={}, bySource={}, byUtm={}, byRejectReason={};
   const byManager=byManagerFromDeals||{};
   let total=0, converted=0, rejected=0;
   leads.forEach(l=>{
@@ -368,7 +383,13 @@ function aggregateLeads(leads, byManagerFromDeals){
     bySource[l.source_id].count++;
 
     if(l.semantic==='C') converted++;
-    else if(l.semantic==='F') rejected++;
+    else if(l.semantic==='F'){
+      rejected++;
+      // "Забраковано" — це ціла ГРУПА стадій у Bitrix (кожна зі своєю конкретною
+      // причиною), не один статус. Розбиваємо саме по них, а не по загальній цифрі.
+      if(!byRejectReason[l.status_id]) byRejectReason[l.status_id]={status_id:l.status_id,name:statusName(l.status_id),count:0};
+      byRejectReason[l.status_id].count++;
+    }
 
     const mgr=l.manager_id||'';
     if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0};
@@ -386,6 +407,7 @@ function aggregateLeads(leads, byManagerFromDeals){
     daily:Object.values(daily).sort((a,b)=>a.date<b.date?-1:1),
     by_status:Object.values(byStatus).sort((a,b)=>b.count-a.count),
     by_source:Object.values(bySource).sort((a,b)=>b.count-a.count),
+    by_reject_reason:Object.values(byRejectReason).sort((a,b)=>b.count-a.count),
     by_manager:byManager,
     utm:Object.values(byUtm).sort((a,b)=>b.count-a.count).slice(0,40),
   };
@@ -409,6 +431,7 @@ function render(dealsRaw, leadsRaw){
   renderManagers(deals.by_manager);
   renderBreakdown('lead-statuses', leads.by_status, x=>x.name, x=>x.count);
   renderBreakdown('lead-sources', leads.by_source, x=>x.name, x=>x.count);
+  renderBreakdown('lead-reject-reasons', leads.by_reject_reason, x=>x.name, x=>x.count, true);
   renderUtmTable('utm-deals-table', deals.utm, true);
   renderUtmTable('utm-leads-table', leads.utm, false);
 }
@@ -451,14 +474,15 @@ function renderManagers(byManager){
   table.innerHTML=head+`<tbody>${body}</tbody>`;
 }
 
-function renderBreakdown(elId, items, nameFn, countFn){
+function renderBreakdown(elId, items, nameFn, countFn, danger){
   const el=document.getElementById(elId);
-  if(!items.length){ el.innerHTML='<div class="empty-note">Немає даних.</div>'; return; }
+  if(!items.length){ el.innerHTML='<div class="empty-note">'+(danger?'Немає забракованих лідів за цей період 🎉':'Немає даних.')+'</div>'; return; }
   const max=Math.max(1,...items.map(countFn));
+  const fillStyle = danger ? 'background:linear-gradient(90deg,var(--bad),#e08a76)' : '';
   el.innerHTML=items.slice(0,12).map(x=>{
     const c=countFn(x), w=Math.max(2,c/max*100);
     return `<div class="bd-row"><div class="bd-name" title="${nameFn(x)}">${nameFn(x)}</div>
-      <div class="bd-track"><div class="bd-fill" style="width:${w}%"></div></div><div class="bd-count">${fmt(c)}</div></div>`;
+      <div class="bd-track"><div class="bd-fill" style="width:${w}%;${fillStyle}"></div></div><div class="bd-count">${fmt(c)}</div></div>`;
   }).join('');
 }
 

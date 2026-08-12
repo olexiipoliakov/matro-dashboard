@@ -303,13 +303,14 @@
       "id": "bitrix-html",
       "path": "bitrix.html",
       "type": "ui",
-      "role": "CRM dashboard: a date-range picker (Сьогодні/Вчора/7/14/30 днів/Всі + custom range, same pattern as index.html) drives client-side aggregation of the raw deals/leads arrays into KPI cards, a daily deals/leads chart, a deal funnel by stage, a per-manager stats table (deals, won, lost, leads, conversions), lead status/source breakdowns, and UTM-tagged analytics with sums. A separate (period-independent) overdue-tasks section shows bucket counts (1-3/4-7/8-14/15+ days), a per-responsible breakdown, and the oldest overdue items.",
+      "role": "CRM dashboard: a date-range picker (Сьогодні/Вчора/7/14/30 днів/Всі + custom range, same pattern as index.html) drives client-side aggregation of the raw deals/leads arrays into KPI cards, a daily deals/leads chart, a deal funnel by stage, a per-manager stats table (deals, won, lost, leads, conversions), lead status/source breakdowns, and UTM-tagged analytics with sums. A separate (period-independent) overdue-tasks section shows bucket counts (1-3/4-7/8-14/15+ days), a per-responsible breakdown, and the oldest overdue items. A dedicated \"Причини забракування лідів\" panel breaks rejected leads down by their specific status (Bitrix groups multiple distinct junk reasons under one semantic-F category, not a single status).",
       "entrypoints": [
         "load() called at script end (bitrix.html)"
       ],
       "tests": [],
       "constraints": [
-        "fails open with a visible error box if bitrix_data.json is missing or invalid JSON (bitrix.html: load()/showError())"
+        "fails open with a visible error box if bitrix_data.json is missing or invalid JSON (bitrix.html: load()/showError())",
+        "stageMeta() falls back to matching /WON/i or /LOSE|FAIL|LOSS/i on the stage_id string when meta.stages[id].semantics is blank — on this Bitrix portal the official SEMANTICS field from crm.dealcategory.stage.list came back empty even for the WON stage, so relying on it alone silently zeroed out won/lost counts everywhere"
       ],
       "evidence": [
         "bitrix.html: load()/render()",
