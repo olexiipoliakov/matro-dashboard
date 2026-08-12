@@ -15933,7 +15933,7 @@
     {
       "id": "139666",
       "date": "2026-08-12",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 4569.0,
       "manager_id": "128",
       "utm_source": "",
@@ -73257,9 +73257,9 @@
     {
       "id": "158794",
       "date": "2026-08-12",
-      "status_id": "NEW",
+      "status_id": "JUNK",
       "source_id": "CALL",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "google_com",
@@ -73365,11 +73365,23 @@
     {
       "id": "158812",
       "date": "2026-08-12",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "com.google.android.googlequicksearchbox",
+      "utm_campaign": "(organic)",
+      "utm_medium": "organic"
+    },
+    {
+      "id": "158814",
+      "date": "2026-08-12",
       "status_id": "NEW",
       "source_id": "CALL",
       "semantic": "P",
       "amount": 0.0,
-      "manager_id": "12",
+      "manager_id": "1342",
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": ""
