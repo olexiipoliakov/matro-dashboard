@@ -178,7 +178,7 @@
       "tests": [],
       "constraints": [
         "ONLINE/OFFLINE status pills are derived purely from whether the corresponding fetch() succeeds, not from any real health-check endpoint (home.html: setSys())",
-        "card layout hardened for alignment/responsiveness: .glass is now flex-column with .card-cta pinned to the bottom via margin-top:auto, so all cards in a row end at the same height regardless of title/stat length; card-name/card-desc/updated-note truncate with ellipsis instead of wrapping unevenly; mobile (<600px) stacks the CTA row and lets updated-note wrap normally"
+        "card-name/card-desc/stat values wrap naturally (no forced nowrap+ellipsis — an earlier attempt at that truncated visible numbers like \"73 187\" into \"73 ...\", which was worse than the misalignment it tried to fix); alignment across cards comes only from .glass flex-column + .card-cta{margin-top:auto}, and stat values use a responsive clamp() font-size so long numbers shrink instead of clipping"
       ],
       "evidence": [
         "home.html:275-330 (loadSMM/loadSEO)",

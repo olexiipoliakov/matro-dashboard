@@ -123,8 +123,8 @@
   .seo .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
   .crm .card-icon{background:rgba(155,127,232,.15);color:var(--crm)}
   .card-id > div{min-width:0}
-  .card-name{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card-name{font-size:16px;font-weight:600}
+  .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
   .card-badges{display:flex;align-items:center;gap:8px;flex-shrink:0}
   .card-tag{font-size:11px;font-weight:600;color:var(--ink-soft);background:rgba(255,255,255,.04);
     border:1px solid var(--border);padding:5px 11px;border-radius:20px;white-space:nowrap}
@@ -135,12 +135,10 @@
   .trend-badge.down{color:var(--danger);background:rgba(255,94,108,.12)}
   .trend-badge.flat{color:var(--ink-soft);background:rgba(255,255,255,.04)}
 
-  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .stat-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 14px;margin-bottom:18px}
   .stat{min-width:0}
-  .stat .v{font-size:21px;font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .stat .l{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat .v{font-size:clamp(15px,4vw,21px);font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
   .stat .d{font-size:11px;margin-top:3px;font-weight:600}
   .stat .d.up{color:var(--success)}.stat .d.down{color:var(--danger)}
 
@@ -159,8 +157,7 @@
   .crm .btn-primary{background:linear-gradient(90deg,var(--crm),var(--crm-2))}
   .crm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(155,127,232,.35)}
   .btn-primary i{width:14px;height:14px}
-  .updated-note{font-size:11px;color:var(--ink-dim);white-space:nowrap;text-align:right;min-width:0;
-    overflow:hidden;text-overflow:ellipsis}
+  .updated-note{font-size:11px;color:var(--ink-dim);text-align:right;min-width:60px;line-height:1.4}
 
   .skeleton{color:var(--ink-dim);font-size:13px;padding:20px 0;text-align:center}
 
