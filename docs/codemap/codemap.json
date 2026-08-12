@@ -178,7 +178,8 @@
       "tests": [],
       "constraints": [
         "ONLINE/OFFLINE status pills are derived purely from whether the corresponding fetch() succeeds, not from any real health-check endpoint (home.html: setSys())",
-        "card-name/card-desc/stat values wrap naturally (no forced nowrap+ellipsis — an earlier attempt at that truncated visible numbers like \"73 187\" into \"73 ...\", which was worse than the misalignment it tried to fix); alignment across cards comes only from .glass flex-column + .card-cta{margin-top:auto}, and stat values use a responsive clamp() font-size so long numbers shrink instead of clipping"
+        "card-name/card-desc/stat values wrap naturally (no forced nowrap+ellipsis — an earlier attempt at that truncated visible numbers like \"73 187\" into \"73 ...\", which was worse than the misalignment it tried to fix); alignment across cards comes only from .glass flex-column + .card-cta{margin-top:auto}, and stat values use a responsive clamp() font-size so long numbers shrink instead of clipping",
+        "card grid is a fixed 2-column layout (900px breakpoint collapses to 1) — the 3rd card (CRM) wraps to its own row at half width; gives each card more room, avoiding the number-overlap that occurred when 3 cards squeezed into one row"
       ],
       "evidence": [
         "home.html:275-330 (loadSMM/loadSEO)",

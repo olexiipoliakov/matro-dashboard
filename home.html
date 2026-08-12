@@ -97,7 +97,8 @@
   .pill.on{color:var(--success)}.pill.off{color:var(--danger)}
 
   /* ── grid карточек ── */
-  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
 
   .glass{
     background:rgba(16,21,34,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
