@@ -303,7 +303,7 @@
       "id": "bitrix-html",
       "path": "bitrix.html",
       "type": "ui",
-      "role": "CRM dashboard: a date-range picker (Сьогодні/Вчора/7/14/30 днів/Всі + custom range, same pattern as index.html) drives client-side aggregation of the raw deals/leads arrays into KPI cards, a daily deals/leads chart, a deal funnel by stage, a per-manager stats table (deals, won, lost, leads, conversions), lead status/source breakdowns, and UTM-tagged analytics with sums. A separate (period-independent) overdue-tasks section shows bucket counts (1-3/4-7/8-14/15+ days), a per-responsible breakdown, and the oldest overdue items. A dedicated \"Причини забракування лідів\" panel breaks rejected leads down by their specific status (Bitrix groups multiple distinct junk reasons under one semantic-F category, not a single status). Manager table columns: Угод/Сума угод/Виграно угод (deal-level), Лідів/Забраковано лідів/Конверсія лід→угода % (lead-level, percentage not raw count).",
+      "role": "CRM dashboard: a date-range picker (Сьогодні/Вчора/7/14/30 днів/Всі + custom range, same pattern as index.html) drives client-side aggregation of the raw deals/leads arrays into KPI cards, a daily deals/leads chart, a deal funnel by stage, a per-manager stats table (deals, won, lost, leads, conversions), lead status/source breakdowns, and UTM-tagged analytics with sums. A separate (period-independent) overdue-tasks section shows bucket counts (1-3/4-7/8-14/15+ days), a per-responsible breakdown, and the oldest overdue items. A dedicated \"Причини забракування лідів\" panel breaks rejected leads down by their specific status (Bitrix groups multiple distinct junk reasons under one semantic-F category, not a single status). Manager table columns: Угод/Сума угод/Виграно угод (deal-level), Лідів/Забраковано лідів/Конверсія лід→угода % (lead-level, percentage not raw count). Manager rows are clickable — selecting one drills into a per-manager panel showing their lead sources and rejection reasons (filtered from the same raw leads array, no extra fetch).",
       "entrypoints": [
         "load() called at script end (bitrix.html)"
       ],
@@ -317,7 +317,8 @@
         "bitrix.html:267-320 (setPeriod()/setPeriodDays()/setCustom(), mirrors index.html's picker)",
         "bitrix.html:322-380 (aggregateDeals()/aggregateLeads(), client-side re-aggregation for any date range)",
         "bitrix.html:441-450 (renderManagers())",
-        "bitrix.html:478-520 (renderOverdue(), bucket + per-responsible stats)"
+        "bitrix.html:478-520 (renderOverdue(), bucket + per-responsible stats)",
+        "bitrix.html: selectManager()/closeManagerDetail()"
       ]
     },
     {

@@ -181,6 +181,7 @@
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Угоди та ліди за вибраний період у розрізі відповідального</div>
   <div class="panel">
     <div class="table-scroll"><table class="data-table" id="manager-table"></table></div>
+    <div id="manager-detail" style="display:none;margin-top:16px;padding-top:16px;border-top:2px solid var(--ink)"></div>
   </div>
 
   <div class="sec-head"><span class="n">4</span><h2>Ліди по днях</h2><span class="ln"></span></div>
@@ -415,7 +416,10 @@ function aggregateLeads(leads, byManagerFromDeals){
 }
 function round1(n){ return Math.round(n*10)/10; }
 
+let CURRENT_LEADS_RAW=[], CURRENT_DEALS_RAW=[], SELECTED_MANAGER=null;
+
 function render(dealsRaw, leadsRaw){
+  CURRENT_DEALS_RAW=dealsRaw; CURRENT_LEADS_RAW=leadsRaw;
   const deals=aggregateDeals(dealsRaw);
   const leads=aggregateLeads(leadsRaw, deals.by_manager);
 
@@ -430,6 +434,7 @@ function render(dealsRaw, leadsRaw){
   renderChart('leads-chart', leads.daily, r=>r.count, r=>`${fmt(r.count)} лідів`);
   renderFunnel(deals.by_stage);
   renderManagers(deals.by_manager);
+  if(SELECTED_MANAGER) selectManager(SELECTED_MANAGER, true);
   renderBreakdown('lead-statuses', leads.by_status, x=>x.name, x=>x.count);
   renderBreakdown('lead-sources', leads.by_source, x=>x.name, x=>x.count);
   renderBreakdown('lead-reject-reasons', leads.by_reject_reason, x=>x.name, x=>x.count, true);
@@ -469,7 +474,8 @@ function renderManagers(byManager){
   const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Виграно угод</th><th>Лідів</th><th>Забраковано лідів</th><th>Конверсія лід→угода</th></tr></thead>`;
   const body=rows.map(m=>{
     const rate = m.leads ? round1(m.leadsConverted/m.leads*100) : 0;
-    return `<tr>
+    const active = SELECTED_MANAGER===m.manager_id ? 'style="background:#f4f1fb;cursor:pointer" ' : 'style="cursor:pointer" ';
+    return `<tr ${active}onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити джерела лідів">
     <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
     <td style="color:var(--good)">${fmt(m.won)}</td>
     <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
@@ -478,6 +484,70 @@ function renderManagers(byManager){
   }).join('');
   table.innerHTML=head+`<tbody>${body}</tbody>`;
 }
+
+function selectManager(mgrId, silent){
+  SELECTED_MANAGER = mgrId;
+  const leads = CURRENT_LEADS_RAW.filter(l=>(l.manager_id||'')===mgrId);
+  const detail = document.getElementById('manager-detail');
+  const name = managerName(mgrId);
+
+  if(!silent){
+    // перемальовуємо таблицю, щоб підсвітити вибраний рядок
+    const deals = aggregateDeals(CURRENT_DEALS_RAW);
+    renderManagers(deals.by_manager);
+  }
+
+  if(!leads.length){
+    detail.style.display='block';
+    detail.innerHTML = `<div class="empty-note">У ${name} немає лідів за цей період.</div>`;
+    return;
+  }
+
+  const bySource={}, byReason={};
+  let converted=0;
+  leads.forEach(l=>{
+    if(!bySource[l.source_id]) bySource[l.source_id]={name:sourceName(l.source_id),count:0};
+    bySource[l.source_id].count++;
+    if(l.semantic==='C') converted++;
+    else if(l.semantic==='F'){
+      if(!byReason[l.status_id]) byReason[l.status_id]={name:statusName(l.status_id),count:0};
+      byReason[l.status_id].count++;
+    }
+  });
+  const sourceRows=Object.values(bySource).sort((a,b)=>b.count-a.count);
+  const reasonRows=Object.values(byReason).sort((a,b)=>b.count-a.count);
+  const maxS=Math.max(1,...sourceRows.map(x=>x.count));
+  const maxR=Math.max(1,...reasonRows.map(x=>x.count));
+
+  detail.style.display='block';
+  detail.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700">${name} — джерела лідів (${leads.length}, конвертовано ${converted})</div>
+      <span class="qcat-close" style="cursor:pointer;font-size:12px;color:var(--ink-soft)" onclick="closeManagerDetail()">Закрити ×</span>
+    </div>
+    <div class="cols2">
+      <div>
+        <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">Джерела лідів</div>
+        ${sourceRows.map(x=>`<div class="bd-row"><div class="bd-name" title="${x.name}">${x.name}</div>
+          <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxS*100)}%"></div></div>
+          <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Немає даних.</div>'}
+      </div>
+      <div>
+        <div style="font-size:12.5px;font-weight:600;margin-bottom:8px;color:var(--bad)">Причини забракування</div>
+        ${reasonRows.map(x=>`<div class="bd-row"><div class="bd-name" title="${x.name}">${x.name}</div>
+          <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxR*100)}%;background:linear-gradient(90deg,var(--bad),#e08a76)"></div></div>
+          <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Забракованих лідів немає 🎉</div>'}
+      </div>
+    </div>`;
+}
+
+function closeManagerDetail(){
+  SELECTED_MANAGER=null;
+  document.getElementById('manager-detail').style.display='none';
+  const deals = aggregateDeals(CURRENT_DEALS_RAW);
+  renderManagers(deals.by_manager);
+}
+
 
 function renderBreakdown(elId, items, nameFn, countFn, danger){
   const el=document.getElementById(elId);
