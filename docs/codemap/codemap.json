@@ -310,7 +310,8 @@
       "tests": [],
       "constraints": [
         "fails open with a visible error box if bitrix_data.json is missing or invalid JSON (bitrix.html: load()/showError())",
-        "stageMeta() falls back to matching /WON/i or /LOSE|FAIL|LOSS/i on the stage_id string when meta.stages[id].semantics is blank — on this Bitrix portal the official SEMANTICS field from crm.dealcategory.stage.list came back empty even for the WON stage, so relying on it alone silently zeroed out won/lost counts everywhere"
+        "stageMeta() falls back to matching /WON/i or /LOSE|FAIL|LOSS/i on the stage_id string when meta.stages[id].semantics is blank — on this Bitrix portal the official SEMANTICS field from crm.dealcategory.stage.list came back empty even for the WON stage, so relying on it alone silently zeroed out won/lost counts everywhere",
+        "fixed a bug where clicking a manager row re-ran aggregateDeals() alone to refresh the table highlight, which produced a fresh by_manager object without the lead-side fields merged in (aggregateLeads never ran on it) — zeroing Лідів/Забраковано лідів/Конверсія on click; fixed by caching the fully-merged by_manager object (CURRENT_BY_MANAGER, set once per render() after both aggregations complete) and reusing it for re-renders instead of recomputing"
       ],
       "evidence": [
         "bitrix.html: load()/render()",

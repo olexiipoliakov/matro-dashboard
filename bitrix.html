@@ -416,12 +416,13 @@ function aggregateLeads(leads, byManagerFromDeals){
 }
 function round1(n){ return Math.round(n*10)/10; }
 
-let CURRENT_LEADS_RAW=[], CURRENT_DEALS_RAW=[], SELECTED_MANAGER=null;
+let CURRENT_LEADS_RAW=[], CURRENT_DEALS_RAW=[], SELECTED_MANAGER=null, CURRENT_BY_MANAGER={};
 
 function render(dealsRaw, leadsRaw){
   CURRENT_DEALS_RAW=dealsRaw; CURRENT_LEADS_RAW=leadsRaw;
   const deals=aggregateDeals(dealsRaw);
   const leads=aggregateLeads(leadsRaw, deals.by_manager);
+  CURRENT_BY_MANAGER = deals.by_manager; // після aggregateLeads тут вже є й дані по лідах (той самий об'єкт)
 
   document.getElementById('kpis').innerHTML=`
     <div class="kpi"><div class="lbl">Угод</div><div class="val">${fmt(deals.total_count)}</div><div class="sub">${fmt(deals.total_sum)} грн</div></div>
@@ -492,9 +493,9 @@ function selectManager(mgrId, silent){
   const name = managerName(mgrId);
 
   if(!silent){
-    // перемальовуємо таблицю, щоб підсвітити вибраний рядок
-    const deals = aggregateDeals(CURRENT_DEALS_RAW);
-    renderManagers(deals.by_manager);
+    // перемальовуємо таблицю, щоб підсвітити вибраний рядок (використовуємо
+    // вже об'єднані з лідами дані, а не перерахунок лише по угодах)
+    renderManagers(CURRENT_BY_MANAGER);
   }
 
   if(!leads.length){
@@ -544,8 +545,7 @@ function selectManager(mgrId, silent){
 function closeManagerDetail(){
   SELECTED_MANAGER=null;
   document.getElementById('manager-detail').style.display='none';
-  const deals = aggregateDeals(CURRENT_DEALS_RAW);
-  renderManagers(deals.by_manager);
+  renderManagers(CURRENT_BY_MANAGER);
 }
 
 
