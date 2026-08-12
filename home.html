@@ -103,6 +103,7 @@
     background:rgba(16,21,34,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
     border:1px solid var(--border); border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,.35);
     padding:26px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; min-width:0;
     transition:transform 300ms cubic-bezier(.2,.8,.2,1), box-shadow 300ms cubic-bezier(.2,.8,.2,1),
                border-color 300ms cubic-bezier(.2,.8,.2,1), background 300ms cubic-bezier(.2,.8,.2,1);
     opacity:0; transform:translateY(20px); animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards;
@@ -114,15 +115,17 @@
   .glass:hover{transform:translateY(-6px) scale(1.01);background:var(--card-hover);
     border-color:var(--border-strong);box-shadow:0 40px 100px rgba(0,0,0,.45)}
 
-  .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-  .card-id{display:flex;align-items:center;gap:12px}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+  .card-id{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
   .card-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .card-icon i{width:19px;height:19px}
   .smm .card-icon{background:rgba(255,140,66,.12);color:var(--accent)}
   .seo .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
   .crm .card-icon{background:rgba(155,127,232,.15);color:var(--crm)}
-  .card-name{font-size:16px;font-weight:600}
-  .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .card-id > div{min-width:0}
+  .card-name{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card-badges{display:flex;align-items:center;gap:8px;flex-shrink:0}
   .card-tag{font-size:11px;font-weight:600;color:var(--ink-soft);background:rgba(255,255,255,.04);
     border:1px solid var(--border);padding:5px 11px;border-radius:20px;white-space:nowrap}
   .trend-badge{font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;display:none;
@@ -133,18 +136,21 @@
   .trend-badge.flat{color:var(--ink-soft);background:rgba(255,255,255,.04)}
 
   .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-  .stat .v{font-size:21px;font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
-  .stat .l{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+  .stat{min-width:0}
+  .stat .v{font-size:21px;font-weight:700;letter-spacing:-.3px;font-variant-numeric:tabular-nums;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat .l{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .stat .d{font-size:11px;margin-top:3px;font-weight:600}
   .stat .d.up{color:var(--success)}.stat .d.down{color:var(--danger)}
 
-  .chart-box{margin:4px 0 16px;position:relative}
+  .chart-box{margin:4px 0 16px;position:relative;flex:1;display:flex;align-items:flex-end;min-height:60px}
   .chart-box svg{width:100%;height:auto;display:block;overflow:visible}
 
-  .card-cta{display:flex;align-items:center;justify-content:space-between;padding-top:16px;
-    border-top:1px solid var(--border)}
+  .card-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:16px;
+    border-top:1px solid var(--border);margin-top:auto}
   .btn-primary{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#fff;
-    text-decoration:none;padding:9px 16px;border-radius:10px;
+    text-decoration:none;padding:9px 16px;border-radius:10px;white-space:nowrap;flex-shrink:0;
     background:linear-gradient(90deg,var(--accent),var(--accent-2));
     transition:transform 200ms ease, box-shadow 200ms ease}
   .smm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,140,66,.35)}
@@ -153,15 +159,21 @@
   .crm .btn-primary{background:linear-gradient(90deg,var(--crm),var(--crm-2))}
   .crm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(155,127,232,.35)}
   .btn-primary i{width:14px;height:14px}
-  .updated-note{font-size:11px;color:var(--ink-dim)}
+  .updated-note{font-size:11px;color:var(--ink-dim);white-space:nowrap;text-align:right;min-width:0;
+    overflow:hidden;text-overflow:ellipsis}
 
   .skeleton{color:var(--ink-dim);font-size:13px;padding:20px 0;text-align:center}
 
   @media(max-width:600px){
     .wrap{padding:24px 16px 48px}
+    .grid2{gap:14px}
+    .glass{padding:20px}
     .stat-row{grid-template-columns:repeat(2,1fr);row-gap:14px}
+    .stat .v{font-size:18px}
     .head-right{align-items:flex-start;width:100%}
     .sys-status{width:100%}
+    .card-cta{flex-wrap:wrap}
+    .updated-note{white-space:normal;text-align:left;width:100%}
   }
 </style>
 </head>
@@ -214,7 +226,7 @@
           <div class="card-icon"><i data-lucide="megaphone"></i></div>
           <div><div class="card-name">SMM &amp; Реклама</div><div class="card-desc">Meta Ads · Кампанії Plume</div></div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div class="card-badges">
           <span class="trend-badge" id="smm-trend"></span>
           <span class="card-tag" id="smm-tag">—</span>
         </div>
@@ -233,7 +245,7 @@
           <div class="card-icon"><i data-lucide="search"></i></div>
           <div><div class="card-name">SEO</div><div class="card-desc">Google Search Console · matroluxe.ua</div></div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div class="card-badges">
           <span class="trend-badge" id="seo-trend"></span>
           <span class="card-tag" id="seo-tag">—</span>
         </div>
@@ -252,7 +264,7 @@
           <div class="card-icon"><i data-lucide="briefcase"></i></div>
           <div><div class="card-name">CRM</div><div class="card-desc">Bitrix24 · угоди та ліди</div></div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div class="card-badges">
           <span class="trend-badge" id="crm-trend"></span>
           <span class="card-tag" id="crm-tag">—</span>
         </div>
