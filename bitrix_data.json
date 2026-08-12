@@ -15909,6 +15909,26 @@
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": ""
+    },
+    {
+      "id": "139662",
+      "date": "2026-08-12",
+      "stage_id": "NEW",
+      "amount": 28506.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "139664",
+      "date": "2026-08-12",
+      "stage_id": "NEW",
+      "amount": 9687.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
     }
   ],
   "leads": [
@@ -72927,9 +72947,9 @@
     {
       "id": "158744",
       "date": "2026-08-12",
-      "status_id": "NEW",
+      "status_id": "CONVERTED",
       "source_id": "UC_5B6PJK",
-      "semantic": "P",
+      "semantic": "S",
       "amount": 28506.0,
       "manager_id": "128",
       "utm_source": "",
@@ -73206,6 +73226,78 @@
       "status_id": "JUNK",
       "source_id": "CALL",
       "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158792",
+      "date": "2026-08-12",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158794",
+      "date": "2026-08-12",
+      "status_id": "NEW",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google_com",
+      "utm_campaign": "Pmax_all_goroda_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158796",
+      "date": "2026-08-12",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158798",
+      "date": "2026-08-12",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158800",
+      "date": "2026-08-12",
+      "status_id": "NEW",
+      "source_id": "UC_S1T3W0",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158802",
+      "date": "2026-08-12",
+      "status_id": "NEW",
+      "source_id": "CALL",
+      "semantic": "P",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "",
