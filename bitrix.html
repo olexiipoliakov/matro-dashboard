@@ -349,7 +349,7 @@ function aggregateDeals(deals){
     else if(st.semantics==='F'){ lost++; lostSum+=d.amount; }
 
     const mgr=d.manager_id||'';
-    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0};
+    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0,leadsRejected:0};
     byManager[mgr].deals++; byManager[mgr].dealsSum+=d.amount;
     if(st.semantics==='S'){ byManager[mgr].won++; byManager[mgr].wonSum+=d.amount; }
     else if(st.semantics==='F'){ byManager[mgr].lost++; byManager[mgr].lostSum+=d.amount; }
@@ -392,9 +392,10 @@ function aggregateLeads(leads, byManagerFromDeals){
     }
 
     const mgr=l.manager_id||'';
-    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0};
+    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0,leadsRejected:0};
     byManager[mgr].leads++;
     if(l.semantic==='C') byManager[mgr].leadsConverted++;
+    else if(l.semantic==='F') byManager[mgr].leadsRejected++;
 
     const src=l.utm_source||'(не вказано)', camp=l.utm_campaign||'(не вказано)';
     const key=src+'||'+camp;
@@ -465,12 +466,16 @@ function renderManagers(byManager){
   const table=document.getElementById('manager-table');
   const rows=Object.values(byManager).sort((a,b)=>b.dealsSum-a.dealsSum);
   if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
-  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Виграно</th><th>Забраковано</th><th>Лідів</th><th>Конверт. лідів</th></tr></thead>`;
-  const body=rows.map(m=>`<tr>
+  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Виграно угод</th><th>Лідів</th><th>Забраковано лідів</th><th>Конверсія лід→угода</th></tr></thead>`;
+  const body=rows.map(m=>{
+    const rate = m.leads ? round1(m.leadsConverted/m.leads*100) : 0;
+    return `<tr>
     <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
-    <td style="color:var(--good)">${fmt(m.won)}</td><td style="color:var(--bad)">${fmt(m.lost)}</td>
-    <td>${fmt(m.leads)}</td><td>${fmt(m.leadsConverted)}</td>
-  </tr>`).join('');
+    <td style="color:var(--good)">${fmt(m.won)}</td>
+    <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
+    <td><b>${fmt1(rate)}%</b></td>
+  </tr>`;
+  }).join('');
   table.innerHTML=head+`<tbody>${body}</tbody>`;
 }
 
