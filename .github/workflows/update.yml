@@ -24,6 +24,7 @@ jobs:
         run: pip install requests google-auth google-auth-httplib2 google-api-python-client
 
       - name: Run Meta Ads fetch
+        continue-on-error: true
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
           META_ACCOUNT_ID: ${{ secrets.META_ACCOUNT_ID }}
@@ -31,14 +32,24 @@ jobs:
         run: python fetch_meta.py
 
       - name: Run GSC fetch
+        continue-on-error: true
         env:
           GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
         run: python fetch_gsc.py
+
+      - name: Run Bitrix fetch
+        continue-on-error: true
+        env:
+          BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+        run: python fetch_bitrix.py
 
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json images/ seo_data.json
+          git add data.json 2>/dev/null || true
+          git add images/ 2>/dev/null || true
+          git add seo_data.json 2>/dev/null || true
+          git add bitrix_data.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Update dashboard data $(date +'%Y-%m-%d')"
           git push
