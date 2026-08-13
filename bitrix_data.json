@@ -14833,7 +14833,7 @@
     {
       "id": "139486",
       "date": "2026-08-08",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 5562.0,
       "manager_id": "12",
       "utm_source": "",
@@ -14893,7 +14893,7 @@
     {
       "id": "139498",
       "date": "2026-08-08",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 5018.0,
       "manager_id": "12",
       "utm_source": "",
@@ -14983,7 +14983,7 @@
     {
       "id": "139515",
       "date": "2026-08-09",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 13613.0,
       "manager_id": "12",
       "utm_source": "DDA",
@@ -14993,7 +14993,7 @@
     {
       "id": "139517",
       "date": "2026-08-09",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 7106.0,
       "manager_id": "12",
       "utm_source": "",
@@ -15243,7 +15243,7 @@
     {
       "id": "139566",
       "date": "2026-08-10",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 13842.0,
       "manager_id": "12",
       "utm_source": "",
@@ -15343,7 +15343,7 @@
     {
       "id": "139586",
       "date": "2026-08-10",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 24158.0,
       "manager_id": "128",
       "utm_source": "",
@@ -15423,7 +15423,7 @@
     {
       "id": "139602",
       "date": "2026-08-11",
-      "stage_id": "2",
+      "stage_id": "LOSE",
       "amount": 6951.0,
       "manager_id": "1342",
       "utm_source": "<none>",
@@ -15543,7 +15543,7 @@
     {
       "id": "139626",
       "date": "2026-08-12",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 17502.0,
       "manager_id": "12",
       "utm_source": "",
@@ -15693,7 +15693,7 @@
     {
       "id": "139656",
       "date": "2026-08-12",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 7280.0,
       "manager_id": "128",
       "utm_source": "",
@@ -15773,7 +15773,7 @@
     {
       "id": "139672",
       "date": "2026-08-12",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 5293.0,
       "manager_id": "1342",
       "utm_source": "",
@@ -15783,7 +15783,7 @@
     {
       "id": "139674",
       "date": "2026-08-13",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 10941.0,
       "manager_id": "12",
       "utm_source": "google",
@@ -15793,12 +15793,82 @@
     {
       "id": "139676",
       "date": "2026-08-13",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 12791.0,
       "manager_id": "12",
       "utm_source": "google",
       "utm_campaign": "brand",
       "utm_medium": "cpc"
+    },
+    {
+      "id": "139678",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 10614.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "google_cpc",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "139680",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 43093.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "139682",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 17296.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "139684",
+      "date": "2026-08-13",
+      "stage_id": "2",
+      "amount": 5908.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "139686",
+      "date": "2026-08-13",
+      "stage_id": "2",
+      "amount": 8217.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "139688",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 18113.0,
+      "manager_id": "1342",
+      "utm_source": "google",
+      "utm_campaign": "Search_matras",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "139690",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 10209.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
     }
   ],
   "leads": [
@@ -59533,9 +59603,9 @@
     {
       "id": "156574",
       "date": "2026-07-26",
-      "status_id": "IN_PROCESS",
+      "status_id": "JUNK",
       "source_id": "CALL",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "12",
       "utm_source": "",
@@ -69301,9 +69371,9 @@
     {
       "id": "158244",
       "date": "2026-08-08",
-      "status_id": "IN_PROCESS",
+      "status_id": "JUNK",
       "source_id": "CALL",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "12",
       "utm_source": "",
@@ -70321,9 +70391,9 @@
     {
       "id": "158430",
       "date": "2026-08-10",
-      "status_id": "JUNK",
+      "status_id": "CONVERTED",
       "source_id": "CALL",
-      "semantic": "F",
+      "semantic": "S",
       "amount": 0.0,
       "manager_id": "1342",
       "utm_source": "",
@@ -72745,9 +72815,9 @@
     {
       "id": "158852",
       "date": "2026-08-13",
-      "status_id": "NEW",
+      "status_id": "JUNK",
       "source_id": "1",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "12",
       "utm_source": "",
@@ -72757,9 +72827,9 @@
     {
       "id": "158854",
       "date": "2026-08-13",
-      "status_id": "NEW",
+      "status_id": "JUNK",
       "source_id": "UC_8AMYMZ",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 17502.0,
       "manager_id": "1342",
       "utm_source": "google",
@@ -72781,11 +72851,371 @@
     {
       "id": "158858",
       "date": "2026-08-13",
-      "status_id": "NEW",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158860",
+      "date": "2026-08-13",
+      "status_id": "CONVERTED",
+      "source_id": "UC_8AMYMZ",
+      "semantic": "S",
+      "amount": 10614.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "google_cpc",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158862",
+      "date": "2026-08-13",
+      "status_id": "CONVERTED",
+      "source_id": "1",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158864",
+      "date": "2026-08-13",
+      "status_id": "IN_PROCESS",
       "source_id": "CALL",
       "semantic": "P",
       "amount": 0.0,
       "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158866",
+      "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158868",
+      "date": "2026-08-13",
+      "status_id": "CONVERTED",
+      "source_id": "WEBFORM",
+      "semantic": "S",
+      "amount": 5908.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158870",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "Обратный звонок",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "google",
+      "utm_campaign": "search_matrasy_com_goroda",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158872",
+      "date": "2026-08-13",
+      "status_id": "IN_PROCESS",
+      "source_id": "1",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158874",
+      "date": "2026-08-13",
+      "status_id": "IN_PROCESS",
+      "source_id": "UC_5B6PJK",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "google_com",
+      "utm_campaign": "Pmax_all_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158876",
+      "date": "2026-08-13",
+      "status_id": "CONVERTED",
+      "source_id": "1",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158878",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158880",
+      "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "google",
+      "utm_campaign": "Sale",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158882",
+      "date": "2026-08-13",
+      "status_id": "CONVERTED",
+      "source_id": "CALL",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "google",
+      "utm_campaign": "Search_matras",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158884",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "122",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158886",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "www.google.com",
+      "utm_campaign": "(organic)",
+      "utm_medium": "organic"
+    },
+    {
+      "id": "158888",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "1",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158890",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "122",
+      "utm_source": "google_com",
+      "utm_campaign": "brand_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158892",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158894",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "OTHER",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158896",
+      "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158898",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158900",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "google",
+      "utm_campaign": "All_old",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158902",
+      "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158904",
+      "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158906",
+      "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158908",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 17506.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158910",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "1",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158912",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "UC_8AMYMZ",
+      "semantic": "F",
+      "amount": 4740.0,
+      "manager_id": "122",
+      "utm_source": "google",
+      "utm_campaign": "google_cpc",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158914",
+      "date": "2026-08-13",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "google_com",
+      "utm_campaign": "Pmax_all_goroda_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158916",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158918",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "1",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": ""
@@ -100613,26 +101043,6 @@
       }
     },
     {
-      "deal_id": "139602",
-      "date": "2026-08-11",
-      "source_id": "1",
-      "turnover": 6201.0,
-      "turnover_excl_wholesale": 6201.0,
-      "categories": {
-        "mattresses": 0.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 6201.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
       "deal_id": "139604",
       "date": "2026-08-11",
       "source_id": "UC_5B6PJK",
@@ -101345,6 +101755,146 @@
         "case_furniture": 0.0
       },
       "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139678",
+      "date": "2026-08-13",
+      "source_id": "UC_8AMYMZ",
+      "turnover": 10614.0,
+      "turnover_excl_wholesale": 10614.0,
+      "categories": {
+        "mattresses": 10614.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139680",
+      "date": "2026-08-13",
+      "source_id": "WEBFORM",
+      "turnover": 43093.0,
+      "turnover_excl_wholesale": 43093.0,
+      "categories": {
+        "mattresses": 43093.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139682",
+      "date": "2026-08-13",
+      "source_id": "1",
+      "turnover": 17296.0,
+      "turnover_excl_wholesale": 17296.0,
+      "categories": {
+        "mattresses": 0.0,
+        "soft_furniture": 17296.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139684",
+      "date": "2026-08-13",
+      "source_id": "WEBFORM",
+      "turnover": 5908.0,
+      "turnover_excl_wholesale": 5908.0,
+      "categories": {
+        "mattresses": 5908.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139686",
+      "date": "2026-08-13",
+      "source_id": "1",
+      "turnover": 6201.0,
+      "turnover_excl_wholesale": 6201.0,
+      "categories": {
+        "mattresses": 6201.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139688",
+      "date": "2026-08-13",
+      "source_id": "CALL",
+      "turnover": 18113.0,
+      "turnover_excl_wholesale": 18113.0,
+      "categories": {
+        "mattresses": 18113.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139690",
+      "date": "2026-08-13",
+      "source_id": "CALL",
+      "turnover": 10209.0,
+      "turnover_excl_wholesale": 10209.0,
+      "categories": {
+        "mattresses": 9824.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 385.0,
       "unrecognized": 0.0,
       "flags": {
         "wholesale": false,
