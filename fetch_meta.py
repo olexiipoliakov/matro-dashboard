@@ -26,6 +26,9 @@ from pathlib import Path
 import requests
 
 ACCESS_TOKEN  = os.environ.get("META_ACCESS_TOKEN", "PASTE_YOUR_TOKEN_HERE")
+# Окремий токен для акаунта Matro — може відрізнятись від Plume (інший Business
+# Manager / інша авторизація). Якщо не задано — падає назад на META_ACCESS_TOKEN.
+ACCESS_TOKEN_2 = os.environ.get("META_ACCESS_TOKEN_MATRO", "")
 ACCOUNT_ID    = os.environ.get("META_ACCOUNT_ID",   "act_XXXXXXXXXX")
 ACCOUNT_ID_2  = os.environ.get("META_ACCOUNT_ID_2", "act_248358219946238")  # Matro
 API_VERSION   = "v21.0"
@@ -302,12 +305,14 @@ def download_images(banners):
         b["image"] = f"images/{fname}"
 
 
-def build(account_id=None, out_path=None, account_name=""):
-    global ACCOUNT_ID, OUT
+def build(account_id=None, out_path=None, account_name="", access_token=None):
+    global ACCOUNT_ID, OUT, ACCESS_TOKEN
     if account_id:
         ACCOUNT_ID = account_id
     if out_path:
         OUT = out_path
+    if access_token:
+        ACCESS_TOKEN = access_token
 
     label = f"[{account_name}] " if account_name else ""
     seen = set()
@@ -443,18 +448,23 @@ if __name__ == "__main__":
 
         # Аккаунт 2 — Matro (вкладка "Matro" в index.html, switchAccount('data2.json','Matro'))
         if "XXXX" not in ACCOUNT_ID_2:
-            print("\n" + "=" * 50)
-            print("АККАУНТ 2: Matro")
-            print("=" * 50)
-            try:
-                build(
-                    account_id=ACCOUNT_ID_2,
-                    out_path=Path(__file__).parent / "data2.json",
-                    account_name="Matro"
-                )
-            except Exception as e:
-                # Один впавший акаунт не повинен ламати весь скрипт — Plume вже
-                # збережено вище, і крок workflow все одно піде далі (continue-on-error).
-                print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}")
+            if not ACCESS_TOKEN_2:
+                print("\n⚠  META_ACCESS_TOKEN_MATRO не задан — аккаунт Matro пропущен "
+                      "(нужен отдельный токен, если Plume-токен не видит рекламный кабинет Matro).")
+            else:
+                print("\n" + "=" * 50)
+                print("АККАУНТ 2: Matro")
+                print("=" * 50)
+                try:
+                    build(
+                        account_id=ACCOUNT_ID_2,
+                        out_path=Path(__file__).parent / "data2.json",
+                        account_name="Matro",
+                        access_token=ACCESS_TOKEN_2,
+                    )
+                except Exception as e:
+                    # Один впавший акаунт не повинен ламати весь скрипт — Plume вже
+                    # збережено вище, і крок workflow все одно піде далі (continue-on-error).
+                    print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}")
         else:
             print("\n⚠  META_ACCOUNT_ID_2 не задан — аккаунт Matro пропущен.")

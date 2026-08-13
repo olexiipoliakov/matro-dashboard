@@ -27,6 +27,7 @@ jobs:
         continue-on-error: true
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          META_ACCESS_TOKEN_MATRO: ${{ secrets.META_ACCESS_TOKEN_MATRO }}
           META_ACCOUNT_ID: ${{ secrets.META_ACCOUNT_ID }}
           META_ACCOUNT_ID_2: ${{ secrets.META_ACCOUNT_ID_2 }}
         run: python fetch_meta.py

@@ -22,13 +22,13 @@
   "fingerprint_algorithm": "sha256(sorted tracked file paths + file contents, concatenated)",
   "modules": {
     ".github/workflows/update.yml": {
-      "fingerprint": "4a43c3dfe485af525010cb573141c94db79f18775a0c4d470324e115e6354509",
+      "fingerprint": "7e2f8923519f1ff6b0b4065c11d04f8c8be320f44cec772ee8c717a51730e7ba",
       "files": [
         ".github/workflows/update.yml"
       ]
     },
     "fetch_meta.py": {
-      "fingerprint": "391fd180742cf290cb4c0ba9228cc18de82563eac9857d901013d75cd458198e",
+      "fingerprint": "cf0c361bae8da75ca27f8ada1fe60c9f6baa666e92d53df4203a59d7a6d3593a",
       "files": [
         "fetch_meta.py"
       ]
