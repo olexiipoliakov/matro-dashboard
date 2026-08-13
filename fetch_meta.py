@@ -440,3 +440,21 @@ if __name__ == "__main__":
             out_path=Path(__file__).parent / "data.json",
             account_name="Plume"
         )
+
+        # Аккаунт 2 — Matro (вкладка "Matro" в index.html, switchAccount('data2.json','Matro'))
+        if "XXXX" not in ACCOUNT_ID_2:
+            print("\n" + "=" * 50)
+            print("АККАУНТ 2: Matro")
+            print("=" * 50)
+            try:
+                build(
+                    account_id=ACCOUNT_ID_2,
+                    out_path=Path(__file__).parent / "data2.json",
+                    account_name="Matro"
+                )
+            except Exception as e:
+                # Один впавший акаунт не повинен ламати весь скрипт — Plume вже
+                # збережено вище, і крок workflow все одно піде далі (continue-on-error).
+                print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}")
+        else:
+            print("\n⚠  META_ACCOUNT_ID_2 не задан — аккаунт Matro пропущен.")

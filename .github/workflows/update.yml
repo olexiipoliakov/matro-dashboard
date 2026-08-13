@@ -48,6 +48,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json 2>/dev/null || true
+          git add data2.json 2>/dev/null || true
           git add images/ 2>/dev/null || true
           git add seo_data.json 2>/dev/null || true
           git add bitrix_data.json 2>/dev/null || true
