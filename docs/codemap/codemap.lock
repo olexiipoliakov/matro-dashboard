@@ -7,6 +7,7 @@
     "README.md",
     "bitrix.html",
     "data.json",
+    "docs/deal-categorization-methodology.md",
     "fetch_bitrix.py",
     "fetch_gsc.py",
     "fetch_meta.py",
@@ -69,13 +70,13 @@
       ]
     },
     "fetch_bitrix.py": {
-      "fingerprint": "9bb3b277a1f0814544e316bcb1625dbbcaf205793bfec4891de97d6b66b8ae7a",
+      "fingerprint": "27be92ba39ec38e7abf4d51263d2c28c5f4e32cda6ad77c58e07ec1e8266eccc",
       "files": [
         "fetch_bitrix.py"
       ]
     },
     "bitrix.html": {
-      "fingerprint": "130037c2d852185f564e3fa9a0c83ca32cd3c8682bedb365ad6a8a096ed0258f",
+      "fingerprint": "6160ab391a63d292a4d1319fa1745551c1a395583f5d21d275055486aced3147",
       "files": [
         "bitrix.html"
       ]

@@ -113,6 +113,154 @@ def fetch_deals(start_date):
         "order[DATE_CREATE]": "ASC",
     })
 
+# ── Категоризація товарних позицій угод (методика DEAL_*.xls) ──────────────
+# Джерело: docs/deal-categorization-methodology.md — ручна методика розбору
+# дневного экспорта, перенесена сюди 1:1, щоб дашборд рахував те саме
+# автоматично з тих самих даних Bitrix (продуктові рядки угод).
+
+EXCLUDED_STAGE_NAMES = {"отказ клиента", "ошибочный"}  # крок 1 — виключити угоду ЦІЛКОМ
+
+SERVICE_KEYWORDS = ["наложк", "наложен", "наклад", "налокж", "достак", "доствк", "3анос",
+                     "доставк", "занос", "виніс", "підйом на поверх", "послуга збірки", "збірка в день"]
+
+CATEGORY_RULES_PRODUCT = [
+    # порядок — пріоритет з методики (крок 3): перший збіг перемагає
+    ("accessories",     "Аксесуари",       ["наматрацник", "наматрасник", "подушк", "ковдра",
+                                             "підматрацник", "подматрасник", "чохол-сумка", "чехол-сумка"]),
+    ("wardrobes",        "Шафи",           ["шафа", "шкаф", "антресоль", "пенал"]),
+    ("case_furniture",   "Корпусні меблі", ["тумба", "передпокій", "прихож", "стіл", "стол"]),
+    ("soft_furniture",   "М'яка меблі",    ["ліжко", "кровать", "диван", "подіум", "крісло", "каркас", "комплект"]),
+    ("mattresses",       "Матраци",        ["матрац", "матрас", "топпер", "топер", "ортопед", "футон"]),
+]
+CATEGORY_NAMES_PRODUCT = {k: n for k, n, _ in CATEGORY_RULES_PRODUCT}
+CATEGORY_NAMES_PRODUCT["unrecognized"] = "Нерозпізнано"
+
+# крок 4 — "голі" назви моделей матраців (без слова "матрац" у назві).
+# Список зростає по ходу розбору файлів — це стартовий набір з методики.
+KNOWN_MATTRESS_MODELS = [
+    "азалія", "azalia", "leo kokos", "leo", "провансе", "provance", "прованс", "бордо", "bordo",
+    "аура кокос", "aura kokos", "трафік", "traffic", "діамант", "diamond", "leeds", "лідс",
+    "ретріт", "retreat", "камелія", "camelia", "амор", "amore", "meditation", "медитейшн",
+    "light kokos", "лайт кокос",
+]
+
+def is_service_line(name):
+    """Крок 2 — рядок-послуга (доставка/наложка/занос/підйом/збірка), не товар."""
+    n = (name or "").strip().lower()
+    return any(k in n for k in SERVICE_KEYWORDS)
+
+def has_sluzhbovka_flag(name):
+    """Прапор «службовка» в назві — підсвічуємо, не виключаємо автоматично."""
+    return "службов" in (name or "").lower()
+
+def classify_product_category(name):
+    """Крок 3 + крок 4: категорія товарної позиції за ключовими словами,
+    з фолбеком на список відомих моделей матраців для «голих» назв."""
+    n = (name or "").strip().lower()
+    for key, _name, keywords in CATEGORY_RULES_PRODUCT:
+        if any(k in n for k in keywords):
+            return key
+    if any(model in n for model in KNOWN_MATTRESS_MODELS):
+        return "mattresses"
+    return "unrecognized"
+
+def fetch_batch(commands, tries=3):
+    """До 50 команд Bitrix REST за один HTTP-запит (batch.json). POST, а не GET —
+    щоб не впертися в ліміт довжини URL при десятках угод в одному батчі."""
+    if not WEBHOOK_URL:
+        raise RuntimeError("BITRIX_WEBHOOK_URL не задано")
+    body = {"halt": "0"}
+    for k, v in commands.items():
+        body[f"cmd[{k}]"] = v
+    data_bytes = urllib.parse.urlencode(body).encode("utf-8")
+    url = f"{WEBHOOK_URL}/batch.json"
+    data = None
+    for attempt in range(tries):
+        try:
+            req = urllib.request.Request(url, data=data_bytes, method="POST")
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            break
+        except Exception as e:
+            if attempt == tries - 1:
+                raise RuntimeError(f"Bitrix batch failed: {e}")
+    if "error" in data:
+        raise RuntimeError(f"Bitrix batch error: {data.get('error_description', data['error'])}")
+    return data.get("result", {}).get("result", {}) or {}
+
+def fetch_deal_products(deal_ids, chunk_size=25):
+    """Товарні рядки для списку угод, батчами по `chunk_size` (ліміт Bitrix —
+    50 команд на batch-запит, беремо з запасом). Повертає {deal_id: [rows]}."""
+    out = {}
+    deal_ids = list(deal_ids)
+    for i in range(0, len(deal_ids), chunk_size):
+        chunk = deal_ids[i:i + chunk_size]
+        cmds = {f"d{j}": f"crm.deal.productrows.get?id={did}" for j, did in enumerate(chunk)}
+        result = fetch_batch(cmds)
+        for j, did in enumerate(chunk):
+            out[did] = result.get(f"d{j}", []) or []
+    return out
+
+def build_deal_categories(deals_raw, product_rows_by_id, stage_names):
+    """Крок 1-8 методики: для кожної угоди (крім LOSE/Ошибочный) рахує оборот
+    по категоріях з її товарних рядків. Повертає сирий список по угодах —
+    так само, як deals/leads — щоб bitrix.html міг перезрізати по будь-якому
+    періоду на клієнті, а не тільки по тому, що зафіксовано на момент генерації."""
+    out = []
+    for d in deals_raw:
+        stage_id = d.get("STAGE_ID", "")
+        stage_name = stage_names.get(stage_id, {}).get("name", "").strip().lower()
+        if stage_name in EXCLUDED_STAGE_NAMES:
+            continue  # крок 1
+
+        deal_id = d.get("ID")
+        rows = product_rows_by_id.get(deal_id, [])
+        cat_sums = {"mattresses": 0.0, "soft_furniture": 0.0, "wardrobes": 0.0, "case_furniture": 0.0}
+        accessories = 0.0
+        unrecognized = 0.0
+        turnover = 0.0
+        wholesale_amount = 0.0
+        flags = {"wholesale": False, "sluzhbovka": False, "empty_product": False}
+
+        for r in rows:
+            name = r.get("PRODUCT_NAME", "") or ""
+            price = float(r.get("PRICE_BRUTTO") or r.get("PRICE") or 0)
+            qty = float(r.get("QUANTITY") or 0)
+            amount = price * qty
+
+            if not name.strip() and amount:
+                flags["empty_product"] = True  # потребує ручної перевірки — не додаємо в оборот
+                continue
+            if is_service_line(name):
+                continue  # крок 2 — повністю виключено (не товар)
+            if has_sluzhbovka_flag(name):
+                flags["sluzhbovka"] = True
+            if qty >= 15:  # оптова партія — приклади з методики: 44 шт/169k; 31+68+59 шт/361k
+                flags["wholesale"] = True
+                wholesale_amount += amount
+
+            cat = classify_product_category(name)
+            turnover += amount
+            if cat == "accessories":
+                accessories += amount
+            elif cat in cat_sums:
+                cat_sums[cat] += amount
+            else:
+                unrecognized += amount
+
+        out.append({
+            "deal_id": deal_id,
+            "date": to_date(d.get("DATE_CREATE")),
+            "source_id": d.get("SOURCE_ID", ""),
+            "turnover": round(turnover, 2),
+            "turnover_excl_wholesale": round(turnover - wholesale_amount, 2),
+            "categories": {k: round(v, 2) for k, v in cat_sums.items()},
+            "accessories": round(accessories, 2),
+            "unrecognized": round(unrecognized, 2),
+            "flags": flags,
+        })
+    return out
+
 # ── Ліди (Leads) ──────────────────────────────────────────────────────────
 LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CREATE",
                "STATUS_SEMANTIC_ID", "ASSIGNED_BY_ID",
@@ -238,6 +386,21 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"  ✗ ошибка (deals/leads): {e}")
         ok = False
+        deals = []
+        stage_names = {}
+
+    try:
+        eligible_ids = [d.get("ID") for d in deals
+                        if stage_names.get(d.get("STAGE_ID", ""), {}).get("name", "").strip().lower() not in EXCLUDED_STAGE_NAMES]
+        print(f"  → Товарні позиції угод ({len(eligible_ids)} угод, категоризація за методикою)")
+        product_rows = fetch_deal_products(eligible_ids)
+        deal_categories = build_deal_categories(deals, product_rows, stage_names)
+        result["deal_categories"] = deal_categories
+        print(f"     категоризовано: {len(deal_categories)} угод")
+    except Exception as e:
+        print(f"  ⚠ не вдалося категоризувати товарообіг: {e}")
+        result["deal_categories"] = []
+        result["deal_categories_error"] = str(e)
 
     try:
         print("  → Прострочені задачі")

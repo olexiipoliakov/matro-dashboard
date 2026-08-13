@@ -111,6 +111,12 @@
   .bucket-tag.warn{background:var(--mid-bg);color:var(--mid);border-color:transparent}
   .bucket-tag.crit{background:var(--bad-bg);color:var(--bad);border-color:transparent}
 
+  .flag-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;
+    border-radius:8px;background:var(--mid-bg);margin-bottom:6px;font-size:12px}
+  .flag-item.crit{background:var(--bad-bg)}
+  .flag-item .fl-name{font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .flag-item .fl-tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.5);white-space:nowrap}
+
   footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
   .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
   .warn-box{background:var(--mid-bg);color:var(--mid);padding:12px 16px;border-radius:10px;font-size:12.5px;margin-bottom:14px}
@@ -233,6 +239,24 @@
     </div>
   </div>
 
+  <div class="sec-head"><span class="n">8</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
+  <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">За методикою розбору DEAL_*.xls: виключені відмови/помилкові угоди та доставка/наложка/занос; за вибраний вище період</div>
+  <div class="panel">
+    <div id="cat-turnover-warn"></div>
+    <div class="kpis" id="cat-turnover-kpis" style="margin-bottom:20px"></div>
+    <div id="cat-turnover-funnel" style="margin-bottom:20px"></div>
+    <div class="cols2" style="margin-bottom:20px">
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">За джерелом</div>
+        <div id="cat-turnover-sources"></div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--mid)">Потребує уваги</div>
+        <div id="cat-turnover-flags"></div>
+      </div>
+    </div>
+  </div>
+
   <footer>Данные из <code>bitrix_data.json</code> · Bitrix24 REST API</footer>
 </div>
 
@@ -313,10 +337,12 @@ function applyFilter(){
   if(!RAW) return;
   const deals=(RAW.deals||[]).filter(d=>(!curFrom||d.date>=curFrom)&&(!curTo||d.date<=curTo));
   const leads=(RAW.leads||[]).filter(l=>(!curFrom||l.date>=curFrom)&&(!curTo||l.date<=curTo));
+  const dealCats=(RAW.deal_categories||[]).filter(d=>(!curFrom||d.date>=curFrom)&&(!curTo||d.date<=curTo));
   const info=document.getElementById('period-info');
   const dd=new Set([...deals.map(d=>d.date),...leads.map(l=>l.date)]).size;
   info.textContent = curFrom||curTo ? `${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.` : 'весь період';
   render(deals, leads);
+  renderCategoryTurnover(dealCats);
 }
 
 function stageMeta(id){
@@ -624,6 +650,84 @@ function renderOverdue(overdue){
       <td><span class="overdue-badge ${cls}">${t.days_overdue} дн.</span></td></tr>`;
   }).join('');
   table.innerHTML = head + `<tbody>${rows}</tbody>`;
+}
+
+const CAT_TURNOVER_LABELS = {
+  mattresses:"Матраци", soft_furniture:"М'яка меблі", wardrobes:"Шафи", case_furniture:"Корпусні меблі",
+};
+const CAT_TURNOVER_COLORS = {
+  mattresses:"#7d5fd6", soft_furniture:"#c8553d", wardrobes:"#3f7d5c", case_furniture:"#b8893b",
+};
+
+function renderCategoryTurnover(rows){
+  const warn=document.getElementById('cat-turnover-warn');
+  const kpis=document.getElementById('cat-turnover-kpis');
+  const funnel=document.getElementById('cat-turnover-funnel');
+  const sourcesEl=document.getElementById('cat-turnover-sources');
+  const flagsEl=document.getElementById('cat-turnover-flags');
+
+  if(RAW && RAW.deal_categories_error){
+    warn.innerHTML=`<div class="warn-box">⚠ Категоризацію товарообігу не вдалося порахувати: ${RAW.deal_categories_error}</div>`;
+  } else warn.innerHTML='';
+
+  if(!rows.length){
+    kpis.innerHTML=''; funnel.innerHTML='<div class="empty-note">Немає даних за цей період.</div>';
+    sourcesEl.innerHTML=''; flagsEl.innerHTML='';
+    return;
+  }
+
+  let orders=rows.length, turnover=0, turnoverExclWholesale=0, accessories=0;
+  const catSums={mattresses:0,soft_furniture:0,wardrobes:0,case_furniture:0};
+  const bySource={};
+  const flagRows=[];
+
+  rows.forEach(r=>{
+    turnover+=r.turnover||0;
+    turnoverExclWholesale+=r.turnover_excl_wholesale||0;
+    accessories+=r.accessories||0;
+    Object.keys(catSums).forEach(k=>catSums[k]+=(r.categories&&r.categories[k])||0);
+
+    const src=r.source_id||'(не вказано)';
+    if(!bySource[src]) bySource[src]={name:sourceName(r.source_id),count:0,sum:0};
+    bySource[src].count++; bySource[src].sum+=r.turnover||0;
+
+    if(r.flags){
+      if(r.flags.wholesale) flagRows.push({deal_id:r.deal_id,label:'Оптова партія',cls:'',sum:r.turnover});
+      if(r.flags.sluzhbovka) flagRows.push({deal_id:r.deal_id,label:'Позначка «службовка»',cls:'',sum:r.turnover});
+      if(r.flags.empty_product) flagRows.push({deal_id:r.deal_id,label:'Товар без назви (сума > 0)',cls:'crit',sum:r.turnover});
+    }
+  });
+
+  kpis.innerHTML=`
+    <div class="kpi"><div class="lbl">Замовлень</div><div class="val">${fmt(orders)}</div></div>
+    <div class="kpi"><div class="lbl">Оборот</div><div class="val">${fmt(turnover)} грн</div></div>
+    <div class="kpi"><div class="lbl">Оборот без опту</div><div class="val">${fmt(turnoverExclWholesale)} грн</div></div>
+    <div class="kpi"><div class="lbl">Аксесуари</div><div class="val">${fmt(accessories)} грн</div><div class="sub">окремо від 4 категорій</div></div>`;
+
+  const maxCat=Math.max(1,...Object.values(catSums));
+  funnel.innerHTML = Object.keys(catSums).map(k=>{
+    const v=catSums[k], w=Math.max(2,v/maxCat*100);
+    return `<div class="funnel-row">
+      <div class="funnel-name" style="color:${CAT_TURNOVER_COLORS[k]}">${CAT_TURNOVER_LABELS[k]}</div>
+      <div class="funnel-track"><div class="funnel-fill" style="width:${w}%;background:${CAT_TURNOVER_COLORS[k]}"></div></div>
+      <div class="funnel-nums"><b>${fmt(v)}</b> грн</div>
+    </div>`;
+  }).join('');
+
+  const sourceRows=Object.values(bySource).sort((a,b)=>b.sum-a.sum);
+  const maxS=Math.max(1,...sourceRows.map(x=>x.count));
+  sourcesEl.innerHTML = sourceRows.map(x=>`<div class="bd-row"><div class="bd-name" title="${x.name}">${x.name}</div>
+    <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxS*100)}%"></div></div>
+    <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Немає даних.</div>';
+
+  if(!flagRows.length){
+    flagsEl.innerHTML='<div class="empty-note">Аномалій не знайдено 🎉</div>';
+  } else {
+    flagsEl.innerHTML = flagRows.slice(0,30).map(f=>`<div class="flag-item ${f.cls}">
+      <span class="fl-name">Угода №${f.deal_id} · ${fmt(f.sum)} грн</span>
+      <span class="fl-tag">${f.label}</span>
+    </div>`).join('');
+  }
 }
 
 load();
