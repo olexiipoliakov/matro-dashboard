@@ -73323,11 +73323,35 @@
     {
       "id": "158932",
       "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158934",
+      "date": "2026-08-13",
       "status_id": "NEW",
       "source_id": "CALL",
       "semantic": "P",
       "amount": 0.0,
-      "manager_id": "12",
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158936",
+      "date": "2026-08-13",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": ""
