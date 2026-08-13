@@ -15909,6 +15909,16 @@
       "utm_source": "<none>",
       "utm_campaign": "<none>",
       "utm_medium": "<none>"
+    },
+    {
+      "id": "139700",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "google_com",
+      "utm_campaign": "Pmax_all_com",
+      "utm_medium": "cpc"
     }
   ],
   "leads": [
@@ -72963,11 +72973,11 @@
     {
       "id": "158870",
       "date": "2026-08-13",
-      "status_id": "NEW",
+      "status_id": "JUNK",
       "source_id": "Обратный звонок",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
-      "manager_id": "12",
+      "manager_id": "122",
       "utm_source": "google",
       "utm_campaign": "search_matrasy_com_goroda",
       "utm_medium": "cpc"
@@ -72987,9 +72997,9 @@
     {
       "id": "158874",
       "date": "2026-08-13",
-      "status_id": "IN_PROCESS",
+      "status_id": "CONVERTED",
       "source_id": "UC_5B6PJK",
-      "semantic": "P",
+      "semantic": "S",
       "amount": 0.0,
       "manager_id": "1342",
       "utm_source": "google_com",
@@ -73203,14 +73213,14 @@
     {
       "id": "158910",
       "date": "2026-08-13",
-      "status_id": "NEW",
+      "status_id": "IN_PROCESS",
       "source_id": "1",
       "semantic": "P",
       "amount": 0.0,
       "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>"
     },
     {
       "id": "158912",
@@ -73350,6 +73360,18 @@
       "status_id": "JUNK",
       "source_id": "CALL",
       "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158938",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "WEBFORM",
+      "semantic": "P",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "",
@@ -102107,6 +102129,26 @@
       "categories": {
         "mattresses": 0.0,
         "soft_furniture": 13181.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139700",
+      "date": "2026-08-13",
+      "source_id": "UC_5B6PJK",
+      "turnover": 0.0,
+      "turnover_excl_wholesale": 0.0,
+      "categories": {
+        "mattresses": 0.0,
+        "soft_furniture": 0.0,
         "wardrobes": 0.0,
         "case_furniture": 0.0
       },
