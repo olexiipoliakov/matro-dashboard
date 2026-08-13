@@ -43,7 +43,8 @@
       "constraints": [
         "requires env META_ACCESS_TOKEN, META_ACCOUNT_ID",
         "API_VERSION = v21.0, DATE_PRESET = last_90d (fetch_meta.py:27-29)",
-        "separate access token for the Matro account: META_ACCESS_TOKEN_MATRO env var, build() now accepts an access_token param that reassigns the module-level ACCESS_TOKEN global (same pattern already used for ACCOUNT_ID) — falls back to skipping the Matro build entirely (with a clear log message) if that secret is not set, rather than trying the Plume token against a different ad account"
+        "separate access token for the Matro account: META_ACCESS_TOKEN_MATRO env var, build() now accepts an access_token param that reassigns the module-level ACCESS_TOKEN global (same pattern already used for ACCOUNT_ID) — falls back to skipping the Matro build entirely (with a clear log message) if that secret is not set, rather than trying the Plume token against a different ad account",
+        "fixed a retry-logic gap: _get() only retried on text containing \"rate\", but Meta's app-level rate limit error (\"Application request limit reached\", code 4/subcode 1504022) does not contain that word, so it was raised immediately with no retry — broadened the check to also match \"limit\"; also added a 45s pause between the Plume and Matro builds since Meta's request limit is per-app, not per-token, so a heavy Plume fetch can exhaust it right before Matro starts"
       ],
       "evidence": [
         "fetch_meta.py:23-30",

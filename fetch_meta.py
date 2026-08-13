@@ -96,13 +96,20 @@ OUT = Path(__file__).parent / "data.json"
 BASE = f"https://graph.facebook.com/{API_VERSION}"
 
 
-def _get(url, params, tries=3):
+def _get(url, params, tries=4):
     for i in range(tries):
         r = requests.get(url, params=params, timeout=60)
         if r.status_code == 200:
             return r.json()
-        if r.status_code in (429, 500, 503) or "rate" in r.text.lower():
-            time.sleep(5 * (i + 1)); continue
+        text_low = r.text.lower()
+        # "rate" ловить типові rate-limit тексти; "limit" — окремо, бо
+        # повідомлення Meta про ліміт додатку ("Application request limit
+        # reached") слова "rate" не містить взагалі, і без цього retry
+        # просто не спрацьовував.
+        if r.status_code in (429, 500, 503) or "rate" in text_low or "limit" in text_low:
+            wait = 20 * (i + 1)
+            print(f"     ⏳ Meta API ліміт/тимчасова помилка, чекаю {wait}с і пробую ще раз ({i+1}/{tries})…")
+            time.sleep(wait); continue
         raise RuntimeError(f"Meta API {r.status_code}: {r.text[:300]}")
     raise RuntimeError("Meta API: rate limit, попыток не осталось")
 
@@ -452,6 +459,12 @@ if __name__ == "__main__":
                 print("\n⚠  META_ACCESS_TOKEN_MATRO не задан — аккаунт Matro пропущен "
                       "(нужен отдельный токен, если Plume-токен не видит рекламный кабинет Matro).")
             else:
+                # Пауза перед другим акаунтом — лимит запитів у Meta діє на рівні
+                # ДОДАТКУ (не токена), тож одразу після великого Plume-акаунта
+                # другий акаунт легко впирається в "Application request limit reached".
+                pause_s = 45
+                print(f"\n⏸  Пауза {pause_s}с перед Matro (щоб не впертися в ліміт запитів Meta після Plume)…")
+                time.sleep(pause_s)
                 print("\n" + "=" * 50)
                 print("АККАУНТ 2: Matro")
                 print("=" * 50)
