@@ -15869,6 +15869,26 @@
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": ""
+    },
+    {
+      "id": "139692",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 12276.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "139694",
+      "date": "2026-08-13",
+      "stage_id": "NEW",
+      "amount": 14878.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc"
     }
   ],
   "leads": [
@@ -72935,9 +72955,9 @@
     {
       "id": "158872",
       "date": "2026-08-13",
-      "status_id": "IN_PROCESS",
+      "status_id": "JUNK",
       "source_id": "1",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "1342",
       "utm_source": "google",
@@ -72971,14 +72991,14 @@
     {
       "id": "158878",
       "date": "2026-08-13",
-      "status_id": "NEW",
+      "status_id": "IN_PROCESS",
       "source_id": "CALL",
       "semantic": "P",
       "amount": 0.0,
       "manager_id": "1342",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>"
     },
     {
       "id": "158880",
@@ -73031,9 +73051,9 @@
     {
       "id": "158888",
       "date": "2026-08-13",
-      "status_id": "NEW",
+      "status_id": "CONVERTED",
       "source_id": "1",
-      "semantic": "P",
+      "semantic": "S",
       "amount": 0.0,
       "manager_id": "1342",
       "utm_source": "",
@@ -73219,6 +73239,54 @@
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": ""
+    },
+    {
+      "id": "158920",
+      "date": "2026-08-13",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158922",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "158924",
+      "date": "2026-08-13",
+      "status_id": "CONVERTED",
+      "source_id": "UC_5B6PJK",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "158926",
+      "date": "2026-08-13",
+      "status_id": "NEW",
+      "source_id": "UC_8AMYMZ",
+      "semantic": "P",
+      "amount": 13181.0,
+      "manager_id": "1342",
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>"
     }
   ],
   "deal_categories": [
@@ -101895,6 +101963,46 @@
         "case_furniture": 0.0
       },
       "accessories": 385.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139692",
+      "date": "2026-08-13",
+      "source_id": "1",
+      "turnover": 12276.0,
+      "turnover_excl_wholesale": 12276.0,
+      "categories": {
+        "mattresses": 0.0,
+        "soft_furniture": 12276.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "139694",
+      "date": "2026-08-13",
+      "source_id": "UC_5B6PJK",
+      "turnover": 14878.0,
+      "turnover_excl_wholesale": 14878.0,
+      "categories": {
+        "mattresses": 14878.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
       "unrecognized": 0.0,
       "flags": {
         "wholesale": false,
