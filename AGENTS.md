@@ -33,9 +33,10 @@ Simpler, Epicentr), аналитику и разработку.
 ## Code map (docs/codemap/)
 
 - `docs/codemap/codemap.json`, `codemap.html`, and `codemap.lock` describe the repo's modules, data flows, and end-to-end scenarios. They must always reflect the current state of the code — never left stale.
-- **After every change you make to this project** — not just at the end of a task — check whether it affects the code map: a new/removed/renamed file, a new call/read/write/import/publish relationship between modules, a new external dependency, a new end-to-end flow. If it does, regenerate the code map as part of that same change, before moving on to anything else. Don't wait to be asked, and don't batch it up for "later" or "when the task is done."
-- Compare `docs/codemap/codemap.lock` against the current repo to decide if anything changed:
-  - If any tracked module's fingerprint no longer matches its current files, that module changed — regenerate.
+- Regenerate only when the change is **structural**: a file is added, removed, or renamed; a new (or removed) call/read/write/import/publish relationship appears between modules; a new external dependency shows up; a new end-to-end flow is added. Internal logic changes within an existing file/function (bugfixes, new fields on an existing data shape, UI tweaks, new columns in an existing table, refined retry logic, etc.) do NOT require a codemap regeneration on their own — only touch the map when the *shape* of the system (nodes/edges/flows) actually changed.
+- When in doubt whether something is structural, err on the side of *not* regenerating — a stale prose description inside an existing node's `role` is a much smaller cost than interrupting every small change with a map rebuild.
+- Compare `docs/codemap/codemap.lock` against the current repo to decide if anything structural changed:
+  - If any tracked module's fingerprint no longer matches its current files, that's a signal something changed inside it — but only regenerate if that change was structural per the rule above, not for every fingerprint drift.
   - If a new top-level file/module exists that isn't in the lock, treat it as new — regenerate.
 - Regenerate all three files together (`codemap.json`, `codemap.html`, `codemap.lock`) — never edit just one by hand. `codemap.html` must embed the exact same nodes/edges/flows as `codemap.json`.
 - Every node, edge, and flow must be backed by real evidence from the source (file path + line/anchor). If a relationship can't be verified in the code, mark it `unknown` — do not guess.
