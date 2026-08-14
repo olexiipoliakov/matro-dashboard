@@ -1,0 +1,37 @@
+# Конфіг для Render.com — при підключенні цього репозиторію Render сам
+# запропонує створити сервіс за цим файлом ("Blueprint"), значення секретів
+# (sync: false) потрібно буде вписати вручну у веб-інтерфейсі Render після
+# створення — сюди в репозиторій вони не потрапляють.
+#
+# Тариф — обов'язково НЕ "Free": безкоштовний план засинає після 15 хв
+# без запитів, а нам критично, щоб сервер завжди був "живий" і міг миттєво
+# прийняти вебхук від Bitrix. Мінімум — "Starter".
+
+services:
+  - type: web
+    name: matro-dashboard
+    runtime: python
+    plan: starter
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --timeout 180
+    healthCheckPath: /healthz
+    envVars:
+      - key: DASHBOARD_USER
+        sync: false
+      - key: DASHBOARD_PASSWORD
+        sync: false
+      - key: BITRIX_INCOMING_WEBHOOK_SECRET
+        sync: false
+      - key: BITRIX_WEBHOOK_URL
+        sync: false
+      - key: META_ACCESS_TOKEN
+        sync: false
+      - key: META_ACCESS_TOKEN_MATRO
+        sync: false
+      - key: META_ACCOUNT_ID
+        sync: false
+      - key: META_ACCOUNT_ID_2
+        sync: false
+      - key: GSC_SERVICE_ACCOUNT_JSON
+        sync: false
