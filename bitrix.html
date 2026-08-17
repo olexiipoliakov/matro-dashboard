@@ -342,6 +342,17 @@ function managerName(id){ return (META.users&&META.users[id]) || (id ? 'ID '+id 
 function statusName(id){ return (META.lead_statuses&&META.lead_statuses[id]) || id || '(невідомо)'; }
 function sourceName(id){ return (META.lead_sources&&META.lead_sources[id]) || id || '(не вказано)'; }
 
+// UTM_SOURCE іноді приходить з "_com"/".com" в кінці (наприклад google_com
+// поруч зі звичайним google) — це той самий домен, просто інший варіант
+// мітки в різних кампаніях. Об'єднуємо їх в один рядок в таблиці UTM.
+// Навмисно НЕ чіпаємо інші суфікси (_ua, _net) — це реальні окремі джерела
+// (ukr.net, meta.ua тощо), а не дублікати.
+function normalizeUtmSource(src){
+  if(!src) return src;
+  const s = src.trim();
+  return s.replace(/[._]com$/i, '') || s;
+}
+
 function aggregateDeals(deals){
   const daily={}, byStage={}, byManager={}, byUtm={};
   let total=0,totalSum=0,won=0,wonSum=0,lost=0,lostSum=0;
@@ -364,7 +375,7 @@ function aggregateDeals(deals){
 
     // Об'єднуємо по джерело+канал (без розрізу по кампаніях) — інакше один
     // і той самий google/cpc розпадається на десятки рядків по кампаніях.
-    const src=d.utm_source||'(не вказано)', medium=d.utm_medium||'(не вказано)';
+    const src=normalizeUtmSource(d.utm_source)||'(не вказано)', medium=d.utm_medium||'(не вказано)';
     const key=src+'||'+medium;
     if(!byUtm[key]) byUtm[key]={source:src,medium:medium,count:0,sum:0};
     byUtm[key].count++; byUtm[key].sum+=d.amount;
@@ -407,7 +418,7 @@ function aggregateLeads(leads, byManagerFromDeals){
     if(l.semantic==='C') byManager[mgr].leadsConverted++;
     else if(l.semantic==='F') byManager[mgr].leadsRejected++;
 
-    const src=l.utm_source||'(не вказано)', medium=l.utm_medium||'(не вказано)';
+    const src=normalizeUtmSource(l.utm_source)||'(не вказано)', medium=l.utm_medium||'(не вказано)';
     const key=src+'||'+medium;
     if(!byUtm[key]) byUtm[key]={source:src,medium:medium,count:0};
     byUtm[key].count++;
