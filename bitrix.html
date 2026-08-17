@@ -180,36 +180,17 @@
   <div class="sec-head"><span class="n">1</span><h2>Угоди по днях</h2><span class="ln"></span></div>
   <div class="panel"><div class="chart" id="deals-chart"></div></div>
 
-  <div class="sec-head"><span class="n">2</span><h2>Воронка угод</h2><span class="ln"></span></div>
-  <div class="panel"><div id="funnel"></div></div>
-
-  <div class="sec-head"><span class="n">3</span><h2>Менеджери</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">2</span><h2>Менеджери</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Угоди та ліди за вибраний період у розрізі відповідального</div>
   <div class="panel">
     <div class="table-scroll"><table class="data-table" id="manager-table"></table></div>
     <div id="manager-detail" style="display:none;margin-top:16px;padding-top:16px;border-top:2px solid var(--ink)"></div>
   </div>
 
-  <div class="sec-head"><span class="n">4</span><h2>Ліди по днях</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">3</span><h2>Ліди по днях</h2><span class="ln"></span></div>
   <div class="panel"><div class="chart" id="leads-chart"></div></div>
 
-  <div class="sec-head"><span class="n">5</span><h2>Ліди — статуси та джерела</h2><span class="ln"></span></div>
-  <div class="cols2">
-    <div class="panel">
-      <div style="font-size:13px;font-weight:600;margin-bottom:10px">За статусом</div>
-      <div id="lead-statuses"></div>
-    </div>
-    <div class="panel">
-      <div style="font-size:13px;font-weight:600;margin-bottom:10px">За джерелом</div>
-      <div id="lead-sources"></div>
-    </div>
-  </div>
-  <div class="panel">
-    <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--bad)">Причини забракування лідів</div>
-    <div id="lead-reject-reasons"></div>
-  </div>
-
-  <div class="sec-head"><span class="n">6</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">4</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Джерела трафіку, що привели угоди/ліди за вибраний період — з сумою</div>
   <div class="cols2">
     <div class="panel">
@@ -222,7 +203,7 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">7</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">5</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Поточний стан на момент останнього оновлення — не залежить від вибраного вище періоду</div>
   <div class="panel">
     <div id="overdue-warn"></div>
@@ -239,7 +220,7 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">8</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">6</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">За методикою розбору DEAL_*.xls: виключені відмови/помилкові угоди та доставка/наложка/занос; за вибраний вище період</div>
   <div class="panel">
     <div id="cat-turnover-warn"></div>
@@ -381,9 +362,11 @@ function aggregateDeals(deals){
     if(st.semantics==='S'){ byManager[mgr].won++; byManager[mgr].wonSum+=d.amount; }
     else if(st.semantics==='F'){ byManager[mgr].lost++; byManager[mgr].lostSum+=d.amount; }
 
-    const src=d.utm_source||'(не вказано)', camp=d.utm_campaign||'(не вказано)';
-    const key=src+'||'+camp;
-    if(!byUtm[key]) byUtm[key]={source:src,campaign:camp,count:0,sum:0};
+    // Об'єднуємо по джерело+канал (без розрізу по кампаніях) — інакше один
+    // і той самий google/cpc розпадається на десятки рядків по кампаніях.
+    const src=d.utm_source||'(не вказано)', medium=d.utm_medium||'(не вказано)';
+    const key=src+'||'+medium;
+    if(!byUtm[key]) byUtm[key]={source:src,medium:medium,count:0,sum:0};
     byUtm[key].count++; byUtm[key].sum+=d.amount;
   });
   return {
@@ -424,9 +407,9 @@ function aggregateLeads(leads, byManagerFromDeals){
     if(l.semantic==='C') byManager[mgr].leadsConverted++;
     else if(l.semantic==='F') byManager[mgr].leadsRejected++;
 
-    const src=l.utm_source||'(не вказано)', camp=l.utm_campaign||'(не вказано)';
-    const key=src+'||'+camp;
-    if(!byUtm[key]) byUtm[key]={source:src,campaign:camp,count:0};
+    const src=l.utm_source||'(не вказано)', medium=l.utm_medium||'(не вказано)';
+    const key=src+'||'+medium;
+    if(!byUtm[key]) byUtm[key]={source:src,medium:medium,count:0};
     byUtm[key].count++;
   });
   return {
@@ -458,12 +441,8 @@ function render(dealsRaw, leadsRaw){
 
   renderChart('deals-chart', deals.daily, r=>r.count, r=>`${fmt(r.count)} угод, ${fmt(r.sum)} грн`);
   renderChart('leads-chart', leads.daily, r=>r.count, r=>`${fmt(r.count)} лідів`);
-  renderFunnel(deals.by_stage);
   renderManagers(deals.by_manager);
   if(SELECTED_MANAGER) selectManager(SELECTED_MANAGER, true);
-  renderBreakdown('lead-statuses', leads.by_status, x=>x.name, x=>x.count);
-  renderBreakdown('lead-sources', leads.by_source, x=>x.name, x=>x.count);
-  renderBreakdown('lead-reject-reasons', leads.by_reject_reason, x=>x.name, x=>x.count, true);
   renderUtmTable('utm-deals-table', deals.utm, true);
   renderUtmTable('utm-leads-table', leads.utm, false);
 }
@@ -497,13 +476,17 @@ function renderManagers(byManager){
   const table=document.getElementById('manager-table');
   const rows=Object.values(byManager).sort((a,b)=>b.dealsSum-a.dealsSum);
   if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
-  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Виграно угод</th><th>Лідів</th><th>Забраковано лідів</th><th>Конверсія лід→угода</th></tr></thead>`;
+  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th><th>Забраковано лідів</th><th>Конверсія лід→угода</th></tr></thead>`;
   const body=rows.map(m=>{
-    const rate = m.leads ? round1(m.leadsConverted/m.leads*100) : 0;
+    // Конверсія = частка лідів менеджера, що в підсумку стали угодами.
+    // Офіційний прапор Bitrix "лід конвертовано" (semantic 'C') на цьому
+    // порталі не проставляється майже ніколи (той самий тип проблеми, що й
+    // з порожнім SEMANTICS у стадій угод) — тому рахуємо практично, через
+    // співвідношення кількості угод до кількості лідів менеджера.
+    const rate = m.leads ? round1(m.deals/m.leads*100) : 0;
     const active = SELECTED_MANAGER===m.manager_id ? 'style="background:#f4f1fb;cursor:pointer" ' : 'style="cursor:pointer" ';
     return `<tr ${active}onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити джерела лідів">
     <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
-    <td style="color:var(--good)">${fmt(m.won)}</td>
     <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
     <td><b>${fmt1(rate)}%</b></td>
   </tr>`;
@@ -590,11 +573,11 @@ function renderUtmTable(elId, items, withSum){
   const table=document.getElementById(elId);
   if(!items.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних по UTM.</td></tr>`; return; }
   const head = withSum
-    ? `<thead><tr><th>Джерело</th><th>Кампанія</th><th>К-сть</th><th>Сума</th></tr></thead>`
-    : `<thead><tr><th>Джерело</th><th>Кампанія</th><th>К-сть</th></tr></thead>`;
+    ? `<thead><tr><th>Джерело</th><th>Канал</th><th>К-сть</th><th>Сума</th></tr></thead>`
+    : `<thead><tr><th>Джерело</th><th>Канал</th><th>К-сть</th></tr></thead>`;
   const rows=items.map(x=>{
     const sumCell = withSum ? `<td>${fmt(x.sum)} грн</td>` : '';
-    return `<tr><td>${x.source}</td><td>${x.campaign}</td><td>${fmt(x.count)}</td>${sumCell}</tr>`;
+    return `<tr><td>${x.source}</td><td>${x.medium}</td><td>${fmt(x.count)}</td>${sumCell}</tr>`;
   }).join('');
   table.innerHTML=head+`<tbody>${rows}</tbody>`;
 }
