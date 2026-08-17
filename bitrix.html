@@ -452,7 +452,6 @@ function render(dealsRaw, leadsRaw){
 
   document.getElementById('kpis').innerHTML=`
     <div class="kpi"><div class="lbl">Угод</div><div class="val">${fmt(deals.total_count)}</div><div class="sub">${fmt(deals.total_sum)} грн</div></div>
-    <div class="kpi"><div class="lbl">Виграно</div><div class="val">${fmt(deals.won_count)}</div><div class="sub">${fmt(deals.won_sum)} грн</div></div>
     <div class="kpi"><div class="lbl">Забраковано угод</div><div class="val" style="color:var(--bad)">${fmt(deals.lost_count)}</div><div class="sub">${fmt(deals.lost_sum)} грн</div></div>
     <div class="kpi"><div class="lbl">Лідів</div><div class="val">${fmt(leads.total_count)}</div><div class="sub">${fmt(leads.converted_count)} конвертовано</div></div>
     <div class="kpi"><div class="lbl">Забраковано лідів</div><div class="val" style="color:var(--bad)">${fmt(leads.rejected_count)}</div><div class="sub">${fmt1(leads.rejected_rate)}%</div></div>`;
