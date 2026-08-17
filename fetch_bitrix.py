@@ -26,6 +26,13 @@ import urllib.parse
 # Кладеться в GitHub Secret BITRIX_WEBHOOK_URL — у файл не вписувати.
 WEBHOOK_URL = os.environ.get("BITRIX_WEBHOOK_URL", "").rstrip("/")
 
+# Деякі хостинги (в т.ч. Bitrix24.eu) віддають "HTTP Error 403: Forbidden"
+# на запити без "браузерного" User-Agent — стандартний urllib.request шле
+# "Python-urllib/x.x", який часто банить анти-бот захист. Помічено при
+# переїзді з GitHub Actions на Render: той самий вебхук раптом почав
+# падати з 403 на всі методи одразу (crm.* і tasks.*).
+HTTP_HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; MatroDashboardBot/1.0)"}
+
 DAYS_BACK = 90  # той самий горизонт, що й у fetch_meta.py (DATE_PRESET=last_90d)
 
 OUT = Path(__file__).parent / "bitrix_data.json"
@@ -46,7 +53,8 @@ def call(method, params=None, tries=3, result_key=None):
         data = None
         for attempt in range(tries):
             try:
-                with urllib.request.urlopen(url, timeout=30) as resp:
+                req = urllib.request.Request(url, headers=HTTP_HEADERS)
+                with urllib.request.urlopen(req, timeout=30) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                 break
             except Exception as e:
@@ -177,7 +185,7 @@ def fetch_batch(commands, tries=3):
     data = None
     for attempt in range(tries):
         try:
-            req = urllib.request.Request(url, data=data_bytes, method="POST")
+            req = urllib.request.Request(url, data=data_bytes, method="POST", headers=HTTP_HEADERS)
             with urllib.request.urlopen(req, timeout=45) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             break
