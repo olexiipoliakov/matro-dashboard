@@ -103,6 +103,13 @@ def fetch_staff():
         if not entries and result and all(isinstance(v, dict) for v in result.values()):
             entries = list(result.values())
 
+    if entries:
+        # [debug] тимчасовий діагностичний дамп — щоб звірити реальні назви
+        # полів Ringostat з тим, що очікує парсер нижче. Прибрати після того,
+        # як зіставлення дзвінок→менеджер запрацює нормально.
+        print("  [debug] сирий запис співробітника (перший з {}):" .format(len(entries)))
+        print(json.dumps(entries[0], ensure_ascii=False, indent=2)[:3000])
+
     staff_names, directions_exact, directions_phone = {}, {}, {}
     for e in entries:
         if not isinstance(e, dict):
@@ -137,6 +144,9 @@ def fetch_staff():
             p = norm_phone(v)
             if p:
                 directions_phone[p] = staff_id
+
+    # [debug] тимчасово — скільки напрямків вдалося витягти і приклад
+    print(f"  [debug] directions_exact зібрано: {len(directions_exact)} значень; приклад: {dict(list(directions_exact.items())[:10])}")
 
     return staff_names, directions_exact, directions_phone
 
@@ -253,6 +263,11 @@ if __name__ == "__main__":
         print(f"  → Дзвінки за останні {DAYS_BACK} днів")
         raw_calls = fetch_all_calls(DAYS_BACK)
         print(f"     знайдено: {len(raw_calls)}")
+        if raw_calls:
+            # [debug] тимчасовий діагностичний дамп — прибрати після фіксу зіставлення
+            print("  [debug] сирі записи дзвінків (перші 3):")
+            for row in raw_calls[:3]:
+                print(json.dumps(row, ensure_ascii=False))
         calls, unmatched = slim_calls(raw_calls, directions_exact, directions_phone)
         result["calls"] = calls
         if calls:
