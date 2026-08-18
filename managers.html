@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matro · Менеджери</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="images/favicon-192.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<style>
+  :root{
+    --ink:#1a1714; --ink-soft:#5c534a; --paper:#f5f1ea; --card:#fffdf9;
+    --line:#e3dccf; --accent:#7d5fd6; --accent-2:#a78bfa;
+    --good:#3f7d5c; --good-bg:#e3f0e8; --mid:#b8893b; --mid-bg:#fbf0d8;
+    --bad:#c0432f; --bad-bg:#f6e0db;
+    --r:14px; --shadow:0 1px 2px rgba(26,23,20,.04),0 8px 24px rgba(26,23,20,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;min-width:0}
+  html{overflow-x:hidden}
+  body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;padding:32px 24px 64px;overflow-x:hidden}
+  .wrap{max-width:900px;margin:0 auto}
+  img,svg,table{max-width:100%}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .logo{font-size:28px;font-weight:700;letter-spacing:-.5px}
+  .logo .dot{color:var(--accent)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--ink-soft);font-weight:600}
+  .meta-line{text-align:right;font-size:12px;color:var(--ink-soft)}
+  .meta-line b{color:var(--ink)}
+  .rule{height:2px;background:var(--ink);margin:14px 0 24px;position:relative}
+  .rule::after{content:"";position:absolute;left:0;top:0;height:2px;width:72px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  .period-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:26px;
+    padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .period-btns{display:flex;gap:6px;flex-wrap:wrap}
+  .pbtn{padding:7px 14px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:8px;transition:all .15s;white-space:nowrap}
+  .pbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .period-cal{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft)}
+  .period-cal input[type=date]{font-family:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line);
+    border-radius:7px;background:#fff;max-width:150px}
+  .period-info{font-size:12px;color:var(--ink-soft);font-weight:600;white-space:nowrap}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:18px;margin-bottom:34px;overflow:hidden}
+
+  table.data-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.data-table th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);
+    font-weight:700;padding:7px 8px;border-bottom:2px solid var(--ink);white-space:nowrap}
+  table.data-table th:first-child{text-align:left}
+  table.data-table td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.data-table td:first-child{text-align:left;font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+  table.data-table tbody tr:hover td{background:#f4f1fb}
+  .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
+  .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  .empty-note{color:var(--ink-soft);font-style:italic;font-size:12.5px}
+
+  @media(max-width:600px){
+    body{padding:16px 12px 48px}
+    header{flex-direction:column;align-items:flex-start;gap:6px}
+    .meta-line{text-align:left}
+    .period-bar{flex-direction:column;align-items:stretch;gap:10px;padding:12px}
+    .period-cal{width:100%}
+    .period-cal input[type=date]{flex:1;max-width:none}
+    .period-info{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">Matro<span class="dot">.</span></div>
+      <div>
+        <div class="eyebrow">Конверсія</div>
+        <div style="font-size:13px;color:var(--ink-soft)">Менеджери · угоди та ліди</div>
+      </div>
+    </div>
+    <div class="meta-line">Дані з: <b id="period-from">—</b><br>Оновлено: <b id="updated">—</b></div>
+  </header>
+  <div class="rule"></div>
+
+  <div id="error-box"></div>
+
+  <div class="period-bar">
+    <div class="period-btns">
+      <button class="pbtn" onclick="setPeriodDays(0,this)">Сьогодні</button>
+      <button class="pbtn" onclick="setPeriodDays(1,this)">Вчора</button>
+      <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 днів</button>
+      <button class="pbtn" data-days="14" onclick="setPeriod(14,this)">14 днів</button>
+      <button class="pbtn active" data-days="30" onclick="setPeriod(30,this)">30 днів</button>
+      <button class="pbtn" data-days="90" onclick="setPeriod(90,this)">Всі</button>
+    </div>
+    <div class="period-cal">
+      <span>або період:</span>
+      <input type="date" id="date-from" onchange="setCustom()">
+      <span>—</span>
+      <input type="date" id="date-to" onchange="setCustom()">
+    </div>
+    <div class="period-info" id="period-info">—</div>
+  </div>
+
+  <div class="panel">
+    <div class="table-scroll"><table class="data-table" id="manager-table"></table></div>
+  </div>
+
+  <footer>Данные из <code>bitrix_data.json</code> · Bitrix24 REST API</footer>
+</div>
+
+<script>
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+const fmt1=n=>new Intl.NumberFormat('uk-UA',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n||0);
+const fmtDate=iso=>{ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}.${m}.${y}`; };
+
+let RAW=null, META={stages:{},lead_statuses:{},lead_sources:{},users:{}};
+let curFrom=null, curTo=null;
+
+async function load(){
+  try{
+    const res=await fetch('bitrix_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    RAW=await res.json();
+    if(!Array.isArray(RAW.deals) || !Array.isArray(RAW.leads)){
+      showError('Формат bitrix_data.json застарів (старий агрегований формат) — дочекайтесь наступного успішного запуску fetch_bitrix.py, після якого дані стануть "сирими" і сторінка запрацює.');
+      return;
+    }
+    META = RAW.meta || META;
+    document.getElementById('updated').textContent = RAW.generated_at || '—';
+    document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
+    setPeriod(30, document.querySelector('.pbtn[data-days="30"]'));
+  }catch(e){
+    showError('Не удалось загрузить bitrix_data.json: '+e.message);
+  }
+}
+function showError(msg){ document.getElementById('error-box').innerHTML=`<div class="err">${msg}</div>`; }
+
+function allDates(){
+  const deals=(RAW&&RAW.deals)||[], leads=(RAW&&RAW.leads)||[];
+  return [...new Set([...deals.map(d=>d.date),...leads.map(l=>l.date)].filter(Boolean))].sort();
+}
+
+function setPeriod(days,btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){ curFrom=curTo=null; applyFilter(); return; }
+  const todayIso=new Date().toISOString().slice(0,10);
+  const maxD=dates[dates.length-1];
+  const toIso = todayIso<=maxD ? todayIso : maxD;
+  const to=new Date(toIso+'T00:00:00');
+  const from=new Date(to); from.setDate(from.getDate()-(days-1));
+  const fromIso=from.toISOString().slice(0,10);
+  curFrom = fromIso<dates[0] ? dates[0] : fromIso;
+  curTo = toIso;
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
+function setPeriodDays(daysAgo, btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){ curFrom=curTo=null; applyFilter(); return; }
+  const today=new Date(); today.setDate(today.getDate()-daysAgo);
+  const iso=today.toISOString().slice(0,10);
+  const minD=dates[0], maxD=dates[dates.length-1];
+  const clamped = iso<minD?minD:(iso>maxD?maxD:iso);
+  curFrom=clamped; curTo=clamped;
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
+function setCustom(){
+  const f=document.getElementById('date-from').value;
+  const t=document.getElementById('date-to').value;
+  if(f&&t&&f>t) return;
+  curFrom=f||null; curTo=t||null;
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  applyFilter();
+}
+
+function applyFilter(){
+  if(!RAW) return;
+  const deals=(RAW.deals||[]).filter(d=>(!curFrom||d.date>=curFrom)&&(!curTo||d.date<=curTo));
+  const leads=(RAW.leads||[]).filter(l=>(!curFrom||l.date>=curFrom)&&(!curTo||l.date<=curTo));
+  const info=document.getElementById('period-info');
+  const dd=new Set([...deals.map(d=>d.date),...leads.map(l=>l.date)]).size;
+  info.textContent = curFrom||curTo ? `${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.` : 'весь період';
+  render(deals, leads);
+}
+
+function stageMeta(id){
+  const raw = (META.stages&&META.stages[id]) || {name:id||'(без стадії)', semantics:''};
+  let sem = raw.semantics;
+  if(!sem){
+    if(/WON/i.test(id)) sem='S';
+    else if(/LOSE|FAIL|LOSS/i.test(id)) sem='F';
+  }
+  return {...raw, semantics: sem};
+}
+function managerName(id){ return (META.users&&META.users[id]) || (id ? 'ID '+id : '(не призначено)'); }
+function round1(n){ return Math.round(n*10)/10; }
+
+function aggregateManagers(deals, leads){
+  const byManager={};
+  deals.forEach(d=>{
+    const st=stageMeta(d.stage_id);
+    const mgr=d.manager_id||'';
+    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,leads:0,leadsRejected:0};
+    byManager[mgr].deals++; byManager[mgr].dealsSum+=d.amount;
+  });
+  leads.forEach(l=>{
+    const mgr=l.manager_id||'';
+    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,leads:0,leadsRejected:0};
+    byManager[mgr].leads++;
+    if(l.semantic==='F') byManager[mgr].leadsRejected++;
+  });
+  return byManager;
+}
+
+function render(dealsRaw, leadsRaw){
+  const byManager=aggregateManagers(dealsRaw, leadsRaw);
+  renderManagers(byManager);
+}
+
+function renderManagers(byManager){
+  const table=document.getElementById('manager-table');
+  const rows=Object.values(byManager).sort((a,b)=>b.dealsSum-a.dealsSum);
+  if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
+  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th><th>Забраковано лідів</th><th>Конверсія лід→угода</th></tr></thead>`;
+  const body=rows.map(m=>{
+    const rate = m.leads ? round1(m.deals/m.leads*100) : 0;
+    return `<tr>
+    <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
+    <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
+    <td><b>${fmt1(rate)}%</b></td>
+  </tr>`;
+  }).join('');
+  table.innerHTML=head+`<tbody>${body}</tbody>`;
+}
+
+load();
+</script>
+</body>
+</html>
