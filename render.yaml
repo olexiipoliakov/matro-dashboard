@@ -35,3 +35,7 @@ services:
         sync: false
       - key: GSC_SERVICE_ACCOUNT_JSON
         sync: false
+      - key: RINGOSTAT_AUTH_KEY
+        sync: false
+      - key: RINGOSTAT_PROJECT_ID
+        sync: false

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matro · Дзвінки</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="images/favicon-192.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<style>
+  :root{
+    --ink:#1a1714; --ink-soft:#5c534a; --paper:#f5f1ea; --card:#fffdf9;
+    --line:#e3dccf; --accent:#7d5fd6; --accent-2:#a78bfa;
+    --good:#3f7d5c; --good-bg:#e3f0e8; --mid:#b8893b; --mid-bg:#fbf0d8;
+    --bad:#c0432f; --bad-bg:#f6e0db;
+    --r:14px; --shadow:0 1px 2px rgba(26,23,20,.04),0 8px 24px rgba(26,23,20,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;min-width:0}
+  html{overflow-x:hidden}
+  body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;padding:32px 24px 64px;overflow-x:hidden}
+  .wrap{max-width:1000px;margin:0 auto}
+  img,svg,table{max-width:100%}
+
+  .home-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+    color:var(--ink-soft);text-decoration:none;margin-bottom:14px}
+  .home-link:hover{color:var(--accent)}
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .logo{font-size:28px;font-weight:700;letter-spacing:-.5px}
+  .logo .dot{color:var(--accent)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--ink-soft);font-weight:600}
+  .meta-line{text-align:right;font-size:12px;color:var(--ink-soft)}
+  .meta-line b{color:var(--ink)}
+  .rule{height:2px;background:var(--ink);margin:14px 0 24px;position:relative}
+  .rule::after{content:"";position:absolute;left:0;top:0;height:2px;width:72px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  .period-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:26px;
+    padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .period-btns{display:flex;gap:6px;flex-wrap:wrap}
+  .pbtn{padding:7px 14px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:8px;transition:all .15s;white-space:nowrap}
+  .pbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .period-cal{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft)}
+  .period-cal input[type=date]{font-family:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line);
+    border-radius:7px;background:#fff;max-width:150px}
+  .period-info{font-size:12px;color:var(--ink-soft);font-weight:600;white-space:nowrap}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:34px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:16px;box-shadow:var(--shadow);overflow:hidden}
+  .kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
+  .kpi .val{font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1;word-break:break-word}
+  .kpi .sub{font-size:11.5px;margin-top:7px;color:var(--ink-soft)}
+
+  .sec-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+  .sec-head h2{font-size:18px;font-weight:700}
+  .sec-head .n{font-size:11px;font-weight:700;color:var(--accent);border:1.5px solid var(--accent);
+    border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0}
+  .sec-head .ln{flex:1;height:1px;background:var(--line);min-width:20px}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:18px;margin-bottom:34px;overflow:hidden}
+
+  table.data-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.data-table th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);
+    font-weight:700;padding:7px 8px;border-bottom:2px solid var(--ink);white-space:nowrap}
+  table.data-table th:first-child{text-align:left}
+  table.data-table td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.data-table td:first-child{text-align:left;font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+  table.data-table tbody tr:hover td{background:#f4f1fb}
+  .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  .online-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+    padding:3px 9px;border-radius:20px;white-space:nowrap}
+  .online-badge .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .online-badge.on{background:var(--good-bg);color:var(--good)}
+  .online-badge.on .dot{background:var(--good)}
+  .online-badge.talk{background:var(--mid-bg);color:var(--mid)}
+  .online-badge.talk .dot{background:var(--mid)}
+  .online-badge.off{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  .online-badge.off .dot{background:var(--ink-soft)}
+
+  .status-line{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--ink-soft);margin:-8px 0 14px;flex-wrap:wrap}
+  .status-refresh{cursor:pointer;color:var(--accent);font-weight:600;text-decoration:none}
+  .status-refresh:hover{text-decoration:underline}
+
+  footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:10px}
+  .err{background:var(--bad-bg);color:var(--bad);padding:14px 18px;border-radius:10px;font-size:13px;margin-bottom:20px}
+  .warn-box{background:var(--mid-bg);color:var(--mid);padding:12px 16px;border-radius:10px;font-size:12.5px;margin-bottom:14px}
+  .empty-note{color:var(--ink-soft);font-style:italic;font-size:12.5px}
+
+  @media(max-width:600px){
+    body{padding:16px 12px 48px}
+    header{flex-direction:column;align-items:flex-start;gap:6px}
+    .meta-line{text-align:left}
+    .kpis{grid-template-columns:repeat(2,1fr);gap:8px}
+    .kpi{padding:12px}
+    .kpi .val{font-size:19px}
+    .period-bar{flex-direction:column;align-items:stretch;gap:10px;padding:12px}
+    .period-cal{width:100%}
+    .period-cal input[type=date]{flex:1;max-width:none}
+    .period-info{width:100%}
+    .sec-head h2{font-size:16px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="home.html" class="home-link">&larr; Home</a>
+  <header>
+    <div class="brand">
+      <div class="logo">Matro<span class="dot">.</span></div>
+      <div>
+        <div class="eyebrow">Дзвінки</div>
+        <div style="font-size:13px;color:var(--ink-soft)">Ringostat · менеджери на лінії</div>
+      </div>
+    </div>
+    <div class="meta-line">Дані з: <b id="period-from">—</b><br>Оновлено: <b id="updated">—</b></div>
+  </header>
+  <div class="rule"></div>
+
+  <div id="error-box"></div>
+
+  <div class="period-bar">
+    <div class="period-btns">
+      <button class="pbtn" onclick="setPeriodDays(0,this)">Сьогодні</button>
+      <button class="pbtn" onclick="setPeriodDays(1,this)">Вчора</button>
+      <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 днів</button>
+      <button class="pbtn" data-days="14" onclick="setPeriod(14,this)">14 днів</button>
+      <button class="pbtn active" data-days="30" onclick="setPeriod(30,this)">30 днів</button>
+      <button class="pbtn" data-days="90" onclick="setPeriod(90,this)">Всі</button>
+    </div>
+    <div class="period-cal">
+      <span>або період:</span>
+      <input type="date" id="date-from" onchange="setCustom()">
+      <span>—</span>
+      <input type="date" id="date-to" onchange="setCustom()">
+    </div>
+    <div class="period-info" id="period-info">—</div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="sec-head"><span class="n">1</span><h2>Менеджери</h2><span class="ln"></span></div>
+  <div class="status-line">
+    Дзвінки за вибраний період · «На лінії» — стан прямо зараз, не залежить від періоду
+    <a class="status-refresh" onclick="loadStatus()">оновити зараз ⟳</a>
+    <span id="status-updated"></span>
+  </div>
+  <div id="status-warn"></div>
+  <div class="panel">
+    <div class="table-scroll"><table class="data-table" id="calls-table"></table></div>
+  </div>
+
+  <footer>Данные из <code>ringostat_data.json</code> · Ringostat API</footer>
+</div>
+
+<script>
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+const fmtDate=iso=>{ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}.${m}.${y}`; };
+
+let RAW=null, STATUS=null;
+let curFrom=null, curTo=null;
+
+async function load(){
+  try{
+    const res=await fetch('ringostat_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    RAW=await res.json();
+    if(!Array.isArray(RAW.calls)){
+      showError('ringostat_data.json ще не згенеровано (перший запуск fetch_ringostat.py на сервері) — почекайте наступного оновлення.');
+      return;
+    }
+    document.getElementById('updated').textContent = RAW.generated_at || '—';
+    document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
+    setPeriod(30, document.querySelector('.pbtn[data-days="30"]'));
+  }catch(e){
+    showError('Не удалось загрузить ringostat_data.json: '+e.message);
+  }
+  loadStatus();
+}
+function showError(msg){ document.getElementById('error-box').innerHTML=`<div class="err">${msg}</div>`; }
+
+async function loadStatus(){
+  const warn=document.getElementById('status-warn');
+  const upd=document.getElementById('status-updated');
+  upd.textContent='оновлення…';
+  try{
+    const res=await fetch('/api/ringostat/status?_='+Date.now());
+    const data=await res.json();
+    if(data.error){
+      warn.innerHTML=`<div class="warn-box">⚠ Не вдалося отримати живий статус «на лінії»: ${data.error}</div>`;
+      STATUS=null;
+    }else{
+      warn.innerHTML='';
+      STATUS=data;
+    }
+  }catch(e){
+    warn.innerHTML=`<div class="warn-box">⚠ Не вдалося отримати живий статус «на лінії»: ${e.message}</div>`;
+    STATUS=null;
+  }
+  upd.textContent = STATUS ? ('статус на '+new Date().toLocaleTimeString('uk-UA')) : '';
+  if(RAW) applyFilter();
+}
+
+function allDates(){
+  const calls=(RAW&&RAW.calls)||[];
+  return [...new Set(calls.map(c=>c.date).filter(Boolean))].sort();
+}
+
+function setPeriod(days,btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){ curFrom=curTo=null; applyFilter(); return; }
+  const todayIso=new Date().toISOString().slice(0,10);
+  const maxD=dates[dates.length-1];
+  const toIso = todayIso<=maxD ? todayIso : maxD;
+  const to=new Date(toIso+'T00:00:00');
+  const from=new Date(to); from.setDate(from.getDate()-(days-1));
+  const fromIso=from.toISOString().slice(0,10);
+  curFrom = fromIso<dates[0] ? dates[0] : fromIso;
+  curTo = toIso;
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
+function setPeriodDays(daysAgo, btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const dates=allDates();
+  if(!dates.length){ curFrom=curTo=null; applyFilter(); return; }
+  const today=new Date(); today.setDate(today.getDate()-daysAgo);
+  const iso=today.toISOString().slice(0,10);
+  const minD=dates[0], maxD=dates[dates.length-1];
+  const clamped = iso<minD?minD:(iso>maxD?maxD:iso);
+  curFrom=clamped; curTo=clamped;
+  document.getElementById('date-from').value=curFrom;
+  document.getElementById('date-to').value=curTo;
+  applyFilter();
+}
+function setCustom(){
+  const f=document.getElementById('date-from').value;
+  const t=document.getElementById('date-to').value;
+  if(f&&t&&f>t) return;
+  curFrom=f||null; curTo=t||null;
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  applyFilter();
+}
+
+function applyFilter(){
+  if(!RAW) return;
+  const calls=(RAW.calls||[]).filter(c=>(!curFrom||c.date>=curFrom)&&(!curTo||c.date<=curTo));
+  const info=document.getElementById('period-info');
+  const dd=new Set(calls.map(c=>c.date)).size;
+  info.textContent = curFrom||curTo ? `${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.` : 'весь період';
+  render(calls);
+}
+
+function managerName(id){ return (RAW.meta&&RAW.meta.staff&&RAW.meta.staff[id]) || (id ? 'ID '+id : '(не визначено)'); }
+
+// Статус "на лінії" визначаємо через таблицю directions з ringostat_data.json
+// (SIP-логіни/номери кожного менеджера) — зіставляємо з живим списком
+// online/speaking з /api/ringostat/status.
+function onlineBadge(staffId){
+  if(!STATUS || !staffId) return '<span class="online-badge off"><span class="dot"></span>—</span>';
+  const dirs = RAW.meta && RAW.meta.directions || {};
+  const myDirs = Object.keys(dirs).filter(k=>String(dirs[k])===String(staffId));
+  const online = (STATUS.online||[]);
+  const speaking = (STATUS.speaking||[]);
+  const isSpeaking = myDirs.some(d=>speaking.includes(d));
+  const isOnline = myDirs.some(d=>online.includes(d));
+  if(isSpeaking) return '<span class="online-badge talk"><span class="dot"></span>Розмовляє</span>';
+  if(isOnline) return '<span class="online-badge on"><span class="dot"></span>На лінії</span>';
+  return '<span class="online-badge off"><span class="dot"></span>Не на лінії</span>';
+}
+
+function render(calls){
+  const byManager={};
+  let incoming=0, outgoing=0, missed=0;
+  calls.forEach(c=>{
+    const mgr=c.manager_id||'';
+    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),incoming:0,outgoing:0,missed:0,answered:0,total:0};
+    byManager[mgr].total++;
+    if(c.direction==='incoming') byManager[mgr].incoming++;
+    else if(c.direction==='outgoing') byManager[mgr].outgoing++;
+    if(c.status==='missed'){ byManager[mgr].missed++; missed++; }
+    else if(c.status==='answered') byManager[mgr].answered++;
+    if(c.direction==='incoming') incoming++;
+    else if(c.direction==='outgoing') outgoing++;
+  });
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="lbl">Всього дзвінків</div><div class="val">${fmt(calls.length)}</div></div>
+    <div class="kpi"><div class="lbl">Вхідні</div><div class="val">${fmt(incoming)}</div></div>
+    <div class="kpi"><div class="lbl">Вихідні</div><div class="val">${fmt(outgoing)}</div></div>
+    <div class="kpi"><div class="lbl">Пропущені</div><div class="val" style="color:var(--bad)">${fmt(missed)}</div></div>`;
+
+  const table=document.getElementById('calls-table');
+  const rows=Object.values(byManager).sort((a,b)=>b.total-a.total);
+  if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
+  const head=`<thead><tr><th>Менеджер</th><th>На лінії</th><th>Вхідні</th><th>Вихідні</th><th>Пропущені</th><th>Всього</th></tr></thead>`;
+  const body=rows.map(m=>`<tr>
+    <td>${m.name}</td>
+    <td style="text-align:left">${onlineBadge(m.manager_id)}</td>
+    <td>${fmt(m.incoming)}</td>
+    <td>${fmt(m.outgoing)}</td>
+    <td style="color:var(--bad)">${fmt(m.missed)}</td>
+    <td><b>${fmt(m.total)}</b></td>
+  </tr>`).join('');
+  table.innerHTML=head+`<tbody>${body}</tbody>`;
+}
+
+load();
+setInterval(loadStatus, 30000); // "на лінії" оновлюємо кожні 30с, поки сторінка відкрита
+</script>
+</body>
+</html>

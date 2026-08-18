@@ -15,7 +15,8 @@ import os, sys, time, threading, subprocess
 from pathlib import Path
 from functools import wraps
 
-from flask import Flask, request, send_from_directory, Response
+import requests
+from flask import Flask, request, send_from_directory, Response, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 
 BASE_DIR = Path(__file__).parent
@@ -60,6 +61,7 @@ def run_all_periodic():
     run_script("fetch_meta.py")
     run_script("fetch_gsc.py")
     run_script("fetch_bitrix.py")
+    run_script("fetch_ringostat.py")
 
 # ── Вебхук з Bitrix — миттєве оновлення при зміні угоди/ліда ────────────
 WEBHOOK_SECRET = os.environ.get("BITRIX_INCOMING_WEBHOOK_SECRET", "")
@@ -110,6 +112,32 @@ def static_route(filename):
 def healthz():
     # Без пароля — Render використовує це, щоб перевіряти, що сервіс живий.
     return "ok", 200
+
+# ── Ringostat: "хто на лінії зараз" — живий запит, НЕ через розклад ─────────
+# Раз-на-3-години кеш для цього показника марний (менеджер, який щойно
+# завершив дзвінок, буде показаний як "зайнятий" ще годинами) — тому
+# ringostat.html питає це напряму в момент відкриття/оновлення сторінки,
+# а сервер лише проксує запит до Ringostat, щоб ключ (RINGOSTAT_AUTH_KEY)
+# не потрапив у клієнтський JS.
+RINGOSTAT_AUTH_KEY = os.environ.get("RINGOSTAT_AUTH_KEY", "")
+
+@app.route("/api/ringostat/status")
+@requires_auth
+def ringostat_status():
+    if not RINGOSTAT_AUTH_KEY:
+        return jsonify({"error": "RINGOSTAT_AUTH_KEY не задано на сервері"}), 500
+    headers = {
+        "Auth-key": RINGOSTAT_AUTH_KEY,
+        "User-Agent": "Mozilla/5.0 (compatible; MatroDashboardBot/1.0)",
+    }
+    try:
+        online = requests.get("https://api.ringostat.net/sipstatus/online", headers=headers, timeout=10)
+        online.raise_for_status()
+        speaking = requests.get("https://api.ringostat.net/sipstatus/speaking", headers=headers, timeout=10)
+        speaking.raise_for_status()
+        return jsonify({"online": online.json(), "speaking": speaking.json()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 502
 
 # ── Планувальник: fetch_meta/gsc/bitrix раз на 3 години ─────────────────
 scheduler = BackgroundScheduler()
