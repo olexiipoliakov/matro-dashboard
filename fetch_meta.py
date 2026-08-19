@@ -21,7 +21,7 @@
     META_ACCOUNT_ID   — act_XXXXXXXXXX из Ads Manager
 """
 
-import os, json, time, datetime as dt
+import os, sys, json, time, datetime as dt
 from pathlib import Path
 import requests
 
@@ -444,14 +444,24 @@ if __name__ == "__main__":
         print("⚠  Укажите META_ACCESS_TOKEN и META_ACCOUNT_ID.")
     else:
         # Аккаунт 1 — Plume (основной)
+        # Обгорнуто в try/except: раніше падіння тут (наприклад, токен Meta
+        # втратив ads_read) вбивало ВЕСЬ скрипт необробленим винятком — і
+        # аккаунт Matro нижче взагалі ніколи не запускався, навіть якщо з
+        # ним самим усе було гаразд. Тепер падіння одного акаунта більше не
+        # блокує другий.
         print("=" * 50)
         print("АККАУНТ 1: Plume")
         print("=" * 50)
-        build(
-            account_id=ACCOUNT_ID,
-            out_path=Path(__file__).parent / "data.json",
-            account_name="Plume"
-        )
+        ok = True
+        try:
+            build(
+                account_id=ACCOUNT_ID,
+                out_path=Path(__file__).parent / "data.json",
+                account_name="Plume"
+            )
+        except Exception as e:
+            print(f"  ✗ АККАУНТ 1 (Plume): ошибка — {e}")
+            ok = False
 
         # Аккаунт 2 — Matro (вкладка "Matro" в index.html, switchAccount('data2.json','Matro'))
         if "XXXX" not in ACCOUNT_ID_2:
@@ -488,5 +498,12 @@ if __name__ == "__main__":
                 hint = (" (схоже, токен Plume не має доступу до кабінету Matro — "
                         "потрібен окремий META_ACCESS_TOKEN_MATRO)") if using_fallback else ""
                 print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}{hint}")
+                ok = False
         else:
             print("\n⚠  META_ACCOUNT_ID_2 не задан — аккаунт Matro пропущен.")
+
+        # Явний код завершення — щоб run_script() в app.py міг чесно
+        # написати в лог "ЗАВЕРШИВСЯ З ПОМИЛКОЮ", а не мовчки "завершено",
+        # коли насправді один чи обидва акаунти впали.
+        if not ok:
+            sys.exit(1)
