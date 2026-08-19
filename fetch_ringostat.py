@@ -15,14 +15,26 @@ Ringostat API в розрізі менеджерів і зберігає ringost
                           Інтеграції/API).
   RINGOSTAT_PROJECT_ID — ID проєкту (там же).
 
-ПРИМІТКА для наступного, хто буде це підтримувати: точні назви полів у
-відповіді Ringostat на getProjectStaffListAndDirections документовані не
-до кінця однозначно (ми спираємось на офіційний опис полів, а не на
-перевірений живий приклад — ключа для тестового виклику під час розробки
-не було). Тому tie-матчинг дзвінків до менеджера навмисно захищений
-try/except і рахує "unmatched" — при першому реальному запуску варто
-глянути лог Render: якщо unmatched велике, треба буде звірити реальні
-назви полів у відповіді (там же в лозі є приклад сирого staff-запису).
+2026-08-19 — ВИПРАВЛЕННЯ ЗІСТАВЛЕННЯ ДЗВІНОК→МЕНЕДЖЕР:
+Початкова версія зіставляла дзвінок з менеджером за номерами полів
+caller/dst проти довідника напрямків співробітника (SIP-логіни/номери).
+Реальні логи Render показали, що це не працює (наприклад дзвінки з/на
+9460, 9465 лишались "без прив'язки" — unmatched). Причина: поля caller/dst
+у відповіді Ringostat — це номер КЛІЄНТА і номер ЛІНІЇ ВІДСТЕЖЕННЯ
+(tracking-номер), а зовсім не внутрішній номер співробітника.
+
+Офіційний довідник параметрів calls/list (Google Sheet Ringostat) прямо
+називає правильні поля для прив'язки дзвінка до співробітника:
+  employee_number — ID співробітника (те саме staffId, що й у
+                     getProjectStaffListAndDirections)
+  employee_fio     — ПІБ співробітника (як він записаний у Ringostat)
+  call_type        — тип дзвінка: in / out / callback / transitin / transitout
+
+Тому зіставлення тепер іде напряму через employee_number (без жодних
+евристик по номерах), а напрям (вхідний/вихідний) береться з call_type.
+Довідник directions_exact лишається в meta лише для живого "хто на лінії
+зараз" (звірка SIP-логінів з /api/ringostat/status), для самих дзвінків
+він більше не використовується.
 """
 import json, os, re, sys
 from datetime import date, datetime, timedelta
@@ -76,8 +88,10 @@ def norm_phone(raw):
 # ── Довідник співробітників і їх внутрішніх номерів/SIP-логінів ────────────
 def fetch_staff():
     """Повертає (staff_names: {staff_id: fio}, directions_exact: {raw_value:
-    staff_id}, directions_phone: {norm_phone: staff_id}) — щоб потім зв'язати
-    дзвінок (по caller/dst) з конкретним менеджером."""
+    staff_id}, directions_phone: {norm_phone: staff_id}). staff_names тепер
+    використовується для прив'язки дзвінок→менеджер (через employee_number).
+    directions_exact/directions_phone лишились лише для живого "хто на лінії
+    зараз" (звірка SIP-логінів з /api/ringostat/status)."""
     if not AUTH_KEY:
         raise RuntimeError("RINGOSTAT_AUTH_KEY не задано")
     body = {
@@ -102,13 +116,6 @@ def fetch_staff():
                 break
         if not entries and result and all(isinstance(v, dict) for v in result.values()):
             entries = list(result.values())
-
-    if entries:
-        # [debug] тимчасовий діагностичний дамп — щоб звірити реальні назви
-        # полів Ringostat з тим, що очікує парсер нижче. Прибрати після того,
-        # як зіставлення дзвінок→менеджер запрацює нормально.
-        print("  [debug] сирий запис співробітника (перший з {}):" .format(len(entries)))
-        print(json.dumps(entries[0], ensure_ascii=False, indent=2)[:3000])
 
     staff_names, directions_exact, directions_phone = {}, {}, {}
     for e in entries:
@@ -145,22 +152,33 @@ def fetch_staff():
             if p:
                 directions_phone[p] = staff_id
 
-    # [debug] тимчасово — скільки напрямків вдалося витягти і приклад
-    print(f"  [debug] directions_exact зібрано: {len(directions_exact)} значень; приклад: {dict(list(directions_exact.items())[:10])}")
-
     return staff_names, directions_exact, directions_phone
 
 # ── Дзвінки (Call log) ───────────────────────────────────────────────────────
-CALL_FIELDS = "calldate,caller,dst,disposition,billsec,utm_source,utm_medium"
+# employee_number/employee_fio/call_type — офіційні поля з довідника
+# параметрів Ringostat calls/list, саме вони дають правильну прив'язку
+# дзвінка до менеджера (а не caller/dst, які є номером клієнта й лінії
+# відстеження). CALL_FIELDS_FALLBACK — про всяк випадок, якщо якийсь дуже
+# старий проєкт Ringostat їх ще не підтримує.
+CALL_FIELDS = "calldate,caller,dst,disposition,billsec,utm_source,utm_medium,call_type,employee_number,employee_fio"
+CALL_FIELDS_FALLBACK = "calldate,caller,dst,disposition,billsec,utm_source,utm_medium"
 
-def fetch_calls_window(dt_from, dt_to, tries=3):
+CALL_TYPE_DIRECTION = {
+    "in": "incoming",
+    "transitin": "incoming",
+    "out": "outgoing",
+    "callback": "outgoing",
+    "transitout": "outgoing",
+}
+
+def _fetch_calls_window_with_fields(dt_from, dt_to, fields, tries=3):
     params = {
         "token": AUTH_KEY,          # деякі версії API беруть ключ параметром...
         "project_id": PROJECT_ID,
         "export_type": "json",
         "from": dt_from.strftime("%Y-%m-%d %H:%M:%S"),
         "to": dt_to.strftime("%Y-%m-%d %H:%M:%S"),
-        "fields": CALL_FIELDS,
+        "fields": fields,
     }
     last_err = None
     for attempt in range(tries):
@@ -182,6 +200,13 @@ def fetch_calls_window(dt_from, dt_to, tries=3):
             last_err = e
     raise RuntimeError(f"Ringostat calls/list {dt_from.date()}—{dt_to.date()}: {last_err}")
 
+def fetch_calls_window(dt_from, dt_to):
+    try:
+        return _fetch_calls_window_with_fields(dt_from, dt_to, CALL_FIELDS)
+    except Exception as e:
+        print(f"  ⚠ розширений набір полів не спрацював ({e}), пробую без employee_number/call_type")
+        return _fetch_calls_window_with_fields(dt_from, dt_to, CALL_FIELDS_FALLBACK)
+
 def fetch_all_calls(days_back):
     today = datetime.now()
     start = today - timedelta(days=days_back)
@@ -198,43 +223,40 @@ def fetch_all_calls(days_back):
     return out
 
 # ── Перетворення в компактні "сирі" рядки для фронтенду ─────────────────────
-def slim_calls(rows, directions_exact, directions_phone):
+def slim_calls(rows, known_staff_names):
+    """known_staff_names — {staff_id: fio} з fetch_staff(), лише щоб
+    визначити, чи employee_number вже відомий, чи це "новий" співробітник,
+    якого немає в getProjectStaffListAndDirections (тоді беремо ім'я прямо
+    з employee_fio дзвінка)."""
     out = []
-    unmatched = 0
+    extra_names = {}
+    no_employee = 0
     for r in rows:
         if not isinstance(r, dict):
             continue
         calldate = r.get("calldate") or r.get("call_date") or r.get("date") or ""
         d = calldate[:10] if calldate else None
-        caller = str(r.get("caller") or "")
-        dst = str(r.get("dst") or "")
         disposition = r.get("disposition") or ""
 
-        staff_id = directions_exact.get(caller) or directions_exact.get(dst)
-        direction = None
-        if directions_exact.get(caller):
-            direction = "outgoing"
-        elif directions_exact.get(dst):
-            direction = "incoming"
+        staff_id = str(r.get("employee_number") or "")
+        if staff_id and staff_id not in known_staff_names and staff_id not in extra_names:
+            fio = r.get("employee_fio")
+            if fio:
+                extra_names[staff_id] = fio
         if not staff_id:
-            staff_id = directions_phone.get(norm_phone(caller))
-            if staff_id:
-                direction = "outgoing"
-            else:
-                staff_id = directions_phone.get(norm_phone(dst))
-                if staff_id:
-                    direction = "incoming"
-        if not staff_id:
-            unmatched += 1
+            no_employee += 1
+
+        call_type = (r.get("call_type") or "").strip().lower()
+        direction = CALL_TYPE_DIRECTION.get(call_type, "unknown")
 
         out.append({
             "date": d,
-            "direction": direction or "unknown",
+            "direction": direction,
             "status": call_status(disposition),
-            "manager_id": staff_id or "",
+            "manager_id": staff_id,
             "duration": int(r.get("billsec") or 0),
         })
-    return out, unmatched
+    return out, extra_names, no_employee
 
 # ── Main ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
@@ -245,37 +267,35 @@ if __name__ == "__main__":
 
     result = {"generated_at": str(date.today()), "period_from": str(date.today() - timedelta(days=DAYS_BACK))}
     ok = True
+    staff_names, directions_exact, directions_phone = {}, {}, {}
     try:
         print("  → Довідник співробітників і їх номерів")
         staff_names, directions_exact, directions_phone = fetch_staff()
         print(f"     знайдено співробітників: {len(staff_names)}")
-        # directions_exact віддаємо у meta теж — ringostat.html зіставляє ними
-        # SIP-логіни з /api/ringostat/status (живий "хто зараз на лінії") з
-        # конкретним менеджером, без повторного звернення до Ringostat.
-        result["meta"] = {"staff": staff_names, "directions": directions_exact}
     except Exception as e:
         print(f"  ✗ ошибка (staff): {e}")
         ok = False
-        staff_names, directions_exact, directions_phone = {}, {}, {}
-        result["meta"] = {"staff": {}}
 
     try:
         print(f"  → Дзвінки за останні {DAYS_BACK} днів")
         raw_calls = fetch_all_calls(DAYS_BACK)
         print(f"     знайдено: {len(raw_calls)}")
-        if raw_calls:
-            # [debug] тимчасовий діагностичний дамп — прибрати після фіксу зіставлення
-            print("  [debug] сирі записи дзвінків (перші 3):")
-            for row in raw_calls[:3]:
-                print(json.dumps(row, ensure_ascii=False))
-        calls, unmatched = slim_calls(raw_calls, directions_exact, directions_phone)
+        calls, extra_names, no_employee = slim_calls(raw_calls, staff_names)
         result["calls"] = calls
+        if extra_names:
+            staff_names.update(extra_names)
+            print(f"     довідник доповнено {len(extra_names)} іменами прямо з дзвінків")
         if calls:
-            print(f"     не вдалося зв'язати з менеджером: {unmatched} з {len(calls)}")
+            print(f"     без прив'язки до менеджера: {no_employee} з {len(calls)}")
     except Exception as e:
         print(f"  ✗ ошибка (calls): {e}")
         ok = False
         result["calls"] = []
+
+    # directions_exact віддаємо у meta — ringostat.html/home.html зіставляють
+    # ними SIP-логіни з /api/ringostat/status (живий "хто зараз на лінії") з
+    # конкретним менеджером, без повторного звернення до Ringostat.
+    result["meta"] = {"staff": staff_names, "directions": directions_exact}
 
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2))
     if result.get("calls"):
