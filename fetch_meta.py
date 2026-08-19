@@ -455,29 +455,38 @@ if __name__ == "__main__":
 
         # Аккаунт 2 — Matro (вкладка "Matro" в index.html, switchAccount('data2.json','Matro'))
         if "XXXX" not in ACCOUNT_ID_2:
-            if not ACCESS_TOKEN_2:
-                print("\n⚠  META_ACCESS_TOKEN_MATRO не задан — аккаунт Matro пропущен "
-                      "(нужен отдельный токен, если Plume-токен не видит рекламный кабинет Matro).")
-            else:
-                # Пауза перед другим акаунтом — лимит запитів у Meta діє на рівні
-                # ДОДАТКУ (не токена), тож одразу після великого Plume-акаунта
-                # другий акаунт легко впирається в "Application request limit reached".
-                pause_s = 45
-                print(f"\n⏸  Пауза {pause_s}с перед Matro (щоб не впертися в ліміт запитів Meta після Plume)…")
-                time.sleep(pause_s)
-                print("\n" + "=" * 50)
-                print("АККАУНТ 2: Matro")
-                print("=" * 50)
-                try:
-                    build(
-                        account_id=ACCOUNT_ID_2,
-                        out_path=Path(__file__).parent / "data2.json",
-                        account_name="Matro",
-                        access_token=ACCESS_TOKEN_2,
-                    )
-                except Exception as e:
-                    # Один впавший акаунт не повинен ламати весь скрипт — Plume вже
-                    # збережено вище, і крок workflow все одно піде далі (continue-on-error).
-                    print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}")
+            # Якщо окремий токен для Matro не заданий — пробуємо тим самим
+            # токеном, що й Plume (нерідко один Business Manager / один токен
+            # має доступ одразу до кількох рекламних кабінетів). Раніше тут
+            # просто пропускали Matro, тому data2.json ніколи не з'являвся —
+            # коментар обіцяв фолбек, а код його не робив.
+            token_for_matro = ACCESS_TOKEN_2 or ACCESS_TOKEN
+            using_fallback = not ACCESS_TOKEN_2
+            if using_fallback:
+                print("\nℹ  META_ACCESS_TOKEN_MATRO не задан — пробую токеном Plume "
+                      "(META_ACCESS_TOKEN). Якщо цей токен не бачить кабінет Matro, "
+                      "нижче буде помилка доступу — тоді потрібен окремий токен.")
+            # Пауза перед другим акаунтом — лимит запитів у Meta діє на рівні
+            # ДОДАТКУ (не токена), тож одразу після великого Plume-акаунта
+            # другий акаунт легко впирається в "Application request limit reached".
+            pause_s = 45
+            print(f"\n⏸  Пауза {pause_s}с перед Matro (щоб не впертися в ліміт запитів Meta після Plume)…")
+            time.sleep(pause_s)
+            print("\n" + "=" * 50)
+            print("АККАУНТ 2: Matro")
+            print("=" * 50)
+            try:
+                build(
+                    account_id=ACCOUNT_ID_2,
+                    out_path=Path(__file__).parent / "data2.json",
+                    account_name="Matro",
+                    access_token=token_for_matro,
+                )
+            except Exception as e:
+                # Один впавший акаунт не повинен ламати весь скрипт — Plume вже
+                # збережено вище, і крок workflow все одно піде далі (continue-on-error).
+                hint = (" (схоже, токен Plume не має доступу до кабінету Matro — "
+                        "потрібен окремий META_ACCESS_TOKEN_MATRO)") if using_fallback else ""
+                print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}{hint}")
         else:
             print("\n⚠  META_ACCOUNT_ID_2 не задан — аккаунт Matro пропущен.")
