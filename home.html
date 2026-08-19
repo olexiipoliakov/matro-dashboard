@@ -104,6 +104,16 @@
   .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
   @media(max-width:900px){.grid2{grid-template-columns:1fr}}
 
+  /* ── широкий віджет дзвінків (над grid2) ── */
+  .calls-wide{margin-bottom:20px}
+  .calls-stat-row{display:flex;align-items:center;flex-wrap:wrap;gap:32px 40px;margin-bottom:18px}
+  .calls-stat-row .stat .v{font-size:clamp(20px,3.5vw,28px)}
+  .calls-online{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:13px;font-weight:600;color:var(--success)}
+  .calls-online .dot{width:8px;height:8px;border-radius:50%;background:var(--success);
+    box-shadow:0 0 8px var(--success);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+  .calls-online.offline{color:var(--ink-dim)}
+  .calls-online.offline .dot{background:var(--ink-dim);box-shadow:none;animation:none}
+
   .glass{
     background:rgba(16,21,34,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
     border:1px solid var(--border); border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,.35);
@@ -127,6 +137,7 @@
   .smm .card-icon{background:rgba(255,140,66,.12);color:var(--accent)}
   .seo .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
   .crm .card-icon{background:rgba(155,127,232,.15);color:var(--crm)}
+  .calls .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
   .card-id > div{min-width:0}
   .card-name{font-size:16px;font-weight:600}
   .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
@@ -161,10 +172,14 @@
   .seo .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(50,216,255,.3)}
   .crm .btn-primary{background:linear-gradient(90deg,var(--crm),var(--crm-2))}
   .crm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(155,127,232,.35)}
+  .calls .btn-primary{background:linear-gradient(90deg,var(--seo),var(--seo-2))}
+  .calls .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(50,216,255,.3)}
   .btn-primary i{width:14px;height:14px}
   .updated-note{font-size:11px;color:var(--ink-dim);text-align:right;min-width:60px;line-height:1.4}
 
   .skeleton{color:var(--ink-dim);font-size:13px;padding:20px 0;text-align:center}
+  /* .calls-wide йде першою у DOM — перебиваємо nth-of-type затримку появи */
+  .calls{animation-delay:.02s}
 
   @media(max-width:600px){
     .wrap{padding:24px 16px 48px}
@@ -176,6 +191,8 @@
     .sys-status{width:100%}
     .card-cta{flex-wrap:wrap}
     .updated-note{white-space:normal;text-align:left;width:100%}
+    .calls-stat-row{gap:16px 28px}
+    .calls-online{margin-left:0;width:100%}
   }
 </style>
 </head>
@@ -220,9 +237,34 @@
         <div class="sys-row"><span class="name">Meta Ads</span><span class="pill" id="sys-meta"><span class="dot"></span>—</span></div>
         <div class="sys-row"><span class="name">Google Search Console</span><span class="pill" id="sys-gsc"><span class="dot"></span>—</span></div>
         <div class="sys-row"><span class="name">Bitrix24 CRM</span><span class="pill" id="sys-bitrix"><span class="dot"></span>—</span></div>
+        <div class="sys-row"><span class="name">Ringostat</span><span class="pill" id="sys-ringostat"><span class="dot"></span>—</span></div>
       </div>
     </div>
   </header>
+
+  <a href="ringostat.html" class="glass calls calls-wide" style="text-decoration:none;color:inherit;display:block">
+    <div class="card-top">
+      <div class="card-id">
+        <div class="card-icon"><i data-lucide="phone-call"></i></div>
+        <div><div class="card-name">Дзвінки</div><div class="card-desc">Ringostat · активність команди</div></div>
+      </div>
+      <div class="card-badges">
+        <span class="trend-badge" id="calls-trend"></span>
+        <span class="card-tag" id="calls-tag">—</span>
+      </div>
+    </div>
+    <div class="calls-stat-row" id="calls-stats">
+      <div class="stat"><div class="v" id="calls-in">—</div><div class="l">Вхідні</div></div>
+      <div class="stat"><div class="v" id="calls-out">—</div><div class="l">Вихідні</div></div>
+      <div class="stat"><div class="v" id="calls-missed">—</div><div class="l">Пропущені</div></div>
+      <div class="calls-online" id="calls-online"><span class="dot"></span><span id="calls-online-text">—</span></div>
+    </div>
+    <div class="chart-box" id="calls-chart"></div>
+    <div class="card-cta">
+      <span class="btn-primary">Відкрити дзвінки <i data-lucide="arrow-right"></i></span>
+      <span class="updated-note" id="calls-updated"></span>
+    </div>
+  </a>
 
   <div class="grid2">
     <a href="index.html" class="glass smm" style="text-decoration:none;color:inherit;display:block">
@@ -457,6 +499,73 @@ async function loadCRM(){
   }
 }
 
+async function loadCalls(){
+  try{
+    const res=await fetch('ringostat_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(!Array.isArray(data.calls)) throw new Error('формат даних застарів');
+    setSys('sys-ringostat', true);
+
+    const byDate={};
+    data.calls.forEach(c=>{
+      if(!c.date) return;
+      if(!byDate[c.date]) byDate[c.date]={incoming:0,outgoing:0,missed:0,total:0};
+      byDate[c.date].total++;
+      if(c.direction==='incoming') byDate[c.date].incoming++;
+      else if(c.direction==='outgoing') byDate[c.date].outgoing++;
+      if(c.status==='missed') byDate[c.date].missed++;
+    });
+    const allDates=Object.keys(byDate).sort();
+    const curDates=new Set(allDates.slice(-30));
+    const prevDates=new Set(allDates.slice(-60,-30));
+
+    let incoming=0, outgoing=0, missed=0, curTotal=0, prevTotal=0;
+    allDates.forEach(d=>{
+      if(curDates.has(d)){
+        incoming+=byDate[d].incoming; outgoing+=byDate[d].outgoing; missed+=byDate[d].missed;
+        curTotal+=byDate[d].total;
+      }else if(prevDates.has(d)){
+        prevTotal+=byDate[d].total;
+      }
+    });
+    renderTrend('calls-trend', curTotal, prevTotal, 'дзвінків');
+
+    document.getElementById('calls-tag').textContent='Останні 30 днів';
+    document.getElementById('calls-in').textContent=fmt(incoming);
+    document.getElementById('calls-out').textContent=fmt(outgoing);
+    document.getElementById('calls-missed').textContent=fmt(missed);
+
+    const series=allDates.slice(-30).map(d=>byDate[d].total);
+    document.getElementById('calls-chart').innerHTML = series.length ? sparkline(series,'#32D8FF') : '';
+    document.getElementById('calls-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
+  }catch(e){
+    setSys('sys-ringostat', false);
+    document.getElementById('calls-tag').textContent='Немає даних';
+    document.getElementById('calls-trend').classList.remove('show');
+    document.getElementById('calls-in').textContent='—';
+    document.getElementById('calls-out').textContent='—';
+    document.getElementById('calls-missed').textContent='—';
+  }
+  loadCallsOnlineStatus();
+}
+
+async function loadCallsOnlineStatus(){
+  const el=document.getElementById('calls-online');
+  const textEl=document.getElementById('calls-online-text');
+  try{
+    const res=await fetch('/api/ringostat/status?_='+Date.now());
+    const data=await res.json();
+    const hasOnline = !data.error && Array.isArray(data.online) && data.online.length>0;
+    el.classList.toggle('offline', !hasOnline);
+    textEl.textContent = hasOnline ? 'Онлайн' : 'Офлайн';
+  }catch(e){
+    el.classList.add('offline');
+    textEl.textContent='Офлайн';
+  }
+}
+
+loadCalls();
 loadSMM();
 loadSEO();
 loadCRM();
