@@ -457,6 +457,11 @@ async function switchAccount(file, name, btn){
   }catch(e){
     document.getElementById('error-box').innerHTML=
       `<div class="err">Не удалось загрузить <b>${file}</b>. Возможно данные ещё не выгружены.</div>`;
+    // Раніше тут DATA лишався від попереднього акаунта — і картки під
+    // вкладкою з помилкою тихо показували чужі (старі) цифри, ніби це
+    // дані саме цього акаунта. Тепер явно скидаємо на порожній стан.
+    DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+    initPeriod();
   }
 }
 

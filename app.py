@@ -52,8 +52,15 @@ def requires_auth(f):
 def run_script(name, timeout=1200):
     print(f"[scheduler] запускаю {name}…", flush=True)
     try:
-        subprocess.run([sys.executable, str(BASE_DIR / name)], check=False, timeout=timeout)
-        print(f"[scheduler] {name} завершено", flush=True)
+        result = subprocess.run([sys.executable, str(BASE_DIR / name)], check=False, timeout=timeout)
+        # Раніше тут писали "завершено" незалежно від коду завершення —
+        # якщо скрипт падав з необробленим винятком (traceback), лог все
+        # одно виглядав так, ніби все пройшло успішно, і це маскувало
+        # реальні збої (саме так довго непомітно ламався fetch_meta.py).
+        if result.returncode == 0:
+            print(f"[scheduler] {name} завершено", flush=True)
+        else:
+            print(f"[scheduler] ✗ {name} ЗАВЕРШИВСЯ З ПОМИЛКОЮ (код {result.returncode}) — дивись traceback вище", flush=True)
     except Exception as e:
         print(f"[scheduler] {name} впав: {e}", flush=True)
 
