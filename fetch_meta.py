@@ -168,15 +168,27 @@ def fetch_campaign_goals():
 
 
 def count_result(row, wanted, seen):
-    """Считает результат строки по нужным типам действий (wanted)."""
+    """Считает результат строки по нужным типам действий (wanted).
+
+    ВАЖНО: Meta часто отдаёт ОДНО и то же событие под НЕСКОЛЬКИМИ action_type
+    одновременно — например для одной покупки через пиксель в actions лежат
+    и "purchase", и "offsite_conversion.fb_pixel_purchase" разом (это две
+    классификации одного и того же события, а не два разных заказа). Раньше
+    здесь суммировались ВСЕ типы из wanted — из-за этого у кампаний, где в
+    GOAL_TO_ACTION указано 2+ типа (PURCHASE, OFFSITE_CONVERSIONS,
+    LEAD_GENERATION, QUALITY_LEAD), "Результатов" на дашборде выходило ровно
+    в 2 (и больше) раза больше, чем показывает сам Ads Manager — притом что
+    расход (spend) совпадал день-в-день. Берём ПЕРВЫЙ найденный тип из wanted
+    (в порядке приоритета) — так же, как уже делает pick_fallback ниже.
+    """
     by_type = {}
     for a in row.get("actions", []) or []:
         t = a.get("action_type", "")
         seen.add(t)
         by_type[t] = by_type.get(t, 0) + float(a.get("value", 0))
-    # сумма по нужным типам
-    if wanted:
-        return sum(by_type.get(t, 0) for t in wanted), by_type
+    for t in wanted:
+        if by_type.get(t, 0) > 0:
+            return by_type[t], by_type
     return 0.0, by_type
 
 
