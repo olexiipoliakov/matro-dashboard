@@ -335,6 +335,10 @@ def slim_deals(deals):
             "stage_id": d.get("STAGE_ID", ""),
             "amount": float(d.get("OPPORTUNITY") or 0),
             "manager_id": str(d.get("ASSIGNED_BY_ID") or ""),
+            # SOURCE_ID уже запитувався у DEAL_FIELDS, але раніше губився тут —
+            # без нього фронтенд не міг показати "джерело" для конкретної угоди
+            # (тільки UTM, який на більшості угод порожній).
+            "source_id": (d.get("SOURCE_ID") or "").strip(),
             "utm_source": (d.get("UTM_SOURCE") or "").strip(),
             "utm_campaign": (d.get("UTM_CAMPAIGN") or "").strip(),
             "utm_medium": (d.get("UTM_MEDIUM") or "").strip(),
@@ -346,6 +350,9 @@ def slim_leads(leads):
     for l in leads:
         out.append({
             "id": l.get("ID"),
+            # Людський заголовок ліда (напр. ім'я з форми чи "Заявка з сайту") —
+            # щоб у списку "Неякісні ліди" на дашборді не показувати голий ID.
+            "title": (l.get("TITLE") or "").strip(),
             "date": to_date(l.get("DATE_CREATE")),
             "status_id": l.get("STATUS_ID", ""),
             "source_id": l.get("SOURCE_ID", ""),
@@ -357,6 +364,25 @@ def slim_leads(leads):
             "utm_medium": (l.get("UTM_MEDIUM") or "").strip(),
         })
     return out
+
+def summarize_deal_products(rows):
+    """Стисле людське резюме товарних позицій угоди для показу в списку
+    "Угоди" на дашборді (напр. "Матрац Sleep 160×200" або "Матрац Sleep
+    160×200 + ще 2 поз."). Пропускає рядки-послуги (доставка/наложка/збірка —
+    та сама логіка кроку 2 методики категоризації) та порожні назви."""
+    names = []
+    seen = set()
+    for r in rows:
+        name = (r.get("PRODUCT_NAME") or "").strip()
+        if not name or name in seen or is_service_line(name):
+            continue
+        seen.add(name)
+        names.append(name)
+    if not names:
+        return ""
+    if len(names) == 1:
+        return names[0]
+    return f"{names[0]} + ще {len(names) - 1} поз."
 
 # ── Main ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
@@ -405,6 +431,12 @@ if __name__ == "__main__":
         deal_categories = build_deal_categories(deals, product_rows, stage_names)
         result["deal_categories"] = deal_categories
         print(f"     категоризовано: {len(deal_categories)} угод")
+
+        # Причепляємо людське резюме товару до вже готового result["deals"] —
+        # потрібно для списку "Угоди" в деталях менеджера на bitrix.html.
+        product_summary_by_id = {did: summarize_deal_products(rows) for did, rows in product_rows.items()}
+        for d in result.get("deals", []):
+            d["product"] = product_summary_by_id.get(d["id"], "")
     except Exception as e:
         print(f"  ⚠ не вдалося категоризувати товарообіг: {e}")
         result["deal_categories"] = []

@@ -96,6 +96,18 @@
   .bd-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
   .bd-count{text-align:right;font-weight:700}
 
+  .deal-row{display:grid;grid-template-columns:1fr 78px minmax(84px,108px);align-items:center;gap:10px;
+    padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .deal-row:last-child{border-bottom:none}
+  .deal-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .deal-sum{text-align:right;font-weight:700;white-space:nowrap}
+  .deal-src{justify-self:end;font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:108px}
+  .deal-src.known{background:#ece7fb;color:var(--accent)}
+  .deal-src.unknown{background:var(--paper);color:var(--ink-soft);border:1px dashed var(--line)}
+  h2.mini{font-size:12.5px;font-weight:700;margin:0 0 8px}
+  .sub-hint{font-size:11.5px;color:var(--ink-soft);margin:-4px 0 10px}
+
   table.data-table{width:100%;border-collapse:collapse;font-size:12.5px}
   table.data-table th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);
     font-weight:700;padding:7px 8px;border-bottom:2px solid var(--ink);white-space:nowrap}
@@ -140,6 +152,7 @@
     .funnel-row{grid-template-columns:1fr;gap:5px}
     .funnel-nums{text-align:left}
     .bd-row{grid-template-columns:1fr 70px 30px}
+    .deal-row{grid-template-columns:1fr 60px minmax(64px,84px);gap:6px}
     .sec-head h2{font-size:16px}
   }
 </style>
@@ -249,6 +262,10 @@
 const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
 const fmt1=n=>new Intl.NumberFormat('uk-UA',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n||0);
 const fmtDate=iso=>{ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}.${m}.${y}`; };
+// Товар угоди й заголовок ліда — вільний текст (клієнт/менеджер могли
+// ввести що завгодно), решта підписів на сторінці — довідники Bitrix.
+// Екрануємо саме ці два поля перед вставкою в innerHTML.
+const escapeHtml=s=>String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 let RAW=null, META={stages:{},lead_statuses:{},lead_sources:{},users:{}};
 let curFrom=null, curTo=null;
@@ -355,6 +372,28 @@ function normalizeUtmSource(src){
   if(!src) return src;
   const s = src.trim();
   return s.replace(/[._]com$/i, '') || s;
+}
+
+// Джерело конкретної угоди: спочатку власне SOURCE_ID угоди (Bitrix зазвичай
+// копіює його з ліда при конвертації), якщо порожнє — пробуємо UTM-мітку,
+// якщо і її нема — чесно показуємо "без джерела" замість вигаданого значення.
+function dealSourceLabel(d){
+  const sid=(d.source_id||'').trim();
+  if(sid){
+    const nm=sourceName(sid);
+    if(nm && nm!=='(не вказано)') return {label:nm, known:true};
+  }
+  const utm=normalizeUtmSource((d.utm_source||'').trim());
+  if(utm && utm!=='<none>') return {label:utm, known:true};
+  return {label:'без джерела', known:false};
+}
+function leadSourceLabel(l){
+  const sid=(l.source_id||'').trim();
+  if(sid){
+    const nm=sourceName(sid);
+    if(nm && nm!=='(не вказано)') return {label:nm, known:true};
+  }
+  return {label:'без джерела', known:false};
 }
 
 function aggregateDeals(deals){
@@ -500,7 +539,7 @@ function renderManagers(byManager){
     // співвідношення кількості угод до кількості лідів менеджера.
     const rate = m.leads ? round1(m.deals/m.leads*100) : 0;
     const active = SELECTED_MANAGER===m.manager_id ? 'style="background:#f4f1fb;cursor:pointer" ' : 'style="cursor:pointer" ';
-    return `<tr ${active}onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити джерела лідів">
+    return `<tr ${active}onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити угоди та ліди">
     <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
     <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
     <td><b>${fmt1(rate)}%</b></td>
@@ -509,9 +548,12 @@ function renderManagers(byManager){
   table.innerHTML=head+`<tbody>${body}</tbody>`;
 }
 
+const DEALS_LIST_LIMIT=25;
+
 function selectManager(mgrId, silent){
   SELECTED_MANAGER = mgrId;
   const leads = CURRENT_LEADS_RAW.filter(l=>(l.manager_id||'')===mgrId);
+  const deals = CURRENT_DEALS_RAW.filter(d=>(d.manager_id||'')===mgrId).sort((a,b)=>b.amount-a.amount);
   const detail = document.getElementById('manager-detail');
   const name = managerName(mgrId);
 
@@ -521,47 +563,71 @@ function selectManager(mgrId, silent){
     renderManagers(CURRENT_BY_MANAGER);
   }
 
-  if(!leads.length){
+  if(!leads.length && !deals.length){
     detail.style.display='block';
-    detail.innerHTML = `<div class="empty-note">У ${name} немає лідів за цей період.</div>`;
+    detail.innerHTML = `<div class="empty-note">У ${name} немає угод і лідів за цей період.</div>`;
     return;
   }
 
-  const bySource={}, byReason={};
+  const byReason={};
   let converted=0;
   leads.forEach(l=>{
-    if(!bySource[l.source_id]) bySource[l.source_id]={name:sourceName(l.source_id),count:0};
-    bySource[l.source_id].count++;
     if(l.semantic==='C') converted++;
     else if(l.semantic==='F'){
       if(!byReason[l.status_id]) byReason[l.status_id]={name:statusName(l.status_id),count:0};
       byReason[l.status_id].count++;
     }
   });
-  const sourceRows=Object.values(bySource).sort((a,b)=>b.count-a.count);
   const reasonRows=Object.values(byReason).sort((a,b)=>b.count-a.count);
-  const maxS=Math.max(1,...sourceRows.map(x=>x.count));
   const maxR=Math.max(1,...reasonRows.map(x=>x.count));
+
+  // "Неякісні ліди" — конкретні ліди з причиною JUNK ("Некачественный лід"),
+  // не просто агрегована цифра як у "Причини забракування" праворуч.
+  const junkLeads = leads.filter(l=>l.status_id==='JUNK');
+
+  const dealsShown = deals.slice(0, DEALS_LIST_LIMIT);
+  const dealsMoreNote = deals.length>DEALS_LIST_LIMIT
+    ? `<div class="empty-note" style="margin-top:6px">і ще ${fmt(deals.length-DEALS_LIST_LIMIT)} угод…</div>` : '';
 
   detail.style.display='block';
   detail.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="font-size:14px;font-weight:700">${name} — джерела лідів (${leads.length}, конвертовано ${converted})</div>
+      <div style="font-size:14px;font-weight:700">${name} — угоди та ліди (${fmt(leads.length)} лідів, конвертовано ${fmt(converted)})</div>
       <span class="qcat-close" style="cursor:pointer;font-size:12px;color:var(--ink-soft)" onclick="closeManagerDetail()">Закрити ×</span>
     </div>
     <div class="cols2">
       <div>
-        <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">Джерела лідів</div>
-        ${sourceRows.map(x=>`<div class="bd-row"><div class="bd-name" title="${x.name}">${x.name}</div>
-          <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxS*100)}%"></div></div>
-          <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Немає даних.</div>'}
+        <h2 class="mini">Угоди (${fmt(deals.length)})</h2>
+        <div class="sub-hint">Товар · сума · джерело (якщо визначилось)</div>
+        ${dealsShown.map(d=>{
+          const src=dealSourceLabel(d);
+          const productLabel = d.product || '(товар не вказано)';
+          return `<div class="deal-row">
+            <div class="deal-name" title="${escapeHtml(productLabel)}">${escapeHtml(productLabel)}</div>
+            <div class="deal-sum">${fmt(d.amount)} грн</div>
+            <div class="deal-src ${src.known?'known':'unknown'}" title="${escapeHtml(src.label)}">${escapeHtml(src.label)}</div>
+          </div>`;
+        }).join('') || '<div class="empty-note">Угод немає.</div>'}
+        ${dealsMoreNote}
       </div>
       <div>
-        <div style="font-size:12.5px;font-weight:600;margin-bottom:8px;color:var(--bad)">Причини забракування</div>
+        <h2 class="mini" style="color:var(--bad)">Причини забракування</h2>
         ${reasonRows.map(x=>`<div class="bd-row"><div class="bd-name" title="${x.name}">${x.name}</div>
           <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxR*100)}%;background:linear-gradient(90deg,var(--bad),#e08a76)"></div></div>
           <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Забракованих лідів немає 🎉</div>'}
       </div>
+    </div>
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+      <h2 class="mini" style="color:var(--bad)">Неякісні ліди (${fmt(junkLeads.length)})</h2>
+      <div class="sub-hint">Ліди з причиною «${escapeHtml(statusName('JUNK'))}» · джерело, якщо визначилось</div>
+      ${junkLeads.map(l=>{
+        const src=leadSourceLabel(l);
+        const leadLabel = (l.title ? l.title : `Лід №${l.id}`) + ' · ' + fmtDate(l.date);
+        return `<div class="deal-row" style="grid-template-columns:1fr minmax(84px,108px)">
+          <div class="deal-name" title="${escapeHtml(leadLabel)}">${escapeHtml(leadLabel)}</div>
+          <div class="deal-src ${src.known?'known':'unknown'}" title="${escapeHtml(src.label)}">${escapeHtml(src.label)}</div>
+        </div>`;
+      }).join('') || '<div class="empty-note">Неякісних лідів немає 🎉</div>'}
     </div>`;
 }
 
