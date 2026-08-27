@@ -120,21 +120,40 @@ def fetch_sitemap_urls(session):
 
 
 # ── розбір сторінки ──────────────────────────────────────────────────────
-def find_description(soup):
-    """Повертає (текст, назва_стратегії). Пробуємо кілька варіантів верстки,
-    бо OpenCart по-різному називає вкладку залежно від теми й версії."""
+def jsonld(soup):
+    """Мікророзмітка сторінки, розкладена по типах: {"Product": {...}, ...}.
+    Ми на неї спираємось, бо вона є на кожній картці й не залежить від того,
+    як саме зверстані вкладки."""
+    out = {}
+    for s in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(s.get_text())
+        except Exception:
+            continue
+        for d in (data if isinstance(data, list) else [data]):
+            if isinstance(d, dict) and d.get("@type"):
+                out.setdefault(d["@type"], d)
+    return out
+
+
+def find_description(soup, ld=None):
+    """Повертає (текст, назва_стратегії).
+
+    Основне джерело — вкладка .product_tab_content.tab-description: саме там
+    на matroluxe лежить опис (перевірено на живих сторінках). Далі йдуть
+    запасні варіанти на випадок зміни теми: мікророзмітка Product.description
+    і класична для OpenCart розмітка через id.
+    """
+    ld = ld if ld is not None else jsonld(soup)
     candidates = []
+
+    el = soup.select_one(".product_tab_content.tab-description")
+    if el:
+        candidates.append((el, ".product_tab_content.tab-description"))
 
     el = soup.select_one("#tab-description")
     if el:
         candidates.append((el, "#tab-description"))
-
-    for a in soup.select('a[data-toggle="tab"], a[data-bs-toggle="tab"]'):
-        if a.get_text(strip=True).lower() in ("опис", "описание", "description"):
-            href = (a.get("href") or "").lstrip("#")
-            tgt = soup.find(id=href) if href else None
-            if tgt:
-                candidates.append((tgt, f"tab «{a.get_text(strip=True)}»"))
 
     el = soup.select_one('[itemprop="description"]')
     if el:
@@ -149,12 +168,25 @@ def find_description(soup):
         text = el.get_text(" ", strip=True)
         if len(text) >= EMPTY_LIMIT:
             return text, how
+
+    # Вкладки немає або вона порожня — питаємо мікророзмітку.
+    ld_desc = re.sub(r"\s+", " ", str((ld.get("Product") or {}).get("description") or "")).strip()
+    if len(ld_desc) >= EMPTY_LIMIT:
+        return ld_desc, "JSON-LD Product.description"
+
     if candidates:
-        return "", candidates[0][1] + " (порожній)"
+        return "", candidates[0][1] + " (порожня)"
     return None, None
 
 
-def has_photo(soup):
+def has_photo(soup, ld=None):
+    ld = ld if ld is not None else jsonld(soup)
+    img = (ld.get("Product") or {}).get("image")
+    if isinstance(img, list):
+        img = img[0] if img else ""
+    if img and not any(p in str(img).lower() for p in PLACEHOLDER_IMG):
+        return True
+
     sels = ['[itemprop="image"]', ".thumbnails img", "#product img",
             ".product-image img", ".product-images img", "a.thumbnail img",
             'meta[property="og:image"]']
@@ -166,7 +198,12 @@ def has_photo(soup):
     return False
 
 
-def is_product(soup):
+def is_product(soup, ld=None):
+    ld = ld if ld is not None else jsonld(soup)
+    if "Product" in ld:
+        return True
+    if soup.select_one(".product_tab_content.tab-description"):
+        return True
     if soup.select_one("#button-cart, [id^=button-cart]"):
         return True
     if soup.select_one('input[name="product_id"]'):
@@ -179,24 +216,42 @@ def is_product(soup):
     return False
 
 
-def product_name(soup, url):
+def product_name(soup, url, ld=None):
+    ld = ld if ld is not None else jsonld(soup)
     h1 = soup.select_one("h1")
     if h1 and h1.get_text(strip=True):
         return h1.get_text(strip=True)
+    nm = (ld.get("Product") or {}).get("name")
+    if nm:
+        return str(nm).strip()
     og = soup.select_one('meta[property="og:title"]')
     if og and og.get("content"):
         return og["content"].strip()
     return url.rstrip("/").split("/")[-1]
 
 
-def product_category(soup):
-    """Категорія — передостанній пункт хлібних крихт (останній — сам товар)."""
-    crumbs = [a.get_text(strip=True) for a in soup.select(".breadcrumb a, nav[aria-label] a")
-              if a.get_text(strip=True)]
-    crumbs = [c for c in crumbs if c.lower() not in ("головна", "главная", "home")]
-    if len(crumbs) >= 2:
+HOME_CRUMBS = ("головна", "главная", "home")
+
+
+def product_category(soup, ld=None):
+    """Категорія — останнє посилання в хлібних крихтах: сам товар там не
+    посилання, а звичайний текст (.breadcrumb_last), тому додатково відсікати
+    його не треба. Якщо крихт немає — товар не прив'язаний до категорії,
+    і тоді чесніше показати прочерк, ніж вигадувати."""
+    ld = ld if ld is not None else jsonld(soup)
+
+    crumbs = [a.get_text(strip=True) for a in
+              soup.select(".breadcrumbs a, .wrap-span-breadcrumbs a, .breadcrumb a")]
+    crumbs = [c for c in crumbs if c and c.lower() not in HOME_CRUMBS]
+    if crumbs:
         return crumbs[-1]
-    return crumbs[0] if crumbs else "—"
+
+    names = [str(i.get("name") or "") for i in
+             (ld.get("BreadcrumbList") or {}).get("itemListElement", [])]
+    names = [n for n in names if n and n.lower() not in HOME_CRUMBS]
+    if len(names) >= 2:          # останній — сам товар, беремо передостанній
+        return names[-2]
+    return "—"
 
 
 def check_url(session, url):
@@ -218,14 +273,15 @@ def check_url(session, url):
                        "detail": f"HTTP {r.status_code}"}]
 
     soup = BeautifulSoup(r.text, "html.parser")
-    if not is_product(soup):
+    ld = jsonld(soup)
+    if not is_product(soup, ld):
         return False, []               # категорія або стаття — не наша справа
 
-    name = product_name(soup, url)
-    cat = product_category(soup)
+    name = product_name(soup, url, ld)
+    cat = product_category(soup, ld)
     found = []
 
-    text, _ = find_description(soup)
+    text, _ = find_description(soup, ld)
     if not text:
         found.append({"name": name, "url": url, "category": cat,
                       "issue": "no_description", "detail": ""})
@@ -234,7 +290,7 @@ def check_url(session, url):
                       "issue": "short_description",
                       "detail": f"{len(text)} символів"})
 
-    if not has_photo(soup):
+    if not has_photo(soup, ld):
         found.append({"name": name, "url": url, "category": cat,
                       "issue": "no_photo", "detail": ""})
 
@@ -309,15 +365,16 @@ if __name__ == "__main__":
         s = make_session()
         r = s.get(url, timeout=TIMEOUT)
         soup = BeautifulSoup(r.text, "html.parser")
-        text, how = find_description(soup)
+        ld = jsonld(soup)
+        text, how = find_description(soup, ld)
         print(f"HTTP           : {r.status_code}")
-        print(f"це товар       : {is_product(soup)}")
-        print(f"назва          : {product_name(soup, url)}")
-        print(f"категорія      : {product_category(soup)}")
+        print(f"це товар       : {is_product(soup, ld)}")
+        print(f"назва          : {product_name(soup, url, ld)}")
+        print(f"категорія      : {product_category(soup, ld)}")
         print(f"опис знайдено  : {how or 'НІ — жодна стратегія не спрацювала'}")
         print(f"довжина опису  : {len(text) if text else 0} символів "
               f"(поріг короткого — {SHORT_LIMIT})")
-        print(f"фото           : {'є' if has_photo(soup) else 'НЕМАЄ'}")
+        print(f"фото           : {'є' if has_photo(soup, ld) else 'НЕМАЄ'}")
         if text:
             print(f"початок опису  : {text[:160]}…")
         sys.exit(0)
