@@ -11,7 +11,7 @@ GitHub Pages. Робить три речі:
    (раз на 3 години) — так само, як раніше це робив GitHub Actions,
    просто тепер планувальник крутиться прямо тут, у самому сервері.
 """
-import os, sys, time, threading, subprocess
+import os, sys, time, json, threading, subprocess
 from pathlib import Path
 from functools import wraps
 
@@ -146,9 +146,71 @@ def ringostat_status():
     except Exception as e:
         return jsonify({"error": str(e)}), 502
 
+# ── Аудит сайту: сканування карток товарів matroluxe.ua ─────────────────
+# Скан обходить ~360 сторінок і триває кілька хвилин, тому по кнопці ми
+# лише СТАРТУЄМО його у фоні й одразу відповідаємо. Сторінка потім сама
+# питає /api/audit/status, щоб малювати прогрес — інакше HTTP-запит висів
+# би хвилинами й його прибив би таймаут проксі Render.
+_audit_lock = threading.Lock()
+_audit_running = False
+
+def _audit_worker():
+    global _audit_running
+    try:
+        run_script("audit.py", timeout=3600)
+    finally:
+        with _audit_lock:
+            _audit_running = False
+
+def start_audit():
+    """Повертає True, якщо скан запущено, і False — якщо він уже йде."""
+    global _audit_running
+    with _audit_lock:
+        if _audit_running:
+            return False
+        _audit_running = True
+    threading.Thread(target=_audit_worker, daemon=True).start()
+    return True
+
+def scheduled_audit():
+    if not start_audit():
+        print("[scheduler] аудит вже виконується — пропускаю запуск за розкладом", flush=True)
+
+@app.route("/api/audit/scan", methods=["POST"])
+@requires_auth
+def audit_scan():
+    if not start_audit():
+        return jsonify({"status": "already_running"}), 409
+    return jsonify({"status": "started"}), 202
+
+@app.route("/api/audit/status")
+@requires_auth
+def audit_status():
+    # Прогрес пише сам audit.py; чи процес ще живий — знає тільки сервер,
+    # тому "running" беремо звідси, а не з файлу (інакше впалий скан
+    # назавжди залишався б "у процесі").
+    progress = {}
+    pf = BASE_DIR / "audit_progress.json"
+    if pf.exists():
+        try:
+            progress = json.loads(pf.read_text(encoding="utf-8"))
+        except Exception:
+            progress = {}
+    with _audit_lock:
+        running = _audit_running
+    return jsonify({
+        "running": running,
+        "phase": progress.get("phase"),
+        "done": progress.get("done"),
+        "total": progress.get("total"),
+    })
+
 # ── Планувальник: fetch_meta/gsc/bitrix раз на 3 години ─────────────────
 scheduler = BackgroundScheduler()
 scheduler.add_job(run_all_periodic, "interval", hours=3, id="periodic_fetch")
+# Аудит — раз на добу о 01:00 UTC (04:00 за Києвом): вночі і сайт вільний,
+# і зранку на дашборді вже свіжі дані.
+scheduler.add_job(scheduled_audit, "cron", hour=1, minute=0, id="daily_audit")
 scheduler.start()
 # Перший прогін одразу при старті сервера, щоб дані з'явились без очікування 3 годин.
 threading.Thread(target=run_all_periodic, daemon=True).start()

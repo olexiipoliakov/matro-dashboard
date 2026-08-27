@@ -468,9 +468,66 @@ document.getElementById('f-cat').addEventListener('change',e=>{ state.cat=e.targ
 document.getElementById('f-sort').addEventListener('change',e=>{ state.sort=e.target.value; render(); });
 document.getElementById('more-btn').addEventListener('click',()=>{ shown+=PAGE; render(); });
 
-document.getElementById('scan-btn').addEventListener('click',()=>{
-  toast('Сканування ще не підключено — це наступний крок.');
+// ── запуск скану і стеження за прогресом ────────────────────────────────
+const btn=document.getElementById('scan-btn');
+const btnIdle='<i data-lucide="radar"></i> Запустити скан';
+let polling=null;
+
+function setBusy(on, text){
+  btn.disabled=on;
+  btn.classList.toggle('busy',on);
+  btn.innerHTML = on ? `<i data-lucide="loader"></i> ${esc(text||'Сканую…')}` : btnIdle;
+  icons();
+}
+
+async function pollStatus(){
+  let s;
+  try{
+    const r=await fetch('/api/audit/status?_='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    s=await r.json();
+  }catch(e){ return; }   // мережа моргнула — просто чекаємо наступного тіку
+
+  if(s.running){
+    const label = (s.done!=null && s.total) ? `${s.done} з ${s.total}` : (s.phase||'Сканую…');
+    setBusy(true,label);
+    return;
+  }
+  // скан завершився
+  clearInterval(polling); polling=null;
+  setBusy(false);
+  await load();
+  toast('Скан завершено — дані оновлено.');
+}
+
+function startPolling(){
+  if(polling) return;
+  polling=setInterval(pollStatus,2000);
+  pollStatus();
+}
+
+btn.addEventListener('click',async()=>{
+  setBusy(true,'Запускаю…');
+  try{
+    const r=await fetch('/api/audit/scan',{method:'POST'});
+    if(r.status===409){ toast('Скан уже виконується.'); startPolling(); return; }
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    toast('Скан запущено — це кілька хвилин.');
+    startPolling();
+  }catch(e){
+    setBusy(false);
+    toast('Не вдалося запустити скан: '+e.message);
+  }
 });
+
+// Скан міг стартувати за розкладом або з іншої вкладки — показуємо прогрес
+// одразу при відкритті сторінки, а не тільки після натискання кнопки.
+(async()=>{
+  try{
+    const r=await fetch('/api/audit/status?_='+Date.now());
+    if(r.ok && (await r.json()).running) startPolling();
+  }catch(e){}
+})();
 
 load();
 </script>
