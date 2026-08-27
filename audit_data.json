@@ -1,0 +1,149 @@
+{
+  "demo": true,
+  "generated_at": "27.08.2026 14:30",
+  "duration_sec": 284,
+  "total_checked": 452,
+  "total_errors": 3,
+  "issue_types": [
+    {
+      "key": "no_description",
+      "label": "Без опису",
+      "count": 12,
+      "color": "danger"
+    },
+    {
+      "key": "short_description",
+      "label": "Короткий опис",
+      "count": 6,
+      "color": "warning"
+    },
+    {
+      "key": "no_photo",
+      "label": "Без фото",
+      "count": 2,
+      "color": "info"
+    }
+  ],
+  "items": [
+    {
+      "name": "Матрац Arlon 160×200",
+      "url": "https://matroluxe.ua/ua/matras-arlon",
+      "category": "Матраци",
+      "issue": "no_description"
+    },
+    {
+      "name": "Матрац Vega 180×200",
+      "url": "https://matroluxe.ua/ua/matras-vega",
+      "category": "Матраци",
+      "issue": "no_description"
+    },
+    {
+      "name": "Матрац Sleep 90×200",
+      "url": "https://matroluxe.ua/ua/matras-sleep",
+      "category": "Матраци",
+      "issue": "short_description"
+    },
+    {
+      "name": "Матрац Orto Plus 140×200",
+      "url": "https://matroluxe.ua/ua/matras-orto-plus",
+      "category": "Матраци",
+      "issue": "no_description"
+    },
+    {
+      "name": "Матрац Latex Comfort 160×190",
+      "url": "https://matroluxe.ua/ua/matras-latex-comfort",
+      "category": "Матраци",
+      "issue": "short_description"
+    },
+    {
+      "name": "Матрац Kids Soft 80×160",
+      "url": "https://matroluxe.ua/ua/matras-kids-soft",
+      "category": "Матраци",
+      "issue": "no_description"
+    },
+    {
+      "name": "Подушка Latex 50×70",
+      "url": "https://matroluxe.ua/ua/podushka-latex",
+      "category": "Подушки",
+      "issue": "no_description"
+    },
+    {
+      "name": "Подушка Memory 40×60",
+      "url": "https://matroluxe.ua/ua/podushka-memory",
+      "category": "Подушки",
+      "issue": "no_description"
+    },
+    {
+      "name": "Подушка Bamboo 50×70",
+      "url": "https://matroluxe.ua/ua/podushka-bamboo",
+      "category": "Подушки",
+      "issue": "short_description"
+    },
+    {
+      "name": "Подушка Anatomic 60×40",
+      "url": "https://matroluxe.ua/ua/podushka-anatomic",
+      "category": "Подушки",
+      "issue": "no_photo"
+    },
+    {
+      "name": "Топпер Sleep 90×200",
+      "url": "https://matroluxe.ua/ua/topper-sleep",
+      "category": "Топпери",
+      "issue": "no_description"
+    },
+    {
+      "name": "Топпер Roll Up 160×200",
+      "url": "https://matroluxe.ua/ua/topper-roll-up",
+      "category": "Топпери",
+      "issue": "short_description"
+    },
+    {
+      "name": "Топпер Cocos 140×200",
+      "url": "https://matroluxe.ua/ua/topper-cocos",
+      "category": "Топпери",
+      "issue": "no_description"
+    },
+    {
+      "name": "Наматрацник Aqua Stop 160×200",
+      "url": "https://matroluxe.ua/ua/namatrasnik-aqua-stop",
+      "category": "Аксесуари",
+      "issue": "no_description"
+    },
+    {
+      "name": "Наматрацник Cotton 90×200",
+      "url": "https://matroluxe.ua/ua/namatrasnik-cotton",
+      "category": "Аксесуари",
+      "issue": "no_photo"
+    },
+    {
+      "name": "Чохол на матрац Basic 160×200",
+      "url": "https://matroluxe.ua/ua/chohol-basic",
+      "category": "Аксесуари",
+      "issue": "short_description"
+    },
+    {
+      "name": "Ліжко Verona 160×200",
+      "url": "https://matroluxe.ua/ua/lizhko-verona",
+      "category": "Ліжка",
+      "issue": "no_description"
+    },
+    {
+      "name": "Ліжко Milano 180×200",
+      "url": "https://matroluxe.ua/ua/lizhko-milano",
+      "category": "Ліжка",
+      "issue": "no_description"
+    },
+    {
+      "name": "Диван Еврокнижка Lux",
+      "url": "https://matroluxe.ua/ua/divan-evroknizhka-lux",
+      "category": "Дивани",
+      "issue": "no_description"
+    },
+    {
+      "name": "Диван Кутовий Family",
+      "url": "https://matroluxe.ua/ua/divan-kutoviy-family",
+      "category": "Дивани",
+      "issue": "short_description"
+    }
+  ]
+}

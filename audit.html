@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Аудит сайту · Matro</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="images/favicon-192.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root{
+    --bg:#070B14; --card:#101522; --card-hover:#151B2B;
+    --border:rgba(255,255,255,.06); --border-strong:rgba(255,255,255,.14);
+    --ink:#F7F8FB; --ink-soft:#95A0BF; --ink-dim:#5A6A8A;
+    --accent:#FF8C42; --accent-2:#FF6A2B;
+    --seo:#32D8FF; --seo-2:#5B8DEE;
+    --crm:#9B7FE8; --crm-2:#7D5FD6;
+    --audit:#5EE7B0; --audit-2:#30D0A0;
+    --success:#27E37A; --warning:#FFC84D; --danger:#FF5E6C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{font-family:'Inter',-apple-system,system-ui,sans-serif;color:var(--ink);
+    min-height:100vh;position:relative;overflow-x:hidden}
+
+  .bg-fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .bg-fx .glow-1{position:absolute;top:-20%;left:10%;width:60vw;height:60vw;
+    background:radial-gradient(circle,rgba(94,231,176,.09),transparent 65%);filter:blur(40px)}
+  .bg-fx .glow-2{position:absolute;top:-10%;right:-10%;width:50vw;height:50vw;
+    background:radial-gradient(circle,rgba(90,120,255,.12),transparent 65%);filter:blur(40px)}
+  .bg-fx .glow-3{position:absolute;bottom:-30%;left:20%;width:70vw;height:50vw;
+    background:radial-gradient(circle,rgba(48,208,160,.07),transparent 70%);filter:blur(50px)}
+  .bg-fx .grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse at 50% 0%,black 0%,transparent 70%)}
+  .bg-fx .horizon{position:absolute;top:280px;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(94,231,176,.35),rgba(90,150,255,.25),transparent)}
+
+  .layout{display:flex;position:relative;z-index:1}
+  .sidebar{width:72px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;
+    gap:10px;padding:22px 0;position:sticky;top:0;height:100vh}
+  .sidebar .sb-logo{font-size:16px;font-weight:700;color:var(--accent);margin-bottom:12px}
+  .sidebar a{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);text-decoration:none;background:rgba(255,255,255,.02);
+    border:1px solid var(--border);position:relative;
+    transition:all 200ms cubic-bezier(.2,.8,.2,1)}
+  .sidebar a i{width:19px;height:19px}
+  .sidebar a:hover{color:var(--ink);background:rgba(94,231,176,.12);border-color:rgba(94,231,176,.3);
+    transform:translateY(-2px)}
+  .sidebar a.active{color:var(--audit);background:rgba(94,231,176,.14);border-color:rgba(94,231,176,.35)}
+  .sidebar a .tip{position:absolute;left:56px;top:50%;transform:translateY(-50%) translateX(-4px);
+    background:#1a2033;color:var(--ink);font-size:12px;font-weight:500;white-space:nowrap;
+    padding:6px 10px;border-radius:8px;border:1px solid var(--border-strong);
+    opacity:0;pointer-events:none;transition:opacity 180ms ease, transform 180ms ease;z-index:20}
+  .sidebar a:hover .tip{opacity:1;transform:translateY(-50%) translateX(0)}
+  @media(max-width:760px){
+    .sidebar{position:fixed;left:0;top:0;bottom:0;height:100vh;background:rgba(7,11,20,.9);
+      backdrop-filter:blur(12px);border-right:1px solid var(--border);z-index:10}
+    .layout{padding-left:72px}
+  }
+
+  .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;flex:1;min-width:0;
+    padding:40px clamp(20px,5vw,64px) 64px}
+
+  /* ── header ── */
+  header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:28px}
+  .back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);
+    text-decoration:none;margin-bottom:14px;transition:color 180ms ease}
+  .back-link:hover{color:var(--ink)}
+  .back-link i{width:14px;height:14px}
+  .page-title{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-.5px;
+    display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .page-title .ti{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    background:rgba(94,231,176,.12);color:var(--audit);flex-shrink:0}
+  .page-title .ti i{width:21px;height:21px}
+  .sub{font-size:14px;color:var(--ink-soft)}
+  .sub a{color:var(--audit);text-decoration:none}
+  .sub a:hover{text-decoration:underline}
+
+  .head-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  .scan-btn{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:#06231A;
+    border:none;cursor:pointer;padding:11px 20px;border-radius:12px;white-space:nowrap;
+    background:linear-gradient(90deg,var(--audit),var(--audit-2));
+    transition:transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease}
+  .scan-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 28px rgba(94,231,176,.3)}
+  .scan-btn:disabled{opacity:.55;cursor:not-allowed}
+  .scan-btn i{width:15px;height:15px}
+  .scan-btn.busy i{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .scan-meta{font-size:12px;color:var(--ink-dim);text-align:right}
+
+  .demo-note{display:none;align-items:center;gap:9px;font-size:12.5px;color:var(--warning);
+    background:rgba(255,200,77,.09);border:1px solid rgba(255,200,77,.25);
+    border-radius:12px;padding:11px 16px;margin-bottom:22px}
+  .demo-note.show{display:flex}
+  .demo-note i{width:15px;height:15px;flex-shrink:0}
+
+  /* ── KPI ── */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+  .kpi{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);
+    border:1px solid var(--border);border-radius:18px;padding:20px;min-width:0;
+    opacity:0;transform:translateY(16px);animation:rise .5s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+  .kpi:nth-child(1){animation-delay:.04s}
+  .kpi:nth-child(2){animation-delay:.08s}
+  .kpi:nth-child(3){animation-delay:.12s}
+  .kpi:nth-child(4){animation-delay:.16s}
+  .kpi .l{font-size:10.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.9px;
+    font-weight:600;margin-bottom:9px}
+  .kpi .v{font-size:clamp(22px,3.4vw,30px);font-weight:700;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
+  .kpi .h{font-size:11.5px;color:var(--ink-dim);margin-top:6px}
+  .kpi.good .v{color:var(--audit)}
+  .kpi.bad .v{color:var(--danger)}
+
+  .health-track{height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:12px}
+  .health-track > span{display:block;height:100%;border-radius:99px;width:0;
+    background:linear-gradient(90deg,var(--audit),var(--audit-2));
+    transition:width 900ms cubic-bezier(.2,.8,.2,1)}
+
+  /* ── панель ── */
+  .panel{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);
+    border:1px solid var(--border);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.35);
+    padding:22px;opacity:0;transform:translateY(16px);
+    animation:rise .5s cubic-bezier(.2,.8,.2,1) .2s forwards}
+
+  /* ── фільтри-чіпи по типах проблем ── */
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
+  .chip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
+    color:var(--ink-soft);background:rgba(255,255,255,.03);border:1px solid var(--border);
+    border-radius:99px;padding:8px 14px;cursor:pointer;white-space:nowrap;
+    transition:all 180ms ease}
+  .chip:hover{color:var(--ink);border-color:var(--border-strong)}
+  .chip .dot2{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .chip .ct{font-variant-numeric:tabular-nums;color:var(--ink-dim)}
+  .chip.on{color:var(--ink);background:rgba(94,231,176,.10);border-color:rgba(94,231,176,.35)}
+  .chip.on .ct{color:var(--ink-soft)}
+
+  /* ── тулбар ── */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .search{position:relative;flex:1;min-width:200px}
+  .search i{position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    width:15px;height:15px;color:var(--ink-dim);pointer-events:none}
+  .search input{width:100%;font-family:inherit;font-size:13.5px;color:var(--ink);
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;
+    padding:11px 14px 11px 38px;outline:none;transition:border-color 180ms ease}
+  .search input::placeholder{color:var(--ink-dim)}
+  .search input:focus{border-color:rgba(94,231,176,.4)}
+  select{font-family:inherit;font-size:13.5px;color:var(--ink);cursor:pointer;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;
+    padding:11px 14px;outline:none;min-width:150px;transition:border-color 180ms ease}
+  select:focus{border-color:rgba(94,231,176,.4)}
+  select option{background:#151B2B;color:var(--ink)}
+
+  /* ── таблиця ── */
+  .tbl-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;min-width:640px}
+  thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;font-weight:600;
+    color:var(--ink-dim);text-align:left;padding:13px 16px;
+    background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);
+    white-space:nowrap;user-select:none}
+  thead th.sortable{cursor:pointer;transition:color 160ms ease}
+  thead th.sortable:hover{color:var(--ink-soft)}
+  thead th .ar{opacity:.4;font-size:9px;margin-left:3px}
+  thead th.sorted .ar{opacity:1;color:var(--audit)}
+  tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background 160ms ease}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:rgba(255,255,255,.025)}
+  tbody td{padding:13px 16px;font-size:13.5px;vertical-align:middle}
+  td.c-name{font-weight:500;min-width:220px}
+  td.c-cat{color:var(--ink-soft);font-size:12.5px;white-space:nowrap}
+  td.c-open{text-align:right;width:52px}
+  td.c-open a{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+    border-radius:9px;color:var(--ink-dim);border:1px solid var(--border);
+    transition:all 180ms ease}
+  td.c-open a i{width:14px;height:14px}
+  td.c-open a:hover{color:var(--audit);border-color:rgba(94,231,176,.35);background:rgba(94,231,176,.08)}
+  .badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;
+    padding:5px 11px;border-radius:99px;white-space:nowrap}
+  .badge .dot2{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+  .tbl-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    margin-top:14px;font-size:12.5px;color:var(--ink-dim)}
+  .more-btn{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:9px 16px;
+    transition:all 180ms ease}
+  .more-btn:hover{color:var(--ink);border-color:var(--border-strong)}
+
+  .empty{text-align:center;padding:48px 20px;color:var(--ink-dim);font-size:13.5px}
+  .empty i{width:34px;height:34px;color:var(--audit);opacity:.55;margin-bottom:12px}
+  .empty .t{font-size:15px;font-weight:600;color:var(--ink-soft);margin-bottom:5px}
+
+  .toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(16px);
+    background:#1a2033;color:var(--ink);font-size:13px;font-weight:500;
+    border:1px solid var(--border-strong);border-radius:12px;padding:13px 20px;
+    box-shadow:0 20px 50px rgba(0,0,0,.5);z-index:50;
+    opacity:0;pointer-events:none;transition:opacity 240ms ease, transform 240ms ease}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){
+    .wrap{padding:24px 16px 48px}
+    .kpi-row{gap:12px}
+    .kpi{padding:16px}
+    .panel{padding:16px}
+    .head-right{align-items:flex-start;width:100%}
+    .scan-meta{text-align:left}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-fx">
+  <div class="glow-1"></div><div class="glow-2"></div><div class="glow-3"></div>
+  <div class="grid"></div><div class="horizon"></div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sb-logo">M.</div>
+  <a href="home.html"><i data-lucide="layout-dashboard"></i><span class="tip">Головна</span></a>
+  <a href="index.html"><i data-lucide="megaphone"></i><span class="tip">SMM &amp; Реклама</span></a>
+  <a href="seo.html"><i data-lucide="search"></i><span class="tip">SEO</span></a>
+  <a href="bitrix.html"><i data-lucide="briefcase"></i><span class="tip">CRM</span></a>
+  <a href="ringostat.html"><i data-lucide="phone-call"></i><span class="tip">Дзвінки</span></a>
+  <a href="audit.html" class="active"><i data-lucide="shield-check"></i><span class="tip">Аудит сайту</span></a>
+</nav>
+
+<div class="wrap">
+  <header>
+    <div>
+      <a href="home.html" class="back-link"><i data-lucide="arrow-left"></i> На головну</a>
+      <div class="page-title">
+        <span class="ti"><i data-lucide="shield-check"></i></span>
+        Аудит сайту
+      </div>
+      <div class="sub">Якість карток товарів на <a href="https://matroluxe.ua" target="_blank" rel="noopener">matroluxe.ua</a></div>
+    </div>
+    <div class="head-right">
+      <button class="scan-btn" id="scan-btn"><i data-lucide="radar"></i> Запустити скан</button>
+      <div class="scan-meta" id="scan-meta">—</div>
+    </div>
+  </header>
+
+  <div class="demo-note" id="demo-note">
+    <i data-lucide="flask-conical"></i>
+    <span>Показано демо-дані для перегляду вигляду сторінки. Реальне сканування ще не підключено.</span>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="l">Перевірено товарів</div>
+      <div class="v" id="k-total">—</div>
+      <div class="h" id="k-total-h">за останній скан</div>
+    </div>
+    <div class="kpi bad">
+      <div class="l">Товарів з проблемами</div>
+      <div class="v" id="k-problems">—</div>
+      <div class="h" id="k-problems-h">потребують уваги</div>
+    </div>
+    <div class="kpi good">
+      <div class="l">Індекс здоров'я</div>
+      <div class="v" id="k-health">—</div>
+      <div class="health-track"><span id="k-health-bar"></span></div>
+    </div>
+    <div class="kpi">
+      <div class="l">Тривалість скану</div>
+      <div class="v" id="k-time">—</div>
+      <div class="h" id="k-time-h">—</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="chips" id="chips"></div>
+
+    <div class="toolbar">
+      <div class="search">
+        <i data-lucide="search"></i>
+        <input type="text" id="q" placeholder="Пошук за назвою товару…" autocomplete="off">
+      </div>
+      <select id="f-cat"><option value="">Усі категорії</option></select>
+      <select id="f-sort">
+        <option value="cat">Сортувати: категорія</option>
+        <option value="name">Сортувати: назва</option>
+        <option value="issue">Сортувати: тип проблеми</option>
+      </select>
+    </div>
+
+    <div id="tbl-host"></div>
+
+    <div class="tbl-foot">
+      <span id="foot-count">—</span>
+      <button class="more-btn" id="more-btn" style="display:none">Показати ще</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Іконки — з CDN. Якщо CDN недоступний, сторінка має працювати далі,
+// тому не даємо помилці зупинити решту скрипта.
+function icons(){ try{ if(window.lucide) lucide.createIcons(); }catch(e){} }
+icons();
+
+const ISSUE_COLORS={danger:'#FF5E6C',warning:'#FFC84D',info:'#32D8FF',neutral:'#95A0BF'};
+const ISSUE_TINT={danger:'rgba(255,94,108,.12)',warning:'rgba(255,200,77,.12)',
+                  info:'rgba(50,216,255,.12)',neutral:'rgba(255,255,255,.05)'};
+const PAGE=25;
+
+const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
+const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+
+let DATA=null, TYPES={}, shown=PAGE;
+const state={issue:'', cat:'', q:'', sort:'cat'};
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+function humanDuration(sec){
+  if(!sec) return '—';
+  const m=Math.floor(sec/60), s=Math.round(sec%60);
+  return m ? `${m} хв ${s} с` : `${s} с`;
+}
+
+async function load(){
+  try{
+    const res=await fetch('audit_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    DATA=await res.json();
+  }catch(e){
+    renderEmpty('Скан ще не запускався','Натисніть «Запустити скан», щоб перевірити картки товарів.');
+    document.getElementById('scan-meta').textContent='Даних ще немає';
+    return;
+  }
+
+  TYPES={};
+  (DATA.issue_types||[]).forEach(t=>TYPES[t.key]=t);
+
+  document.getElementById('demo-note').classList.toggle('show', !!DATA.demo);
+
+  const total=DATA.total_checked||0;
+  const items=DATA.items||[];
+  // Один товар може мати кілька проблем одразу — рахуємо унікальні URL,
+  // інакше «проблемних товарів» вийде більше, ніж усього перевірено.
+  const problems=new Set(items.map(i=>i.url)).size;
+  const health= total ? Math.round((total-problems)/total*100) : 0;
+
+  document.getElementById('k-total').textContent=fmt(total);
+  document.getElementById('k-problems').textContent=fmt(problems);
+  document.getElementById('k-problems-h').textContent= total ? `${Math.round(problems/total*100)}% каталогу` : '—';
+  document.getElementById('k-health').textContent=health+'%';
+  document.getElementById('k-health-bar').style.width=health+'%';
+  document.getElementById('k-time').textContent=humanDuration(DATA.duration_sec);
+  document.getElementById('k-time-h').textContent= DATA.total_errors ? `${DATA.total_errors} стор. не відповіли` : 'без помилок';
+  document.getElementById('scan-meta').innerHTML= DATA.generated_at
+    ? `Останній скан<br>${esc(DATA.generated_at)}` : 'Даних ще немає';
+
+  renderChips();
+  renderCats();
+  render();
+}
+
+function renderChips(){
+  const types=DATA.issue_types||[];
+  const all=(DATA.items||[]).length;
+  const host=document.getElementById('chips');
+  host.innerHTML=[`<div class="chip ${state.issue===''?'on':''}" data-issue="">
+      <span class="dot2" style="background:${ISSUE_COLORS.neutral}"></span>Усі проблеми<span class="ct">${fmt(all)}</span></div>`]
+    .concat(types.map(t=>`<div class="chip ${state.issue===t.key?'on':''}" data-issue="${esc(t.key)}">
+      <span class="dot2" style="background:${ISSUE_COLORS[t.color]||ISSUE_COLORS.neutral}"></span>${esc(t.label)}<span class="ct">${fmt(t.count)}</span></div>`))
+    .join('');
+  host.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+    state.issue=c.dataset.issue; shown=PAGE; renderChips(); render();
+  }));
+}
+
+function renderCats(){
+  const cats=[...new Set((DATA.items||[]).map(i=>i.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uk'));
+  const sel=document.getElementById('f-cat');
+  sel.innerHTML='<option value="">Усі категорії</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  sel.value=state.cat;
+}
+
+function filtered(){
+  const q=state.q.trim().toLowerCase();
+  let rows=(DATA.items||[]).filter(i=>
+    (!state.issue || i.issue===state.issue) &&
+    (!state.cat   || i.category===state.cat) &&
+    (!q || String(i.name||'').toLowerCase().includes(q) || String(i.url||'').toLowerCase().includes(q))
+  );
+  const lab=k=>(TYPES[k]||{}).label||k||'';
+  rows.sort((a,b)=>{
+    if(state.sort==='name')  return String(a.name||'').localeCompare(String(b.name||''),'uk');
+    if(state.sort==='issue') return lab(a.issue).localeCompare(lab(b.issue),'uk')
+                                 || String(a.name||'').localeCompare(String(b.name||''),'uk');
+    return String(a.category||'').localeCompare(String(b.category||''),'uk')
+        || String(a.name||'').localeCompare(String(b.name||''),'uk');
+  });
+  return rows;
+}
+
+function renderEmpty(title, text){
+  document.getElementById('tbl-host').innerHTML=
+    `<div class="empty"><i data-lucide="shield-check"></i>
+       <div class="t">${esc(title)}</div><div>${esc(text)}</div></div>`;
+  document.getElementById('foot-count').textContent='';
+  document.getElementById('more-btn').style.display='none';
+  // Іконки — з CDN. Якщо CDN недоступний, сторінка має працювати далі,
+// тому не даємо помилці зупинити решту скрипта.
+icons();
+}
+
+function render(){
+  const rows=filtered();
+  if(!rows.length){
+    renderEmpty('Нічого не знайдено','Спробуйте змінити фільтри або пошуковий запит.');
+    return;
+  }
+  const page=rows.slice(0,shown);
+  const th=(key,label)=>`<th class="sortable ${state.sort===key?'sorted':''}" data-sort="${key}">${label}<span class="ar">▼</span></th>`;
+
+  document.getElementById('tbl-host').innerHTML=`
+    <div class="tbl-wrap"><table>
+      <thead><tr>
+        ${th('name','Товар')}${th('cat','Категорія')}${th('issue','Проблема')}<th></th>
+      </tr></thead>
+      <tbody>${page.map(i=>{
+        const t=TYPES[i.issue]||{label:i.issue,color:'neutral'};
+        const col=ISSUE_COLORS[t.color]||ISSUE_COLORS.neutral;
+        return `<tr>
+          <td class="c-name">${esc(i.name)}</td>
+          <td class="c-cat">${esc(i.category||'—')}</td>
+          <td><span class="badge" style="color:${col};background:${ISSUE_TINT[t.color]||ISSUE_TINT.neutral}">
+            <span class="dot2" style="background:${col}"></span>${esc(t.label)}</span></td>
+          <td class="c-open"><a href="${esc(i.url)}" target="_blank" rel="noopener" title="Відкрити на сайті">
+            <i data-lucide="external-link"></i></a></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+
+  document.getElementById('foot-count').textContent=`Показано ${fmt(page.length)} з ${fmt(rows.length)}`;
+  const more=document.getElementById('more-btn');
+  more.style.display = rows.length>shown ? 'block' : 'none';
+
+  document.querySelectorAll('thead th.sortable').forEach(el=>el.addEventListener('click',()=>{
+    state.sort=el.dataset.sort;
+    document.getElementById('f-sort').value=state.sort;
+    render();
+  }));
+  // Іконки — з CDN. Якщо CDN недоступний, сторінка має працювати далі,
+// тому не даємо помилці зупинити решту скрипта.
+icons();
+}
+
+document.getElementById('q').addEventListener('input',e=>{ state.q=e.target.value; shown=PAGE; render(); });
+document.getElementById('f-cat').addEventListener('change',e=>{ state.cat=e.target.value; shown=PAGE; render(); });
+document.getElementById('f-sort').addEventListener('change',e=>{ state.sort=e.target.value; render(); });
+document.getElementById('more-btn').addEventListener('click',()=>{ shown+=PAGE; render(); });
+
+document.getElementById('scan-btn').addEventListener('click',()=>{
+  toast('Сканування ще не підключено — це наступний крок.');
+});
+
+load();
+</script>
+</body>
+</html>

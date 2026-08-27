@@ -20,6 +20,7 @@
     --accent:#FF8C42; --accent-2:#FF6A2B;
     --seo:#32D8FF; --seo-2:#5B8DEE;
     --crm:#9B7FE8; --crm-2:#7D5FD6;
+    --audit:#5EE7B0; --audit-2:#30D0A0;
     --success:#27E37A; --warning:#FFC84D; --danger:#FF5E6C;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -137,6 +138,7 @@
   .smm .card-icon{background:rgba(255,140,66,.12);color:var(--accent)}
   .seo .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
   .crm .card-icon{background:rgba(155,127,232,.15);color:var(--crm)}
+  .audit .card-icon{background:rgba(94,231,176,.12);color:var(--audit)}
   .calls .card-icon{background:rgba(50,216,255,.12);color:var(--seo)}
   .card-id > div{min-width:0}
   .card-name{font-size:16px;font-weight:600}
@@ -161,6 +163,19 @@
   .chart-box{margin:4px 0 16px;position:relative;flex:1;display:flex;align-items:flex-end;min-height:60px}
   .chart-box svg{width:100%;height:auto;display:block;overflow:visible}
 
+  /* ── плитка аудиту: 3 показники + шкала здоров'я + розбивка ── */
+  .audit-stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px;margin-bottom:16px}
+  .health-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:16px;flex-shrink:0}
+  .health-bar > span{display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,var(--audit),var(--audit-2));
+    transition:width 900ms cubic-bezier(.2,.8,.2,1)}
+  .issue-list{display:flex;flex-direction:column;gap:9px;margin-bottom:6px;flex:1}
+  .issue-row{display:flex;align-items:center;gap:10px;font-size:12.5px;min-width:0}
+  .issue-row .dot2{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .issue-row .nm{color:var(--ink-soft);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .issue-row .ct{font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0}
+  .trend-badge.demo{color:var(--warning);background:rgba(255,200,77,.14)}
+
   .card-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:16px;
     border-top:1px solid var(--border);margin-top:auto}
   .btn-primary{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#fff;
@@ -172,6 +187,8 @@
   .seo .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(50,216,255,.3)}
   .crm .btn-primary{background:linear-gradient(90deg,var(--crm),var(--crm-2))}
   .crm .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(155,127,232,.35)}
+  .audit .btn-primary{background:linear-gradient(90deg,var(--audit),var(--audit-2))}
+  .audit .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(94,231,176,.35)}
   .calls .btn-primary{background:linear-gradient(90deg,var(--seo),var(--seo-2))}
   .calls .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(50,216,255,.3)}
   .btn-primary i{width:14px;height:14px}
@@ -220,6 +237,9 @@
   </a>
   <a href="ringostat.html">
     <i data-lucide="phone-call"></i><span class="tip">Дзвінки (Ringostat)</span>
+  </a>
+  <a href="audit.html">
+    <i data-lucide="shield-check"></i><span class="tip">Аудит сайту</span>
   </a>
 </nav>
 
@@ -323,12 +343,35 @@
         <span class="updated-note" id="crm-updated"></span>
       </div>
     </a>
+
+    <a href="audit.html" class="glass audit" style="text-decoration:none;color:inherit;display:block">
+      <div class="card-top">
+        <div class="card-id">
+          <div class="card-icon"><i data-lucide="shield-check"></i></div>
+          <div><div class="card-name">Аудит сайту</div><div class="card-desc">matroluxe.ua · якість карток товарів</div></div>
+        </div>
+        <div class="card-badges">
+          <span class="trend-badge" id="audit-demo"></span>
+          <span class="card-tag" id="audit-tag">—</span>
+        </div>
+      </div>
+      <div class="audit-stat-row" id="audit-stats"><div class="skeleton">Завантаження…</div></div>
+      <div class="health-bar"><span id="audit-health-bar" style="width:0%"></span></div>
+      <div class="issue-list" id="audit-issues"></div>
+      <div class="card-cta">
+        <span class="btn-primary">Відкрити аудит <i data-lucide="arrow-right"></i></span>
+        <span class="updated-note" id="audit-updated"></span>
+      </div>
+    </a>
   </div>
 </div>
 </div>
 
 <script>
-lucide.createIcons();
+// Іконки — з CDN. Якщо CDN недоступний, сторінка має працювати далі,
+// тому не даємо помилці зупинити решту скрипта (інакше падають усі плитки).
+function icons(){ try{ if(window.lucide) lucide.createIcons(); }catch(e){} }
+icons();
 
 document.getElementById('today-date').textContent = new Intl.DateTimeFormat('uk-UA',{day:'numeric',month:'long',year:'numeric',weekday:'long'}).format(new Date());
 
@@ -565,10 +608,63 @@ async function loadCallsOnlineStatus(){
   }
 }
 
+const ISSUE_COLORS={danger:'#FF5E6C',warning:'#FFC84D',info:'#32D8FF',neutral:'#95A0BF'};
+
+function escapeHtml(text){
+  const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'};
+  return String(text==null?'':text).replace(/[&<>"']/g,m=>map[m]);
+}
+
+async function loadAudit(){
+  try{
+    const res=await fetch('audit_data.json?_='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+
+    const total=data.total_checked||0;
+    const items=data.items||[];
+    const types=data.issue_types||[];
+    // Здоров'я = частка товарів без жодної проблеми. Один товар може мати
+    // кілька проблем одразу, тому рахуємо унікальні URL, а не рядки.
+    const problemUrls=new Set(items.map(i=>i.url));
+    const health= total ? Math.round((total-problemUrls.size)/total*100) : 0;
+
+    document.getElementById('audit-tag').textContent = total ? 'Останній скан' : 'Ще не скановано';
+
+    const demoEl=document.getElementById('audit-demo');
+    if(data.demo){ demoEl.className='trend-badge show demo'; demoEl.textContent='ДЕМО'; }
+    else demoEl.classList.remove('show');
+
+    document.getElementById('audit-stats').innerHTML=`
+      <div class="stat"><div class="v">${fmt(total)}</div><div class="l">Товарів</div></div>
+      <div class="stat"><div class="v">${fmt(problemUrls.size)}</div><div class="l">Проблем</div></div>
+      <div class="stat"><div class="v">${health}%</div><div class="l">Здоров'я</div></div>`;
+
+    document.getElementById('audit-health-bar').style.width=health+'%';
+
+    document.getElementById('audit-issues').innerHTML = types.length
+      ? types.slice(0,3).map(t=>`
+          <div class="issue-row">
+            <span class="dot2" style="background:${ISSUE_COLORS[t.color]||ISSUE_COLORS.neutral}"></span>
+            <span class="nm">${escapeHtml(t.label)}</span>
+            <span class="ct">${fmt(t.count)}</span>
+          </div>`).join('')
+      : '<div class="issue-row"><span class="nm">Проблем не знайдено</span></div>';
+
+    document.getElementById('audit-updated').textContent = data.generated_at ? 'Перевірено '+data.generated_at : '';
+  }catch(e){
+    document.getElementById('audit-tag').textContent='Немає даних';
+    document.getElementById('audit-demo').classList.remove('show');
+    document.getElementById('audit-stats').innerHTML='<div class="skeleton">Скан ще не запускався</div>';
+    document.getElementById('audit-issues').innerHTML='';
+  }
+}
+
 loadCalls();
 loadSMM();
 loadSEO();
 loadCRM();
+loadAudit();
 </script>
 </body>
 </html>
