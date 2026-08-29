@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-28 17:55",
+  "generated_at": "2026-08-29 11:59",
   "source": "Meta Marketing API",
-  "period": "2026-06-09 — 2026-08-27",
+  "period": "2026-06-09 — 2026-08-28",
   "currency": "грн",
   "daily": [
     {
@@ -5992,11 +5992,110 @@
       "date": "2026-08-27",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 388.51,
+      "spend": 388.69,
       "leads": 0,
       "cost_per_lead": 0,
       "status": "ACTIVE",
       "daily_budget": 350,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | дірект матраси | 9.06",
+      "goal": "Переписки",
+      "spend": 118.98,
+      "leads": 2,
+      "cost_per_lead": 59.49,
+      "status": "PAUSED",
+      "daily_budget": 350,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | дірект кроваті | 12.06",
+      "goal": "Переписки",
+      "spend": 160.2,
+      "leads": 3,
+      "cost_per_lead": 53.4,
+      "status": "PAUSED",
+      "daily_budget": 350,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | дірект общ матраси + кроваті | 25.06",
+      "goal": "Переписки",
+      "spend": 166.46,
+      "leads": 3,
+      "cost_per_lead": 55.49,
+      "status": "PAUSED",
+      "daily_budget": 350,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 366.97,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "ACTIVE",
+      "daily_budget": 410,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | конверсії матраси | 26.08.2026",
+      "goal": "Покупки",
+      "spend": 170.09,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "PAUSED",
+      "daily_budget": 375,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | конверсії общ матраси + кроваті | 26.08.2026",
+      "goal": "Покупки",
+      "spend": 223.52,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "PAUSED",
+      "daily_budget": 375,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
+      "goal": "Покупки",
+      "spend": 213.65,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "ACTIVE",
+      "daily_budget": 350,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | дірект общ матраси + кроваті | 28.08",
+      "goal": "Переписки",
+      "spend": 280.92,
+      "leads": 7,
+      "cost_per_lead": 40.13,
+      "status": "PAUSED",
+      "daily_budget": 350,
+      "budget_type": "день"
+    },
+    {
+      "date": "2026-08-28",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 285.58,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "status": "ACTIVE",
+      "daily_budget": 450,
       "budget_type": "день"
     }
   ],
@@ -6009,7 +6108,7 @@
       "leads": 2,
       "cost_per_lead": 82.86,
       "ctr": 2.23,
-      "image": "images/fa5143ba57dd1f77.png"
+      "image": "images/1fa7cc31249870d9.png"
     },
     {
       "banner": "2",
@@ -6019,7 +6118,7 @@
       "leads": 5,
       "cost_per_lead": 79.37,
       "ctr": 2.16,
-      "image": "images/7601f5b6b2e0eca7.png"
+      "image": "images/e8fe0be31c77adb1.png"
     },
     {
       "banner": "3",
@@ -6029,7 +6128,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/b7148cf1d2da204c.png"
+      "image": "images/4dc6850476e7ba02.png"
     },
     {
       "banner": "1 статика",
@@ -6039,7 +6138,7 @@
       "leads": 1,
       "cost_per_lead": 43.61,
       "ctr": 4.9,
-      "image": "images/506d84e5caaffd32.png"
+      "image": "images/f1172a91a49e97c7.png"
     },
     {
       "banner": "3 статика",
@@ -6049,7 +6148,7 @@
       "leads": 2,
       "cost_per_lead": 28.94,
       "ctr": 5.56,
-      "image": "images/44a7e7d115ee8c77.png"
+      "image": "images/41c63a4373d405f7.png"
     },
     {
       "banner": "lizhka_san_1",
@@ -6059,7 +6158,7 @@
       "leads": 120,
       "cost_per_lead": 38.61,
       "ctr": 4.52,
-      "image": "images/aabb6c17578b1d01.png"
+      "image": "images/48cd1f3cfc316156.png"
     },
     {
       "banner": "5 статика",
@@ -6069,7 +6168,7 @@
       "leads": 1,
       "cost_per_lead": 12.01,
       "ctr": 6.67,
-      "image": "images/44a7e7d115ee8c77.png"
+      "image": "images/41c63a4373d405f7.png"
     },
     {
       "banner": "lizhka_teo_1",
@@ -6079,17 +6178,17 @@
       "leads": 358,
       "cost_per_lead": 27.24,
       "ctr": 5.42,
-      "image": "images/c00638795575ad75.png"
+      "image": "images/f25eb39a6f350910.png"
     },
     {
       "banner": "lizhka_san_2",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 4736.43,
+      "spend": 4742.81,
       "leads": 155,
-      "cost_per_lead": 30.56,
+      "cost_per_lead": 30.6,
       "ctr": 4.83,
-      "image": "images/eb01b64e45546eed.png"
+      "image": "images/b32af6014e400980.png"
     },
     {
       "banner": "2 статика",
@@ -6099,7 +6198,7 @@
       "leads": 3,
       "cost_per_lead": 35.81,
       "ctr": 8.65,
-      "image": "images/7396c634e1ecba7c.png"
+      "image": "images/e666d8d958353abb.png"
     },
     {
       "banner": "1",
@@ -6109,7 +6208,7 @@
       "leads": 8,
       "cost_per_lead": 52.64,
       "ctr": 3.55,
-      "image": "images/14b51892eae7eb95.png"
+      "image": "images/81abc3162b87755d.png"
     },
     {
       "banner": "2",
@@ -6119,7 +6218,7 @@
       "leads": 1,
       "cost_per_lead": 120.57,
       "ctr": 6.76,
-      "image": "images/85cd8741f4c431c9.png"
+      "image": "images/1b46cbf03889274b.png"
     },
     {
       "banner": "3",
@@ -6129,7 +6228,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.76,
-      "image": "images/e11207821d99a50c.png"
+      "image": "images/235132162651e27f.png"
     },
     {
       "banner": "4",
@@ -6139,7 +6238,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/dfb1300ebf4e22cf.png"
+      "image": "images/c73c7253c490d035.png"
     },
     {
       "banner": "5",
@@ -6149,7 +6248,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/3671a851d5e6a721.png"
+      "image": "images/61c2fec7170437ed.png"
     },
     {
       "banner": "6",
@@ -6159,7 +6258,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.65,
-      "image": "images/663f7c32f130c96c.png"
+      "image": "images/952818c509100269.png"
     },
     {
       "banner": "7",
@@ -6169,7 +6268,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 7.69,
-      "image": "images/6e0461789f52768a.png"
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "8",
@@ -6179,7 +6278,7 @@
       "leads": 1,
       "cost_per_lead": 185.56,
       "ctr": 6.22,
-      "image": "images/cff634b9d48c5055.png"
+      "image": "images/8616735efea6e2f0.png"
     },
     {
       "banner": "9",
@@ -6189,7 +6288,7 @@
       "leads": 48,
       "cost_per_lead": 48.05,
       "ctr": 6.36,
-      "image": "images/c18de99f073f120e.png"
+      "image": "images/23bd549d8d7c4f80.png"
     },
     {
       "banner": "10",
@@ -6199,7 +6298,7 @@
       "leads": 1,
       "cost_per_lead": 80.38,
       "ctr": 5.6,
-      "image": "images/1ed8e12b039a595d.png"
+      "image": "images/a45455918b5e669f.png"
     },
     {
       "banner": "mat_leo_1",
@@ -6209,7 +6308,7 @@
       "leads": 196,
       "cost_per_lead": 33.49,
       "ctr": 3.15,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "5нов",
@@ -6219,7 +6318,7 @@
       "leads": 5,
       "cost_per_lead": 39.95,
       "ctr": 3.17,
-      "image": "images/98385b1cf356be3d.png"
+      "image": "images/8fac1ac82b14f187.png"
     },
     {
       "banner": "6нов",
@@ -6229,7 +6328,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/9ce44b9b6d8cb654.png"
+      "image": "images/3b65020f3385e2a7.png"
     },
     {
       "banner": "7нов",
@@ -6239,7 +6338,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.35,
-      "image": "images/3b3f7d8197338194.png"
+      "image": "images/ed36e83bf36d645b.png"
     },
     {
       "banner": "8нов",
@@ -6249,7 +6348,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/8f3d1e0674470d3e.png"
+      "image": "images/9a603a5f4a572c9f.png"
     },
     {
       "banner": "9нов",
@@ -6259,17 +6358,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.49,
-      "image": "images/33803a0054db10d9.png"
+      "image": "images/7ce589ab706d5a48.png"
     },
     {
       "banner": "mat_leo_2",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 17569.34,
-      "leads": 531,
-      "cost_per_lead": 33.09,
+      "spend": 17677.43,
+      "leads": 533,
+      "cost_per_lead": 33.17,
       "ctr": 2.77,
-      "image": "images/fb8876a7afcb33a0.png"
+      "image": "images/5bbb1b033a429988.png"
     },
     {
       "banner": "11нов",
@@ -6279,7 +6378,7 @@
       "leads": 2,
       "cost_per_lead": 46.92,
       "ctr": 2.84,
-      "image": "images/c510af151d7da780.png"
+      "image": "images/0e95f7bc2a5e7675.png"
     },
     {
       "banner": "12нов",
@@ -6289,7 +6388,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.79,
-      "image": "images/c83a3aa23a92787f.png"
+      "image": "images/f3b525058abe788a.png"
     },
     {
       "banner": "13нов",
@@ -6299,7 +6398,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.51,
-      "image": "images/e268f557f9a3a88a.png"
+      "image": "images/4b9d2d54c4a2b28d.png"
     },
     {
       "banner": "к+м1",
@@ -6309,7 +6408,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.31,
-      "image": "images/c18de99f073f120e.png"
+      "image": "images/23bd549d8d7c4f80.png"
     },
     {
       "banner": "3",
@@ -6319,7 +6418,7 @@
       "leads": 6,
       "cost_per_lead": 999.44,
       "ctr": 5.51,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "2",
@@ -6329,7 +6428,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 7.41,
-      "image": "images/98385b1cf356be3d.png"
+      "image": "images/8fac1ac82b14f187.png"
     },
     {
       "banner": "1",
@@ -6339,7 +6438,7 @@
       "leads": 1,
       "cost_per_lead": 1069.81,
       "ctr": 5.85,
-      "image": "images/744cdb358d1a01eb.png"
+      "image": "images/baef1763e9680c08.png"
     },
     {
       "banner": "leo1",
@@ -6349,7 +6448,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/b7148cf1d2da204c.png"
+      "image": "images/4dc6850476e7ba02.png"
     },
     {
       "banner": "leo2",
@@ -6359,7 +6458,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/7601f5b6b2e0eca7.png"
+      "image": "images/e8fe0be31c77adb1.png"
     },
     {
       "banner": "leo3",
@@ -6369,7 +6468,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.68,
-      "image": "images/fa5143ba57dd1f77.png"
+      "image": "images/1fa7cc31249870d9.png"
     },
     {
       "banner": "1",
@@ -6379,7 +6478,7 @@
       "leads": 5,
       "cost_per_lead": 952.17,
       "ctr": 5.99,
-      "image": "images/c00638795575ad75.png"
+      "image": "images/f25eb39a6f350910.png"
     },
     {
       "banner": "2",
@@ -6389,7 +6488,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.94,
-      "image": "images/44a7e7d115ee8c77.png"
+      "image": "images/41c63a4373d405f7.png"
     },
     {
       "banner": "3",
@@ -6399,7 +6498,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 7.23,
-      "image": "images/5a6da0d8082e3b4b.png"
+      "image": "images/027eb3564aa65144.png"
     },
     {
       "banner": "4",
@@ -6409,7 +6508,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.01,
-      "image": "images/506d84e5caaffd32.png"
+      "image": "images/f1172a91a49e97c7.png"
     },
     {
       "banner": "5",
@@ -6419,7 +6518,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.99,
-      "image": "images/aabb6c17578b1d01.png"
+      "image": "images/48cd1f3cfc316156.png"
     },
     {
       "banner": "6",
@@ -6429,7 +6528,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.03,
-      "image": "images/54ffc4ec9ea803d8.png"
+      "image": "images/87a596aed41b19b8.png"
     },
     {
       "banner": "7",
@@ -6439,7 +6538,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.0,
-      "image": "images/7396c634e1ecba7c.png"
+      "image": "images/e666d8d958353abb.png"
     },
     {
       "banner": "8",
@@ -6449,7 +6548,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.45,
-      "image": "images/eb01b64e45546eed.png"
+      "image": "images/b32af6014e400980.png"
     },
     {
       "banner": "к+м2",
@@ -6459,7 +6558,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.35,
-      "image": "images/cff634b9d48c5055.png"
+      "image": "images/8616735efea6e2f0.png"
     },
     {
       "banner": "к+м3",
@@ -6469,7 +6568,7 @@
       "leads": 3,
       "cost_per_lead": 817.37,
       "ctr": 5.88,
-      "image": "images/6e0461789f52768a.png"
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "mat_leo_2",
@@ -6479,7 +6578,7 @@
       "leads": 249,
       "cost_per_lead": 41.68,
       "ctr": 2.81,
-      "image": "images/fb8876a7afcb33a0.png"
+      "image": "images/5bbb1b033a429988.png"
     },
     {
       "banner": "11нов",
@@ -6489,7 +6588,7 @@
       "leads": 14,
       "cost_per_lead": 47.37,
       "ctr": 2.55,
-      "image": "images/c510af151d7da780.png"
+      "image": "images/0e95f7bc2a5e7675.png"
     },
     {
       "banner": "6нов",
@@ -6499,7 +6598,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/9ce44b9b6d8cb654.png"
+      "image": "images/3b65020f3385e2a7.png"
     },
     {
       "banner": "2",
@@ -6509,7 +6608,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.9,
-      "image": "images/7601f5b6b2e0eca7.png"
+      "image": "images/e8fe0be31c77adb1.png"
     },
     {
       "banner": "mat_leo_1",
@@ -6519,7 +6618,7 @@
       "leads": 99,
       "cost_per_lead": 40.07,
       "ctr": 2.96,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "1нов",
@@ -6529,7 +6628,7 @@
       "leads": 1,
       "cost_per_lead": 53.16,
       "ctr": 3.7,
-      "image": "images/58ad4d00b830f914.png"
+      "image": "images/e6dbc7113d95ad49.png"
     },
     {
       "banner": "2нов",
@@ -6539,7 +6638,7 @@
       "leads": 1,
       "cost_per_lead": 34.73,
       "ctr": 1.67,
-      "image": "images/b72f32cd91b9e692.png"
+      "image": "images/d225cb4c1687a7f5.png"
     },
     {
       "banner": "3нов",
@@ -6549,7 +6648,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.5,
-      "image": "images/3d7cbd01b8c72eee.png"
+      "image": "images/65458261d873dae9.png"
     },
     {
       "banner": "4нов",
@@ -6559,7 +6658,7 @@
       "leads": 13,
       "cost_per_lead": 79.14,
       "ctr": 4.89,
-      "image": "images/50b15ded26e70a9e.png"
+      "image": "images/f5b75d2f2389749f.png"
     },
     {
       "banner": "5нов",
@@ -6569,7 +6668,7 @@
       "leads": 1,
       "cost_per_lead": 33.0,
       "ctr": 4.23,
-      "image": "images/c69ffeb33ab99a31.png"
+      "image": "images/8dc1fc00b3d2fcde.png"
     },
     {
       "banner": "6нов",
@@ -6579,7 +6678,7 @@
       "leads": 1,
       "cost_per_lead": 2.94,
       "ctr": 11.11,
-      "image": "images/32522184f544b0e2.png"
+      "image": "images/3ff6a8f03708225e.png"
     },
     {
       "banner": "7нов",
@@ -6589,7 +6688,7 @@
       "leads": 1,
       "cost_per_lead": 36.41,
       "ctr": 4.65,
-      "image": "images/18d4b605f981d2c4.png"
+      "image": "images/3fcb7bf1519ddd69.png"
     },
     {
       "banner": "3",
@@ -6599,7 +6698,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.64,
-      "image": "images/5a6da0d8082e3b4b.png"
+      "image": "images/027eb3564aa65144.png"
     },
     {
       "banner": "1",
@@ -6609,7 +6708,7 @@
       "leads": 1,
       "cost_per_lead": 1124.69,
       "ctr": 4.83,
-      "image": "images/c00638795575ad75.png"
+      "image": "images/f25eb39a6f350910.png"
     },
     {
       "banner": "5",
@@ -6619,7 +6718,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.64,
-      "image": "images/aabb6c17578b1d01.png"
+      "image": "images/48cd1f3cfc316156.png"
     },
     {
       "banner": "2",
@@ -6629,7 +6728,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.59,
-      "image": "images/2369f9bbd9067a20.png"
+      "image": "images/8cd1ef83c84022a7.png"
     },
     {
       "banner": "1новый",
@@ -6639,7 +6738,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/9bad6180179e7c05.png"
+      "image": "images/200eb849a2825bc9.png"
     },
     {
       "banner": "2новый",
@@ -6649,7 +6748,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/b846ace598fbed0e.png"
+      "image": "images/705ce4a1636e3570.png"
     },
     {
       "banner": "3новый",
@@ -6659,7 +6758,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.43,
-      "image": "images/31fd266a687c6d2d.png"
+      "image": "images/f8dabc07102b70ba.png"
     },
     {
       "banner": "4новый",
@@ -6669,7 +6768,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.26,
-      "image": "images/600a55623180d1b4.png"
+      "image": "images/c9f094f6f6dfb335.png"
     },
     {
       "banner": "5новый",
@@ -6679,7 +6778,7 @@
       "leads": 3,
       "cost_per_lead": 61.63,
       "ctr": 2.98,
-      "image": "images/8658c44f7e8f61d8.png"
+      "image": "images/2e231e315d4d74ab.png"
     },
     {
       "banner": "1нов",
@@ -6689,7 +6788,7 @@
       "leads": 1,
       "cost_per_lead": 502.58,
       "ctr": 5.73,
-      "image": "images/9bad6180179e7c05.png"
+      "image": "images/200eb849a2825bc9.png"
     },
     {
       "banner": "2нов",
@@ -6699,7 +6798,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.38,
-      "image": "images/b846ace598fbed0e.png"
+      "image": "images/705ce4a1636e3570.png"
     },
     {
       "banner": "3нов",
@@ -6709,7 +6808,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.13,
-      "image": "images/31fd266a687c6d2d.png"
+      "image": "images/f8dabc07102b70ba.png"
     },
     {
       "banner": "4нов",
@@ -6719,7 +6818,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.51,
-      "image": "images/600a55623180d1b4.png"
+      "image": "images/c9f094f6f6dfb335.png"
     },
     {
       "banner": "5нов",
@@ -6729,7 +6828,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.75,
-      "image": "images/8658c44f7e8f61d8.png"
+      "image": "images/2e231e315d4d74ab.png"
     },
     {
       "banner": "5новый",
@@ -6739,7 +6838,7 @@
       "leads": 7,
       "cost_per_lead": 73.5,
       "ctr": 3.69,
-      "image": "images/8658c44f7e8f61d8.png"
+      "image": "images/2e231e315d4d74ab.png"
     },
     {
       "banner": "3новый",
@@ -6749,7 +6848,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 10.0,
-      "image": "images/31fd266a687c6d2d.png"
+      "image": "images/f8dabc07102b70ba.png"
     },
     {
       "banner": "nabor_nardo_leo_1",
@@ -6759,7 +6858,7 @@
       "leads": 16,
       "cost_per_lead": 61.3,
       "ctr": 3.78,
-      "image": "images/14b51892eae7eb95.png"
+      "image": "images/81abc3162b87755d.png"
     },
     {
       "banner": "nabor_teo_leo_1",
@@ -6769,17 +6868,17 @@
       "leads": 214,
       "cost_per_lead": 37.54,
       "ctr": 5.09,
-      "image": "images/c18de99f073f120e.png"
+      "image": "images/23bd549d8d7c4f80.png"
     },
     {
       "banner": "nabor_teo_leo_2",
       "campaign": "DDA | дірект общ матраси + кроваті | 25.06",
       "goal": "Переписки",
-      "spend": 10975.39,
-      "leads": 337,
-      "cost_per_lead": 32.57,
-      "ctr": 4.48,
-      "image": "images/6e0461789f52768a.png"
+      "spend": 11141.85,
+      "leads": 340,
+      "cost_per_lead": 32.77,
+      "ctr": 4.49,
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "1новый",
@@ -6789,7 +6888,7 @@
       "leads": 9,
       "cost_per_lead": 36.76,
       "ctr": 4.32,
-      "image": "images/9bad6180179e7c05.png"
+      "image": "images/200eb849a2825bc9.png"
     },
     {
       "banner": "lizhka_san_2",
@@ -6799,27 +6898,27 @@
       "leads": 1,
       "cost_per_lead": 1447.98,
       "ctr": 5.17,
-      "image": "images/eb01b64e45546eed.png"
+      "image": "images/b32af6014e400980.png"
     },
     {
       "banner": "lizhka_san_1",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 5006.94,
+      "spend": 5018.68,
       "leads": 10,
-      "cost_per_lead": 500.69,
+      "cost_per_lead": 501.87,
       "ctr": 4.38,
-      "image": "images/aabb6c17578b1d01.png"
+      "image": "images/48cd1f3cfc316156.png"
     },
     {
       "banner": "lizhka_teo_1",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 3292.34,
+      "spend": 3567.05,
       "leads": 6,
-      "cost_per_lead": 548.72,
-      "ctr": 5.81,
-      "image": "images/c00638795575ad75.png"
+      "cost_per_lead": 594.51,
+      "ctr": 5.72,
+      "image": "images/f25eb39a6f350910.png"
     },
     {
       "banner": "1",
@@ -6829,7 +6928,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.74,
-      "image": "images/204400f806b23fef.png"
+      "image": "images/79ced8a5d38a22d2.png"
     },
     {
       "banner": "2",
@@ -6839,7 +6938,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.17,
-      "image": "images/4a46dda46e224f59.png"
+      "image": "images/6b94fa2a11a38963.png"
     },
     {
       "banner": "3",
@@ -6849,7 +6948,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.47,
-      "image": "images/adae4bcc861dfdad.png"
+      "image": "images/c75062ae80e2b546.png"
     },
     {
       "banner": "4",
@@ -6859,7 +6958,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/3e69a3401a2e2049.png"
+      "image": "images/13180e86222ad0c3.png"
     },
     {
       "banner": "5",
@@ -6869,7 +6968,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.37,
-      "image": "images/d9cbb77966cedb3c.png"
+      "image": "images/ee548917a4f27f9f.png"
     },
     {
       "banner": "6",
@@ -6879,7 +6978,7 @@
       "leads": 1,
       "cost_per_lead": 2652.96,
       "ctr": 4.63,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "7",
@@ -6889,7 +6988,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.27,
-      "image": "images/913a16137e65c1e3.png"
+      "image": "images/94520613bf419417.png"
     },
     {
       "banner": "8",
@@ -6899,7 +6998,7 @@
       "leads": 1,
       "cost_per_lead": 40.21,
       "ctr": 9.02,
-      "image": "images/224c964c9b80cdd7.png"
+      "image": "images/9f3d7170587c1fe7.png"
     },
     {
       "banner": "9",
@@ -6909,7 +7008,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.59,
-      "image": "images/036b012e7261ef01.png"
+      "image": "images/2ab0da6bf9e6e265.png"
     },
     {
       "banner": "10",
@@ -6919,7 +7018,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 8.33,
-      "image": "images/2fc06997f7f9f1fd.png"
+      "image": "images/53cd66fe71cc5f64.png"
     },
     {
       "banner": "11",
@@ -6929,7 +7028,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.85,
-      "image": "images/80375f08095e4230.png"
+      "image": "images/8843b8d6360545cc.png"
     },
     {
       "banner": "1",
@@ -6939,7 +7038,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 13.95,
-      "image": "images/9b8ead834c12d9d2.png"
+      "image": "images/ec256d887d3da38c.png"
     },
     {
       "banner": "2",
@@ -6949,7 +7048,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.85,
-      "image": "images/30bb319e0c57dff0.png"
+      "image": "images/57a7da58b78d8c77.png"
     },
     {
       "banner": "3",
@@ -6959,7 +7058,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.79,
-      "image": "images/51f9a8bcb23daa4f.png"
+      "image": "images/23e13f6c0fbe770b.png"
     },
     {
       "banner": "4",
@@ -6969,7 +7068,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.84,
-      "image": "images/439eaaaf96f95954.png"
+      "image": "images/e13054d7db865e9c.png"
     },
     {
       "banner": "5",
@@ -6979,7 +7078,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.8,
-      "image": "images/24bd8e53e1a09fab.png"
+      "image": "images/0787e4d80ed5f845.png"
     },
     {
       "banner": "6",
@@ -6989,7 +7088,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.7,
-      "image": "images/34508ebad6bb0714.png"
+      "image": "images/7e6acf4585eebcd6.png"
     },
     {
       "banner": "7",
@@ -6999,7 +7098,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/0582c923b65c3188.png"
+      "image": "images/058624af0d336609.png"
     },
     {
       "banner": "8",
@@ -7009,7 +7108,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 8.27,
-      "image": "images/572a1b234eb445f5.png"
+      "image": "images/3f5d1a478dedc2ed.png"
     },
     {
       "banner": "mat50_ortho_Fluffy_160_200",
@@ -7019,7 +7118,7 @@
       "leads": 6,
       "cost_per_lead": 63.16,
       "ctr": 2.48,
-      "image": "images/fc23d157f4085c91.png"
+      "image": "images/4895f8c43b0e703b.png"
     },
     {
       "banner": "mat_leokokos_1",
@@ -7029,7 +7128,7 @@
       "leads": 77,
       "cost_per_lead": 44.69,
       "ctr": 3.26,
-      "image": "images/4d61c87e71d069ee.png"
+      "image": "images/260237fbc2caa971.png"
     },
     {
       "banner": "mat50_ortho_Fluffy_160_200",
@@ -7039,7 +7138,7 @@
       "leads": 5,
       "cost_per_lead": 42.24,
       "ctr": 2.72,
-      "image": "images/fc23d157f4085c91.png"
+      "image": "images/4895f8c43b0e703b.png"
     },
     {
       "banner": "mat_leokokos_1",
@@ -7049,7 +7148,7 @@
       "leads": 6,
       "cost_per_lead": 90.93,
       "ctr": 2.69,
-      "image": "images/4d61c87e71d069ee.png"
+      "image": "images/260237fbc2caa971.png"
     },
     {
       "banner": "10",
@@ -7059,7 +7158,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.29,
-      "image": "images/2fc06997f7f9f1fd.png"
+      "image": "images/53cd66fe71cc5f64.png"
     },
     {
       "banner": "7",
@@ -7069,7 +7168,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.48,
-      "image": "images/913a16137e65c1e3.png"
+      "image": "images/94520613bf419417.png"
     },
     {
       "banner": "6",
@@ -7079,7 +7178,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.11,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "5",
@@ -7089,7 +7188,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.72,
-      "image": "images/d9cbb77966cedb3c.png"
+      "image": "images/ee548917a4f27f9f.png"
     },
     {
       "banner": "3",
@@ -7099,7 +7198,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/adae4bcc861dfdad.png"
+      "image": "images/c75062ae80e2b546.png"
     },
     {
       "banner": "4",
@@ -7109,7 +7208,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.66,
-      "image": "images/3e69a3401a2e2049.png"
+      "image": "images/13180e86222ad0c3.png"
     },
     {
       "banner": "9",
@@ -7119,7 +7218,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.93,
-      "image": "images/036b012e7261ef01.png"
+      "image": "images/2ab0da6bf9e6e265.png"
     },
     {
       "banner": "3нов",
@@ -7129,7 +7228,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.37,
-      "image": "images/31fd266a687c6d2d.png"
+      "image": "images/f8dabc07102b70ba.png"
     },
     {
       "banner": "к+м3",
@@ -7139,7 +7238,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.96,
-      "image": "images/6e0461789f52768a.png"
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "1",
@@ -7149,7 +7248,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.84,
-      "image": "images/744cdb358d1a01eb.png"
+      "image": "images/baef1763e9680c08.png"
     },
     {
       "banner": "3",
@@ -7159,7 +7258,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.84,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "к+м1",
@@ -7169,27 +7268,27 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.54,
-      "image": "images/c18de99f073f120e.png"
+      "image": "images/23bd549d8d7c4f80.png"
     },
     {
       "banner": "lizhka_teo_2",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 115.54,
+      "spend": 115.98,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 5.95,
-      "image": "images/beb7740dac61b28d.png"
+      "ctr": 5.92,
+      "image": "images/0fc0a8cc7c153124.png"
     },
     {
       "banner": "lizhka_san_3",
       "campaign": "DDA | конверсії кроваті | 03.07.2026",
       "goal": "Покупки",
-      "spend": 10867.87,
+      "spend": 10924.29,
       "leads": 12,
-      "cost_per_lead": 905.66,
-      "ctr": 3.97,
-      "image": "images/f5c097217a0e867b.png"
+      "cost_per_lead": 910.36,
+      "ctr": 3.96,
+      "image": "images/03e9f98f45a16096.png"
     },
     {
       "banner": "1",
@@ -7199,7 +7298,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.05,
-      "image": "images/744cdb358d1a01eb.png"
+      "image": "images/baef1763e9680c08.png"
     },
     {
       "banner": "к+м3",
@@ -7209,7 +7308,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.06,
-      "image": "images/6e0461789f52768a.png"
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "3",
@@ -7219,7 +7318,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.83,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "к м нов 1",
@@ -7229,7 +7328,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 13.16,
-      "image": "images/39f7d08ddfc9e841.png"
+      "image": "images/0ed424fc5b8ec48d.png"
     },
     {
       "banner": "к м нов 2",
@@ -7239,7 +7338,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.0,
-      "image": "images/8619921e5e5d0561.png"
+      "image": "images/c62eac896f362f68.png"
     },
     {
       "banner": "к м нов 3",
@@ -7249,7 +7348,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.1,
-      "image": "images/9706b479089dab09.png"
+      "image": "images/639bce5e264b2538.png"
     },
     {
       "banner": "к м нов 4",
@@ -7259,7 +7358,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 20.0,
-      "image": "images/1f2cc5559f9cfb2d.png"
+      "image": "images/d60702463f3de548.png"
     },
     {
       "banner": "к м нов 5",
@@ -7269,7 +7368,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 8.31,
-      "image": "images/e0d6ad7f71950d47.png"
+      "image": "images/86e90b1fab11a915.png"
     },
     {
       "banner": "6",
@@ -7279,7 +7378,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.82,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "нов 1",
@@ -7289,7 +7388,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.24,
-      "image": "images/48154c6cb24660a4.png"
+      "image": "images/07051f7ef210a651.png"
     },
     {
       "banner": "нов 2",
@@ -7299,7 +7398,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.86,
-      "image": "images/7aa74e0aa9ea1eef.png"
+      "image": "images/0e088bd7c599d135.png"
     },
     {
       "banner": "нов 3",
@@ -7309,7 +7408,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.7,
-      "image": "images/3044db26a01a8eae.png"
+      "image": "images/91245340dc995f7f.png"
     },
     {
       "banner": "к м нов 5",
@@ -7319,7 +7418,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.95,
-      "image": "images/e0d6ad7f71950d47.png"
+      "image": "images/86e90b1fab11a915.png"
     },
     {
       "banner": "1",
@@ -7329,7 +7428,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 9.2,
-      "image": "images/744cdb358d1a01eb.png"
+      "image": "images/baef1763e9680c08.png"
     },
     {
       "banner": "к+м3",
@@ -7339,7 +7438,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.82,
-      "image": "images/6e0461789f52768a.png"
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "к м нов 4",
@@ -7349,7 +7448,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/1f2cc5559f9cfb2d.png"
+      "image": "images/d60702463f3de548.png"
     },
     {
       "banner": "к м нов 1",
@@ -7359,7 +7458,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 7.48,
-      "image": "images/39f7d08ddfc9e841.png"
+      "image": "images/0ed424fc5b8ec48d.png"
     },
     {
       "banner": "3",
@@ -7369,7 +7468,7 @@
       "leads": 1,
       "cost_per_lead": 169.13,
       "ctr": 8.6,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "к м нов 2",
@@ -7379,7 +7478,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 8.57,
-      "image": "images/8619921e5e5d0561.png"
+      "image": "images/c62eac896f362f68.png"
     },
     {
       "banner": "к м нов 3",
@@ -7389,7 +7488,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.68,
-      "image": "images/9706b479089dab09.png"
+      "image": "images/639bce5e264b2538.png"
     },
     {
       "banner": "нов 3",
@@ -7399,7 +7498,7 @@
       "leads": 5,
       "cost_per_lead": 630.35,
       "ctr": 3.36,
-      "image": "images/3044db26a01a8eae.png"
+      "image": "images/91245340dc995f7f.png"
     },
     {
       "banner": "нов 1",
@@ -7409,7 +7508,7 @@
       "leads": 7,
       "cost_per_lead": 384.62,
       "ctr": 3.66,
-      "image": "images/48154c6cb24660a4.png"
+      "image": "images/07051f7ef210a651.png"
     },
     {
       "banner": "mat_leo_1",
@@ -7419,7 +7518,7 @@
       "leads": 2,
       "cost_per_lead": 1048.32,
       "ctr": 3.84,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "нов 2",
@@ -7429,7 +7528,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.15,
-      "image": "images/7aa74e0aa9ea1eef.png"
+      "image": "images/0e088bd7c599d135.png"
     },
     {
       "banner": "к м нов 3",
@@ -7439,7 +7538,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.77,
-      "image": "images/9706b479089dab09.png"
+      "image": "images/639bce5e264b2538.png"
     },
     {
       "banner": "nabor_teo_leo_2",
@@ -7449,7 +7548,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.62,
-      "image": "images/6e0461789f52768a.png"
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "mat_leo_2",
@@ -7459,7 +7558,7 @@
       "leads": 1,
       "cost_per_lead": 232.37,
       "ctr": 6.35,
-      "image": "images/744cdb358d1a01eb.png"
+      "image": "images/baef1763e9680c08.png"
     },
     {
       "banner": "к м нов 2",
@@ -7469,7 +7568,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.77,
-      "image": "images/8619921e5e5d0561.png"
+      "image": "images/c62eac896f362f68.png"
     },
     {
       "banner": "mat_leo_1",
@@ -7479,7 +7578,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.01,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "к м нов 1",
@@ -7489,7 +7588,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 7.23,
-      "image": "images/39f7d08ddfc9e841.png"
+      "image": "images/0ed424fc5b8ec48d.png"
     },
     {
       "banner": "к м нов 5",
@@ -7499,7 +7598,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.11,
-      "image": "images/e0d6ad7f71950d47.png"
+      "image": "images/86e90b1fab11a915.png"
     },
     {
       "banner": "mat50_ortho_v2_Fluffy_160_200",
@@ -7509,7 +7608,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.18,
-      "image": "images/788a311a5092636e.png"
+      "image": "images/80fb275e87889fed.png"
     },
     {
       "banner": "mat50_komfort_Fluffy_160_200",
@@ -7519,7 +7618,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.17,
-      "image": "images/39c238e9f9fc0d5b.png"
+      "image": "images/95baa0d6556b928b.png"
     },
     {
       "banner": "mat50_komfort_v2_Fluffy_160_200",
@@ -7529,7 +7628,7 @@
       "leads": 2,
       "cost_per_lead": 17.57,
       "ctr": 2.59,
-      "image": "images/bc0244d68bb3eff5.png"
+      "image": "images/8f94b136f386d890.png"
     },
     {
       "banner": "mat50_komfort_v3_Fluffy_160_200",
@@ -7539,17 +7638,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/bd9cc40c9c8d0e7c.png"
+      "image": "images/114b1499048f3e70.png"
     },
     {
       "banner": "mat50_ortho_v3__Fluffy_160_200",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 71.39,
+      "spend": 72.39,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 2.18,
-      "image": "images/684d72db93f9f29c.png"
+      "ctr": 2.15,
+      "image": "images/afa51c62ac597d3b.png"
     },
     {
       "banner": "mat50_ortho_v2_Fluffy_160_200",
@@ -7559,7 +7658,7 @@
       "leads": 3,
       "cost_per_lead": 53.56,
       "ctr": 2.94,
-      "image": "images/788a311a5092636e.png"
+      "image": "images/80fb275e87889fed.png"
     },
     {
       "banner": "mat50_komfort_Fluffy_160_200",
@@ -7569,7 +7668,7 @@
       "leads": 10,
       "cost_per_lead": 24.1,
       "ctr": 2.9,
-      "image": "images/39c238e9f9fc0d5b.png"
+      "image": "images/95baa0d6556b928b.png"
     },
     {
       "banner": "mat50_komfort_v2_Fluffy_160_200",
@@ -7579,7 +7678,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.26,
-      "image": "images/bc0244d68bb3eff5.png"
+      "image": "images/8f94b136f386d890.png"
     },
     {
       "banner": "mat50_komfort_v3_Fluffy_160_200",
@@ -7589,7 +7688,7 @@
       "leads": 8,
       "cost_per_lead": 26.03,
       "ctr": 2.51,
-      "image": "images/bd9cc40c9c8d0e7c.png"
+      "image": "images/114b1499048f3e70.png"
     },
     {
       "banner": "mat50_ortho_v3__Fluffy_160_200",
@@ -7599,7 +7698,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.92,
-      "image": "images/684d72db93f9f29c.png"
+      "image": "images/afa51c62ac597d3b.png"
     },
     {
       "banner": "nabor_teo_leo_3",
@@ -7609,7 +7708,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.67,
-      "image": "images/b94ee53d2e323684.png"
+      "image": "images/31d4ecf24d1b509e.png"
     },
     {
       "banner": "nabor_san_leo_1",
@@ -7619,7 +7718,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/4f671f63a846baa7.png"
+      "image": "images/fdec12461919b7a1.png"
     },
     {
       "banner": "nabor_teo_leo_4",
@@ -7629,7 +7728,7 @@
       "leads": 1,
       "cost_per_lead": 69.68,
       "ctr": 6.07,
-      "image": "images/45b227e0857a95b0.png"
+      "image": "images/66a92908203053fe.png"
     },
     {
       "banner": "nabor_teo_leo_5",
@@ -7639,7 +7738,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/b2ab22cb4cc0c786.png"
+      "image": "images/3e07ce61548b724c.png"
     },
     {
       "banner": "nabor_teo_leo_6",
@@ -7649,7 +7748,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.45,
-      "image": "images/73c6b49f6bbf1e6d.png"
+      "image": "images/930302b3a4b53989.png"
     },
     {
       "banner": "nabor_teo_leo_7",
@@ -7659,7 +7758,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.94,
-      "image": "images/436a4e876ec622a5.png"
+      "image": "images/ac812068e3887f40.png"
     },
     {
       "banner": "nabor_nardo_leo_2",
@@ -7669,7 +7768,7 @@
       "leads": 9,
       "cost_per_lead": 33.6,
       "ctr": 4.27,
-      "image": "images/c39cf8af1e9f1ad5.png"
+      "image": "images/8e4b634eac302c1d.png"
     },
     {
       "banner": "nabor_teo_leo_7",
@@ -7679,7 +7778,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.1,
-      "image": "images/436a4e876ec622a5.png"
+      "image": "images/ac812068e3887f40.png"
     },
     {
       "banner": "nabor_nardo_leo_2",
@@ -7689,7 +7788,7 @@
       "leads": 1,
       "cost_per_lead": 1459.94,
       "ctr": 3.66,
-      "image": "images/c39cf8af1e9f1ad5.png"
+      "image": "images/8e4b634eac302c1d.png"
     },
     {
       "banner": "nabor_san_leo_1",
@@ -7699,7 +7798,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 6.78,
-      "image": "images/4f671f63a846baa7.png"
+      "image": "images/fdec12461919b7a1.png"
     },
     {
       "banner": "mat50_ortho_v3__Fluffy_160_200",
@@ -7709,7 +7808,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.86,
-      "image": "images/684d72db93f9f29c.png"
+      "image": "images/afa51c62ac597d3b.png"
     },
     {
       "banner": "mat50_komfort_v3_Fluffy_160_200",
@@ -7719,7 +7818,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/bd9cc40c9c8d0e7c.png"
+      "image": "images/114b1499048f3e70.png"
     },
     {
       "banner": "mat50_komfort_v2_Fluffy_160_200",
@@ -7729,7 +7828,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.3,
-      "image": "images/bc0244d68bb3eff5.png"
+      "image": "images/8f94b136f386d890.png"
     },
     {
       "banner": "mat_leokokos_2",
@@ -7739,17 +7838,17 @@
       "leads": 5,
       "cost_per_lead": 51.12,
       "ctr": 2.3,
-      "image": "images/aa2884f2bb6ebf27.png"
+      "image": "images/5c222bc8141d64cf.png"
     },
     {
       "banner": "mat50_komfort_v4_Fluffy 160х200 см",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 170.18,
+      "spend": 177.39,
       "leads": 3,
-      "cost_per_lead": 56.73,
-      "ctr": 3.69,
-      "image": "images/5183793b9f1a75bd.png"
+      "cost_per_lead": 59.13,
+      "ctr": 3.7,
+      "image": "images/e5939eafb4c51299.png"
     },
     {
       "banner": "mat_leokokos_2",
@@ -7759,7 +7858,7 @@
       "leads": 24,
       "cost_per_lead": 50.63,
       "ctr": 2.0,
-      "image": "images/aa2884f2bb6ebf27.png"
+      "image": "images/5c222bc8141d64cf.png"
     },
     {
       "banner": "mat50_komfort_v4_Fluffy 160х200 см",
@@ -7769,7 +7868,7 @@
       "leads": 1,
       "cost_per_lead": 129.74,
       "ctr": 1.55,
-      "image": "images/5183793b9f1a75bd.png"
+      "image": "images/e5939eafb4c51299.png"
     },
     {
       "banner": "lizhka_teo_2",
@@ -7779,17 +7878,17 @@
       "leads": 4,
       "cost_per_lead": 24.21,
       "ctr": 5.42,
-      "image": "images/beb7740dac61b28d.png"
+      "image": "images/0fc0a8cc7c153124.png"
     },
     {
       "banner": "lizhka_san_3",
       "campaign": "DDA | дірект кроваті | 12.06",
       "goal": "Переписки",
-      "spend": 6690.22,
-      "leads": 236,
-      "cost_per_lead": 28.35,
-      "ctr": 4.51,
-      "image": "images/f5c097217a0e867b.png"
+      "spend": 6844.04,
+      "leads": 239,
+      "cost_per_lead": 28.64,
+      "ctr": 4.48,
+      "image": "images/03e9f98f45a16096.png"
     },
     {
       "banner": "nabor_teo_leo_1",
@@ -7799,7 +7898,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/c18de99f073f120e.png"
+      "image": "images/23bd549d8d7c4f80.png"
     },
     {
       "banner": "к м нов 1",
@@ -7809,7 +7908,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.79,
-      "image": "images/39f7d08ddfc9e841.png"
+      "image": "images/0ed424fc5b8ec48d.png"
     },
     {
       "banner": "к м нов 5",
@@ -7819,7 +7918,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.14,
-      "image": "images/e0d6ad7f71950d47.png"
+      "image": "images/86e90b1fab11a915.png"
     },
     {
       "banner": "nabor_nardo_leo_2",
@@ -7829,7 +7928,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.95,
-      "image": "images/c39cf8af1e9f1ad5.png"
+      "image": "images/8e4b634eac302c1d.png"
     },
     {
       "banner": "nabor_san_leo_1",
@@ -7839,7 +7938,7 @@
       "leads": 1,
       "cost_per_lead": 981.92,
       "ctr": 4.61,
-      "image": "images/4f671f63a846baa7.png"
+      "image": "images/fdec12461919b7a1.png"
     },
     {
       "banner": "nabor",
@@ -7849,7 +7948,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.63,
-      "image": "images/31fd266a687c6d2d.png"
+      "image": "images/f8dabc07102b70ba.png"
     },
     {
       "banner": "к м нов 5",
@@ -7859,7 +7958,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.44,
-      "image": "images/e0d6ad7f71950d47.png"
+      "image": "images/86e90b1fab11a915.png"
     },
     {
       "banner": "nabor_nardo_leo_2",
@@ -7869,7 +7968,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/c39cf8af1e9f1ad5.png"
+      "image": "images/8e4b634eac302c1d.png"
     },
     {
       "banner": "nabor",
@@ -7879,7 +7978,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.83,
-      "image": "images/31fd266a687c6d2d.png"
+      "image": "images/f8dabc07102b70ba.png"
     },
     {
       "banner": "к м нов 1",
@@ -7889,7 +7988,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.54,
-      "image": "images/39f7d08ddfc9e841.png"
+      "image": "images/0ed424fc5b8ec48d.png"
     },
     {
       "banner": "nabor_san_leo_1",
@@ -7899,7 +7998,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.7,
-      "image": "images/4f671f63a846baa7.png"
+      "image": "images/fdec12461919b7a1.png"
     },
     {
       "banner": "mat50_komfort_v2_Fluffy_160_200",
@@ -7909,7 +8008,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.12,
-      "image": "images/bc0244d68bb3eff5.png"
+      "image": "images/8f94b136f386d890.png"
     },
     {
       "banner": "mat50_ortho_v3__Fluffy_160_200",
@@ -7919,7 +8018,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.92,
-      "image": "images/684d72db93f9f29c.png"
+      "image": "images/afa51c62ac597d3b.png"
     },
     {
       "banner": "mat50_komfort_v3_Fluffy_160_200",
@@ -7929,7 +8028,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/bd9cc40c9c8d0e7c.png"
+      "image": "images/114b1499048f3e70.png"
     },
     {
       "banner": "нов 1",
@@ -7939,7 +8038,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.64,
-      "image": "images/48154c6cb24660a4.png"
+      "image": "images/07051f7ef210a651.png"
     },
     {
       "banner": "нов 2",
@@ -7949,7 +8048,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.23,
-      "image": "images/7aa74e0aa9ea1eef.png"
+      "image": "images/0e088bd7c599d135.png"
     },
     {
       "banner": "mat_leo_1",
@@ -7959,7 +8058,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 3.82,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "нов 3",
@@ -7969,7 +8068,7 @@
       "leads": 2,
       "cost_per_lead": 972.98,
       "ctr": 3.74,
-      "image": "images/3044db26a01a8eae.png"
+      "image": "images/91245340dc995f7f.png"
     },
     {
       "banner": "mat_leo_1",
@@ -7979,7 +8078,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.56,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "mat_leo_2",
@@ -7989,7 +8088,7 @@
       "leads": 34,
       "cost_per_lead": 52.79,
       "ctr": 3.06,
-      "image": "images/fb8876a7afcb33a0.png"
+      "image": "images/5bbb1b033a429988.png"
     },
     {
       "banner": "mat50_ortho_v2_Fluffy_160_200",
@@ -7999,7 +8098,7 @@
       "leads": 1,
       "cost_per_lead": 14.21,
       "ctr": 2.38,
-      "image": "images/788a311a5092636e.png"
+      "image": "images/80fb275e87889fed.png"
     },
     {
       "banner": "mat50_komfort_v2_Fluffy_160_200",
@@ -8009,7 +8108,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.72,
-      "image": "images/bc0244d68bb3eff5.png"
+      "image": "images/8f94b136f386d890.png"
     },
     {
       "banner": "mat50_komfort_Fluffy_160_200",
@@ -8019,7 +8118,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/39c238e9f9fc0d5b.png"
+      "image": "images/95baa0d6556b928b.png"
     },
     {
       "banner": "mat_leokokos_2",
@@ -8029,7 +8128,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.4,
-      "image": "images/aa2884f2bb6ebf27.png"
+      "image": "images/5c222bc8141d64cf.png"
     },
     {
       "banner": "mat50_ortho_Fluffy_180_190",
@@ -8039,7 +8138,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.27,
-      "image": "images/7d09a0c677f95809.png"
+      "image": "images/240cf05692c74826.png"
     },
     {
       "banner": "mat_ortho_Fluffy_70_190",
@@ -8049,7 +8148,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.03,
-      "image": "images/59f6571ab849f3ae.png"
+      "image": "images/341082d134ac0704.png"
     },
     {
       "banner": "mat_ortho_Fluffy_70_190",
@@ -8059,7 +8158,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 2.04,
-      "image": "images/26a1b70a50aaefbe.png"
+      "image": "images/e00ccd7bd786922b.png"
     },
     {
       "banner": "mat50_ortho_Fluffy_Dream_160_200",
@@ -8069,7 +8168,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/f8b4949b9c1f7aaa.png"
+      "image": "images/2b19e7c08bcc5f1d.png"
     },
     {
       "banner": "mat50_ortho_Fluffy_Dream",
@@ -8079,7 +8178,7 @@
       "leads": 1,
       "cost_per_lead": 268.4,
       "ctr": 2.43,
-      "image": "images/4462617d680f40d8.png"
+      "image": "images/daa6c499c8c2826f.png"
     },
     {
       "banner": "mat50_ortho_Fluffy_Dream_v2",
@@ -8089,7 +8188,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.88,
-      "image": "images/7691dcf579ffabc6.png"
+      "image": "images/5650962b5adb9c0b.png"
     },
     {
       "banner": "mat50_ortho_Fluffy_Dream_v3",
@@ -8099,7 +8198,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.27,
-      "image": "images/5facd4786a94f184.png"
+      "image": "images/4e7bd1ce06c9ffc7.png"
     },
     {
       "banner": "mat_ortho_Fluffy_Dream_70_190",
@@ -8109,7 +8208,7 @@
       "leads": 5,
       "cost_per_lead": 123.23,
       "ctr": 1.95,
-      "image": "images/ce0d23426d8da22e.png"
+      "image": "images/c61c5786c8a68a3f.png"
     },
     {
       "banner": "mat50_ortho_v2_Fluffy_160_200",
@@ -8119,7 +8218,7 @@
       "leads": 4,
       "cost_per_lead": 54.08,
       "ctr": 2.98,
-      "image": "images/788a311a5092636e.png"
+      "image": "images/80fb275e87889fed.png"
     },
     {
       "banner": "mat50_komfort_Fluffy_160_200",
@@ -8129,7 +8228,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/39c238e9f9fc0d5b.png"
+      "image": "images/95baa0d6556b928b.png"
     },
     {
       "banner": "mat50_komfort_v2_Fluffy_160_200",
@@ -8139,7 +8238,7 @@
       "leads": 9,
       "cost_per_lead": 92.33,
       "ctr": 3.04,
-      "image": "images/bc0244d68bb3eff5.png"
+      "image": "images/8f94b136f386d890.png"
     },
     {
       "banner": "mat50_komfort_v3_Fluffy_160_200",
@@ -8149,7 +8248,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.94,
-      "image": "images/bd9cc40c9c8d0e7c.png"
+      "image": "images/114b1499048f3e70.png"
     },
     {
       "banner": "mat50_ortho_v3__Fluffy_160_200",
@@ -8159,7 +8258,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/684d72db93f9f29c.png"
+      "image": "images/afa51c62ac597d3b.png"
     },
     {
       "banner": "mat50_komfort_v4_Fluffy 160х200 см",
@@ -8169,17 +8268,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/5183793b9f1a75bd.png"
+      "image": "images/e5939eafb4c51299.png"
     },
     {
       "banner": "нов 2",
       "campaign": "DDA | конверсії матраси | 26.08.2026",
       "goal": "Покупки",
-      "spend": 11.38,
+      "spend": 11.89,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 2.86,
-      "image": "images/7aa74e0aa9ea1eef.png"
+      "ctr": 5.63,
+      "image": "images/0e088bd7c599d135.png"
     },
     {
       "banner": "mat50_komfort_v2_Fluffy_160_200",
@@ -8189,17 +8288,17 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 4.79,
-      "image": "images/bc0244d68bb3eff5.png"
+      "image": "images/8f94b136f386d890.png"
     },
     {
       "banner": "mat_leo_1",
       "campaign": "DDA | конверсії матраси | 26.08.2026",
       "goal": "Покупки",
-      "spend": 21.8,
+      "spend": 21.84,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 4.17,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "ctr": 4.1,
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "нов 1",
@@ -8209,7 +8308,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 5.56,
-      "image": "images/48154c6cb24660a4.png"
+      "image": "images/07051f7ef210a651.png"
     },
     {
       "banner": "mat50_komfort_v3_Fluffy_160_200",
@@ -8219,117 +8318,117 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 1.47,
-      "image": "images/bd9cc40c9c8d0e7c.png"
+      "image": "images/114b1499048f3e70.png"
     },
     {
       "banner": "нов 3",
       "campaign": "DDA | конверсії матраси | 26.08.2026",
       "goal": "Покупки",
-      "spend": 745.44,
+      "spend": 914.98,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 3.51,
-      "image": "images/3044db26a01a8eae.png"
+      "ctr": 3.73,
+      "image": "images/91245340dc995f7f.png"
     },
     {
       "banner": "новый ии",
       "campaign": "DDA | конверсії общ матраси + кроваті | 26.08.2026",
       "goal": "Покупки",
-      "spend": 471.34,
+      "spend": 583.02,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 3.88,
-      "image": "images/6e0461789f52768a.png"
+      "ctr": 3.49,
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "новый ии 3",
       "campaign": "DDA | конверсії общ матраси + кроваті | 26.08.2026",
       "goal": "Покупки",
-      "spend": 81.74,
+      "spend": 112.28,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 6.45,
-      "image": "images/4f671f63a846baa7.png"
+      "ctr": 5.97,
+      "image": "images/fdec12461919b7a1.png"
     },
     {
       "banner": "новый ии 2",
       "campaign": "DDA | конверсії общ матраси + кроваті | 26.08.2026",
       "goal": "Покупки",
-      "spend": 240.3,
+      "spend": 321.6,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 4.99,
-      "image": "images/c18de99f073f120e.png"
+      "ctr": 4.46,
+      "image": "images/23bd549d8d7c4f80.png"
     },
     {
       "banner": "к1",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 93.45,
+      "spend": 100.28,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 5.06,
-      "image": "images/f5c097217a0e867b.png"
+      "ctr": 4.86,
+      "image": "images/03e9f98f45a16096.png"
     },
     {
       "banner": "к2",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 1.77,
+      "spend": 2.4,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 40.0,
-      "image": "images/beb7740dac61b28d.png"
+      "ctr": 22.22,
+      "image": "images/0fc0a8cc7c153124.png"
     },
     {
       "banner": "к3",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 147.82,
+      "spend": 154.91,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 2.91,
-      "image": "images/aabb6c17578b1d01.png"
+      "ctr": 3.08,
+      "image": "images/48cd1f3cfc316156.png"
     },
     {
       "banner": "мк1",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 44.4,
+      "spend": 44.59,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 6.54,
-      "image": "images/c18de99f073f120e.png"
+      "ctr": 6.48,
+      "image": "images/23bd549d8d7c4f80.png"
     },
     {
       "banner": "мк2",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 436.4,
+      "spend": 537.88,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 3.12,
-      "image": "images/6e0461789f52768a.png"
+      "ctr": 2.57,
+      "image": "images/7ea3e4539ece4296.png"
     },
     {
       "banner": "м1",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 118.32,
+      "spend": 131.85,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 7.02,
-      "image": "images/53a12ca51f2e5a7b.png"
+      "ctr": 7.62,
+      "image": "images/bd892e1880090ea7.png"
     },
     {
       "banner": "м2",
       "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
       "goal": "Покупки",
-      "spend": 14.28,
+      "spend": 39.0,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 10.53,
-      "image": "images/744cdb358d1a01eb.png"
+      "ctr": 10.0,
+      "image": "images/baef1763e9680c08.png"
     },
     {
       "banner": "mat_leo_pillow",
@@ -8339,37 +8438,37 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/d922465b34596535.png"
+      "image": "images/3aca08955bb6027c.png"
     },
     {
       "banner": "mat_leo_pillow_2",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 7.55,
+      "spend": 7.78,
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/258242b0d7c76a18.png"
+      "image": "images/869279c49358fe3d.png"
     },
     {
       "banner": "mat_leo_pillow_3",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 3.52,
+      "spend": 3.56,
       "leads": 1,
-      "cost_per_lead": 3.52,
-      "ctr": 30.0,
-      "image": "images/fae02593a02c7252.png"
+      "cost_per_lead": 3.56,
+      "ctr": 27.27,
+      "image": "images/7d84fac0c1353d79.png"
     },
     {
       "banner": "mat_leo_pillow_4",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 27.56,
+      "spend": 27.78,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 5.15,
-      "image": "images/f0dcca1cd23af13c.png"
+      "ctr": 5.05,
+      "image": "images/0f52888932d84d50.png"
     },
     {
       "banner": "mat_leokokos_pillow",
@@ -8379,7 +8478,7 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/c89c5acafe82f6d7.png"
+      "image": "images/1c0ba75a61d8bfb7.png"
     },
     {
       "banner": "mat_leokokos_pillow_2",
@@ -8389,27 +8488,277 @@
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/4299968c057af7c5.png"
+      "image": "images/4cc51c43540f9052.png"
     },
     {
       "banner": "mat_leokokos_pillow_3",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 17.1,
+      "spend": 19.28,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 4.26,
-      "image": "images/163be2a02f157d60.png"
+      "ctr": 3.51,
+      "image": "images/f198b026774aa14c.png"
     },
     {
       "banner": "mat_leokokos_pillow_4",
       "campaign": "DDA | дірект матраси | 9.06",
       "goal": "Переписки",
-      "spend": 2.92,
+      "spend": 2.93,
       "leads": 0,
       "cost_per_lead": 0,
       "ctr": 0.0,
-      "image": "images/4da2aab80a4d8df8.png"
+      "image": "images/33d1b3bbf3e348c0.png"
+    },
+    {
+      "banner": "nabor_teo_leo_2",
+      "campaign": "DDA | дірект общ матраси + кроваті | 28.08",
+      "goal": "Переписки",
+      "spend": 108.08,
+      "leads": 2,
+      "cost_per_lead": 54.04,
+      "ctr": 4.93,
+      "image": "images/7ea3e4539ece4296.png"
+    },
+    {
+      "banner": "nabor_teo_leo_1",
+      "campaign": "DDA | дірект общ матраси + кроваті | 28.08",
+      "goal": "Переписки",
+      "spend": 92.19,
+      "leads": 3,
+      "cost_per_lead": 30.73,
+      "ctr": 4.52,
+      "image": "images/23bd549d8d7c4f80.png"
+    },
+    {
+      "banner": "nabor_san_leo_1",
+      "campaign": "DDA | дірект общ матраси + кроваті | 28.08",
+      "goal": "Переписки",
+      "spend": 73.0,
+      "leads": 2,
+      "cost_per_lead": 36.5,
+      "ctr": 4.55,
+      "image": "images/fdec12461919b7a1.png"
+    },
+    {
+      "banner": "nabor_nardo_leo_2",
+      "campaign": "DDA | дірект общ матраси + кроваті | 28.08",
+      "goal": "Переписки",
+      "spend": 7.65,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/8e4b634eac302c1d.png"
+    },
+    {
+      "banner": "lizhka_san_3",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 12.41,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 6.0,
+      "image": "images/03e9f98f45a16096.png"
+    },
+    {
+      "banner": "lizhka_san_1",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 11.16,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/48cd1f3cfc316156.png"
+    },
+    {
+      "banner": "lizhka_teo_1",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 214.27,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 5.69,
+      "image": "images/f25eb39a6f350910.png"
+    },
+    {
+      "banner": "lizhka_san_2",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 15.7,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 11.11,
+      "image": "images/b32af6014e400980.png"
+    },
+    {
+      "banner": "lizhka_teo_2",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 11.22,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 4.0,
+      "image": "images/0fc0a8cc7c153124.png"
+    },
+    {
+      "banner": "новый",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 4.49,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/e6feeaecf664bf12.png"
+    },
+    {
+      "banner": "новый 4",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 0.26,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/b06875d10ac4c5a8.png"
+    },
+    {
+      "banner": "новый 5",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 0.57,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/0ba2b5bde60e6f40.png"
+    },
+    {
+      "banner": "новый 6",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 0.62,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/8e091123ba0ad492.png"
+    },
+    {
+      "banner": "новый 8",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 8.34,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/25c32e323ee5db30.png"
+    },
+    {
+      "banner": "новый 9",
+      "campaign": "DDA | конверсії кроваті | 28.08.2026",
+      "goal": "Покупки",
+      "spend": 6.54,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/5109084fd4472b72.png"
+    },
+    {
+      "banner": "новый",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 2.21,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/e6feeaecf664bf12.png"
+    },
+    {
+      "banner": "новый 2",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 4.08,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/11f3d0a9707d8ab4.png"
+    },
+    {
+      "banner": "новый 3",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 0.89,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/ed668bc64544458a.png"
+    },
+    {
+      "banner": "новый 4",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 3.43,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/b06875d10ac4c5a8.png"
+    },
+    {
+      "banner": "новый 5",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 2.88,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/0ba2b5bde60e6f40.png"
+    },
+    {
+      "banner": "новый 8",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 1.39,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/25c32e323ee5db30.png"
+    },
+    {
+      "banner": "новый 9",
+      "campaign": "DDA | конверсії кроваті | 03.07.2026",
+      "goal": "Покупки",
+      "spend": 8.78,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 4.0,
+      "image": "images/5109084fd4472b72.png"
+    },
+    {
+      "banner": "новые к",
+      "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
+      "goal": "Покупки",
+      "spend": 46.27,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 5.0,
+      "image": "images/e6feeaecf664bf12.png"
+    },
+    {
+      "banner": "новые к 6",
+      "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
+      "goal": "Покупки",
+      "spend": 10.84,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 1.85,
+      "image": "images/8e091123ba0ad492.png"
+    },
+    {
+      "banner": "новые к 7",
+      "campaign": "DDA | конверсії общ матраси + кроваті R | 26.08.2026",
+      "goal": "Покупки",
+      "spend": 2.25,
+      "leads": 0,
+      "cost_per_lead": 0,
+      "ctr": 0.0,
+      "image": "images/48633ed40236687c.png"
     }
   ]
 }

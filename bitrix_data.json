@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-28",
-  "period_from": "2026-05-30",
+  "generated_at": "2026-08-29",
+  "period_from": "2026-05-31",
   "meta": {
     "stages": {
       "NEW": {
@@ -450,114 +450,6 @@
     }
   },
   "deals": [
-    {
-      "id": "137092",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 18137.0,
-      "manager_id": "14",
-      "source_id": "",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "product": "Товар: Матрац Rose/Роуз Двосторонній 160*200"
-    },
-    {
-      "id": "137094",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 30863.0,
-      "manager_id": "14",
-      "source_id": "CALL",
-      "utm_source": "google_com",
-      "utm_campaign": "Pmax_matrasy_goroda_com",
-      "utm_medium": "cpc",
-      "product": "Тіффані 200*200 -5% промокод"
-    },
-    {
-      "id": "137096",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 4856.0,
-      "manager_id": "14",
-      "source_id": "CALL",
-      "utm_source": "www.google.com",
-      "utm_campaign": "(organic)",
-      "utm_medium": "organic",
-      "product": "Аура кокос 140*190"
-    },
-    {
-      "id": "137098",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 10000.0,
-      "manager_id": "128",
-      "source_id": "CALL",
-      "utm_source": "google_com",
-      "utm_campaign": "Pmax_all_goroda_com",
-      "utm_medium": "cpc",
-      "product": "Тумба для взуття №3 дсп Кашемір (Висота, мм 1000 Глибина, мм 150 Ширина, мм 670) * 2 шт знижка промокод + ще 1 поз."
-    },
-    {
-      "id": "137100",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 34165.0,
-      "manager_id": "14",
-      "source_id": "",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": "Товар: Матрац Desire/Дезайр 180*200"
-    },
-    {
-      "id": "137102",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 2282.0,
-      "manager_id": "128",
-      "source_id": "CALL",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": "Тумба приліжкова 1 Висота, мм 502 Глибина, мм 390 Ширина, мм 424 ДСП Дуб Бароко Бурштиновий"
-    },
-    {
-      "id": "137104",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 11125.0,
-      "manager_id": "14",
-      "source_id": "CALL",
-      "utm_source": "chatgpt.com",
-      "utm_campaign": "(not set)",
-      "utm_medium": "(not set)",
-      "product": "Наматрасник Polet v empireye/Полет в эмпирее 70*190 на петлях + ще 1 поз."
-    },
-    {
-      "id": "137106",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 9784.0,
-      "manager_id": "12",
-      "source_id": "",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "product": "Товар: Матрац Lavender/Лаванда 120*190 + ще 1 поз."
-    },
-    {
-      "id": "137108",
-      "date": "2026-05-30",
-      "stage_id": "2",
-      "amount": 6073.0,
-      "manager_id": "14",
-      "source_id": "",
-      "utm_source": "google",
-      "utm_campaign": "Sale",
-      "utm_medium": "cpc",
-      "product": "Товар: Матрац Ліон/Leon 90*200"
-    },
     {
       "id": "137110",
       "date": "2026-05-31",
@@ -19757,438 +19649,129 @@
       "utm_campaign": "<none>",
       "utm_medium": "<none>",
       "product": "НСТ! Шафа розпашна №2 Висота: 2020, глибина: 450, ширина: 780. Колір: Дуб сонома (світла) націнка 20%"
+    },
+    {
+      "id": "140308",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 14047.0,
+      "manager_id": "128",
+      "source_id": "UC_5B6PJK",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc",
+      "product": "Матрац Azalia/Азалія 160*200"
+    },
+    {
+      "id": "140310",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 10755.0,
+      "manager_id": "128",
+      "source_id": "UC_5B6PJK",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "product": "Матрац Melon/Мелон 90*200"
+    },
+    {
+      "id": "140312",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 11108.0,
+      "manager_id": "128",
+      "source_id": "CALL",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "product": "Матрац Four Red Marsalla/Марсала 160*200 зі СКЛАДУ ОДЕСА з наявності"
+    },
+    {
+      "id": "140314",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 4511.0,
+      "manager_id": "128",
+      "source_id": "CALL",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "product": "Матрац Traffic/Трафік 80*190 СКРУТКА знижка"
+    },
+    {
+      "id": "140316",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 5340.0,
+      "manager_id": "128",
+      "source_id": "UC_5B6PJK",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "product": "Матрац Provance/Прованс 90*190 ОПЛАЧЕН"
+    },
+    {
+      "id": "140318",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 5370.0,
+      "manager_id": "128",
+      "source_id": "Обратный звонок",
+      "utm_source": "google_com",
+      "utm_campaign": "brand_com",
+      "utm_medium": "cpc",
+      "product": "Матрас Lavender/Лаванда 90*200 з наявності склад ОДЕСА"
+    },
+    {
+      "id": "140320",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 490.0,
+      "manager_id": "128",
+      "source_id": "UC_5B6PJK",
+      "utm_source": "google_com",
+      "utm_campaign": "brand_com",
+      "utm_medium": "cpc",
+      "product": "Подушка Polet v empireye/Політ в емпіреї з наявності склад КИВ"
+    },
+    {
+      "id": "140322",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 11140.0,
+      "manager_id": "128",
+      "source_id": "UC_5B6PJK",
+      "utm_source": "google",
+      "utm_campaign": "Shopping_all",
+      "utm_medium": "cpc",
+      "product": "Матрац Kozak/Козак 180*190"
+    },
+    {
+      "id": "140324",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 18332.0,
+      "manager_id": "128",
+      "source_id": "CALL",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "product": "Матрац Sun/Сан 140*200 знижка"
+    },
+    {
+      "id": "140326",
+      "date": "2026-08-29",
+      "stage_id": "NEW",
+      "amount": 14047.0,
+      "manager_id": "128",
+      "source_id": "UC_5B6PJK",
+      "utm_source": "google",
+      "utm_campaign": "Pmax_divan",
+      "utm_medium": "cpc",
+      "product": "Матрац Azalia/Азалія 160*200"
     }
   ],
   "leads": [
-    {
-      "id": "150166",
-      "title": "помилково",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "www.google.com",
-      "utm_campaign": "(organic)",
-      "utm_medium": "organic"
-    },
-    {
-      "id": "150172",
-      "title": "Владислав",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "WEB - Зворотний дзвінок",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150174",
-      "title": "матрас  не у нас купила",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google_com",
-      "utm_campaign": "dsa_com",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150176",
-      "title": "200*200",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google_com",
-      "utm_campaign": "Pmax_matrasy_goroda_com",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150180",
-      "title": "Тетяна  Михайлівна",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google",
-      "utm_campaign": "Search_matras",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150182",
-      "title": "Купила не у нас",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
-    },
-    {
-      "id": "150184",
-      "title": "Аура кокос 140*190",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "www.google.com",
-      "utm_campaign": "(organic)",
-      "utm_medium": "organic"
-    },
-    {
-      "id": "150186",
-      "title": "Андрій  Міліщук",
-      "date": "2026-05-30",
-      "status_id": "1",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "www.google.com",
-      "utm_campaign": "(organic)",
-      "utm_medium": "organic"
-    },
-    {
-      "id": "150188",
-      "title": "Надія",
-      "date": "2026-05-30",
-      "status_id": "IN_PROCESS",
-      "source_id": "WEBFORM",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150190",
-      "title": "Олександр",
-      "date": "2026-05-30",
-      "status_id": "IN_PROCESS",
-      "source_id": "WEB - Зворотний дзвінок",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150192",
-      "title": "Ольга",
-      "date": "2026-05-30",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "(direct)",
-      "utm_campaign": "(direct)",
-      "utm_medium": "(none)"
-    },
-    {
-      "id": "150194",
-      "title": "не у нас купила",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
-    },
-    {
-      "id": "150196",
-      "title": "Марьяна",
-      "date": "2026-05-30",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google",
-      "utm_campaign": "[DMM]_Shopping_Matras",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150198",
-      "title": "Сергій",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
-    },
-    {
-      "id": "150200",
-      "title": "Михайло",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google_com",
-      "utm_campaign": "brand_com",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150202",
-      "title": "Владислав Степаненко",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
-    },
-    {
-      "id": "150204",
-      "title": "Іван",
-      "date": "2026-05-30",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google",
-      "utm_campaign": "auto",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150208",
-      "title": "Владимир",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150210",
-      "title": "Євген",
-      "date": "2026-05-30",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google_com",
-      "utm_campaign": "brand_com",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150212",
-      "title": "Юрій",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google",
-      "utm_campaign": "Brand",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150214",
-      "title": "Tatiana  Pavshukova",
-      "date": "2026-05-30",
-      "status_id": "1",
-      "source_id": "OTHER",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
-    },
-    {
-      "id": "150216",
-      "title": "м.Рівне  магазин",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": ""
-    },
-    {
-      "id": "150218",
-      "title": "Аліна",
-      "date": "2026-05-30",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150220",
-      "title": "380991113639",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "www.google.com",
-      "utm_campaign": "(organic)",
-      "utm_medium": "organic"
-    },
-    {
-      "id": "150222",
-      "title": "Ірина  Літвінова",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google",
-      "utm_campaign": "Brand",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150224",
-      "title": "Василь  Кононенко",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 11000.0,
-      "manager_id": "14",
-      "utm_source": "google",
-      "utm_campaign": "Brand",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150226",
-      "title": "Татьяна",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "chatgpt.com",
-      "utm_campaign": "(not set)",
-      "utm_medium": "(not set)"
-    },
-    {
-      "id": "150228",
-      "title": "Тетяна  (Ірпінь)",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150230",
-      "title": "Христина  Паращак",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "google",
-      "utm_campaign": "Sale",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150234",
-      "title": "Сам  перезвонит если что",
-      "date": "2026-05-30",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "facebook",
-      "utm_campaign": "DDA%20|%20%D0%9A%D0%BE%D0%BD%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D0%B8%20|%20-41%%20|%20%208.05",
-      "utm_medium": "cpc"
-    },
-    {
-      "id": "150236",
-      "title": "Тетяна  Буднік",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150238",
-      "title": "Юрій  Васечко",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
-    {
-      "id": "150240",
-      "title": "Ярослав Олексенко",
-      "date": "2026-05-30",
-      "status_id": "CONVERTED",
-      "source_id": "",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>"
-    },
     {
       "id": "150242",
       "title": "OLEKSANDR  KABACHENKO",
@@ -80270,7 +79853,7 @@
       "source_id": "UC_5B6PJK",
       "semantic": "F",
       "amount": 0.0,
-      "manager_id": "122",
+      "manager_id": "128",
       "utm_source": "google",
       "utm_campaign": "Brand",
       "utm_medium": "cpc"
@@ -80283,7 +79866,7 @@
       "source_id": "UC_5B6PJK",
       "semantic": "F",
       "amount": 0.0,
-      "manager_id": "122",
+      "manager_id": "128",
       "utm_source": "google",
       "utm_campaign": "Brand",
       "utm_medium": "cpc"
@@ -82012,7 +81595,7 @@
       "source_id": "UC_5B6PJK",
       "semantic": "F",
       "amount": 0.0,
-      "manager_id": "122",
+      "manager_id": "128",
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": ""
@@ -84553,226 +84136,488 @@
       "utm_medium": ""
     },
     {
-      "id": "160880",
-      "title": "Chris Burn",
-      "date": "2026-08-28",
-      "status_id": "NEW",
-      "source_id": "Обратный звонок",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "chatgpt.com",
-      "utm_campaign": "",
-      "utm_medium": ""
-    },
-    {
       "id": "160882",
       "title": "Chris Burn",
       "date": "2026-08-28",
-      "status_id": "NEW",
+      "status_id": "1",
       "source_id": "Обратный звонок",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "chatgpt.com",
-      "utm_campaign": "",
-      "utm_medium": ""
+      "manager_id": "128",
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>"
     },
     {
       "id": "160884",
       "title": "Мордасова Світлана",
       "date": "2026-08-28",
-      "status_id": "NEW",
+      "status_id": "CONVERTED",
       "source_id": "UC_5B6PJK",
-      "semantic": "P",
+      "semantic": "S",
       "amount": 0.0,
-      "manager_id": "122",
+      "manager_id": "128",
       "utm_source": "google_com",
       "utm_campaign": "brand_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160886",
+      "title": "Віталій Багрій",
+      "date": "2026-08-28",
+      "status_id": "CONVERTED",
+      "source_id": "UC_5B6PJK",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160890",
+      "title": "татьяна",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "Обратный звонок",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "122",
+      "utm_source": "google",
+      "utm_campaign": "shopping_all",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160892",
+      "title": "Надія  Пилипець",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "UC_5B6PJK",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160894",
+      "title": "70*180  прованс?",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google_com",
+      "utm_campaign": "dsa_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160896",
+      "title": "Светлана  Плехова",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "UC_5B6PJK",
+      "semantic": "S",
+      "amount": 14047.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160898",
+      "title": "Кирило  Мазур",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "UC_5B6PJK",
+      "semantic": "F",
+      "amount": 525.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "All_old",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160900",
+      "title": "Natali",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "CALL",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160902",
+      "title": "380672649640",
+      "date": "2026-08-29",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "www.google.com",
+      "utm_campaign": "(organic)",
+      "utm_medium": "organic"
+    },
+    {
+      "id": "160904",
+      "title": "80*190  * 2 шт є козак кокос/ дорого",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160906",
+      "title": "Карпін  Олександр",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160908",
+      "title": "80*190  Нест є 1 шт",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160910",
+      "title": "Яковець  Олександр",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Sale",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160912",
+      "title": "Валентина  Степаненко",
+      "date": "2026-08-29",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160914",
+      "title": "Радзієвська Галина Іванівна",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "CALL",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160916",
+      "title": "Монс  120*200 из наличия в скрутке",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160918",
+      "title": "Ali",
+      "date": "2026-08-29",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Shkafy",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160920",
+      "title": "145*180  футон",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160922",
+      "title": "Ольга",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160924",
+      "title": "Олена",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "Обратный звонок",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google_com",
+      "utm_campaign": "brand_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160926",
+      "title": "Каркас + Прованс",
+      "date": "2026-08-29",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160928",
+      "title": "Леся  обращение в рекл отдел",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "122",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160930",
+      "title": "Artem",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160932",
+      "title": "Грог  90*200",
+      "date": "2026-08-29",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160934",
+      "title": "Оксана",
+      "date": "2026-08-29",
+      "status_id": "IN_PROCESS",
+      "source_id": "WEB - Зворотний дзвінок",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Pmax_divan",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160936",
+      "title": "нст  топер",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "WEBFORM",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160938",
+      "title": "Оксана",
+      "date": "2026-08-29",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Pmax_divan",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160940",
+      "title": "Наматрацник  полет",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google_com",
+      "utm_campaign": "Pmax_all_goroda_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160942",
+      "title": "150*190/200 наличие ЛЬвов",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160944",
+      "title": "Юлія  Кахнич",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "UC_5B6PJK",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Shopping_all",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160946",
+      "title": "Прованс  160*200 наличие Киев",
+      "date": "2026-08-29",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "(direct)",
+      "utm_campaign": "(direct)",
+      "utm_medium": "(none)"
+    },
+    {
+      "id": "160948",
+      "title": "Діана  Вольвач",
+      "date": "2026-08-29",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160950",
+      "title": "Юлія  Кахнич",
+      "date": "2026-08-29",
+      "status_id": "1",
+      "source_id": "UC_5B6PJK",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "shopping_all",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160952",
+      "title": "160*190 Кам кокос",
+      "date": "2026-08-29",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google_com",
+      "utm_campaign": "brand_com",
+      "utm_medium": "cpc"
+    },
+    {
+      "id": "160954",
+      "title": "Олег",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "CALL",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": ""
+    },
+    {
+      "id": "160956",
+      "title": "Виктор  Билоус",
+      "date": "2026-08-29",
+      "status_id": "CONVERTED",
+      "source_id": "UC_5B6PJK",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "google",
+      "utm_campaign": "Pmax_divan",
       "utm_medium": "cpc"
     }
   ],
   "deal_categories": [
-    {
-      "deal_id": "137092",
-      "date": "2026-05-30",
-      "source_id": "",
-      "turnover": 18137.0,
-      "turnover_excl_wholesale": 18137.0,
-      "categories": {
-        "mattresses": 18137.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137094",
-      "date": "2026-05-30",
-      "source_id": "CALL",
-      "turnover": 30863.0,
-      "turnover_excl_wholesale": 30863.0,
-      "categories": {
-        "mattresses": 0.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 30863.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137096",
-      "date": "2026-05-30",
-      "source_id": "CALL",
-      "turnover": 4219.0,
-      "turnover_excl_wholesale": 4219.0,
-      "categories": {
-        "mattresses": 4219.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137098",
-      "date": "2026-05-30",
-      "source_id": "CALL",
-      "turnover": 10000.0,
-      "turnover_excl_wholesale": 10000.0,
-      "categories": {
-        "mattresses": 0.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 4992.0,
-        "case_furniture": 5008.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137100",
-      "date": "2026-05-30",
-      "source_id": "",
-      "turnover": 34165.0,
-      "turnover_excl_wholesale": 34165.0,
-      "categories": {
-        "mattresses": 34165.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137102",
-      "date": "2026-05-30",
-      "source_id": "CALL",
-      "turnover": 1670.0,
-      "turnover_excl_wholesale": 1670.0,
-      "categories": {
-        "mattresses": 0.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 1670.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137104",
-      "date": "2026-05-30",
-      "source_id": "CALL",
-      "turnover": 10698.0,
-      "turnover_excl_wholesale": 10698.0,
-      "categories": {
-        "mattresses": 0.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 1320.0,
-      "unrecognized": 9378.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137106",
-      "date": "2026-05-30",
-      "source_id": "",
-      "turnover": 9784.0,
-      "turnover_excl_wholesale": 9784.0,
-      "categories": {
-        "mattresses": 9784.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137108",
-      "date": "2026-05-30",
-      "source_id": "",
-      "turnover": 6073.0,
-      "turnover_excl_wholesale": 6073.0,
-      "categories": {
-        "mattresses": 6073.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
     {
       "deal_id": "137110",
       "date": "2026-05-31",
@@ -114323,6 +114168,206 @@
         "mattresses": 0.0,
         "soft_furniture": 0.0,
         "wardrobes": 8856.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140308",
+      "date": "2026-08-29",
+      "source_id": "UC_5B6PJK",
+      "turnover": 13507.0,
+      "turnover_excl_wholesale": 13507.0,
+      "categories": {
+        "mattresses": 13507.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140310",
+      "date": "2026-08-29",
+      "source_id": "UC_5B6PJK",
+      "turnover": 10341.0,
+      "turnover_excl_wholesale": 10341.0,
+      "categories": {
+        "mattresses": 10341.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140312",
+      "date": "2026-08-29",
+      "source_id": "CALL",
+      "turnover": 11108.0,
+      "turnover_excl_wholesale": 11108.0,
+      "categories": {
+        "mattresses": 11108.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140314",
+      "date": "2026-08-29",
+      "source_id": "CALL",
+      "turnover": 4111.0,
+      "turnover_excl_wholesale": 4111.0,
+      "categories": {
+        "mattresses": 4111.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140316",
+      "date": "2026-08-29",
+      "source_id": "UC_5B6PJK",
+      "turnover": 4404.0,
+      "turnover_excl_wholesale": 4404.0,
+      "categories": {
+        "mattresses": 4404.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140318",
+      "date": "2026-08-29",
+      "source_id": "Обратный звонок",
+      "turnover": 4820.0,
+      "turnover_excl_wholesale": 4820.0,
+      "categories": {
+        "mattresses": 4820.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140320",
+      "date": "2026-08-29",
+      "source_id": "UC_5B6PJK",
+      "turnover": 490.0,
+      "turnover_excl_wholesale": 490.0,
+      "categories": {
+        "mattresses": 0.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 490.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140322",
+      "date": "2026-08-29",
+      "source_id": "UC_5B6PJK",
+      "turnover": 10712.0,
+      "turnover_excl_wholesale": 10712.0,
+      "categories": {
+        "mattresses": 10712.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140324",
+      "date": "2026-08-29",
+      "source_id": "CALL",
+      "turnover": 18332.0,
+      "turnover_excl_wholesale": 18332.0,
+      "categories": {
+        "mattresses": 18332.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140326",
+      "date": "2026-08-29",
+      "source_id": "UC_5B6PJK",
+      "turnover": 13507.0,
+      "turnover_excl_wholesale": 13507.0,
+      "categories": {
+        "mattresses": 13507.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
         "case_furniture": 0.0
       },
       "accessories": 0.0,
