@@ -11,7 +11,7 @@ UTM, статуси) під довільно вибраний період, а �
 Запускається через GitHub Actions за тим самим принципом, що й
 fetch_meta.py / fetch_gsc.py.
 """
-import json, os, sys
+import json, os, sys, time
 from datetime import date, datetime, timedelta
 from pathlib import Path
 import urllib.request
@@ -199,6 +199,37 @@ def fetch_batch(commands, tries=3):
     if "error" in data:
         raise RuntimeError(f"Bitrix batch error: {data.get('error_description', data['error'])}")
     return data.get("result", {}).get("result", {}) or {}
+
+def fetch_lead_reasons(lead_ids, chunk_size=50):
+    """Причини забракування для списку лідів, батчами через crm.lead.get.
+
+    Чому не одним crm.lead.list: списковий метод на цьому порталі не віддає
+    користувацькі поля — ні перелічені поштучно, ні по масці "UF_*"; поле
+    приходить порожнім, хоча в картці значення стоїть. crm.lead.get по
+    одному ліду віддає його справно (перевірено вручну), тому тягнемо
+    саме ним і лише по забракованих лідах, щоб не роздувати час вивантаження.
+
+    Повертає {lead_id: (reason_id, reason_text)}.
+    """
+    out = {}
+    lead_ids = list(lead_ids)
+    for i in range(0, len(lead_ids), chunk_size):
+        chunk = lead_ids[i:i + chunk_size]
+        cmds = {f"l{j}": f"crm.lead.get?id={lid}" for j, lid in enumerate(chunk)}
+        try:
+            result = fetch_batch(cmds)
+        except Exception as e:
+            print(f"  ⚠ причини забракування: батч {i//chunk_size + 1} не вдався: {e}", flush=True)
+            continue
+        for j, lid in enumerate(chunk):
+            row = result.get(f"l{j}") or {}
+            if isinstance(row, dict):
+                out[lid] = (_one(row.get(LEAD_REJECT_REASON_FIELD)),
+                            _one(row.get(LEAD_REJECT_REASON_TEXT_FIELD)))
+        # Пауза між батчами: забракованих лідів понад тисячу, а портал уже
+        # відповідав 503 на щільну серію запитів.
+        time.sleep(0.3)
+    return out
 
 def fetch_deal_products(deal_ids, chunk_size=25):
     """Товарні рядки для списку угод, батчами по `chunk_size` (ліміт Bitrix —
@@ -465,10 +496,17 @@ if __name__ == "__main__":
         leads = fetch_leads(start_date)
         print(f"     знайдено: {len(leads)}")
         result["leads"] = slim_leads(leads)
-        # Діагностика: якщо тут 0, значить Bitrix не віддав користувацьке
-        # поле причини — перше, що треба перевірити, це форма параметра
-        # select[] у запиті (без дужок Bitrix мовчки ігнорує його і шле
-        # тільки стандартні поля).
+
+        # Причини забракування доводиться добирати окремо — див. коментар
+        # у fetch_lead_reasons. Робимо це тільки для забракованих лідів.
+        rejected_ids = [l["id"] for l in result["leads"] if l.get("semantic") == "F"]
+        if rejected_ids:
+            print(f"  → Причини забракування ({len(rejected_ids)} лідів)")
+            reasons = fetch_lead_reasons(rejected_ids)
+            for l in result["leads"]:
+                got = reasons.get(l["id"])
+                if got:
+                    l["reject_reason"], l["reject_reason_text"] = got
         with_reason = sum(1 for l in result["leads"] if l.get("reject_reason") or l.get("reject_reason_text"))
         print(f"     з причиною забракування: {with_reason}")
     except Exception as e:
