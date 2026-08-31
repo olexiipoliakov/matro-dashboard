@@ -126,7 +126,11 @@ def fetch_deals(start_date):
 # дневного экспорта, перенесена сюди 1:1, щоб дашборд рахував те саме
 # автоматично з тих самих даних Bitrix (продуктові рядки угод).
 
-EXCLUDED_STAGE_NAMES = {"отказ клиента", "ошибочный"}  # крок 1 — виключити угоду ЦІЛКОМ
+# Крок 1 — виключити угоду ЦІЛКОМ з товарообігу.
+# "рекламация" додана поверх методики: по ній товар повертають і гроші
+# віддають назад, тож у виручку дня вона потрапляти не має — так само,
+# як відмова клієнта чи помилково заведена угода.
+EXCLUDED_STAGE_NAMES = {"отказ клиента", "ошибочный", "рекламация"}
 
 SERVICE_KEYWORDS = ["наложк", "наложен", "наклад", "налокж", "достак", "доствк", "3анос",
                      "доставк", "занос", "виніс", "підйом на поверх", "послуга збірки", "збірка в день"]
@@ -270,9 +274,29 @@ def build_deal_categories(deals_raw, product_rows_by_id, stage_names):
     return out
 
 # ── Ліди (Leads) ──────────────────────────────────────────────────────────
+# Причина забракування ліда — користувацьке поле в Bitrix. Їх два:
+# основне (список із 18 варіантів, ним і користуються менеджери) і старе
+# текстове з майже такою ж назвою. Тягнемо обидва: якщо в списку порожньо,
+# пробуємо текстове, щоб не втратити старі ліди.
+LEAD_REJECT_REASON_FIELD = "UF_CRM_1720011123359"        # тип enumeration
+LEAD_REJECT_REASON_TEXT_FIELD = "UF_CRM_1612946419988"   # тип string (застаріле)
+
 LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CREATE",
                "STATUS_SEMANTIC_ID", "ASSIGNED_BY_ID",
-               "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM"]
+               "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM",
+               LEAD_REJECT_REASON_FIELD, LEAD_REJECT_REASON_TEXT_FIELD]
+
+def fetch_reject_reasons():
+    """Довідник причин забракування: {id варіанта: текст}. Живе не в
+    crm.status.list, а в описі самого поля ліда, тому питаємо crm.lead.fields."""
+    try:
+        fields = call("crm.lead.fields") or {}
+    except Exception as e:
+        print(f"  ⚠ не вдалося прочитати довідник причин забракування: {e}", flush=True)
+        return {}
+    field = fields.get(LEAD_REJECT_REASON_FIELD) or {}
+    return {str(i.get("ID")): (i.get("VALUE") or "").strip()
+            for i in (field.get("items") or []) if i.get("ID")}
 
 def fetch_leads(start_date):
     return call("crm.lead.list", {
@@ -362,6 +386,10 @@ def slim_leads(leads):
             "utm_source": (l.get("UTM_SOURCE") or "").strip(),
             "utm_campaign": (l.get("UTM_CAMPAIGN") or "").strip(),
             "utm_medium": (l.get("UTM_MEDIUM") or "").strip(),
+            # Причина забракування: id варіанта зі списку. Розшифровка —
+            # у meta.reject_reasons, щоб не дублювати текст у кожному ліді.
+            "reject_reason": str(l.get(LEAD_REJECT_REASON_FIELD) or "").strip(),
+            "reject_reason_text": (l.get(LEAD_REJECT_REASON_TEXT_FIELD) or "").strip(),
         })
     return out
 
@@ -401,11 +429,14 @@ if __name__ == "__main__":
         status_names = fetch_lead_statuses()
         source_names = fetch_lead_sources()
         user_names = fetch_users()
+        reject_reasons = fetch_reject_reasons()
+        print(f"     причин забракування у довіднику: {len(reject_reasons)}")
         result["meta"] = {
             "stages": stage_names,
             "lead_statuses": status_names,
             "lead_sources": source_names,
             "users": user_names,
+            "reject_reasons": reject_reasons,
         }
 
         print(f"  → Угоди (Deals) з {start_date}")

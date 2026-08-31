@@ -306,7 +306,11 @@
   <div class="sec-head"><span class="n">3</span><h2>Ліди по днях</h2><span class="ln"></span></div>
   <div class="panel"><div class="chart" id="leads-chart"></div></div>
 
-  <div class="sec-head"><span class="n">4</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">4</span><h2>Причини забракування лідів</h2><span class="ln"></span></div>
+  <div style="font-size:12px;color:var(--ink-dim);margin:-8px 0 14px">Поле «Причина забраковки» з картки ліда — за вибраний вище період. Дублікати рахуються окремо: це технічний статус, а не причина відмови</div>
+  <div class="panel"><div id="reject-reasons"></div></div>
+
+  <div class="sec-head"><span class="n">5</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Джерела трафіку, що привели угоди/ліди за вибраний період — з сумою</div>
   <div class="cols2">
     <div class="panel">
@@ -319,7 +323,7 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">5</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">6</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Поточний стан на момент останнього оновлення — не залежить від вибраного вище періоду</div>
   <div class="panel">
     <div id="overdue-warn"></div>
@@ -336,7 +340,7 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">6</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">7</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">За методикою розбору DEAL_*.xls: виключені відмови/помилкові угоди та доставка/наложка/занос; за вибраний вище період</div>
   <div class="panel">
     <div id="cat-turnover-warn"></div>
@@ -599,10 +603,61 @@ function render(dealsRaw, leadsRaw){
 
   renderChart('deals-chart', deals.daily, r=>r.count, r=>`${fmt(r.count)} угод, ${fmt(r.sum)} грн`);
   renderChart('leads-chart', leads.daily, r=>r.count, r=>`${fmt(r.count)} лідів`);
+  renderRejectReasons(leadsRaw, leads);
   renderManagers(deals.by_manager);
   if(SELECTED_MANAGER) selectManager(SELECTED_MANAGER, true);
   renderUtmTable('utm-deals-table', deals.utm, true);
   renderUtmTable('utm-leads-table', leads.utm, false);
+}
+
+function reasonName(l){
+  // Основне джерело — поле-список (meta.reject_reasons розшифровує id).
+  // Якщо порожнє, пробуємо старе текстове поле, і лише потім здаємось.
+  const dict=(META.reject_reasons)||{};
+  if(l.reject_reason && dict[l.reject_reason]) return dict[l.reject_reason];
+  if(l.reject_reason_text) return l.reject_reason_text;
+  return null;
+}
+
+function renderRejectReasons(leadsRaw, leads){
+  const el=document.getElementById('reject-reasons');
+  const rejected=leadsRaw.filter(l=>l.semantic==='F');
+  if(!rejected.length){ el.innerHTML='<div class="empty-note">За вибраний період забракованих лідів немає.</div>'; return; }
+
+  // Дублікати — це не причина відмови, а технічний статус: рахуємо окремо,
+  // щоб вони не забивали собою реальні причини.
+  const dupes=rejected.filter(l=>statusName(l.status_id).toLowerCase().includes('дуб'));
+  const real=rejected.filter(l=>!dupes.includes(l));
+
+  const by={};
+  let noReason=0;
+  real.forEach(l=>{
+    const n=reasonName(l);
+    if(!n){ noReason++; return; }
+    if(!by[n]) by[n]={name:n,count:0};
+    by[n].count++;
+  });
+  const rows=Object.values(by).sort((a,b)=>b.count-a.count);
+  if(noReason) rows.push({name:'Причину не вказано',count:noReason,muted:true});
+
+  const totalReal=real.length;
+  const max=Math.max(1,...rows.map(r=>r.count));
+
+  el.innerHTML=`
+    <div class="bucket-row">
+      <span class="bucket-tag crit">Забраковано: <b>${fmt(rejected.length)}</b></span>
+      <span class="bucket-tag">З причиною: <b>${fmt(totalReal-noReason)}</b></span>
+      <span class="bucket-tag">Дублікати: <b>${fmt(dupes.length)}</b></span>
+      <span class="bucket-tag">Частка браку: <b>${fmt1(leads.rejected_rate)}%</b></span>
+    </div>
+    ${rows.length?rows.map(r=>`
+      <div class="bd-row" style="grid-template-columns:1fr minmax(90px,150px) 104px">
+        <div class="bd-name" title="${escapeHtml(r.name)}"${r.muted?' style="color:var(--ink-dim)"':''}>${escapeHtml(r.name)}</div>
+        <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,r.count/max*100)}%;
+          background:${r.muted?'rgba(255,255,255,.18)':'linear-gradient(90deg,var(--bad),#C0392F)'}"></div></div>
+        <div class="bd-count">${fmt(r.count)} <span style="color:var(--ink-dim);font-weight:400">· ${fmt1(totalReal?r.count/totalReal*100:0)}%</span></div>
+      </div>`).join('')
+      :'<div class="empty-note">У забракованих лідів за цей період причина не заповнена.</div>'}`;
 }
 
 function renderChart(elId, rows, valueFn, tipFn){
