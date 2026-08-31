@@ -284,7 +284,12 @@ LEAD_REJECT_REASON_TEXT_FIELD = "UF_CRM_1612946419988"   # тип string (зас
 LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CREATE",
                "STATUS_SEMANTIC_ID", "ASSIGNED_BY_ID",
                "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM",
-               LEAD_REJECT_REASON_FIELD, LEAD_REJECT_REASON_TEXT_FIELD]
+               # Користувацькі поля crm.lead.list віддає ТІЛЬКИ по масці "UF_*".
+               # Перелічені поштучно коди (UF_CRM_1720011123359 тощо) він мовчки
+               # ігнорує — поле приходить порожнім, хоча в картці значення є.
+               # Перевірено на живому ліді: crm.lead.get віддає "490",
+               # а crm.lead.get зі списком кодів — порожній рядок.
+               "UF_*"]
 
 def fetch_reject_reasons():
     """Довідник причин забракування: {id варіанта: текст}. Живе не в
@@ -369,6 +374,16 @@ def slim_deals(deals):
         })
     return out
 
+def _one(v):
+    """Значення користувацького поля Bitrix → рядок. Множинні поля приходять
+    списком, числові — числом, порожні — None/False."""
+    if isinstance(v, (list, tuple)):
+        v = v[0] if v else ""
+    if v in (None, False):
+        return ""
+    return str(v).strip()
+
+
 def slim_leads(leads):
     out = []
     for l in leads:
@@ -388,8 +403,10 @@ def slim_leads(leads):
             "utm_medium": (l.get("UTM_MEDIUM") or "").strip(),
             # Причина забракування: id варіанта зі списку. Розшифровка —
             # у meta.reject_reasons, щоб не дублювати текст у кожному ліді.
-            "reject_reason": str(l.get(LEAD_REJECT_REASON_FIELD) or "").strip(),
-            "reject_reason_text": (l.get(LEAD_REJECT_REASON_TEXT_FIELD) or "").strip(),
+            # Поле може прийти рядком, числом або списком (якщо у Bitrix його
+            # колись зробили множинним) — зводимо все до одного рядка.
+            "reject_reason": _one(l.get(LEAD_REJECT_REASON_FIELD)),
+            "reject_reason_text": _one(l.get(LEAD_REJECT_REASON_TEXT_FIELD)),
         })
     return out
 
