@@ -117,7 +117,7 @@ DEAL_FIELDS = ["ID", "TITLE", "STAGE_ID", "CATEGORY_ID", "OPPORTUNITY", "CURRENC
 def fetch_deals(start_date):
     return call("crm.deal.list", {
         "filter[>=DATE_CREATE]": start_date.isoformat(),
-        "select": DEAL_FIELDS,
+        "select[]": DEAL_FIELDS,
         "order[DATE_CREATE]": "ASC",
     })
 
@@ -301,7 +301,7 @@ def fetch_reject_reasons():
 def fetch_leads(start_date):
     return call("crm.lead.list", {
         "filter[>=DATE_CREATE]": start_date.isoformat(),
-        "select": LEAD_FIELDS,
+        "select[]": LEAD_FIELDS,
         "order[DATE_CREATE]": "ASC",
     })
 
@@ -448,6 +448,12 @@ if __name__ == "__main__":
         leads = fetch_leads(start_date)
         print(f"     знайдено: {len(leads)}")
         result["leads"] = slim_leads(leads)
+        # Діагностика: якщо тут 0, значить Bitrix не віддав користувацьке
+        # поле причини — перше, що треба перевірити, це форма параметра
+        # select[] у запиті (без дужок Bitrix мовчки ігнорує його і шле
+        # тільки стандартні поля).
+        with_reason = sum(1 for l in result["leads"] if l.get("reject_reason") or l.get("reject_reason_text"))
+        print(f"     з причиною забракування: {with_reason}")
     except Exception as e:
         print(f"  ✗ ошибка (deals/leads): {e}")
         ok = False
