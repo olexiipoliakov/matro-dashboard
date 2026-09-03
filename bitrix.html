@@ -220,6 +220,10 @@
   .warn-box{background:var(--mid-bg);color:var(--mid);border:1px solid rgba(255,200,77,.25);
     padding:12px 16px;border-radius:12px;font-size:12.5px;margin-bottom:14px}
   .empty-note{color:var(--ink-dim);font-style:italic;font-size:12.5px}
+  .more-btn{margin-top:10px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-soft);
+    cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;
+    padding:8px 14px;transition:all 180ms ease;width:100%}
+  .more-btn:hover{color:var(--ink);border-color:var(--border-strong)}
 
   @media(max-width:600px){
     .wrap{padding:24px 16px 48px}
@@ -603,7 +607,7 @@ function render(dealsRaw, leadsRaw){
 
   renderChart('deals-chart', deals.daily, r=>r.count, r=>`${fmt(r.count)} угод, ${fmt(r.sum)} грн`);
   renderChart('leads-chart', leads.daily, r=>r.count, r=>`${fmt(r.count)} лідів`);
-  renderRejectReasons(leadsRaw, leads);
+  renderRejectReasons(leadsRaw);
   renderManagers(deals.by_manager);
   if(SELECTED_MANAGER) selectManager(SELECTED_MANAGER, true);
   renderUtmTable('utm-deals-table', deals.utm, true);
@@ -622,10 +626,21 @@ function reasonName(l){
   return null;
 }
 
-function renderRejectReasons(leadsRaw, leads){
+function renderRejectReasons(leadsRaw){
   const el=document.getElementById('reject-reasons');
-  const rejected=leadsRaw.filter(l=>l.semantic==='F');
-  if(!rejected.length){ el.innerHTML='<div class="empty-note">За вибраний період забракованих лідів немає.</div>'; return; }
+  // Якщо у таблиці вище вибрано менеджера — показуємо його зріз, інакше
+  // загальний по команді. Так секція читається як продовження кліку.
+  const scoped = SELECTED_MANAGER
+    ? leadsRaw.filter(l=>(l.manager_id||'')===SELECTED_MANAGER)
+    : leadsRaw;
+  const rejected=scoped.filter(l=>l.semantic==='F');
+  if(!rejected.length){
+    el.innerHTML='<div class="empty-note">'
+      + (SELECTED_MANAGER ? `У ${escapeHtml(managerName(SELECTED_MANAGER))} немає забракованих лідів за цей період.` 
+                          : 'За вибраний період забракованих лідів немає.')
+      + '</div>';
+    return;
+  }
 
   // Дублікати — це не причина відмови, а технічний статус: рахуємо окремо,
   // щоб вони не забивали собою реальні причини.
@@ -646,12 +661,17 @@ function renderRejectReasons(leadsRaw, leads){
   const totalReal=real.length;
   const max=Math.max(1,...rows.map(r=>r.count));
 
+  const rate = scoped.length ? rejected.length/scoped.length*100 : 0;
   el.innerHTML=`
     <div class="bucket-row">
+      ${SELECTED_MANAGER
+        ? `<span class="bucket-tag" style="color:var(--accent);border-color:rgba(155,127,232,.35);background:rgba(155,127,232,.10)">
+             ${escapeHtml(managerName(SELECTED_MANAGER))} · <span style="cursor:pointer" onclick="closeManagerDetail()">показати всіх ×</span></span>`
+        : '<span class="bucket-tag">Уся команда</span>'}
       <span class="bucket-tag crit">Забраковано: <b>${fmt(rejected.length)}</b></span>
       <span class="bucket-tag">З причиною: <b>${fmt(totalReal-noReason)}</b></span>
       <span class="bucket-tag">Дублікати: <b>${fmt(dupes.length)}</b></span>
-      <span class="bucket-tag">Частка браку: <b>${fmt1(leads.rejected_rate)}%</b></span>
+      <span class="bucket-tag">Частка браку: <b>${fmt1(rate)}%</b></span>
     </div>
     ${rows.length?rows.map(r=>`
       <div class="bd-row" style="grid-template-columns:1fr minmax(90px,150px) 104px">
@@ -710,7 +730,16 @@ function renderManagers(byManager){
   table.innerHTML=head+`<tbody>${body}</tbody>`;
 }
 
-const DEALS_LIST_LIMIT=25;
+// Списки в картці менеджера показуємо порціями: одразу 10, далі по кнопці.
+// Інакше в одного менеджера розгортається кілька сотень рядків і сторінка
+// стає нечитабельною (у Рудінкова, наприклад, 215 угод).
+const DETAIL_CHUNK=10;
+let DETAIL_SHOW={deals:DETAIL_CHUNK, junk:DETAIL_CHUNK, reasons:DETAIL_CHUNK};
+
+function showMoreDetail(kind){
+  DETAIL_SHOW[kind]+=DETAIL_CHUNK;
+  selectManager(SELECTED_MANAGER, true);   // silent — не перемальовуємо таблицю
+}
 
 function selectManager(mgrId, silent){
   SELECTED_MANAGER = mgrId;
@@ -720,9 +749,13 @@ function selectManager(mgrId, silent){
   const name = managerName(mgrId);
 
   if(!silent){
+    // новий менеджер — списки згортаються назад до перших 10
+    DETAIL_SHOW={deals:DETAIL_CHUNK, junk:DETAIL_CHUNK, reasons:DETAIL_CHUNK};
     // перемальовуємо таблицю, щоб підсвітити вибраний рядок (використовуємо
     // вже об'єднані з лідами дані, а не перерахунок лише по угодах)
     renderManagers(CURRENT_BY_MANAGER);
+    // секція "Причини забракування" нижче має показати саме цього менеджера
+    renderRejectReasons(CURRENT_LEADS_RAW);
   }
 
   if(!leads.length && !deals.length){
@@ -732,24 +765,27 @@ function selectManager(mgrId, silent){
   }
 
   const byReason={};
-  let converted=0;
+  let converted=0, noReason=0;
   leads.forEach(l=>{
-    if(l.semantic==='C') converted++;
-    else if(l.semantic==='F'){
-      if(!byReason[l.status_id]) byReason[l.status_id]={name:statusName(l.status_id),count:0};
-      byReason[l.status_id].count++;
-    }
+    if(l.semantic==='C'){ converted++; return; }
+    if(l.semantic!=='F') return;
+    const n=reasonName(l);
+    if(!n){ noReason++; return; }
+    if(!byReason[n]) byReason[n]={name:n,count:0};
+    byReason[n].count++;
   });
   const reasonRows=Object.values(byReason).sort((a,b)=>b.count-a.count);
+  if(noReason) reasonRows.push({name:'Причину не вказано',count:noReason,muted:true});
   const maxR=Math.max(1,...reasonRows.map(x=>x.count));
+  const reasonsShown=reasonRows.slice(0, DETAIL_SHOW.reasons);
 
   // "Неякісні ліди" — конкретні ліди з причиною JUNK ("Некачественный лід"),
   // не просто агрегована цифра як у "Причини забракування" праворуч.
   const junkLeads = leads.filter(l=>l.status_id==='JUNK');
 
-  const dealsShown = deals.slice(0, DEALS_LIST_LIMIT);
-  const dealsMoreNote = deals.length>DEALS_LIST_LIMIT
-    ? `<div class="empty-note" style="margin-top:6px">і ще ${fmt(deals.length-DEALS_LIST_LIMIT)} угод…</div>` : '';
+  const dealsShown = deals.slice(0, DETAIL_SHOW.deals);
+  const dealsMoreNote = deals.length>DETAIL_SHOW.deals
+    ? `<button class="more-btn" onclick="showMoreDetail('deals')">Показати ще ${fmt(Math.min(DETAIL_CHUNK, deals.length-DETAIL_SHOW.deals))} з ${fmt(deals.length-DETAIL_SHOW.deals)}</button>` : '';
 
   detail.style.display='block';
   detail.innerHTML = `
@@ -774,15 +810,17 @@ function selectManager(mgrId, silent){
       </div>
       <div>
         <h2 class="mini" style="color:var(--bad)">Причини забракування</h2>
-        ${reasonRows.map(x=>`<div class="bd-row"><div class="bd-name" title="${x.name}">${x.name}</div>
-          <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxR*100)}%;background:linear-gradient(90deg,var(--bad),#C0392F)"></div></div>
+        ${reasonsShown.map(x=>`<div class="bd-row"><div class="bd-name" title="${escapeHtml(x.name)}"${x.muted?' style="color:var(--ink-dim)"':''}>${escapeHtml(x.name)}</div>
+          <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxR*100)}%;background:${x.muted?'rgba(255,255,255,.18)':'linear-gradient(90deg,var(--bad),#C0392F)'}"></div></div>
           <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Забракованих лідів немає 🎉</div>'}
+        ${reasonRows.length>DETAIL_SHOW.reasons
+          ? `<button class="more-btn" onclick="showMoreDetail('reasons')">Показати ще ${fmt(reasonRows.length-DETAIL_SHOW.reasons)}</button>` : ''}
       </div>
     </div>
     <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
       <h2 class="mini" style="color:var(--bad)">Неякісні ліди (${fmt(junkLeads.length)})</h2>
       <div class="sub-hint">Ліди з причиною «${escapeHtml(statusName('JUNK'))}» · джерело, якщо визначилось</div>
-      ${junkLeads.map(l=>{
+      ${junkLeads.slice(0, DETAIL_SHOW.junk).map(l=>{
         const src=leadSourceLabel(l);
         const leadLabel = (l.title ? l.title : `Лід №${l.id}`) + ' · ' + fmtDate(l.date);
         return `<div class="deal-row" style="grid-template-columns:1fr minmax(84px,108px)">
@@ -790,6 +828,8 @@ function selectManager(mgrId, silent){
           <div class="deal-src ${src.known?'known':'unknown'}" title="${escapeHtml(src.label)}">${escapeHtml(src.label)}</div>
         </div>`;
       }).join('') || '<div class="empty-note">Неякісних лідів немає 🎉</div>'}
+      ${junkLeads.length>DETAIL_SHOW.junk
+        ? `<button class="more-btn" onclick="showMoreDetail('junk')">Показати ще ${fmt(Math.min(DETAIL_CHUNK, junkLeads.length-DETAIL_SHOW.junk))} з ${fmt(junkLeads.length-DETAIL_SHOW.junk)}</button>` : ''}
     </div>`;
 }
 
@@ -797,6 +837,7 @@ function closeManagerDetail(){
   SELECTED_MANAGER=null;
   document.getElementById('manager-detail').style.display='none';
   renderManagers(CURRENT_BY_MANAGER);
+  renderRejectReasons(CURRENT_LEADS_RAW);   // назад до загальної картини
 }
 
 
@@ -902,14 +943,13 @@ function renderCategoryTurnover(rows){
     return;
   }
 
-  let orders=rows.length, turnover=0, turnoverExclWholesale=0, accessories=0;
+  let orders=rows.length, turnover=0, accessories=0;
   const catSums={mattresses:0,soft_furniture:0,wardrobes:0,case_furniture:0};
   const bySource={};
   const flagRows=[];
 
   rows.forEach(r=>{
     turnover+=r.turnover||0;
-    turnoverExclWholesale+=r.turnover_excl_wholesale||0;
     accessories+=r.accessories||0;
     Object.keys(catSums).forEach(k=>catSums[k]+=(r.categories&&r.categories[k])||0);
 
@@ -918,7 +958,7 @@ function renderCategoryTurnover(rows){
     bySource[src].count++; bySource[src].sum+=r.turnover||0;
 
     if(r.flags){
-      if(r.flags.wholesale) flagRows.push({deal_id:r.deal_id,label:'Оптова партія',cls:'',sum:r.turnover});
+      // опт окремо не виділяємо — гуртових продажів у компанії немає
       if(r.flags.sluzhbovka) flagRows.push({deal_id:r.deal_id,label:'Позначка «службовка»',cls:'',sum:r.turnover});
       if(r.flags.empty_product) flagRows.push({deal_id:r.deal_id,label:'Товар без назви (сума > 0)',cls:'crit',sum:r.turnover});
     }
@@ -927,7 +967,6 @@ function renderCategoryTurnover(rows){
   kpis.innerHTML=`
     <div class="kpi"><div class="lbl">Замовлень</div><div class="val">${fmt(orders)}</div></div>
     <div class="kpi"><div class="lbl">Оборот</div><div class="val">${fmt(turnover)} грн</div></div>
-    <div class="kpi"><div class="lbl">Оборот без опту</div><div class="val">${fmt(turnoverExclWholesale)} грн</div></div>
     <div class="kpi"><div class="lbl">Аксесуари</div><div class="val">${fmt(accessories)} грн</div><div class="sub">окремо від 4 категорій</div></div>`;
 
   const maxCat=Math.max(1,...Object.values(catSums));
