@@ -616,6 +616,9 @@ function reasonName(l){
   const dict=(META.reject_reasons)||{};
   if(l.reject_reason && dict[l.reject_reason]) return dict[l.reject_reason];
   if(l.reject_reason_text) return l.reject_reason_text;
+  // Код є, але в довіднику його немає (варіант видалили в Bitrix) — краще
+  // показати сам код, ніж мовчки зарахувати лід у "причину не вказано".
+  if(l.reject_reason) return `Причина #${l.reject_reason}`;
   return null;
 }
 

@@ -322,11 +322,36 @@ LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CRE
                # а crm.lead.get зі списком кодів — порожній рядок.
                "UF_*"]
 
+def call_object(method, params=None, tries=3):
+    """Для методів, що повертають ОБ'ЄКТ, а не список (crm.lead.fields тощо).
+
+    Звичайний call() написаний під списки: він склеює сторінки через extend
+    і мовчки викидає все, що не список. На crm.lead.fields це давало порожній
+    результат — довідник причин не завантажувався, і код 490 не було чим
+    розшифрувати."""
+    if not WEBHOOK_URL:
+        raise RuntimeError("BITRIX_WEBHOOK_URL не задано")
+    q = urllib.parse.urlencode(params or {}, doseq=True)
+    url = f"{WEBHOOK_URL}/{method}.json" + (f"?{q}" if q else "")
+    for attempt in range(tries):
+        try:
+            req = urllib.request.Request(url, headers=HTTP_HEADERS)
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            break
+        except Exception as e:
+            if attempt == tries - 1:
+                raise RuntimeError(f"Bitrix API {method} failed: {e}")
+    if "error" in data:
+        raise RuntimeError(f"Bitrix API {method}: {data.get('error_description', data['error'])}")
+    return data.get("result") or {}
+
+
 def fetch_reject_reasons():
     """Довідник причин забракування: {id варіанта: текст}. Живе не в
     crm.status.list, а в описі самого поля ліда, тому питаємо crm.lead.fields."""
     try:
-        fields = call("crm.lead.fields") or {}
+        fields = call_object("crm.lead.fields") or {}
     except Exception as e:
         print(f"  ⚠ не вдалося прочитати довідник причин забракування: {e}", flush=True)
         return {}
@@ -499,9 +524,15 @@ if __name__ == "__main__":
 
         # Причини забракування доводиться добирати окремо — див. коментар
         # у fetch_lead_reasons. Робимо це тільки для забракованих лідів.
-        rejected_ids = [l["id"] for l in result["leads"] if l.get("semantic") == "F"]
+        # Списковий метод уже віддає причину для більшості лідів (маска UF_*).
+        # Добираємо через crm.lead.get лише тих, у кого вона не прийшла, —
+        # це і швидше, і рятує, якщо портал колись знову перестане віддавати
+        # користувацькі поля у списку.
+        rejected_ids = [l["id"] for l in result["leads"]
+                        if l.get("semantic") == "F"
+                        and not (l.get("reject_reason") or l.get("reject_reason_text"))]
         if rejected_ids:
-            print(f"  → Причини забракування ({len(rejected_ids)} лідів)")
+            print(f"  → Добираю причини забракування ({len(rejected_ids)} лідів без неї)")
             reasons = fetch_lead_reasons(rejected_ids)
             for l in result["leads"]:
                 got = reasons.get(l["id"])
