@@ -538,7 +538,15 @@ if __name__ == "__main__":
                 got = reasons.get(l["id"])
                 if got:
                     l["reject_reason"], l["reject_reason_text"] = got
-        with_reason = sum(1 for l in result["leads"] if l.get("reject_reason") or l.get("reject_reason_text"))
+        # Розшифровуємо код у назву ТУТ, а не на сторінці. Інакше сторінка
+        # залежить від meta.reject_reasons, і варто цьому довіднику не
+        # завантажитись (503, або файл даних старший за код) — замість
+        # "немає в наявності" користувач бачить "Причина #490".
+        for l in result["leads"]:
+            code = l.get("reject_reason")
+            l["reject_reason_name"] = (reject_reasons.get(code) if code else "") \
+                                      or l.get("reject_reason_text") or ""
+        with_reason = sum(1 for l in result["leads"] if l.get("reject_reason_name"))
         print(f"     з причиною забракування: {with_reason}")
     except Exception as e:
         print(f"  ✗ ошибка (deals/leads): {e}")

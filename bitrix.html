@@ -617,11 +617,14 @@ function render(dealsRaw, leadsRaw){
 function reasonName(l){
   // Основне джерело — поле-список (meta.reject_reasons розшифровує id).
   // Якщо порожнє, пробуємо старе текстове поле, і лише потім здаємось.
+  // Назву підставляє вивантаження (reject_reason_name) — це основний шлях.
+  // Решта гілок лишаються для сумісності зі старими файлами даних.
+  if(l.reject_reason_name) return l.reject_reason_name;
   const dict=(META.reject_reasons)||{};
   if(l.reject_reason && dict[l.reject_reason]) return dict[l.reject_reason];
   if(l.reject_reason_text) return l.reject_reason_text;
-  // Код є, але в довіднику його немає (варіант видалили в Bitrix) — краще
-  // показати сам код, ніж мовчки зарахувати лід у "причину не вказано".
+  // Код є, але розшифрувати нічим — краще показати сам код, ніж мовчки
+  // зарахувати лід у "причину не вказано".
   if(l.reject_reason) return `Причина #${l.reject_reason}`;
   return null;
 }
