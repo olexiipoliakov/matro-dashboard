@@ -375,32 +375,46 @@ def fetch_overdue_tasks():
     # Без мікросекунд і без "!DEADLINE": "" — саме ця комбінація раніше
     # ламала запит з HTTP 400 на деяких порталах.
     now_str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    # select саме як масив (select[]) — з "select" без дужок портал відповідає
+    # HTTP 400 і задачі не приходять узагалі. Перевірено перебором варіантів.
     rows = call("tasks.task.list", {
         "filter[<DEADLINE]": now_str,
         "filter[!STATUS]": 5,  # 5 = Завершена
-        "select": ["ID", "TITLE", "DEADLINE", "STATUS", "RESPONSIBLE_ID", "GROUP_ID"],
+        "select[]": ["ID", "TITLE", "DEADLINE", "STATUS", "RESPONSIBLE_ID", "GROUP_ID"],
     }, result_key="tasks")
     return rows
+
+def _tv(task, *names):
+    """tasks.task.list віддає поля в camelCase (id, deadline, responsibleId),
+    а не у верхньому регістрі, як решта crm.* методів. Беремо перший ключ,
+    який реально є, щоб не залежати від регістру."""
+    for n in names:
+        if n in task and task[n] not in (None, ""):
+            return task[n]
+    return None
+
 
 def build_overdue(tasks, user_names):
     today = date.today()
     items = []
     for t in tasks:
-        if str(t.get("STATUS")) == "5":  # підстраховка, якщо фільтр API не спрацював
+        if str(_tv(t, "status", "STATUS") or "") == "5":  # підстраховка, якщо фільтр не спрацював
             continue
-        deadline_str = t.get("DEADLINE")
+        deadline_str = _tv(t, "deadline", "DEADLINE")
         if not deadline_str:
             continue
         try:
-            d = date.fromisoformat(deadline_str[:10])
+            d = date.fromisoformat(str(deadline_str)[:10])
         except ValueError:
             continue
         days_overdue = (today - d).days
         if days_overdue <= 0:
             continue
-        rid = str(t.get("RESPONSIBLE_ID") or "")
+        rid = str(_tv(t, "responsibleId", "RESPONSIBLE_ID") or "")
         items.append({
-            "id": t.get("ID"), "title": t.get("TITLE"), "deadline": deadline_str[:10],
+            "id": _tv(t, "id", "ID"),
+            "title": _tv(t, "title", "TITLE") or "(без назви)",
+            "deadline": str(deadline_str)[:10],
             "days_overdue": days_overdue, "responsible_id": rid,
             "responsible_name": user_names.get(rid, rid or "(не призначено)"),
         })

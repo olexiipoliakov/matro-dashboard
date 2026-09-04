@@ -326,6 +326,16 @@
   <div class="panel">
     <div id="overdue-warn"></div>
     <div class="bucket-row" id="overdue-buckets"></div>
+
+    <div id="overdue-days-wrap" style="margin:18px 0 22px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">Прострочення по днях дедлайну</div>
+      <div class="sub-hint" id="overdue-days-hint">Скільки задач зависло з дедлайном на кожну дату · наведіть на стовпчик</div>
+      <div class="bucket-row" id="overdue-mgr-chips" style="margin-bottom:12px"></div>
+      <div class="chart" id="overdue-days"></div>
+      <div id="overdue-days-axis" style="display:flex;justify-content:space-between;
+        font-size:10.5px;color:var(--ink-dim);margin-top:6px"></div>
+    </div>
+
     <div class="cols2" style="margin-bottom:20px">
       <div>
         <div style="font-size:13px;font-weight:600;margin-bottom:10px">За відповідальним</div>
@@ -851,13 +861,53 @@ function renderUtmTable(elId, items, withSum){
   table.innerHTML=head+`<tbody>${rows}</tbody>`;
 }
 
+let OVERDUE_MGR='';          // '' = усі відповідальні
+let OVERDUE_CACHE=null;
+
+function setOverdueMgr(id){
+  OVERDUE_MGR = (OVERDUE_MGR===id) ? '' : id;
+  renderOverdue(OVERDUE_CACHE);
+}
+
+function renderOverdueDays(items){
+  const el=document.getElementById('overdue-days');
+  const axis=document.getElementById('overdue-days-axis');
+  const scoped = OVERDUE_MGR ? items.filter(t=>(t.responsible_id||'')===OVERDUE_MGR) : items;
+  if(!scoped.length){ el.innerHTML='<div class="empty-note">Немає прострочень.</div>'; axis.innerHTML=''; return; }
+
+  // Групуємо за датою дедлайну і показуємо суцільний ряд днів (включно з
+  // порожніми), інакше пропуски візуально стискаються і день з двадцятьма
+  // задачами стоїть поруч із днем з однією, ніби вони сусідні.
+  const by={};
+  scoped.forEach(t=>{ by[t.deadline]=(by[t.deadline]||0)+1; });
+  const days=Object.keys(by).sort();
+  const from=new Date(days[0]), to=new Date(days[days.length-1]);
+  const seq=[];
+  for(let d=new Date(from); d<=to; d.setDate(d.getDate()+1)){
+    const iso=d.toISOString().slice(0,10);
+    seq.push({date:iso, count:by[iso]||0});
+  }
+  const max=Math.max(1,...seq.map(x=>x.count));
+  el.innerHTML=seq.map(x=>{
+    const h=x.count?Math.max(4,x.count/max*100):1;
+    const tip=`${fmtDate(x.date)} · ${x.count} задач`;
+    return `<div class="col"><div class="barwrap"><div class="bar"
+      style="height:${h}%;${x.count?'':'opacity:.25'}" data-v="${tip}"></div></div></div>`;
+  }).join('');
+  axis.innerHTML = `<span>${fmtDate(seq[0].date)}</span><span>${fmtDate(seq[seq.length-1].date)}</span>`;
+  document.getElementById('overdue-days-hint').textContent =
+    `${fmt(scoped.length)} задач з дедлайном у ${fmt(days.length)} різних днів · наведіть на стовпчик`;
+}
+
 function renderOverdue(overdue){
+  OVERDUE_CACHE=overdue;
   const warn=document.getElementById('overdue-warn');
   const buckets=document.getElementById('overdue-buckets');
   const byMgrEl=document.getElementById('overdue-by-manager');
   const table=document.getElementById('overdue-table');
 
   if(overdue.error){
+    document.getElementById('overdue-days-wrap').style.display='none';
     warn.innerHTML = `<div class="warn-box">⚠ Не вдалося отримати задачі — схоже, вебхуку не вистачає доступу "Задачі" (task), або запит не підтримується порталом. Додай/перевір scope "task" у вхідному вебхуку Bitrix24.</div>`;
     buckets.innerHTML=''; byMgrEl.innerHTML=''; table.innerHTML='';
     return;
@@ -865,6 +915,7 @@ function renderOverdue(overdue){
   warn.innerHTML='';
   const items=overdue.items||[];
   if(!items.length){
+    document.getElementById('overdue-days-wrap').style.display='none';
     buckets.innerHTML=`<span class="bucket-tag">Прострочених задач немає 🎉</span>`;
     byMgrEl.innerHTML=''; table.innerHTML='';
     return;
@@ -884,11 +935,21 @@ function renderOverdue(overdue){
   const byMgr={};
   items.forEach(t=>{
     const key=t.responsible_id||'';
-    if(!byMgr[key]) byMgr[key]={name:t.responsible_name||'(не призначено)',count:0,maxDays:0};
+    if(!byMgr[key]) byMgr[key]={id:key,name:t.responsible_name||'(не призначено)',count:0,maxDays:0};
     byMgr[key].count++;
     byMgr[key].maxDays=Math.max(byMgr[key].maxDays,t.days_overdue);
   });
   const mgrRows=Object.values(byMgr).sort((a,b)=>b.count-a.count);
+
+  // Чіпи-фільтри: клік по відповідальному лишає в графіку тільки його задачі,
+  // повторний клік знімає фільтр.
+  document.getElementById('overdue-days-wrap').style.display='';
+  document.getElementById('overdue-mgr-chips').innerHTML =
+    `<span class="bucket-tag${OVERDUE_MGR?'':' crit'}" style="cursor:pointer"
+       onclick="setOverdueMgr('')">Усі: <b>${fmt(items.length)}</b></span>` +
+    mgrRows.map(m=>`<span class="bucket-tag${OVERDUE_MGR===m.id?' crit':''}" style="cursor:pointer"
+       onclick="setOverdueMgr('${m.id}')">${escapeHtml(m.name)}: <b>${fmt(m.count)}</b></span>`).join('');
+  renderOverdueDays(items);
   const maxC=Math.max(1,...mgrRows.map(m=>m.count));
   byMgrEl.innerHTML = mgrRows.map(m=>`<div class="bd-row"><div class="bd-name" title="${m.name}">${m.name}</div>
     <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,m.count/maxC*100)}%"></div></div>
