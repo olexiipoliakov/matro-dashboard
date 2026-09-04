@@ -21,7 +21,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests google-auth google-auth-httplib2 google-api-python-client
+        run: pip install requests google-auth google-auth-httplib2 google-api-python-client beautifulsoup4
 
       - name: Run Meta Ads fetch
         continue-on-error: true
@@ -43,7 +43,17 @@ jobs:
         env:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
         run: python fetch_bitrix.py
+      - name: Run Bitrix fetch
+        continue-on-error: true
+        env:
+          BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+        run: python fetch_bitrix.py
 
+      - name: Run site audit
+        continue-on-error: true
+        run: python audit.py
+
+      - name: Commit updated data
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
@@ -53,5 +63,6 @@ jobs:
           git add images/ 2>/dev/null || true
           git add seo_data.json 2>/dev/null || true
           git add bitrix_data.json 2>/dev/null || true
+          git add audit_data.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Update dashboard data $(date +'%Y-%m-%d')"
           git push
