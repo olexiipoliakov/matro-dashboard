@@ -297,24 +297,18 @@
 
   <div class="kpis" id="kpis"></div>
 
-  <div class="sec-head"><span class="n">1</span><h2>Угоди по днях</h2><span class="ln"></span></div>
-  <div class="panel"><div class="chart" id="deals-chart"></div></div>
-
-  <div class="sec-head"><span class="n">2</span><h2>Менеджери</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">1</span><h2>Менеджери</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Угоди та ліди за вибраний період у розрізі відповідального · <a href="managers.html" style="color:var(--accent);font-weight:600">окрема сторінка для команди &rarr;</a></div>
   <div class="panel">
     <div class="table-scroll"><table class="data-table" id="manager-table"></table></div>
     <div id="manager-detail" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"></div>
   </div>
 
-  <div class="sec-head"><span class="n">3</span><h2>Ліди по днях</h2><span class="ln"></span></div>
-  <div class="panel"><div class="chart" id="leads-chart"></div></div>
-
-  <div class="sec-head"><span class="n">4</span><h2>Причини забракування лідів</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">2</span><h2>Причини забракування лідів</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-dim);margin:-8px 0 14px">Поле «Причина забраковки» з картки ліда — за вибраний вище період. Дублікати рахуються окремо: це технічний статус, а не причина відмови</div>
   <div class="panel"><div id="reject-reasons"></div></div>
 
-  <div class="sec-head"><span class="n">5</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">3</span><h2>UTM-аналітика</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Джерела трафіку, що привели угоди/ліди за вибраний період — з сумою</div>
   <div class="cols2">
     <div class="panel">
@@ -327,7 +321,7 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">6</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">4</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Поточний стан на момент останнього оновлення — не залежить від вибраного вище періоду</div>
   <div class="panel">
     <div id="overdue-warn"></div>
@@ -344,7 +338,7 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">7</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">5</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">За методикою розбору DEAL_*.xls: виключені відмови/помилкові угоди та доставка/наложка/занос; за вибраний вище період</div>
   <div class="panel">
     <div id="cat-turnover-warn"></div>
@@ -605,8 +599,6 @@ function render(dealsRaw, leadsRaw){
     <div class="kpi"><div class="lbl">Лідів</div><div class="val">${fmt(leads.total_count)}</div><div class="sub">${fmt(leads.converted_count)} конвертовано</div></div>
     <div class="kpi"><div class="lbl">Забраковано лідів</div><div class="val" style="color:var(--bad)">${fmt(leads.rejected_count)}</div><div class="sub">${fmt1(leads.rejected_rate)}%</div></div>`;
 
-  renderChart('deals-chart', deals.daily, r=>r.count, r=>`${fmt(r.count)} угод, ${fmt(r.sum)} грн`);
-  renderChart('leads-chart', leads.daily, r=>r.count, r=>`${fmt(r.count)} лідів`);
   renderRejectReasons(leadsRaw);
   renderManagers(deals.by_manager);
   if(SELECTED_MANAGER) selectManager(SELECTED_MANAGER, true);
@@ -684,16 +676,6 @@ function renderRejectReasons(leadsRaw){
         <div class="bd-count">${fmt(r.count)} <span style="color:var(--ink-dim);font-weight:400">· ${fmt1(totalReal?r.count/totalReal*100:0)}%</span></div>
       </div>`).join('')
       :'<div class="empty-note">У забракованих лідів за цей період причина не заповнена.</div>'}`;
-}
-
-function renderChart(elId, rows, valueFn, tipFn){
-  const el=document.getElementById(elId);
-  if(!rows.length){ el.innerHTML='<div class="empty-note">Немає даних за цей період.</div>'; return; }
-  const max=Math.max(1,...rows.map(valueFn));
-  el.innerHTML=rows.map(r=>{
-    const v=valueFn(r), h=Math.max(2,v/max*100);
-    return `<div class="col"><div class="barwrap"><div class="bar" style="height:${h}%" data-v="${tipFn(r)}"></div></div></div>`;
-  }).join('');
 }
 
 function renderFunnel(stages){
