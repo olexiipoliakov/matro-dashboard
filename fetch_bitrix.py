@@ -414,7 +414,8 @@ def build_overdue(tasks, user_names):
         items.append({
             "id": _tv(t, "id", "ID"),
             "title": _tv(t, "title", "TITLE") or "(без назви)",
-            "deadline": str(deadline_str)[:10],
+            "deadline": str(deadline_str)[:10],      # для групування по днях
+            "deadline_at": str(deadline_str),          # з часом — для показу в списку
             "days_overdue": days_overdue, "responsible_id": rid,
             "responsible_name": user_names.get(rid, rid or "(не призначено)"),
         })
@@ -518,7 +519,13 @@ if __name__ == "__main__":
         user_names = fetch_users()
         reject_reasons = fetch_reject_reasons()
         print(f"     причин забракування у довіднику: {len(reject_reasons)}")
+        # Адресу порталу дістаємо з вебхука (https://<портал>/rest/<id>/<ключ>/),
+        # щоб сторінка могла зробити посилання на задачу й на профіль
+        # відповідального. Сам ключ у файл даних не потрапляє.
+        portal_url = "/".join(WEBHOOK_URL.split("/")[:3]) if WEBHOOK_URL else ""
+
         result["meta"] = {
+            "portal_url": portal_url,
             "stages": stage_names,
             "lead_statuses": status_names,
             "lead_sources": source_names,
