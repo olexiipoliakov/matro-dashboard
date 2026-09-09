@@ -1,15 +1,15 @@
 {
   "demo": false,
-  "generated_at": "08.09.2026 10:41",
-  "duration_sec": 407.6,
-  "total_checked": 694,
+  "generated_at": "09.09.2026 10:47",
+  "duration_sec": 430.0,
+  "total_checked": 979,
   "total_errors": 0,
   "issue_types": [
     {
       "key": "no_description",
       "label": "Без опису",
       "color": "danger",
-      "count": 93
+      "count": 364
     },
     {
       "key": "short_description",
@@ -19,6 +19,69 @@
     }
   ],
   "items": [
+    {
+      "name": "Акційна пропозиція на дивани",
+      "url": "https://matroluxe.ua/ua/action-proposition-divany",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Повернення товару",
+      "url": "https://matroluxe.ua/ua/add-return",
+      "category": "Особистий Кабінет",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Адвент",
+      "url": "https://matroluxe.ua/ua/advent",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Текстиль та аксесуари",
+      "url": "https://matroluxe.ua/ua/aksessuary",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Акції та розпродаж",
+      "url": "https://matroluxe.ua/ua/aktsii-i-rasprodazha",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Акція",
+      "url": "https://matroluxe.ua/ua/aktsiya",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Акція корпусні меблі 1",
+      "url": "https://matroluxe.ua/ua/aktsiya-korpusna-mebel",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Акція корпусні меблі",
+      "url": "https://matroluxe.ua/ua/aktsiya-korpusni-mebli",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Акція шафи",
+      "url": "https://matroluxe.ua/ua/aktsiya-shkafy",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
     {
       "name": "Антресоль Askania/Асканія 2-дв",
       "url": "https://matroluxe.ua/ua/antresol-askania-2-dw",
@@ -90,11 +153,466 @@
       "detail": ""
     },
     {
+      "name": "Недорогі білі шафи",
+      "url": "https://matroluxe.ua/ua/belye",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Білі шафи",
+      "url": "https://matroluxe.ua/ua/belye-shkafy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Безпружинні дитячі матраци",
+      "url": "https://matroluxe.ua/ua/bespruzhinnye-detskie-matrasy",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Безпружинні матраци",
+      "url": "https://matroluxe.ua/ua/bespruzhinnye-matrasy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Black Week",
+      "url": "https://matroluxe.ua/ua/black-week",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Чохли",
+      "url": "https://matroluxe.ua/ua/chehly",
+      "category": "Подушки і аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Чорна п'ятниця",
+      "url": "https://matroluxe.ua/ua/chernaya-pyatnica",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "День святого Валентина",
+      "url": "https://matroluxe.ua/ua/den-svyatoho-valentyna",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитячі дерев'яні ліжка",
+      "url": "https://matroluxe.ua/ua/derevyannye-krovati-detskie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Односпальні дерев'яні ліжка",
+      "url": "https://matroluxe.ua/ua/derevyannye-krovati-odnospalnye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дерев'яні полуторні ліжка",
+      "url": "https://matroluxe.ua/ua/derevyannye-krovati-polutornye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Двоспальні дерев'яні ліжка",
+      "url": "https://matroluxe.ua/ua/derevynie-krovati-dvuspalnye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитячі дивани",
+      "url": "https://matroluxe.ua/ua/detskie-divany",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитячі матраци з кокосом",
+      "url": "https://matroluxe.ua/ua/detskie-matrasy-s-kokosom",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитячі ковдри",
+      "url": "https://matroluxe.ua/ua/detskie-odeyala",
+      "category": "Подушки і аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани без підлокотників",
+      "url": "https://matroluxe.ua/ua/divan-bez-podlokotnikov",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани дельфін",
+      "url": "https://matroluxe.ua/ua/divan-delfin",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "дивани єврокнижка",
+      "url": "https://matroluxe.ua/ua/divan-evroknizhka",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Диван Mavka/Мавка без механізму",
       "url": "https://matroluxe.ua/ua/divan-mavka-bes-m",
       "category": "HoReCa",
       "issue": "short_description",
       "detail": "150 символів"
+    },
+    {
+      "name": "Дивани на кухню",
+      "url": "https://matroluxe.ua/ua/divan-na-kuhnyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани поворотні",
+      "url": "https://matroluxe.ua/ua/divan-povorotnyj",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани в передпокій",
+      "url": "https://matroluxe.ua/ua/divan-v-prihozhuyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани в спальню",
+      "url": "https://matroluxe.ua/ua/divan-v-spalnyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани розкладні вперед (викатні)",
+      "url": "https://matroluxe.ua/ua/divan-vikatbye",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани",
+      "url": "https://matroluxe.ua/ua/divany",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Великі дивани",
+      "url": "https://matroluxe.ua/ua/divany-bolshie",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани для офісу",
+      "url": "https://matroluxe.ua/ua/divany-dlya-ofisa",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Маленькі дивани",
+      "url": "https://matroluxe.ua/ua/divany-malenkie",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розкладні дивани",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розкладні дивани без підлокотників",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-bez-podlokotnikov",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Диван розкладний двоспальний",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-dvuhmestnye",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розкладний диван-малютка",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-malenkie",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розкладні дивани на кухню",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-na-kuhnyu",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутовий диван-ліжко",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-uglovye",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитяче диван-ліжко",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-v-detskuyu",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розкладні дивани у вітальню",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-v-gostinnuyu",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розкладні дивани у спальню",
+      "url": "https://matroluxe.ua/ua/divany-raskladnye-v-spalnyu",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові дивани",
+      "url": "https://matroluxe.ua/ua/divany-uglovye",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани у вітальню",
+      "url": "https://matroluxe.ua/ua/divany-v-gostinuyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Для дизайнерів",
+      "url": "https://matroluxe.ua/ua/dlya-dyzayneriv",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци для готелів",
+      "url": "https://matroluxe.ua/ua/dlya-gostinits",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Dominika",
+      "url": "https://matroluxe.ua/ua/dominika-2",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дводверні шафи-купе",
+      "url": "https://matroluxe.ua/ua/dvuhdvernye",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дводверні Розпашні шафи",
+      "url": "https://matroluxe.ua/ua/dvuhdvernye-1",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дводверні шафи з дзеркалом",
+      "url": "https://matroluxe.ua/ua/dvuhdvernye-2",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дводверні шафи",
+      "url": "https://matroluxe.ua/ua/dvuhdvernye-3",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Двомісні дивани для офісу",
+      "url": "https://matroluxe.ua/ua/dvuhmestnye-divany-office",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Двоярусні",
+      "url": "https://matroluxe.ua/ua/dvuhyarusnye-krovati-detskie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дводверні шафи",
+      "url": "https://matroluxe.ua/ua/dvukhdvernyye-shkafy-v-prikhozhuyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Двоярусні ліжка",
+      "url": "https://matroluxe.ua/ua/dvukhyarusnye-krovati",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка двоспальні",
+      "url": "https://matroluxe.ua/ua/dvuspalnye-krovati",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі двоспальні ліжка",
+      "url": "https://matroluxe.ua/ua/dvuspalnye-krovati-nedorogie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ексклюзивні матраци",
+      "url": "https://matroluxe.ua/ua/eksklyuzyvni-matratsy",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Футони для дивану",
+      "url": "https://matroluxe.ua/ua/futony-dlya-divana",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Готові шафи-купе",
+      "url": "https://matroluxe.ua/ua/gotovyye-shkafy-kupe",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "HoReCa HoReCa",
+      "url": "https://matroluxe.ua/ua/horeca",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Аксесуари для сну HoReCa",
+      "url": "https://matroluxe.ua/ua/horeca-aksessuary-dlya-sna",
+      "category": "Текстиль та аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани HoReCa",
+      "url": "https://matroluxe.ua/ua/horeca-divany",
+      "category": "Текстиль та аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка HoReCa",
+      "url": "https://matroluxe.ua/ua/horeca-krovati",
+      "category": "Текстиль та аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци HoReCa",
+      "url": "https://matroluxe.ua/ua/horeca-matrasy",
+      "category": "Текстиль та аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи HoReCa",
+      "url": "https://matroluxe.ua/ua/horeca-shkafy",
+      "category": "Текстиль та аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з ДСП",
+      "url": "https://matroluxe.ua/ua/iz-dsp",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Класичні ковдри",
+      "url": "https://matroluxe.ua/ua/klassicheskie-odeyala",
+      "category": "Подушки і аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Класичні подушки",
+      "url": "https://matroluxe.ua/ua/klassicheskie-podushki",
+      "category": "Ковдри",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Книжкові полиці",
+      "url": "https://matroluxe.ua/ua/knizhnye",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Книжкові шафи",
+      "url": "https://matroluxe.ua/ua/knizhnyyeshkafy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
     },
     {
       "name": "Комод Loom/Лум №2",
@@ -195,11 +713,53 @@
       "detail": ""
     },
     {
+      "name": "Комоди",
+      "url": "https://matroluxe.ua/ua/komody",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Комплекти меблів",
+      "url": "https://matroluxe.ua/ua/komplekty-mebeli",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Комп'ютерні столи",
+      "url": "https://matroluxe.ua/ua/kompyuternye-stoly",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Консоль Space/Спейс з Дзеркалом",
       "url": "https://matroluxe.ua/ua/konsole-space-s-zerkalom",
       "category": "HoReCa",
       "issue": "short_description",
       "detail": "188 символів"
+    },
+    {
+      "name": "Консолі",
+      "url": "https://matroluxe.ua/ua/konsoli",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Корпусні меблі",
+      "url": "https://matroluxe.ua/ua/korpusnaya-mebel",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Корпусні меблі",
+      "url": "https://matroluxe.ua/ua/korpusni-mebli",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
     },
     {
       "name": "Крісло Vesta/Веста",
@@ -214,6 +774,13 @@
       "category": "—",
       "issue": "short_description",
       "detail": "150 символів"
+    },
+    {
+      "name": "Акція на ліжко з матрацем",
+      "url": "https://matroluxe.ua/ua/krovat-matras",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
     },
     {
       "name": "Ліжко-подіум Aria/Аріа (1200х2000)",
@@ -300,9 +867,128 @@
       "detail": ""
     },
     {
+      "name": "Ліжка",
+      "url": "https://matroluxe.ua/ua/krovati",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка для дітей",
+      "url": "https://matroluxe.ua/ua/krovati-detskie-krovati",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Каркаси ліжка",
+      "url": "https://matroluxe.ua/ua/krovati-karkasy-krovati",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка з ДСП і МДФ",
+      "url": "https://matroluxe.ua/ua/krovati-krovati-iz-dsp-i-mdf",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дерев'яні ліжка",
+      "url": "https://matroluxe.ua/ua/krovati-krovati-iz-naturalnogo-dereva",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка подіуми",
+      "url": "https://matroluxe.ua/ua/krovati-krovati-podiumy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі ліжка",
+      "url": "https://matroluxe.ua/ua/krovati-nedorogie",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Односпальні ліжка з бортиком",
+      "url": "https://matroluxe.ua/ua/krovati-s-bortikom-odnospalnye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка з підйомним механізмом",
+      "url": "https://matroluxe.ua/ua/krovati-s-podyomnym-mehanizmom",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка з висувними ящиками",
+      "url": "https://matroluxe.ua/ua/krovati-s-yashchikami",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кухні",
+      "url": "https://matroluxe.ua/ua/kuhni",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "товары компании Matroluxe",
+      "url": "https://matroluxe.ua/ua/kukhonni-mebli-na-zamovlennia",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Квартальна акція",
+      "url": "https://matroluxe.ua/ua/kvartalnaya-aktsiya",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Lacoda",
+      "url": "https://matroluxe.ua/ua/lacoda",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "LUXE STUDIO",
       "url": "https://matroluxe.ua/ua/luxe-studio",
       "category": "Бренд",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Лайт",
+      "url": "https://matroluxe.ua/ua/lyte",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Marko",
+      "url": "https://matroluxe.ua/ua/marko",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци",
+      "url": "https://matroluxe.ua/ua/matras",
+      "category": "HoReCa",
       "issue": "no_description",
       "detail": ""
     },
@@ -316,6 +1002,55 @@
     {
       "name": "Матрац Diamond premium/Діамант преміум",
       "url": "https://matroluxe.ua/ua/matras-diamond-premium",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци для сну на підлозі",
+      "url": "https://matroluxe.ua/ua/matras-dlya-sna-na-polu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци для дітей",
+      "url": "https://matroluxe.ua/ua/matrasy-dlya-detey",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци Футони",
+      "url": "https://matroluxe.ua/ua/matrasy-futony",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци для диванів",
+      "url": "https://matroluxe.ua/ua/matrasy-na-divan",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци на пружинному блоці Ergonomic Spring System",
+      "url": "https://matroluxe.ua/ua/matrasy-na-pruzhinnom-bloke-ergonomic-spring-system",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци преміум класу",
+      "url": "https://matroluxe.ua/ua/matrasy-premium-klassa",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци топпери",
+      "url": "https://matroluxe.ua/ua/matrasy-toppery",
       "category": "HoReCa",
       "issue": "no_description",
       "detail": ""
@@ -356,6 +1091,48 @@
       "detail": ""
     },
     {
+      "name": "Ортопедичні матраци для літніх людей",
+      "url": "https://matroluxe.ua/ua/matratsy-dlya-litnikh-lyudey",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци для підлітків",
+      "url": "https://matroluxe.ua/ua/matratsy-dlya-pidlitkiv",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци для вагітних",
+      "url": "https://matroluxe.ua/ua/matratsy-dlya-vahitnykh",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци до спальні",
+      "url": "https://matroluxe.ua/ua/matratsy-do-spalni",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Полуторні матраци",
+      "url": "https://matroluxe.ua/ua/matratsy-polutorni",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци при алергії",
+      "url": "https://matroluxe.ua/ua/matratsy-pry-alerhiyi",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Matro",
       "url": "https://matroluxe.ua/ua/matro",
       "category": "Бренд",
@@ -370,6 +1147,62 @@
       "detail": ""
     },
     {
+      "name": "Тонкі матраци",
+      "url": "https://matroluxe.ua/ua/matroroll",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци на ліжко",
+      "url": "https://matroluxe.ua/ua/mattresses-on-the-bed",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матрац з кокосовим наповнювачем",
+      "url": "https://matroluxe.ua/ua/mattresses-with-coconut",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Латексні матраци",
+      "url": "https://matroluxe.ua/ua/mattresses-with-latex",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Меблі для дитячої кімнати",
+      "url": "https://matroluxe.ua/ua/mebel-dlya-detskoy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Меблі для вітальні",
+      "url": "https://matroluxe.ua/ua/mebel-dlya-gostinoy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Меблі для передпокою",
+      "url": "https://matroluxe.ua/ua/mebel-dlya-prikhozhey",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Меблі для спальні",
+      "url": "https://matroluxe.ua/ua/mebel-dlya-spalni",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Пуф Mellow/Меллоу",
       "url": "https://matroluxe.ua/ua/mellow-puf",
       "category": "—",
@@ -377,11 +1210,221 @@
       "detail": "260 символів"
     },
     {
+      "name": "Модульні кухні",
+      "url": "https://matroluxe.ua/ua/modulni-kuchni",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "М'які матраци",
+      "url": "https://matroluxe.ua/ua/myagkie",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі шафи на балкон",
+      "url": "https://matroluxe.ua/ua/na-balkon-1",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Білі шафи на балкон",
+      "url": "https://matroluxe.ua/ua/na-balkon-2",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи на балкон",
+      "url": "https://matroluxe.ua/ua/na-balkon-3",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ортопедичні матраци на подвійному пружинному блоці",
+      "url": "https://matroluxe.ua/ua/na-dvoynom-pruzhinnom-bloke",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци на пружинному блоці Pocket Spring",
+      "url": "https://matroluxe.ua/ua/na-pruzhinnom-bloke-pocket-spring",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци на пружинному блоці Smart Spring Multizone",
+      "url": "https://matroluxe.ua/ua/na-pruzhinnom-bloke-smart-spring-multizone",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Наматрацник Polet v empireye 2/Політ в емпіреї водоутримуючий 2",
       "url": "https://matroluxe.ua/ua/namatrasnik-vodonepronicaemyj-polet-v-imperee-2",
       "category": "Текстиль та аксесуари",
       "issue": "short_description",
       "detail": "63 символів"
+    },
+    {
+      "name": "Наматрацники захисні",
+      "url": "https://matroluxe.ua/ua/namatrasniki-zashitnye",
+      "category": "Подушки і аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі матраци",
+      "url": "https://matroluxe.ua/ua/nedorogie",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі дивани",
+      "url": "https://matroluxe.ua/ua/nedorogie-divany",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі дитячі дивани",
+      "url": "https://matroluxe.ua/ua/nedorogie-divany-detskie",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Двомісні дивани недорого",
+      "url": "https://matroluxe.ua/ua/nedorogie-divany-dvuhmestnye",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі м'які дивани",
+      "url": "https://matroluxe.ua/ua/nedorogie-divany-myagkie",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі прямі дивани",
+      "url": "https://matroluxe.ua/ua/nedorogie-divany-pryamye",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі розкладні дивани",
+      "url": "https://matroluxe.ua/ua/nedorogie-divany-raskladnye",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі кутові дивани",
+      "url": "https://matroluxe.ua/ua/nedorogie-divany-uglovye",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі шафи",
+      "url": "https://matroluxe.ua/ua/nedorogie-shkafy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Нерозкладні дивани для офісу",
+      "url": "https://matroluxe.ua/ua/neraskladnye-divany-office",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Новинки",
+      "url": "https://matroluxe.ua/ua/novelties",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Нові пропозиції",
+      "url": "https://matroluxe.ua/ua/novi-propozicii",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ковдри",
+      "url": "https://matroluxe.ua/ua/odeyala",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Однодверні Розпашні шафи",
+      "url": "https://matroluxe.ua/ua/odnodvernye",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Однодверні шафи з дзеркалом",
+      "url": "https://matroluxe.ua/ua/odnodvernye-1",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Односпальні ліжка",
+      "url": "https://matroluxe.ua/ua/odnospalnye-krovati",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі односпальні ліжка",
+      "url": "https://matroluxe.ua/ua/odnospalnye-krovati-nedorogie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Односпальні ліжка з ящиками",
+      "url": "https://matroluxe.ua/ua/odnospalnye-krovati-s-yashchikami",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Офісні столи",
+      "url": "https://matroluxe.ua/ua/ofisnye-stoly",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ортопедичні дивани",
+      "url": "https://matroluxe.ua/ua/ortopedicheskie-divany",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ортопедичні подушки",
+      "url": "https://matroluxe.ua/ua/ortopedicheskie-podushki",
+      "category": "Ковдри",
+      "issue": "no_description",
+      "detail": ""
     },
     {
       "name": "Пенал Askania/Асканія 1",
@@ -408,6 +1451,13 @@
       "name": "Пенал Askania Ultra/Асканія Ультра 2",
       "url": "https://matroluxe.ua/ua/penal-askania-ultra-2",
       "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафа-пенал",
+      "url": "https://matroluxe.ua/ua/penal-knizhnyy",
+      "category": "Шафи в дитячу",
       "issue": "no_description",
       "detail": ""
     },
@@ -454,9 +1504,142 @@
       "detail": ""
     },
     {
+      "name": "Шафа-пенал",
+      "url": "https://matroluxe.ua/ua/penal-v-prikhozhuyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Пенали з полицями",
+      "url": "https://matroluxe.ua/ua/penaly",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Письмові столи",
+      "url": "https://matroluxe.ua/ua/pismennye-stoly",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Підматрацники захисні",
+      "url": "https://matroluxe.ua/ua/podmatrasniki-zashitnye",
+      "category": "Подушки і аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Підліткові матраци",
+      "url": "https://matroluxe.ua/ua/podrostkovyye",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Подушка Барви/Barvy",
       "url": "https://matroluxe.ua/ua/podushka-barvy",
       "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Подушки і аксесуари",
+      "url": "https://matroluxe.ua/ua/podushki-i-aksessuary",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Полиці",
+      "url": "https://matroluxe.ua/ua/polki",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Навісні полки",
+      "url": "https://matroluxe.ua/ua/polki-navesnye",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Полуторні ліжка",
+      "url": "https://matroluxe.ua/ua/polutornye-krovati",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі полуторні ліжка",
+      "url": "https://matroluxe.ua/ua/polutornye-krovati-nedorogie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Приліжкові тумби",
+      "url": "https://matroluxe.ua/ua/prikrovatnye-tumby",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Пружинні дитячі матраци",
+      "url": "https://matroluxe.ua/ua/pruzhinnye-detskie-matrasy",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Пружинні матраци",
+      "url": "https://matroluxe.ua/ua/pruzhinnye-matrasy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Пружинні матраци Butterfly",
+      "url": "https://matroluxe.ua/ua/pruzhinnye-matrasy-butterfly",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Прямі шафи-купе",
+      "url": "https://matroluxe.ua/ua/pryamye",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Прямі дивани для офісу",
+      "url": "https://matroluxe.ua/ua/pryamye-divany-office",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі прямі шафи",
+      "url": "https://matroluxe.ua/ua/pryamye-shkafy",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Прямі шафи",
+      "url": "https://matroluxe.ua/ua/pryamye-shkafy-1",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Прямі шафи",
+      "url": "https://matroluxe.ua/ua/pryamyye-shkafy-v-prikhozhuyu",
+      "category": "Шафи в дитячу",
       "issue": "no_description",
       "detail": ""
     },
@@ -478,6 +1661,188 @@
       "name": "Пуф Круглий g 700",
       "url": "https://matroluxe.ua/ua/puf-g-700",
       "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розкладні дивани для офісу",
+      "url": "https://matroluxe.ua/ua/raskladnye-divany-office",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі розпашні шафи",
+      "url": "https://matroluxe.ua/ua/raspashnye-shkafy",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розпашні шафи",
+      "url": "https://matroluxe.ua/ua/raspashnye-shkafy-1",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розпашні шафи в передпокій",
+      "url": "https://matroluxe.ua/ua/raspashnyye-shkafy-v-prikhozhuyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитячі ліжка з бортиками і ящиками",
+      "url": "https://matroluxe.ua/ua/s-bortikami-i-yashchikami-krovati-detskie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитячі ліжка з бортиком",
+      "url": "https://matroluxe.ua/ua/s-bortikami-krovati-detskie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з кольоровими скельцями",
+      "url": "https://matroluxe.ua/ua/s-cvetnymi-steklami",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци з ефектом пам'яті",
+      "url": "https://matroluxe.ua/ua/s-ehffektom-pamjati",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з фотодруком",
+      "url": "https://matroluxe.ua/ua/s-fotopechatyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з комбінованими фасадами",
+      "url": "https://matroluxe.ua/ua/s-kombinirovannymi-fasadami",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Двоспальні ліжка з м'яким узголів'ям",
+      "url": "https://matroluxe.ua/ua/s-myagkim-izgolovem-krovati-dvuspalnye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з піскоструменем",
+      "url": "https://matroluxe.ua/ua/s-peskostruem",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка двоспальні з підйомним механізмом",
+      "url": "https://matroluxe.ua/ua/s-podemnym-mekhanizmom-krovati-dvuspalnye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі ліжка з підйомним механізмом",
+      "url": "https://matroluxe.ua/ua/s-podemnym-mekhanizmom-krovati-nedorogie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з висувними ящиками",
+      "url": "https://matroluxe.ua/ua/s-vydvizhnymi-yashikami",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи з висувними шухлядками",
+      "url": "https://matroluxe.ua/ua/s-vydvizhnymi-yashikami-1",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дитячі ліжка з ящиками",
+      "url": "https://matroluxe.ua/ua/s-yashchikami-krovati-detskie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Двоспальні ліжка з ящиками",
+      "url": "https://matroluxe.ua/ua/s-yashchikami-krovati-dvuspalnye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі ліжка з ящиками",
+      "url": "https://matroluxe.ua/ua/s-yashchikami-krovati-nedorogie",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Полуторні ліжка з висувними ящиками",
+      "url": "https://matroluxe.ua/ua/s-yashchikami-krovati-polutornye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з дзеркалом",
+      "url": "https://matroluxe.ua/ua/s-zerkalom",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи з дзеркалом",
+      "url": "https://matroluxe.ua/ua/s-zerkalom-1",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Sale",
+      "url": "https://matroluxe.ua/ua/sale",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Текстиль та аксесуари",
+      "url": "https://matroluxe.ua/ua/sale-aksessuary",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Дивани",
+      "url": "https://matroluxe.ua/ua/sale-divany",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Ліжка",
+      "url": "https://matroluxe.ua/ua/sale-lijka",
+      "category": "HoReCa",
       "issue": "no_description",
       "detail": ""
     },
@@ -713,6 +2078,34 @@
       "detail": ""
     },
     {
+      "name": "Шафа-пенал на кухню",
+      "url": "https://matroluxe.ua/ua/shkaf-penal-na-kukhnyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафа-пенал кутовий",
+      "url": "https://matroluxe.ua/ua/shkaf-penal-uglovoy",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафа-пенал в дитячу",
+      "url": "https://matroluxe.ua/ua/shkaf-penal-v-detskuyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафа-пенал у спальню",
+      "url": "https://matroluxe.ua/ua/shkaf-penal-v-spalnyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Шафа розпашна Aura/Аура №1",
       "url": "https://matroluxe.ua/ua/shkaf-raspashnoj-aura",
       "category": "HoReCa",
@@ -811,11 +2204,95 @@
       "detail": ""
     },
     {
+      "name": "Шафи",
+      "url": "https://matroluxe.ua/ua/shkafy",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Шафа-купе 3 двері ФМП/ФМП/ФМП малюнок Re060 Класік-2 210*200*45",
       "url": "https://matroluxe.ua/ua/shkafy-21649",
       "category": "HoReCa",
       "issue": "short_description",
       "detail": "63 символів"
+    },
+    {
+      "name": "Шафа-купе",
+      "url": "https://matroluxe.ua/ua/shkafy-kupe",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-пенали",
+      "url": "https://matroluxe.ua/ua/shkafy-penaly",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи з дзеркалом в передпокій",
+      "url": "https://matroluxe.ua/ua/shkafy-s-zerkalom-v-prikhozhuyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи в дитячу",
+      "url": "https://matroluxe.ua/ua/shkafy-v-detskuyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи у вітальню",
+      "url": "https://matroluxe.ua/ua/shkafy-v-gostinnuyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи у вітальню",
+      "url": "https://matroluxe.ua/ua/shkafy-v-gostinnuyu-1",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи в передпокій (коридор)",
+      "url": "https://matroluxe.ua/ua/shkafy-v-prihozhuyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи в спальню",
+      "url": "https://matroluxe.ua/ua/shkafy-v-spalnyu",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци скручені",
+      "url": "https://matroluxe.ua/ua/skruchennyye",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матраци середньої жорсткості",
+      "url": "https://matroluxe.ua/ua/srednyaya-zhestkost",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Стелажі",
+      "url": "https://matroluxe.ua/ua/stellazhi",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
     },
     {
       "name": "Туалетний стіл Loom/Лум",
@@ -830,6 +2307,83 @@
       "category": "HoReCa",
       "issue": "short_description",
       "detail": "207 символів"
+    },
+    {
+      "name": "Столи",
+      "url": "https://matroluxe.ua/ua/stoly",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Столи-книжка",
+      "url": "https://matroluxe.ua/ua/stoly-knizhki",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Столи-трансформери",
+      "url": "https://matroluxe.ua/ua/stoly-transformer",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Журнальні столики",
+      "url": "https://matroluxe.ua/ua/stoly-zhurnalnye",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Топеры Аура",
+      "url": "https://matroluxe.ua/ua/toppery-aura",
+      "category": "—",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Топпери для дивану",
+      "url": "https://matroluxe.ua/ua/toppery-dlya-divana",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Топери на ліжко",
+      "url": "https://matroluxe.ua/ua/toppery-dlya-krovati",
+      "category": "Матраци полуторні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тридверні Розпашні шафи",
+      "url": "https://matroluxe.ua/ua/trehdvernye",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тридверні шафи з дзеркалом",
+      "url": "https://matroluxe.ua/ua/trehdvernye-1",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тридверні шафи",
+      "url": "https://matroluxe.ua/ua/trehdvernye-2",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тридверні шафи-купе",
+      "url": "https://matroluxe.ua/ua/trehdvernye-3",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
     },
     {
       "name": "Тумба підвісна Askania/Асканія 1 (1 шухляда)",
@@ -1133,6 +2687,342 @@
       "detail": ""
     },
     {
+      "name": "Тумби",
+      "url": "https://matroluxe.ua/ua/tumby",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тумби для взуття",
+      "url": "https://matroluxe.ua/ua/tumby-dlya-obuvi",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тумби під телевізор",
+      "url": "https://matroluxe.ua/ua/tumby-pod-tv",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові недорогі шафи",
+      "url": "https://matroluxe.ua/ua/uglovye-1",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові дивани без підлокотників",
+      "url": "https://matroluxe.ua/ua/uglovye-bez-podlokotnikov",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові великі дивани",
+      "url": "https://matroluxe.ua/ua/uglovye-bolshie-divany",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові дивани для офісу",
+      "url": "https://matroluxe.ua/ua/uglovye-divani-office",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові дивани у вітальню",
+      "url": "https://matroluxe.ua/ua/uglovye-divany-v-gostinnuyu",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові дивани в спальню",
+      "url": "https://matroluxe.ua/ua/uglovye-divany-v-spalnyu",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові односпальні ліжка",
+      "url": "https://matroluxe.ua/ua/uglovye-krovati-odnospalnye",
+      "category": "Двоярусні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові м'які дивани",
+      "url": "https://matroluxe.ua/ua/uglovye-myagkie-divany",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові шафи",
+      "url": "https://matroluxe.ua/ua/uglovye-shkafy",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові шафи",
+      "url": "https://matroluxe.ua/ua/uglovyye-knizhnyye-shkafy",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові шафи",
+      "url": "https://matroluxe.ua/ua/uglovyye-shkafy-v-prikhozhuyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе в дитячу з дзеркалом",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-1",
+      "category": "Трьохдверні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тумби в дитячу",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-10",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Столи в дитячу кімнату",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-11",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі шафи в дитячу",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-3",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розпашні шафи в дитячу",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-4",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи з дзеркалом в дитячу",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-5",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Білі шафи в дитячу",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-6",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе в дитячу кімнату",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-7",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Полиці в дитячу кімнату",
+      "url": "https://matroluxe.ua/ua/v-detskuyu-9",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі шафи у вітальню",
+      "url": "https://matroluxe.ua/ua/v-gostinnuyu-2",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Розпашні шафи у вітальню",
+      "url": "https://matroluxe.ua/ua/v-gostinnuyu-3",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе в вітальню",
+      "url": "https://matroluxe.ua/ua/v-gostinnuyu-4",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Білі шафи в вітальню",
+      "url": "https://matroluxe.ua/ua/v-gostinuyu",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Стелажі у вітальню",
+      "url": "https://matroluxe.ua/ua/v-gostinuyu-3",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тумби у вітальню",
+      "url": "https://matroluxe.ua/ua/v-gostinuyu-4",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Столи в вітальню",
+      "url": "https://matroluxe.ua/ua/v-gostinuyu-5",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з дзеркалом в передпокій",
+      "url": "https://matroluxe.ua/ua/v-prihozhuyu-1",
+      "category": "Трьохдверні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Полиці в коридор",
+      "url": "https://matroluxe.ua/ua/v-prihozhuyu-10",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тумби в передпокій",
+      "url": "https://matroluxe.ua/ua/v-prihozhuyu-11",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Столи в передпокій",
+      "url": "https://matroluxe.ua/ua/v-prihozhuyu-12",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі шафи в передпокій",
+      "url": "https://matroluxe.ua/ua/v-prihozhuyu-3",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Білі шафи в передпокій",
+      "url": "https://matroluxe.ua/ua/v-prihozhuyu-6",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе з дзеркалом в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-1",
+      "category": "Трьохдверні",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Полиці навісні",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-10",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Тумби в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-11",
+      "category": "Столи",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Столи в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-12",
+      "category": "Комоди",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Недорогі шафи в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-3",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Орні шафи в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-4",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи з дзеркалом в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-5",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Білі шафи в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-6",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Шафи-купе в спальню",
+      "url": "https://matroluxe.ua/ua/v-spalnyu-7",
+      "category": "Шафи в дитячу",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Вологостійкі наматрацники",
+      "url": "https://matroluxe.ua/ua/vlagostojkie-namatrasniki",
+      "category": "Подушки і аксесуари",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Кутові дивани з поворотним механізмом",
+      "url": "https://matroluxe.ua/ua/yglovye-s-povorotnym-mehanizmom",
+      "category": "М'які",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Захист для матраца",
+      "url": "https://matroluxe.ua/ua/zashchita-dlya-matrasa",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Дзеркало Loom/Лум",
       "url": "https://matroluxe.ua/ua/zerkalo-loom",
       "category": "HoReCa",
@@ -1152,6 +3042,13 @@
       "category": "HoReCa",
       "issue": "short_description",
       "detail": "72 символів"
+    },
+    {
+      "name": "Жорсткі матраци",
+      "url": "https://matroluxe.ua/ua/zhestkie",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
     }
   ]
 }
