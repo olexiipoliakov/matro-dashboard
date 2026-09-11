@@ -198,22 +198,43 @@ def has_photo(soup, ld=None):
     return False
 
 
-def is_product(soup, ld=None):
+# Плитки товарів у списку. Якщо їх кілька — перед нами підбірка, а не картка.
+LISTING_TILE_SELECTOR = (
+    ".product-thumb, .product-layout, .product-grid .product, "
+    "li.product-item, .product-list .product, .catalog-item"
+)
+LISTING_MIN_TILES = 3
+
+
+def product_signals(soup, ld=None):
+    """Ознаки сторінки, розкладені по силі — щоб їх було видно в --probe.
+
+    Сильна ознака буває ТІЛЬКИ на картці одного товару: форма додавання в
+    кошик, вкладка «Опис», og:type=product. Слабкі (ціна в розмітці, будь-який
+    Product у ld+json) є і на сторінках-підбірках, бо їхні плитки теж несуть
+    ціну й мікророзмітку — саме через них в аудит потрапили «Дивани»,
+    «Комплекти меблів» і «Акція».
+    """
     ld = ld if ld is not None else jsonld(soup)
-    if "Product" in ld:
-        return True
-    if soup.select_one(".product_tab_content.tab-description"):
-        return True
-    if soup.select_one("#button-cart, [id^=button-cart]"):
-        return True
-    if soup.select_one('input[name="product_id"]'):
-        return True
     og = soup.select_one('meta[property="og:type"]')
-    if og and "product" in (og.get("content") or "").lower():
+    ld_product = ld.get("Product") if isinstance(ld.get("Product"), dict) else None
+    return {
+        "button_cart": bool(soup.select_one("#button-cart, [id^=button-cart]")),
+        "product_id_input": bool(soup.select_one('form input[name="product_id"]')),
+        "tab_description": bool(soup.select_one(".product_tab_content.tab-description")),
+        "og_type_product": bool(og and "product" in (og.get("content") or "").lower()),
+        "ld_product_with_offer": bool(ld_product and (ld_product.get("offers") or ld_product.get("sku"))),
+        "tiles": len(soup.select(LISTING_TILE_SELECTOR)),
+    }
+
+
+def is_product(soup, ld=None):
+    sig = product_signals(soup, ld)
+    if sig["button_cart"] or sig["product_id_input"] or sig["tab_description"] or sig["og_type_product"]:
         return True
-    if soup.select_one('[itemprop="price"], [itemprop="offers"]'):
-        return True
-    return False
+    if sig["tiles"] >= LISTING_MIN_TILES:
+        return False
+    return sig["ld_product_with_offer"]
 
 
 def product_name(soup, url, ld=None):
@@ -367,8 +388,15 @@ if __name__ == "__main__":
         soup = BeautifulSoup(r.text, "html.parser")
         ld = jsonld(soup)
         text, how = find_description(soup, ld)
+        sig = product_signals(soup, ld)
         print(f"HTTP           : {r.status_code}")
         print(f"це товар       : {is_product(soup, ld)}")
+        print( "  сильні ознаки:")
+        for k in ("button_cart", "product_id_input", "tab_description", "og_type_product"):
+            print(f"    {k:<22} {'ТАК' if sig[k] else 'ні'}")
+        print(f"  плиток товарів у списку: {sig['tiles']} "
+              f"(від {LISTING_MIN_TILES} вважаємо сторінкою-підбіркою)")
+        print(f"  Product у мікророзмітці з ціною: {'ТАК' if sig['ld_product_with_offer'] else 'ні'}")
         print(f"назва          : {product_name(soup, url, ld)}")
         print(f"категорія      : {product_category(soup, ld)}")
         print(f"опис знайдено  : {how or 'НІ — жодна стратегія не спрацювала'}")
