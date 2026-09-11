@@ -229,12 +229,18 @@ def product_signals(soup, ld=None):
 
 
 def is_product(soup, ld=None):
+    """Картка товару — це сторінка з ознакою САМОГО товару: форма додавання
+    в кошик, вкладка «Опис» або og:type=product.
+
+    Мікророзмітку Product за доказ свідомо не беремо: на matroluxe вона стоїть
+    і на сторінках-підбірках («Дивани», «Комплекти меблів»), де жодної
+    справжньої ознаки немає. Саме через неї розділи потрапляли в аудит як
+    товари без опису. Плитки теж не рятують — тема верстає списки своїми
+    класами, і лічильник на «Диванах» показав нуль.
+    """
     sig = product_signals(soup, ld)
-    if sig["button_cart"] or sig["product_id_input"] or sig["tab_description"] or sig["og_type_product"]:
-        return True
-    if sig["tiles"] >= LISTING_MIN_TILES:
-        return False
-    return sig["ld_product_with_offer"]
+    return bool(sig["button_cart"] or sig["product_id_input"]
+                or sig["tab_description"] or sig["og_type_product"])
 
 
 def product_name(soup, url, ld=None):
