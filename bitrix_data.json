@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-16",
-  "period_from": "2026-06-18",
+  "generated_at": "2026-09-17",
+  "period_from": "2026-06-19",
   "meta": {
     "portal_url": "https://matroluxe.bitrix24.eu",
     "stages": {
@@ -469,174 +469,6 @@
     }
   },
   "deals": [
-    {
-      "id": "137696",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 6840.0,
-      "manager_id": "128",
-      "source_id": "WEBFORM",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "product": "Матрац Lier/Лієр 90*200 знижка промокод, вакум скрутка"
-    },
-    {
-      "id": "137698",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 20830.0,
-      "manager_id": "10",
-      "source_id": "CALL",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "product": "Сан - Розмір матрацу (ШхД): 160x200 см"
-    },
-    {
-      "id": "137700",
-      "date": "2026-06-18",
-      "stage_id": "PREPARATION",
-      "amount": 15619.0,
-      "manager_id": "12",
-      "source_id": "CALL",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": "Матрас Camelia/Камелия двусторонний 180*200 знижка"
-    },
-    {
-      "id": "137702",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 6337.0,
-      "manager_id": "128",
-      "source_id": "WEBFORM",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": "Матрац Aura Kokos/Аура Кокос 180*200 скрутка промокод"
-    },
-    {
-      "id": "137704",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 13950.0,
-      "manager_id": "14",
-      "source_id": "CALL",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "product": "Матрац Грог/Grog - Розмір матрацу (ШхД): 180x200"
-    },
-    {
-      "id": "137706",
-      "date": "2026-06-18",
-      "stage_id": "NEW",
-      "amount": 14206.0,
-      "manager_id": "128",
-      "source_id": "WEBFORM",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": "Матрац Camelia/Камелія двосторінній 160*200"
-    },
-    {
-      "id": "137708",
-      "date": "2026-06-18",
-      "stage_id": "LOSE",
-      "amount": 4570.0,
-      "manager_id": "122",
-      "source_id": "UC_S1T3W0",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": ""
-    },
-    {
-      "id": "137710",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 17060.0,
-      "manager_id": "128",
-      "source_id": "CALLBACK",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": "Дімаро Тканина Гемма 90 7%"
-    },
-    {
-      "id": "137712",
-      "date": "2026-06-18",
-      "stage_id": "8",
-      "amount": 25860.0,
-      "manager_id": "128",
-      "source_id": "WEBFORM",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "product": ""
-    },
-    {
-      "id": "137714",
-      "date": "2026-06-18",
-      "stage_id": "LOSE",
-      "amount": 9676.0,
-      "manager_id": "12",
-      "source_id": "CALL",
-      "utm_source": "google",
-      "utm_campaign": "Search_matras",
-      "utm_medium": "cpc",
-      "product": ""
-    },
-    {
-      "id": "137716",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 22112.0,
-      "manager_id": "128",
-      "source_id": "CALL",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": "Матрац Romance/Романс 80*190 промокод"
-    },
-    {
-      "id": "137718",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 7852.0,
-      "manager_id": "10",
-      "source_id": "1",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "product": "нал плат нп + ще 1 поз."
-    },
-    {
-      "id": "137720",
-      "date": "2026-06-18",
-      "stage_id": "2",
-      "amount": 14618.0,
-      "manager_id": "128",
-      "source_id": "CALL",
-      "utm_source": "google",
-      "utm_campaign": "Krovati",
-      "utm_medium": "cpc",
-      "product": "Матрац Like/Лайк 140*200"
-    },
-    {
-      "id": "137722",
-      "date": "2026-06-18",
-      "stage_id": "LOSE",
-      "amount": 10228.0,
-      "manager_id": "128",
-      "source_id": "CALL",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "product": ""
-    },
     {
       "id": "137724",
       "date": "2026-06-19",
@@ -14800,7 +14632,7 @@
     {
       "id": "140082",
       "date": "2026-08-23",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 6810.0,
       "manager_id": "128",
       "source_id": "CALL",
@@ -17740,7 +17572,7 @@
     {
       "id": "140572",
       "date": "2026-09-04",
-      "stage_id": "6",
+      "stage_id": "2",
       "amount": 16010.0,
       "manager_id": "128",
       "source_id": "UC_5B6PJK",
@@ -19708,7 +19540,7 @@
     {
       "id": "140900",
       "date": "2026-09-14",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 30086.0,
       "manager_id": "1342",
       "source_id": "UC_5B6PJK",
@@ -19792,7 +19624,7 @@
     {
       "id": "140914",
       "date": "2026-09-15",
-      "stage_id": "NEW",
+      "stage_id": "2",
       "amount": 8290.0,
       "manager_id": "128",
       "source_id": "UC_5B6PJK",
@@ -20008,7 +19840,7 @@
     {
       "id": "140950",
       "date": "2026-09-16",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 10493.0,
       "manager_id": "128",
       "source_id": "UC_5B6PJK",
@@ -20068,7 +19900,7 @@
     {
       "id": "140960",
       "date": "2026-09-16",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 12848.0,
       "manager_id": "128",
       "source_id": "UC_5B6PJK",
@@ -20128,7 +19960,7 @@
     {
       "id": "140970",
       "date": "2026-09-16",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 17244.0,
       "manager_id": "1342",
       "source_id": "UC_5B6PJK",
@@ -20140,7 +19972,7 @@
     {
       "id": "140972",
       "date": "2026-09-16",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 20496.0,
       "manager_id": "128",
       "source_id": "WEBFORM",
@@ -20152,7 +19984,7 @@
     {
       "id": "140974",
       "date": "2026-09-16",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 13248.0,
       "manager_id": "1342",
       "source_id": "CALL",
@@ -20212,7 +20044,7 @@
     {
       "id": "140984",
       "date": "2026-09-16",
-      "stage_id": "NEW",
+      "stage_id": "6",
       "amount": 20913.0,
       "manager_id": "128",
       "source_id": "CALL",
@@ -20220,761 +20052,81 @@
       "utm_campaign": "(direct)",
       "utm_medium": "(none)",
       "product": "Наматрацник натяжний 80*190 знижка * 2 шт + ще 1 поз."
+    },
+    {
+      "id": "140986",
+      "date": "2026-09-17",
+      "stage_id": "6",
+      "amount": 5650.0,
+      "manager_id": "1342",
+      "source_id": "UC_5B6PJK",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc",
+      "product": "Матрац Provance/Прованс 90*200"
+    },
+    {
+      "id": "140988",
+      "date": "2026-09-17",
+      "stage_id": "2",
+      "amount": 6799.0,
+      "manager_id": "128",
+      "source_id": "CALL",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "product": "Матрац Aura Kokos/Аура Кокос 160*200 со склада ОДЕСА з наявності"
+    },
+    {
+      "id": "140990",
+      "date": "2026-09-17",
+      "stage_id": "2",
+      "amount": 3269.0,
+      "manager_id": "12",
+      "source_id": "UC_8AMYMZ",
+      "utm_source": "DDA",
+      "utm_campaign": "DDA+|+конверсії+матрас+|+23.07.2026",
+      "utm_medium": "cpc",
+      "product": "Подушка Політ в емпіреї 2 шт + ще 1 поз."
+    },
+    {
+      "id": "140992",
+      "date": "2026-09-17",
+      "stage_id": "6",
+      "amount": 10000.0,
+      "manager_id": "128",
+      "source_id": "CALL",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc",
+      "product": "Матрац Four Red Rubin/Рубін 160*190 скидка служебка"
+    },
+    {
+      "id": "140994",
+      "date": "2026-09-17",
+      "stage_id": "NEW",
+      "amount": 18522.0,
+      "manager_id": "12",
+      "source_id": "CALL",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "product": "Матрац Camelia+kokos/Камелія+кокос 180*200 знижка"
+    },
+    {
+      "id": "140996",
+      "date": "2026-09-17",
+      "stage_id": "NEW",
+      "amount": 17464.0,
+      "manager_id": "1342",
+      "source_id": "UC_8AMYMZ",
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>",
+      "product": "Ліжко САН 160x200 + матрас LEO, з підйомним механізмом, дерев'яна рама Флокс 26"
     }
   ],
   "leads": [
-    {
-      "id": "152070",
-      "title": "Ольга  Шляхтиченко",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 13950.0,
-      "manager_id": "14",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152072",
-      "title": "Вікторія  Гуйван",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 2257.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "490",
-      "reject_reason_text": "",
-      "reject_reason_name": "немає в наявності"
-    },
-    {
-      "id": "152074",
-      "title": "чехол  для надувного матраца",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "398",
-      "reject_reason_text": "",
-      "reject_reason_name": "не заказывали / не туди попали"
-    },
-    {
-      "id": "152076",
-      "title": "Поїде до Араксу",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "392",
-      "reject_reason_text": "",
-      "reject_reason_name": "пойду в магазин"
-    },
-    {
-      "id": "152078",
-      "title": "TEST  TEST",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "UC_5B6PJK",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "466",
-      "reject_reason_text": "",
-      "reject_reason_name": "тест"
-    },
-    {
-      "id": "152080",
-      "title": "не акт тел",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "google",
-      "utm_campaign": "shopping_all",
-      "utm_medium": "cpc",
-      "reject_reason": "450",
-      "reject_reason_text": "",
-      "reject_reason_name": "нет связи / не дозвонились"
-    },
-    {
-      "id": "152082",
-      "title": "Маг в ЗП",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "392",
-      "reject_reason_text": "",
-      "reject_reason_name": "пойду в магазин"
-    },
-    {
-      "id": "152084",
-      "title": "Валеріан",
-      "date": "2026-06-18",
-      "status_id": "IN_PROCESS",
-      "source_id": "1",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152086",
-      "title": "Вольвин Василь Васильович",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 15619.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152088",
-      "title": "наматр на змейке",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "490",
-      "reject_reason_text": "",
-      "reject_reason_name": "немає в наявності"
-    },
-    {
-      "id": "152090",
-      "title": "Лариса  Михницкая",
-      "date": "2026-06-18",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "www.google.com",
-      "utm_campaign": "(organic)",
-      "utm_medium": "organic",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152092",
-      "title": "Анастасія",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "WEBFORM",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152094",
-      "title": "Комод  за її параметрами-немає в наявності",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "490",
-      "reject_reason_text": "",
-      "reject_reason_name": "немає в наявності"
-    },
-    {
-      "id": "152096",
-      "title": "380936255220",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "14",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "388",
-      "reject_reason_text": "",
-      "reject_reason_name": "дорого"
-    },
-    {
-      "id": "152098",
-      "title": "Олександр",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "WEBFORM",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152100",
-      "title": "подматрасник  дорогая доставка и нужен на сегодня Николаев",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "google_com",
-      "utm_campaign": "Pmax_all_goroda_com",
-      "utm_medium": "cpc",
-      "reject_reason": "388",
-      "reject_reason_text": "",
-      "reject_reason_name": "дорого"
-    },
-    {
-      "id": "152102",
-      "title": "маг.  Чернівці",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "392",
-      "reject_reason_text": "",
-      "reject_reason_name": "пойду в магазин"
-    },
-    {
-      "id": "152104",
-      "title": "дсп  венге",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "com.google.android.googlequicksearchbox",
-      "utm_campaign": "(organic)",
-      "utm_medium": "organic",
-      "reject_reason": "490",
-      "reject_reason_text": "",
-      "reject_reason_name": "немає в наявності"
-    },
-    {
-      "id": "152106",
-      "title": "магазині в одессе",
-      "date": "2026-06-18",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "google",
-      "utm_campaign": "auto",
-      "utm_medium": "cpc",
-      "reject_reason": "392",
-      "reject_reason_text": "",
-      "reject_reason_name": "пойду в магазин"
-    },
-    {
-      "id": "152110",
-      "title": "Купувала в Чернівцях",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "google",
-      "utm_campaign": "Brand",
-      "utm_medium": "cpc",
-      "reject_reason": "582",
-      "reject_reason_text": "",
-      "reject_reason_name": "не у нас заказали / рекламация не наша"
-    },
-    {
-      "id": "152112",
-      "title": "Nataliia",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "google",
-      "utm_campaign": "Shopping_all",
-      "utm_medium": "cpc",
-      "reject_reason": "696",
-      "reject_reason_text": "",
-      "reject_reason_name": "клиент думает / ищет"
-    },
-    {
-      "id": "152114",
-      "title": "Купувала в Чернівцях",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "google",
-      "utm_campaign": "Brand",
-      "utm_medium": "cpc",
-      "reject_reason": "582",
-      "reject_reason_text": "",
-      "reject_reason_name": "не у нас заказали / рекламация не наша"
-    },
-    {
-      "id": "152116",
-      "title": "маг.  Кременчук",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "392",
-      "reject_reason_text": "",
-      "reject_reason_name": "пойду в магазин"
-    },
-    {
-      "id": "152118",
-      "title": "Ольга",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "1",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "reject_reason": "696",
-      "reject_reason_text": "",
-      "reject_reason_name": "клиент думает / ищет"
-    },
-    {
-      "id": "152120",
-      "title": "Олексій  Поляков",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "UC_5B6PJK",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "466",
-      "reject_reason_text": "",
-      "reject_reason_name": "тест"
-    },
-    {
-      "id": "152122",
-      "title": "Анатолій",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "WEBFORM",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "516",
-      "reject_reason_text": "",
-      "reject_reason_name": "сроки"
-    },
-    {
-      "id": "152124",
-      "title": "Маргарита  Полгородник",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "UC_5B6PJK",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "466",
-      "reject_reason_text": "",
-      "reject_reason_name": "тест"
-    },
-    {
-      "id": "152126",
-      "title": "Яна  Миргорода",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "450",
-      "reject_reason_text": "",
-      "reject_reason_name": "нет связи / не дозвонились"
-    },
-    {
-      "id": "152130",
-      "title": "Співпраця",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "580",
-      "reject_reason_text": "",
-      "reject_reason_name": "співпраця"
-    },
-    {
-      "id": "152132",
-      "title": "Осадча  Тетяна",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "UC_S1T3W0",
-      "semantic": "F",
-      "amount": 4570.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "604",
-      "reject_reason_text": "",
-      "reject_reason_name": "отказ из-за предоплаты"
-    },
-    {
-      "id": "152136",
-      "title": "Анатолий",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "388",
-      "reject_reason_text": "",
-      "reject_reason_name": "дорого"
-    },
-    {
-      "id": "152138",
-      "title": "Футон  1 кокос 135*190",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "google",
-      "utm_campaign": "Kiev_search_matras",
-      "utm_medium": "cpc",
-      "reject_reason": "392",
-      "reject_reason_text": "",
-      "reject_reason_name": "пойду в магазин"
-    },
-    {
-      "id": "152140",
-      "title": "Горобець  Емма",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 9676.0,
-      "manager_id": "12",
-      "utm_source": "google",
-      "utm_campaign": "Search_matras",
-      "utm_medium": "cpc",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152142",
-      "title": "Vitaliy  Satanivskiy",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152144",
-      "title": "Марина",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "1",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "reject_reason": "696",
-      "reject_reason_text": "",
-      "reject_reason_name": "клиент думает / ищет"
-    },
-    {
-      "id": "152146",
-      "title": "Номер не існує",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "450",
-      "reject_reason_text": "",
-      "reject_reason_name": "нет связи / не дозвонились"
-    },
-    {
-      "id": "152148",
-      "title": "Христина",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "1",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "reject_reason": "392",
-      "reject_reason_text": "",
-      "reject_reason_name": "пойду в магазин"
-    },
-    {
-      "id": "152150",
-      "title": "Кирнос  Анастасія",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "UC_S1T3W0",
-      "semantic": "F",
-      "amount": 8274.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "604",
-      "reject_reason_text": "",
-      "reject_reason_name": "отказ из-за предоплаты"
-    },
-    {
-      "id": "152152",
-      "title": "Калинин  О.",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152154",
-      "title": "Нижник  Олена",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "1",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152156",
-      "title": "Залізні ліжка шукає",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "12",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "490",
-      "reject_reason_text": "",
-      "reject_reason_name": "немає в наявності"
-    },
-    {
-      "id": "152160",
-      "title": "380951740773",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "582",
-      "reject_reason_text": "",
-      "reject_reason_name": "не у нас заказали / рекламация не наша"
-    },
-    {
-      "id": "152162",
-      "title": "Руслан",
-      "date": "2026-06-18",
-      "status_id": "IN_PROCESS",
-      "source_id": "CALL",
-      "semantic": "P",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "google",
-      "utm_campaign": "Sale",
-      "utm_medium": "cpc",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152164",
-      "title": "380994276891",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "122",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "582",
-      "reject_reason_text": "",
-      "reject_reason_name": "не у нас заказали / рекламация не наша"
-    },
-    {
-      "id": "152166",
-      "title": "Ірина",
-      "date": "2026-06-18",
-      "status_id": "CONVERTED",
-      "source_id": "CALL",
-      "semantic": "S",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
-    {
-      "id": "152168",
-      "title": "Роман",
-      "date": "2026-06-18",
-      "status_id": "JUNK",
-      "source_id": "WEBFORM",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "128",
-      "utm_source": "<none>",
-      "utm_campaign": "<none>",
-      "utm_medium": "<none>",
-      "reject_reason": "388",
-      "reject_reason_text": "",
-      "reject_reason_name": "дорого"
-    },
-    {
-      "id": "152170",
-      "title": "380938483088",
-      "date": "2026-06-18",
-      "status_id": "1",
-      "source_id": "CALL",
-      "semantic": "F",
-      "amount": 0.0,
-      "manager_id": "10",
-      "utm_source": "",
-      "utm_campaign": "",
-      "utm_medium": "",
-      "reject_reason": "",
-      "reject_reason_text": "",
-      "reject_reason_name": ""
-    },
     {
       "id": "152172",
       "title": "Ника",
@@ -101587,33 +100739,33 @@
       "id": "162982",
       "title": "Анатолий",
       "date": "2026-09-14",
-      "status_id": "IN_PROCESS",
+      "status_id": "JUNK",
       "source_id": "WEB - Зворотний дзвінок",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "1342",
       "utm_source": "google",
       "utm_campaign": "Sale",
       "utm_medium": "cpc",
-      "reject_reason": "",
+      "reject_reason": "490",
       "reject_reason_text": "",
-      "reject_reason_name": ""
+      "reject_reason_name": "немає в наявності"
     },
     {
       "id": "162984",
       "title": "Славик",
       "date": "2026-09-14",
-      "status_id": "IN_PROCESS",
+      "status_id": "JUNK",
       "source_id": "WEBFORM",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "<none>",
       "utm_campaign": "",
       "utm_medium": "",
-      "reject_reason": "",
+      "reject_reason": "490",
       "reject_reason_text": "",
-      "reject_reason_name": ""
+      "reject_reason_name": "немає в наявності"
     },
     {
       "id": "162986",
@@ -102179,9 +101331,9 @@
       "id": "163060",
       "title": "Юрій",
       "date": "2026-09-14",
-      "status_id": "IN_PROCESS",
+      "status_id": "CONVERTED",
       "source_id": "CALL",
-      "semantic": "P",
+      "semantic": "S",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "google",
@@ -104003,9 +103155,9 @@
       "id": "163314",
       "title": "Онопрієнко Дар'я Віталіївна",
       "date": "2026-09-16",
-      "status_id": "IN_PROCESS",
+      "status_id": "CONVERTED",
       "source_id": "UC_8AMYMZ",
-      "semantic": "P",
+      "semantic": "S",
       "amount": 16988.0,
       "manager_id": "1342",
       "utm_source": "<none>",
@@ -104179,17 +103331,17 @@
       "id": "163340",
       "title": "Протипролежневий  матрац",
       "date": "2026-09-16",
-      "status_id": "IN_PROCESS",
+      "status_id": "JUNK",
       "source_id": "CALL",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "1342",
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": "",
-      "reject_reason": "",
+      "reject_reason": "490",
       "reject_reason_text": "",
-      "reject_reason_name": ""
+      "reject_reason_name": "немає в наявності"
     },
     {
       "id": "163342",
@@ -104291,17 +103443,17 @@
       "id": "163354",
       "title": "АННА",
       "date": "2026-09-16",
-      "status_id": "IN_PROCESS",
+      "status_id": "JUNK",
       "source_id": "CALL",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "google",
       "utm_campaign": "Search_matras",
       "utm_medium": "cpc",
-      "reject_reason": "",
+      "reject_reason": "696",
       "reject_reason_text": "",
-      "reject_reason_name": ""
+      "reject_reason_name": "клиент думает / ищет"
     },
     {
       "id": "163356",
@@ -104883,11 +104035,11 @@
       "id": "163428",
       "title": "Олександр  Пархоменко",
       "date": "2026-09-16",
-      "status_id": "NEW",
+      "status_id": "CONVERTED",
       "source_id": "UC_5B6PJK",
-      "semantic": "P",
+      "semantic": "S",
       "amount": 0.0,
-      "manager_id": "122",
+      "manager_id": "1342",
       "utm_source": "google",
       "utm_campaign": "Brand",
       "utm_medium": "cpc",
@@ -104899,11 +104051,11 @@
       "id": "163430",
       "title": "Олександр  Пархоменко",
       "date": "2026-09-16",
-      "status_id": "NEW",
+      "status_id": "1",
       "source_id": "UC_5B6PJK",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
-      "manager_id": "122",
+      "manager_id": "1342",
       "utm_source": "",
       "utm_campaign": "",
       "utm_medium": "",
@@ -104915,9 +104067,9 @@
       "id": "163432",
       "title": "Роман",
       "date": "2026-09-16",
-      "status_id": "NEW",
+      "status_id": "1",
       "source_id": "UC_5B6PJK",
-      "semantic": "P",
+      "semantic": "F",
       "amount": 0.0,
       "manager_id": "128",
       "utm_source": "",
@@ -104931,8 +104083,248 @@
       "id": "163434",
       "title": "Роман",
       "date": "2026-09-16",
-      "status_id": "NEW",
+      "status_id": "1",
       "source_id": "UC_5B6PJK",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163436",
+      "title": "Яковишин  Оксана",
+      "date": "2026-09-17",
+      "status_id": "NEW",
+      "source_id": "UC_8AMYMZ",
+      "semantic": "P",
+      "amount": 8957.0,
+      "manager_id": "12",
+      "utm_source": "DDA",
+      "utm_campaign": "DDA+|+конверсії+кроваті+2+|+03.09.2026",
+      "utm_medium": "cpc",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163438",
+      "title": "Нтирампеба  Тетяна",
+      "date": "2026-09-17",
+      "status_id": "CONVERTED",
+      "source_id": "CALL",
+      "semantic": "S",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163440",
+      "title": "Тузова  Олександра",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "UC_8AMYMZ",
+      "semantic": "F",
+      "amount": 3233.0,
+      "manager_id": "1342",
+      "utm_source": "google",
+      "utm_campaign": "pmax_matrasy_shopping",
+      "utm_medium": "cpc",
+      "reject_reason": "490",
+      "reject_reason_text": "",
+      "reject_reason_name": "немає в наявності"
+    },
+    {
+      "id": "163442",
+      "title": "Магазин  Чернівці",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "398",
+      "reject_reason_text": "",
+      "reject_reason_name": "не заказывали / не туди попали"
+    },
+    {
+      "id": "163444",
+      "title": "Дмитро",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "388",
+      "reject_reason_text": "",
+      "reject_reason_name": "дорого"
+    },
+    {
+      "id": "163446",
+      "title": "Вікторія",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "WEBFORM",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163448",
+      "title": "Міраж  кокос Дніпро 120*200 із наявності",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "490",
+      "reject_reason_text": "",
+      "reject_reason_name": "немає в наявності"
+    },
+    {
+      "id": "163450",
+      "title": "Віталій",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "1",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "388",
+      "reject_reason_text": "",
+      "reject_reason_name": "дорого"
+    },
+    {
+      "id": "163452",
+      "title": "Оріон\\Біла  Церква",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163454",
+      "title": "Оксана",
+      "date": "2026-09-17",
+      "status_id": "1",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163456",
+      "title": "Валентин",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163458",
+      "title": "Нестерчук  Олена",
+      "date": "2026-09-17",
+      "status_id": "CONVERTED",
+      "source_id": "CALL",
+      "semantic": "S",
+      "amount": 18522.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163460",
+      "title": "Передпокій  спейс",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "google",
+      "utm_campaign": "Brand",
+      "utm_medium": "cpc",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163462",
+      "title": "Ірина",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "WEBFORM",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163464",
+      "title": "140*200  мягкий",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
       "semantic": "P",
       "amount": 0.0,
       "manager_id": "128",
@@ -104942,209 +104334,121 @@
       "reject_reason": "",
       "reject_reason_text": "",
       "reject_reason_name": ""
+    },
+    {
+      "id": "163466",
+      "title": "Терапія  160*200",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "WEBFORM",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "<none>",
+      "utm_campaign": "<none>",
+      "utm_medium": "<none>",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163468",
+      "title": "Кутові  ліжка де є в магазинах (поїде в Аракс)",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "392",
+      "reject_reason_text": "",
+      "reject_reason_name": "пойду в магазин"
+    },
+    {
+      "id": "163470",
+      "title": "Петренко Руслан Віталійович",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "WEBFORM",
+      "semantic": "F",
+      "amount": 8527.0,
+      "manager_id": "122",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "450",
+      "reject_reason_text": "",
+      "reject_reason_name": "нет связи / не дозвонились"
+    },
+    {
+      "id": "163472",
+      "title": "Голд\\  гарантія",
+      "date": "2026-09-17",
+      "status_id": "JUNK",
+      "source_id": "CALL",
+      "semantic": "F",
+      "amount": 0.0,
+      "manager_id": "1342",
+      "utm_source": "(direct)",
+      "utm_campaign": "(direct)",
+      "utm_medium": "(none)",
+      "reject_reason": "696",
+      "reject_reason_text": "",
+      "reject_reason_name": "клиент думает / ищет"
+    },
+    {
+      "id": "163474",
+      "title": "Саша",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "128",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163476",
+      "title": "ПУМБ  24 платежі (думає)",
+      "date": "2026-09-17",
+      "status_id": "IN_PROCESS",
+      "source_id": "CALL",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "12",
+      "utm_source": "",
+      "utm_campaign": "",
+      "utm_medium": "",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
+    },
+    {
+      "id": "163478",
+      "title": "Дар'я Стрімовська",
+      "date": "2026-09-17",
+      "status_id": "NEW",
+      "source_id": "UC_5B6PJK",
+      "semantic": "P",
+      "amount": 0.0,
+      "manager_id": "122",
+      "utm_source": "google_com",
+      "utm_campaign": "Pmax_matrasy_goroda_com",
+      "utm_medium": "cpc",
+      "reject_reason": "",
+      "reject_reason_text": "",
+      "reject_reason_name": ""
     }
   ],
   "deal_categories": [
-    {
-      "deal_id": "137696",
-      "date": "2026-06-18",
-      "source_id": "WEBFORM",
-      "turnover": 6177.0,
-      "turnover_excl_wholesale": 6177.0,
-      "categories": {
-        "mattresses": 6177.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137698",
-      "date": "2026-06-18",
-      "source_id": "CALL",
-      "turnover": 20830.0,
-      "turnover_excl_wholesale": 20830.0,
-      "categories": {
-        "mattresses": 20830.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137700",
-      "date": "2026-06-18",
-      "source_id": "CALL",
-      "turnover": 15018.0,
-      "turnover_excl_wholesale": 15018.0,
-      "categories": {
-        "mattresses": 15018.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137702",
-      "date": "2026-06-18",
-      "source_id": "WEBFORM",
-      "turnover": 5937.0,
-      "turnover_excl_wholesale": 5937.0,
-      "categories": {
-        "mattresses": 5937.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137704",
-      "date": "2026-06-18",
-      "source_id": "CALL",
-      "turnover": 13950.0,
-      "turnover_excl_wholesale": 13950.0,
-      "categories": {
-        "mattresses": 13950.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137706",
-      "date": "2026-06-18",
-      "source_id": "WEBFORM",
-      "turnover": 14206.0,
-      "turnover_excl_wholesale": 14206.0,
-      "categories": {
-        "mattresses": 14206.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137710",
-      "date": "2026-06-18",
-      "source_id": "CALLBACK",
-      "turnover": 17060.0,
-      "turnover_excl_wholesale": 17060.0,
-      "categories": {
-        "mattresses": 0.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 17060.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137716",
-      "date": "2026-06-18",
-      "source_id": "CALL",
-      "turnover": 21262.0,
-      "turnover_excl_wholesale": 21262.0,
-      "categories": {
-        "mattresses": 21262.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137718",
-      "date": "2026-06-18",
-      "source_id": "1",
-      "turnover": 6152.0,
-      "turnover_excl_wholesale": 6152.0,
-      "categories": {
-        "mattresses": 0.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 6152.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
-    {
-      "deal_id": "137720",
-      "date": "2026-06-18",
-      "source_id": "CALL",
-      "turnover": 14618.0,
-      "turnover_excl_wholesale": 14618.0,
-      "categories": {
-        "mattresses": 14618.0,
-        "soft_furniture": 0.0,
-        "wardrobes": 0.0,
-        "case_furniture": 0.0
-      },
-      "accessories": 0.0,
-      "unrecognized": 0.0,
-      "flags": {
-        "wholesale": false,
-        "sluzhbovka": false,
-        "empty_product": false
-      }
-    },
     {
       "deal_id": "137724",
       "date": "2026-06-19",
@@ -134544,2711 +133848,131 @@
         "sluzhbovka": false,
         "empty_product": false
       }
+    },
+    {
+      "deal_id": "140986",
+      "date": "2026-09-17",
+      "source_id": "UC_5B6PJK",
+      "turnover": 4558.0,
+      "turnover_excl_wholesale": 4558.0,
+      "categories": {
+        "mattresses": 4558.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140988",
+      "date": "2026-09-17",
+      "source_id": "CALL",
+      "turnover": 6349.0,
+      "turnover_excl_wholesale": 6349.0,
+      "categories": {
+        "mattresses": 6349.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140990",
+      "date": "2026-09-17",
+      "source_id": "UC_8AMYMZ",
+      "turnover": 2843.0,
+      "turnover_excl_wholesale": 2843.0,
+      "categories": {
+        "mattresses": 0.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 2843.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140992",
+      "date": "2026-09-17",
+      "source_id": "CALL",
+      "turnover": 10000.0,
+      "turnover_excl_wholesale": 10000.0,
+      "categories": {
+        "mattresses": 10000.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140994",
+      "date": "2026-09-17",
+      "source_id": "CALL",
+      "turnover": 17810.0,
+      "turnover_excl_wholesale": 17810.0,
+      "categories": {
+        "mattresses": 17810.0,
+        "soft_furniture": 0.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
+    },
+    {
+      "deal_id": "140996",
+      "date": "2026-09-17",
+      "source_id": "UC_8AMYMZ",
+      "turnover": 16988.0,
+      "turnover_excl_wholesale": 16988.0,
+      "categories": {
+        "mattresses": 0.0,
+        "soft_furniture": 16988.0,
+        "wardrobes": 0.0,
+        "case_furniture": 0.0
+      },
+      "accessories": 0.0,
+      "unrecognized": 0.0,
+      "flags": {
+        "wholesale": false,
+        "sluzhbovka": false,
+        "empty_product": false
+      }
     }
   ],
   "overdue_tasks": {
-    "count": 16933,
-    "items": [
-      {
-        "id": "95080",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95086",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95092",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95094",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95102",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95104",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95108",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95110",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95112",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95114",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95118",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95126",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95134",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95140",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95152",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95156",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95162",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95170",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95174",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95178",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95180",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95184",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94950",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94954",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94974",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94980",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94990",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94992",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94998",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95004",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95006",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95008",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95022",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95026",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95032",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95036",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95038",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95048",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95052",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95054",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95056",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95066",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94830",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94834",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94846",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94860",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94864",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94866",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94870",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94880",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94886",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94888",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94890",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94892",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94898",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94900",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94906",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94910",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94920",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94930",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94936",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94940",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94944",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94640",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94642",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94644",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94650",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94660",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94662",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94664",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94666",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94668",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94672",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94674",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94680",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94682",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94690",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94692",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94698",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94700",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94710",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94722",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94728",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94732",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94736",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94738",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94742",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94744",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94748",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94750",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94752",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94754",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94758",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94768",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94774",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94790",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94796",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94810",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94816",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94820",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94828",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94640",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94642",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94644",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94650",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94660",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94662",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94664",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94666",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94668",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94672",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94674",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94680",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94682",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94690",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94692",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94698",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94700",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94710",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94722",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94728",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94732",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94736",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94738",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94742",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94744",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94748",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94750",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94752",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94754",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94758",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94768",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94774",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94790",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94796",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94810",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94816",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94820",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94828",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:12:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94830",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94834",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94846",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94860",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94864",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94866",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94870",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94880",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94886",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94888",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94890",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94892",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94898",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94900",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94906",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94910",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94920",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94930",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94936",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94940",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94944",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:11:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94950",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94954",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94974",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94980",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94990",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94992",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94998",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95004",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95006",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95008",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95022",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95026",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95032",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95036",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95038",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95048",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95052",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95054",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95056",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95066",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:10:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95080",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95086",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95092",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95094",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95102",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95104",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95108",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95110",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95112",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95114",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95118",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95126",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95134",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95140",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95152",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95156",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95162",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95170",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95174",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95178",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95180",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "95184",
-        "title": "Связаться с клиентом, Категория: Категория С",
-        "deadline": "2023-02-18",
-        "deadline_at": "2023-02-18T09:09:00+03:00",
-        "days_overdue": 1306,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94416",
-        "title": "Предоставить план-фактный отчет о распродаже остатков с данными по динамике продаж за неделю 14-21.02.2023 (до 10:00 до зума)",
-        "deadline": "2023-02-21",
-        "deadline_at": "2023-02-21T10:00:00+03:00",
-        "days_overdue": 1303,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94424",
-        "title": "Предоставить план-фактный отчет о распродаже остатков с данными по динамике продаж за неделю 14-21.02.2023 (до 10:00 до зума)",
-        "deadline": "2023-02-21",
-        "deadline_at": "2023-02-21T10:00:00+03:00",
-        "days_overdue": 1303,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94426",
-        "title": "Предоставить план-фактный отчет о распродаже остатков с данными по динамике продаж за неделю 14-21.02.2023 (до 10:00 до зума)",
-        "deadline": "2023-02-21",
-        "deadline_at": "2023-02-21T10:00:00+03:00",
-        "days_overdue": 1303,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94416",
-        "title": "Предоставить план-фактный отчет о распродаже остатков с данными по динамике продаж за неделю 14-21.02.2023 (до 10:00 до зума)",
-        "deadline": "2023-02-21",
-        "deadline_at": "2023-02-21T10:00:00+03:00",
-        "days_overdue": 1303,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94424",
-        "title": "Предоставить план-фактный отчет о распродаже остатков с данными по динамике продаж за неделю 14-21.02.2023 (до 10:00 до зума)",
-        "deadline": "2023-02-21",
-        "deadline_at": "2023-02-21T10:00:00+03:00",
-        "days_overdue": 1303,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94426",
-        "title": "Предоставить план-фактный отчет о распродаже остатков с данными по динамике продаж за неделю 14-21.02.2023 (до 10:00 до зума)",
-        "deadline": "2023-02-21",
-        "deadline_at": "2023-02-21T10:00:00+03:00",
-        "days_overdue": 1303,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94162",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94164",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94168",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94172",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94176",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94182",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94186",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94190",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94194",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94200",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94204",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94206",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94216",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94162",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94164",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94168",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94172",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94176",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94182",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94186",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94190",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94194",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94200",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94204",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94206",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94216",
-        "title": "Связаться с клиентом, Категория: Категория А",
-        "deadline": "2023-02-23",
-        "deadline_at": "2023-02-23T09:02:00+03:00",
-        "days_overdue": 1301,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93990",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:01:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93992",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:01:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93996",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:01:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "94000",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:01:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93866",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93868",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93870",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93884",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93886",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93888",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93892",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93904",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93916",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93922",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93926",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93928",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93930",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93934",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93936",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93940",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93942",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93944",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93946",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93952",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93956",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93958",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93962",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93968",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93970",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93972",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93976",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93978",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93980",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93982",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93986",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:02:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93760",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93764",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93772",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93780",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93784",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93792",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93802",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93808",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93810",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93812",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93814",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93818",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93820",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93822",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93828",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93830",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93840",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93848",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93852",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93858",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93862",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93864",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93760",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93764",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93772",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93780",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93784",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93792",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93802",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93808",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      },
-      {
-        "id": "93810",
-        "title": "Связаться с клиентом, Категория: Категория В",
-        "deadline": "2023-02-24",
-        "deadline_at": "2023-02-24T09:03:00+03:00",
-        "days_overdue": 1300,
-        "responsible_id": "18",
-        "responsible_name": "18"
-      }
-    ]
+    "count": null,
+    "items": [],
+    "error": "Bitrix API tasks.task.list failed: HTTP Error 429: Too Many Requests"
   }
 }
