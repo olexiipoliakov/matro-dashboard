@@ -138,7 +138,10 @@ def faq_add():
         return jsonify({"error": "Питання і відповідь не можуть бути порожніми"}), 400
     if len(question) > 300 or len(answer) > 4000:
         return jsonify({"error": "Занадто довгий текст"}), 400
-    item = faq_store.add_item(data.get("author", ""), question, answer)
+    try:
+        item = faq_store.add_item(data.get("author", ""), question, answer)
+    except faq_store.StorageError as e:
+        return jsonify({"error": str(e)}), 502
     return jsonify({"item": item, **faq_store.status()}), 201
 
 
@@ -146,12 +149,15 @@ def faq_add():
 @requires_auth
 def faq_update(item_id):
     data = request.get_json(silent=True) or {}
-    item = faq_store.update_item(
-        item_id,
-        question=data.get("question"),
-        answer=data.get("answer"),
-        author=data.get("author"),
-    )
+    try:
+        item = faq_store.update_item(
+            item_id,
+            question=data.get("question"),
+            answer=data.get("answer"),
+            author=data.get("author"),
+        )
+    except faq_store.StorageError as e:
+        return jsonify({"error": str(e)}), 502
     if not item:
         return jsonify({"error": "Запис не знайдено"}), 404
     return jsonify({"item": item})
@@ -160,7 +166,11 @@ def faq_update(item_id):
 @app.route("/api/faq/<item_id>", methods=["DELETE"])
 @requires_auth
 def faq_delete(item_id):
-    if not faq_store.delete_item(item_id):
+    try:
+        removed = faq_store.delete_item(item_id)
+    except faq_store.StorageError as e:
+        return jsonify({"error": str(e)}), 502
+    if not removed:
         return jsonify({"error": "Запис не знайдено"}), 404
     return jsonify({"status": "deleted"})
 

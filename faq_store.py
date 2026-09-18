@@ -35,6 +35,23 @@ KEY_FILE = BASE_DIR / "gsc_key.json"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 HEADER = ["id", "created_at", "updated_at", "author", "question", "answer"]
 
+class StorageError(Exception):
+    """Не вдалося записати в таблицю. Піднімаємо нагору, щоб людина побачила
+    причину, а не вирішила, що правило збережено."""
+
+
+def _readable(e):
+    """Перекладаємо типові відповіді Google у зрозумілу фразу."""
+    text = str(e)
+    if "403" in text or "PERMISSION_DENIED" in text or "insufficient" in text.lower():
+        return ("Таблиця відкрита лише для читання. Дайте сервісному акаунту "
+                "доступ «Редактор» до неї — зараз він може читати, але не писати.")
+    if "404" in text or "notFound" in text:
+        return "Таблицю не знайдено: перевірте FAQ_SHEET_ID у налаштуваннях сервера."
+    if "Unable to parse range" in text or "not found" in text.lower():
+        return f"Немає вкладки «{SHEET_TAB}» у таблиці — створіть її або змініть FAQ_SHEET_TAB."
+    return f"Помилка запису в таблицю: {type(e).__name__}"
+
 _lock = threading.Lock()
 _service = None
 _service_error = ""
@@ -73,13 +90,32 @@ def _get_service():
         return None
 
 
+_tab_cache = None
+
+
+def _tab_name(svc):
+    """Реальна назва вкладки в таблиці.
+
+    Раніше тут жорстко стояло "FAQ", і в щойно створеній таблиці, де єдина
+    вкладка називається «Аркуш1», кожне звернення падало з «Unable to parse
+    range». Ззовні це виглядало як «правила не зберігаються» без жодної
+    підказки. Тепер беремо вкладку FAQ, якщо вона є, інакше — першу.
+    """
+    global _tab_cache
+    if _tab_cache:
+        return _tab_cache
+    meta = svc.spreadsheets().get(spreadsheetId=SHEET_ID).execute()
+    titles = [sh["properties"]["title"] for sh in meta.get("sheets", [])]
+    _tab_cache = SHEET_TAB if SHEET_TAB in titles else (titles[0] if titles else SHEET_TAB)
+    return _tab_cache
+
+
 def _sheet_values():
     svc = _get_service()
     if not svc:
         return None
-    rng = f"{SHEET_TAB}!A1:F10000"
     resp = svc.spreadsheets().values().get(
-        spreadsheetId=SHEET_ID, range=rng).execute()
+        spreadsheetId=SHEET_ID, range=f"{_tab_name(svc)}!A1:F10000").execute()
     return resp.get("values", [])
 
 
@@ -91,7 +127,7 @@ def _ensure_header(rows):
     if not svc:
         return
     svc.spreadsheets().values().update(
-        spreadsheetId=SHEET_ID, range=f"{SHEET_TAB}!A1:F1",
+        spreadsheetId=SHEET_ID, range=f"{_tab_name(svc)}!A1:F1",
         valueInputOption="RAW", body={"values": [HEADER]}).execute()
 
 
@@ -138,7 +174,11 @@ def status():
     svc = _get_service()
     return {
         "storage": "sheet" if svc else "local",
-        "detail": "" if svc else _service_error,
+        # Показуємо останню помилку навіть тоді, коли клієнт до таблиці
+        # створився: саме цей випадок і виглядав як «все гаразд, але нічого
+        # не зберігається».
+        "detail": _service_error,
+        "tab": _tab_cache or SHEET_TAB,
         "sheet_url": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit" if (svc and SHEET_ID) else "",
     }
 
@@ -154,9 +194,10 @@ def list_items():
             return _rows_to_items(rows)
         except Exception as e:
             # Таблиця могла стати недоступною (забрали доступ, збій API).
-            # Віддаємо те, що є локально, замість того щоб ламати сторінку.
+            # Віддаємо те, що є локально, щоб сторінка не падала, але помилку
+            # більше не ховаємо — вона поїде у відповідь разом зі списком.
             global _service_error
-            _service_error = f"{type(e).__name__}: {e}"
+            _service_error = _readable(e)
             return _local_read()
 
 
@@ -171,13 +212,14 @@ def add_item(author, question, answer):
             try:
                 _ensure_header(_sheet_values())
                 svc.spreadsheets().values().append(
-                    spreadsheetId=SHEET_ID, range=f"{SHEET_TAB}!A1:F1",
+                    spreadsheetId=SHEET_ID, range=f"{_tab_name(svc)}!A1:F1",
                     valueInputOption="RAW", insertDataOption="INSERT_ROWS",
                     body={"values": [_item_to_row(item)]}).execute()
                 return item
             except Exception as e:
                 global _service_error
                 _service_error = f"{type(e).__name__}: {e}"
+                raise StorageError(_readable(e)) from e
         items = _local_read()
         items.append(item)
         _local_write(items)
@@ -204,7 +246,7 @@ def update_item(item_id, question=None, answer=None, author=None):
                     # +2: рядок 1 — шапка, нумерація в таблиці з одиниці
                     svc.spreadsheets().values().update(
                         spreadsheetId=SHEET_ID,
-                        range=f"{SHEET_TAB}!A{idx + 2}:F{idx + 2}",
+                        range=f"{_tab_name(svc)}!A{idx + 2}:F{idx + 2}",
                         valueInputOption="RAW",
                         body={"values": [_item_to_row(it)]}).execute()
                     return it
@@ -212,6 +254,7 @@ def update_item(item_id, question=None, answer=None, author=None):
             except Exception as e:
                 global _service_error
                 _service_error = f"{type(e).__name__}: {e}"
+                raise StorageError(_readable(e)) from e
         items = _local_read()
         for it in items:
             if it["id"] == item_id:
@@ -242,7 +285,7 @@ def delete_item(item_id):
                     meta = svc.spreadsheets().get(spreadsheetId=SHEET_ID).execute()
                     sheet_id = None
                     for sh in meta.get("sheets", []):
-                        if sh["properties"]["title"] == SHEET_TAB:
+                        if sh["properties"]["title"] == _tab_name(svc):
                             sheet_id = sh["properties"]["sheetId"]
                             break
                     if sheet_id is None:
@@ -257,6 +300,7 @@ def delete_item(item_id):
             except Exception as e:
                 global _service_error
                 _service_error = f"{type(e).__name__}: {e}"
+                raise StorageError(_readable(e)) from e
         items = _local_read()
         rest = [i for i in items if i["id"] != item_id]
         if len(rest) == len(items):
