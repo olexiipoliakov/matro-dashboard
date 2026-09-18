@@ -314,6 +314,11 @@
     padding:11px 14px;margin-bottom:15px;line-height:1.55}
   .faq-empty{font-size:13px;color:var(--ink-dim);padding:16px 2px}
   .faq-confirm{font-size:11.5px;color:var(--bad)}
+  /* Єдина кнопка в бічній смузі — інструмент для менеджера. Навігації по
+     дашборду тут немає свідомо: сторінкою користується команда. */
+  .sidebar{padding-top:40px}
+  .sidebar a.tool{color:#FFC84D;background:rgba(255,200,77,.12);border-color:rgba(255,200,77,.28)}
+  .sidebar a.tool:hover{color:#FFD97A;background:rgba(255,200,77,.2);border-color:rgba(255,200,77,.45)}
 </style>
 </head>
 <body>
@@ -325,19 +330,11 @@
 
 <div class="layout">
 <nav class="sidebar">
-  <div class="sb-logo">M.</div>
-  <a href="home.html"><i data-lucide="layout-dashboard"></i><span class="tip">Головна</span></a>
-  <a href="index.html"><i data-lucide="megaphone"></i><span class="tip">SMM &amp; Реклама</span></a>
-  <a href="seo.html"><i data-lucide="search"></i><span class="tip">SEO</span></a>
-  <a href="bitrix.html" class="active"><i data-lucide="briefcase"></i><span class="tip">CRM</span></a>
-  <a href="ringostat.html"><i data-lucide="phone-call"></i><span class="tip">Дзвінки</span></a>
-  <a href="audit.html"><i data-lucide="shield-check"></i><span class="tip">Аудит сайту</span></a>
-  <a href="https://olexiipoliakov.github.io/mattress-selector/" target="_blank" rel="noopener">
+  <a href="https://olexiipoliakov.github.io/mattress-selector/" target="_blank" rel="noopener" class="tool">
     <i data-lucide="bed-double"></i><span class="tip">Підбір матраца</span></a>
 </nav>
 
 <div class="wrap">
-  <a href="bitrix.html" class="home-link"><i data-lucide="arrow-left"></i> До CRM</a>
   <header>
     <div>
       <div class="page-title">
