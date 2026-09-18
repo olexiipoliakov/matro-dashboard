@@ -71,6 +71,52 @@
     .period-cal input[type=date]{flex:1;max-width:none}
     .period-info{width:100%}
   }
+
+  /* ── FAQ: правила роботи ─────────────────────────────────────────────── */
+  .faq-head{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+  .faq-head h2{font-size:15px;font-weight:700;letter-spacing:-.2px}
+  .faq-count{font-size:11.5px;color:var(--ink-soft);background:var(--paper);
+    border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-weight:600}
+  .faq-chev{margin-left:auto;transition:transform .18s;color:var(--ink-soft);font-size:13px}
+  .faq-open .faq-chev{transform:rotate(180deg)}
+  .faq-body{display:none;margin-top:16px}
+  .faq-open .faq-body{display:block}
+  .faq-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .faq-search{flex:1 1 220px;padding:8px 12px;font-size:13px;font-family:inherit;
+    border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink)}
+  .faq-search:focus{outline:2px solid var(--accent-2);outline-offset:-1px}
+  .btn{padding:8px 14px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
+    border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+  .btn:hover{border-color:var(--accent-2)}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn-primary:hover{background:#6b4fc4;border-color:#6b4fc4}
+  .btn-ghost{background:transparent;border-color:transparent;color:var(--ink-soft);padding:6px 8px}
+  .btn-ghost:hover{color:var(--ink);background:var(--paper)}
+  .faq-item{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:var(--card)}
+  .faq-q{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer}
+  .faq-q b{font-size:13.5px;font-weight:600;line-height:1.45;flex:1}
+  .faq-mark{color:var(--accent);font-weight:700;font-size:13px;line-height:1.45}
+  .faq-a{display:none;padding:0 14px 14px 36px;font-size:13px;color:var(--ink-soft);
+    line-height:1.6;white-space:pre-wrap}
+  .faq-item.open .faq-a{display:block}
+  .faq-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:9px 14px 12px 36px;border-top:1px dashed var(--line);margin-top:2px;
+    font-size:11.5px;color:var(--ink-soft);display:none}
+  .faq-item.open .faq-meta{display:flex}
+  .faq-form{border:1px dashed var(--line);border-radius:11px;padding:14px;background:var(--paper);
+    margin-bottom:14px;display:none}
+  .faq-form.show{display:block}
+  .faq-form label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--ink-soft);font-weight:600;margin:0 0 5px}
+  .faq-form input,.faq-form textarea,.faq-form select{width:100%;padding:9px 11px;font-size:13px;
+    font-family:inherit;border:1px solid var(--line);border-radius:8px;background:var(--card);
+    color:var(--ink);margin-bottom:12px;resize:vertical}
+  .faq-form textarea{min-height:84px;line-height:1.55}
+  .faq-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .faq-note{font-size:11.5px;color:var(--mid);background:var(--mid-bg);border-radius:8px;
+    padding:9px 12px;margin-bottom:13px;line-height:1.5}
+  .faq-empty{font-size:13px;color:var(--ink-soft);padding:14px 2px}
+  .faq-confirm{font-size:11.5px;color:var(--bad)}
 </style>
 </head>
 <body>
@@ -111,6 +157,39 @@
     <div class="table-scroll"><table class="data-table" id="manager-table"></table></div>
   </div>
 
+
+  <div class="panel" id="faq-panel">
+    <div class="faq-head" onclick="toggleFaq()">
+      <h2>Правила роботи</h2>
+      <span class="faq-count" id="faq-count">—</span>
+      <span class="faq-chev">▼</span>
+    </div>
+    <div class="faq-body">
+      <div id="faq-note"></div>
+      <div class="faq-tools">
+        <input class="faq-search" id="faq-search" type="search"
+               placeholder="Пошук за питанням або відповіддю…" oninput="renderFaq()">
+        <button class="btn btn-primary" onclick="toggleFaqForm()">Додати правило</button>
+      </div>
+      <div class="faq-form" id="faq-form">
+        <label for="faq-author">Хто додає</label>
+        <select id="faq-author"></select>
+        <label for="faq-question">Питання</label>
+        <input id="faq-question" type="text" maxlength="300"
+               placeholder="Наприклад: що робити, якщо клієнт просить знижку понад 10%?">
+        <label for="faq-answer">Відповідь</label>
+        <textarea id="faq-answer" maxlength="4000"
+                  placeholder="Коротко й по суті: що саме робити, з ким погоджувати, де фіксувати."></textarea>
+        <div class="faq-actions">
+          <button class="btn btn-primary" id="faq-save" onclick="saveFaq()">Зберегти</button>
+          <button class="btn" onclick="toggleFaqForm(false)">Скасувати</button>
+          <span id="faq-form-msg" style="font-size:12px;color:var(--bad);align-self:center"></span>
+        </div>
+      </div>
+      <div id="faq-list"></div>
+    </div>
+  </div>
+
   <footer>Данные из <code>bitrix_data.json</code> · Bitrix24 REST API</footer>
 </div>
 
@@ -132,6 +211,7 @@ async function load(){
       return;
     }
     META = RAW.meta || META;
+    fillAuthors();
     document.getElementById('updated').textContent = RAW.generated_at || '—';
     document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
     setPeriod(30, document.querySelector('.pbtn[data-days="30"]'));
@@ -246,7 +326,180 @@ function renderManagers(byManager){
   table.innerHTML=head+`<tbody>${body}</tbody>`;
 }
 
+
+// ── FAQ: правила роботи ───────────────────────────────────────────────────
+// Записи зберігає сервер (див. faq_store.py). Сторінка лише показує їх і
+// відправляє нові — щоб правило, додане одним менеджером, бачили всі, а не
+// тільки той браузер, у якому його набрали.
+let FAQ = [], FAQ_STORAGE = '', FAQ_EDIT = null;
+
+function toggleFaq(force){
+  const p = document.getElementById('faq-panel');
+  const open = (force === undefined) ? !p.classList.contains('faq-open') : force;
+  p.classList.toggle('faq-open', open);
+  try{ localStorage.setItem('faqOpen', open ? '1' : '0'); }catch(e){}
+}
+
+function toggleFaqForm(force){
+  const f = document.getElementById('faq-form');
+  const show = (force === undefined) ? !f.classList.contains('show') : force;
+  f.classList.toggle('show', show);
+  document.getElementById('faq-form-msg').textContent = '';
+  if(!show){ FAQ_EDIT = null; document.getElementById('faq-save').textContent = 'Зберегти'; }
+}
+
+function fillAuthors(){
+  const cur = document.getElementById('faq-author');
+  const names = Object.values((META && META.users) || {}).filter(Boolean)
+                      .sort((a,b)=>a.localeCompare(b,'uk'));
+  const prev = (()=>{ try{ return localStorage.getItem('faqAuthor')||''; }catch(e){ return ''; } })();
+  const val = cur ? cur.value : '';
+  if(names.length){
+    const sel = document.createElement('select');
+    sel.id = 'faq-author';
+    sel.innerHTML = names.map(n=>`<option${n===(val||prev)?' selected':''}>${esc(n)}</option>`).join('');
+    cur.replaceWith(sel);
+  }else if(cur && cur.tagName === 'SELECT'){
+    // Імена не приїхали — не блокуємо додавання правила, даємо вписати руками.
+    const inp = document.createElement('input');
+    inp.id = 'faq-author'; inp.type = 'text'; inp.placeholder = 'Ваше імʼя';
+    inp.value = val || prev;
+    cur.replaceWith(inp);
+  }
+}
+
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function loadFaq(){
+  try{
+    const r = await fetch('api/faq', {headers:{'Accept':'application/json'}});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    FAQ = d.items || [];
+    FAQ_STORAGE = d.storage || '';
+    const note = document.getElementById('faq-note');
+    // Поки таблиця не підключена, записи лежать на диску Render і зникнуть
+    // при передеплої. Чесно попереджаємо, щоб ніхто не вважав це архівом.
+    note.innerHTML = (FAQ_STORAGE === 'sheet') ? '' :
+      `<div class="faq-note">Сховище ще не підключене — записи тимчасові й зникнуть
+       при оновленні дашборда. ${esc(d.detail||'')}</div>`;
+  }catch(e){
+    console.error('[FAQ]', e);
+    document.getElementById('faq-note').innerHTML =
+      `<div class="faq-note">Не вдалося завантажити правила: ${esc(e.message||e)}</div>`;
+  }
+  renderFaq();
+}
+
+function renderFaq(){
+  const q = (document.getElementById('faq-search').value || '').trim().toLowerCase();
+  const list = document.getElementById('faq-list');
+  document.getElementById('faq-count').textContent = FAQ.length ? `${FAQ.length}` : '0';
+  const rows = q ? FAQ.filter(i =>
+      (i.question||'').toLowerCase().includes(q) || (i.answer||'').toLowerCase().includes(q)) : FAQ;
+  if(!rows.length){
+    list.innerHTML = `<div class="faq-empty">${FAQ.length
+      ? 'За цим запитом нічого не знайшлось.'
+      : 'Правил поки немає. Додайте перше — воно буде видно всій команді.'}</div>`;
+    return;
+  }
+  list.innerHTML = rows.map(i => `
+    <div class="faq-item" id="faq-${esc(i.id)}">
+      <div class="faq-q" onclick="this.parentNode.classList.toggle('open')">
+        <span class="faq-mark">?</span><b>${esc(i.question)}</b>
+      </div>
+      <div class="faq-a">${esc(i.answer)}</div>
+      <div class="faq-meta">
+        <span>${esc(i.author||'—')} · ${esc(i.updated_at||i.created_at||'')}</span>
+        <button class="btn btn-ghost" onclick="editFaq('${esc(i.id)}')">Змінити</button>
+        <button class="btn btn-ghost" onclick="askDeleteFaq('${esc(i.id)}',this)">Видалити</button>
+      </div>
+    </div>`).join('');
+}
+
+function editFaq(id){
+  const it = FAQ.find(x=>x.id===id); if(!it) return;
+  FAQ_EDIT = id;
+  document.getElementById('faq-question').value = it.question || '';
+  document.getElementById('faq-answer').value = it.answer || '';
+  const sel = document.getElementById('faq-author');
+  if(it.author && [...sel.options].some(o=>o.value===it.author || o.text===it.author)) sel.value = it.author;
+  document.getElementById('faq-save').textContent = 'Зберегти зміни';
+  toggleFaqForm(true);
+  document.getElementById('faq-question').focus();
+}
+
+// Своє підтвердження, а не confirm(): системне вікно блокує сторінку і
+// виглядає чужорідно на дашборді.
+function askDeleteFaq(id, btn){
+  const box = btn.parentNode;
+  if(box.querySelector('.faq-confirm')) return;
+  const span = document.createElement('span');
+  span.className = 'faq-confirm';
+  span.innerHTML = `Видалити? <button class="btn btn-ghost" style="color:var(--bad)">Так</button>
+                    <button class="btn btn-ghost">Ні</button>`;
+  const [yes, no] = span.querySelectorAll('button');
+  yes.onclick = () => doDeleteFaq(id);
+  no.onclick = () => span.remove();
+  box.appendChild(span);
+}
+
+async function doDeleteFaq(id){
+  try{
+    const r = await fetch('api/faq/'+encodeURIComponent(id), {method:'DELETE'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    FAQ = FAQ.filter(x=>x.id!==id);
+    renderFaq();
+  }catch(e){ console.error('[FAQ delete]', e); alertFaq('Не вдалося видалити: '+(e.message||e)); }
+}
+
+function alertFaq(msg){ document.getElementById('faq-form-msg').textContent = msg; }
+
+async function saveFaq(){
+  const author = document.getElementById('faq-author').value || '';
+  const question = document.getElementById('faq-question').value.trim();
+  const answer = document.getElementById('faq-answer').value.trim();
+  if(!question || !answer){ alertFaq('Заповніть питання і відповідь.'); return; }
+  const btn = document.getElementById('faq-save');
+  btn.disabled = true;
+  try{
+    try{ localStorage.setItem('faqAuthor', author); }catch(e){}
+    const editing = FAQ_EDIT;
+    const r = await fetch(editing ? 'api/faq/'+encodeURIComponent(editing) : 'api/faq', {
+      method: editing ? 'PUT' : 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({author, question, answer}),
+    });
+    const d = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error || ('HTTP '+r.status));
+    if(editing){
+      const i = FAQ.findIndex(x=>x.id===editing);
+      if(i>=0) FAQ[i] = d.item;
+    }else{
+      FAQ.unshift(d.item);
+      if(d.storage) FAQ_STORAGE = d.storage;
+    }
+    document.getElementById('faq-question').value = '';
+    document.getElementById('faq-answer').value = '';
+    toggleFaqForm(false);
+    renderFaq();
+  }catch(e){
+    console.error('[FAQ save]', e);
+    alertFaq('Не вдалося зберегти: ' + (e.message || e));
+  }finally{ btn.disabled = false; }
+}
+
+function initFaq(){
+  fillAuthors();
+  let open = false;
+  try{ open = localStorage.getItem('faqOpen') === '1'; }catch(e){}
+  toggleFaq(open);
+  loadFaq();
+}
+
 load();
+initFaq();
 </script>
 </body>
 </html>

@@ -177,17 +177,36 @@ def classify_category(page_url):
 BRAND_SUBSTR = ["matro", "матро", "matroluxe", "leo", "лео", "toscano", "тоскано", "plume", "плюм"]
 BRAND_WORDS  = ["сан", "тео", "нардо"]  # короткі назви — тільки як окреме слово, щоб не ловити зайве
 
+# Ключі перевіряються як підрядки, тому українське й російське написання
+# треба перелічувати окремо: «матрац» не містить у собі «матрас», а
+# «топпер» — «топер». Без цього україномовні запити (а сайт саме
+# україномовний) мовчки падали в «Інше».
 QUERY_CATEGORY_RULES = [
-    ("topery",  "Топери",  ["топер", "topper"]),
-    ("matrasy", "Матраци", ["матрас", "matras", "mattress"]),
+    ("topery",  "Топери",  ["топер", "топпер", "topper"]),
+    ("matrasy", "Матраци", ["матрас", "матрац", "matras", "mattress"]),
     ("divany",  "Дивани",  ["диван"]),
     ("lizhka",  "Ліжка",   ["ліжко", "ліжка", "кровать", "кровати", "krovat"]),
     ("shafy",   "Шафи",    ["шафа", "шафи", "шкаф"]),
 ]
 
+# Бренд у кожного сайту свій. Якщо шукати «матро» в запитах simplershop,
+# брендового трафіку там не знайдеться взагалі — і графік покаже нуль, хоча
+# насправді бренд просто називається інакше. Тому перед обробкою кожного
+# сайту підставляємо його власні списки.
+_ACTIVE_BRAND_SUBSTR = BRAND_SUBSTR
+_ACTIVE_BRAND_WORDS = BRAND_WORDS
+
+
+def set_active_brand(site):
+    global _ACTIVE_BRAND_SUBSTR, _ACTIVE_BRAND_WORDS
+    _ACTIVE_BRAND_SUBSTR = site.get("brand_substr", BRAND_SUBSTR)
+    _ACTIVE_BRAND_WORDS = site.get("brand_words", BRAND_WORDS)
+
+
 def classify_query(q):
     text = (q or "").lower()
-    if any(b in text for b in BRAND_SUBSTR) or any(re.search(rf'\b{w}\b', text) for w in BRAND_WORDS):
+    if any(b in text for b in _ACTIVE_BRAND_SUBSTR) or \
+       any(re.search(rf'\b{w}\b', text) for w in _ACTIVE_BRAND_WORDS):
         return ("brand", "Брендовий трафік")
     for key, name, keywords in QUERY_CATEGORY_RULES:
         if any(k in text for k in keywords):
@@ -195,8 +214,20 @@ def classify_query(q):
     return ("other", "Інше (нішеві / загальні запити)")
 
 # ── Настройки ──────────────────────────────────────────────────────────────
+# alt_ids — запасні написання ресурсу в Search Console. Той самий сайт може
+# бути доданий як URL-префікс (https://сайт/) або як домен (sc-domain:сайт),
+# і сервісний акаунт бачить рівно те написання, до якого йому дали доступ.
+# Перевіряємо всі варіанти й беремо той, що реально відкривається.
 SITES = [
-    {"id": "https://matroluxe.ua/",  "name": "Matroluxe UA"},
+    {"id": "https://matroluxe.ua/",  "name": "Matroluxe UA",
+     "alt_ids": ["sc-domain:matroluxe.ua"]},
+    {"id": "https://simplershop.com.ua/", "name": "Simpler Shop",
+     "alt_ids": ["sc-domain:simplershop.com.ua",
+                 "https://www.simplershop.com.ua/",
+                 "http://simplershop.com.ua/"],
+     "brand_substr": ["simpler", "сімплер", "симплер", "simplershop",
+                      "ridnetut", "ріднетут", "рідне тут", "родное тут"],
+     "brand_words": []},
 ]
 
 OUT = Path(__file__).parent / "seo_data.json"
@@ -513,6 +544,24 @@ def fetch_site(service, site):
         "cannibalization": cannibalization,
     }
 
+def accessible_properties(service):
+    """Ресурси, які реально бачить сервісний акаунт."""
+    try:
+        entries = service.sites().list().execute().get("siteEntry", [])
+    except Exception as e:
+        print(f"  ⚠ не вдалося отримати список ресурсів: {e}")
+        return []
+    return [e.get("siteUrl") for e in entries if e.get("siteUrl")]
+
+
+def resolve_site_id(site, available):
+    """Обираємо те написання ресурсу, до якого є доступ."""
+    for v in [site["id"]] + list(site.get("alt_ids", [])):
+        if v in available:
+            return v
+    return None
+
+
 # ── Main ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("=== GSC Data Fetch ===")
@@ -522,19 +571,53 @@ if __name__ == "__main__":
         print(f"Ошибка авторизации: {e}")
         sys.exit(1)
 
+    available = accessible_properties(service)
+    print(f"Доступно ресурсів у Search Console: {len(available)}")
+    for a in available:
+        print(f"   • {a}")
+
     result = {"generated_at": str(date.today()), "sites": []}
     ok = True
     for site in SITES:
         print(f"\n[{site['name']}]")
+        resolved = resolve_site_id(site, available) if available else site["id"]
+        if resolved is None:
+            # Найчастіша причина — сервісному акаунту не дали доступ до ресурсу
+            # або сайт доданий іншим написанням (домен замість URL-префікса).
+            print(f"  ✗ немає доступу. Перевірені написання: "
+                  f"{[site['id']] + list(site.get('alt_ids', []))}")
+            ok = False
+            continue
+        if resolved != site["id"]:
+            print(f"  ℹ ресурс відкривається як {resolved}")
+        set_active_brand(site)
         try:
-            data = fetch_site(service, site)
+            data = fetch_site(service, dict(site, id=resolved))
             result["sites"].append(data)
             print(f"  ✓ готово: {len(data['daily'])} дней, {len(data['queries'])} запросов")
         except Exception as e:
             print(f"  ✗ ошибка: {e}")
             ok = False
 
-    OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2))
-    print(f"\n✓ seo_data.json сохранён")
+    # Сайт, який цього разу не вивантажився, беремо з попереднього файлу.
+    # Інакше тимчасовий збій по одному ресурсу стирає з дашборда і другий:
+    # сторінка читає seo_data.json цілком, і чого в ньому немає — того немає.
+    prev = {}
+    if OUT.exists():
+        try:
+            prev = json.loads(OUT.read_text())
+        except Exception:
+            prev = {}
+    fresh = {s["site_name"] for s in result["sites"]}
+    for old_site in prev.get("sites", []):
+        if old_site.get("site_name") not in fresh and old_site.get("daily"):
+            old_site["stale_since"] = prev.get("generated_at", "")
+            result["sites"].append(old_site)
+            print(f"  ↺ {old_site.get('site_name')}: залишено дані від {old_site['stale_since']}")
+
+    tmp = OUT.with_name(OUT.name + ".tmp")
+    tmp.write_text(json.dumps(result, ensure_ascii=False, indent=2))
+    os.replace(tmp, OUT)
+    print(f"\n✓ seo_data.json сохранён: сайтів {len(result['sites'])}")
     if not ok:
         sys.exit(1)

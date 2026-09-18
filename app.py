@@ -115,6 +115,56 @@ def static_route(filename):
         return "not found", 404
     return send_from_directory(BASE_DIR, filename)
 
+# ── FAQ: правила роботи на сторінці менеджерів ───────────────────────────
+# Дані лежать у Google Таблиці (див. faq_store.py) — диск на Render
+# одноразовий, і правило, додане менеджером, інакше зникло б при найближчому
+# передеплої.
+import faq_store
+
+
+@app.route("/api/faq", methods=["GET"])
+@requires_auth
+def faq_list():
+    return jsonify({"items": faq_store.list_items(), **faq_store.status()})
+
+
+@app.route("/api/faq", methods=["POST"])
+@requires_auth
+def faq_add():
+    data = request.get_json(silent=True) or {}
+    question = (data.get("question") or "").strip()
+    answer = (data.get("answer") or "").strip()
+    if not question or not answer:
+        return jsonify({"error": "Питання і відповідь не можуть бути порожніми"}), 400
+    if len(question) > 300 or len(answer) > 4000:
+        return jsonify({"error": "Занадто довгий текст"}), 400
+    item = faq_store.add_item(data.get("author", ""), question, answer)
+    return jsonify({"item": item, **faq_store.status()}), 201
+
+
+@app.route("/api/faq/<item_id>", methods=["PUT"])
+@requires_auth
+def faq_update(item_id):
+    data = request.get_json(silent=True) or {}
+    item = faq_store.update_item(
+        item_id,
+        question=data.get("question"),
+        answer=data.get("answer"),
+        author=data.get("author"),
+    )
+    if not item:
+        return jsonify({"error": "Запис не знайдено"}), 404
+    return jsonify({"item": item})
+
+
+@app.route("/api/faq/<item_id>", methods=["DELETE"])
+@requires_auth
+def faq_delete(item_id):
+    if not faq_store.delete_item(item_id):
+        return jsonify({"error": "Запис не знайдено"}), 404
+    return jsonify({"status": "deleted"})
+
+
 @app.route("/healthz")
 def healthz():
     # Без пароля — Render використовує це, щоб перевіряти, що сервіс живий.
