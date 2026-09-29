@@ -185,6 +185,35 @@
     padding:5px 11px;border-radius:99px;white-space:nowrap}
   .badge .dot2{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
+  /* ── позначки роботи над описом ── */
+  .who{display:flex;align-items:center;gap:8px;min-width:170px;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;
+    padding:0 12px;font-size:12.5px;color:var(--ink-dim);white-space:nowrap}
+  .who input{flex:1;min-width:90px;font-family:inherit;font-size:13px;color:var(--ink);
+    background:none;border:none;outline:none;padding:11px 0}
+  .who input::placeholder{color:var(--ink-dim)}
+
+  td.c-mark{width:210px;min-width:190px}
+  select.mark-sel{min-width:0;width:100%;padding:8px 10px;font-size:12.5px;border-radius:9px}
+  select.mark-sel.set{border-color:rgba(155,127,232,.4);background:rgba(155,127,232,.10);color:var(--ink)}
+  /* Підпис під статусом переносимо по словах, а не обрізаємо: саме тут
+     стоїть попередження про загублений текст, і обрізане на півслові
+     попередження нікого не попереджає. */
+  .mark-note{font-size:11px;color:var(--ink-dim);margin-top:5px;line-height:1.35}
+
+  /* Рядок, де текст нібито готовий, а сканер усе ще бачить проблему:
+     найімовірніше текст загубився дорогою на сайт. Це і є те, заради чого
+     позначки взагалі потрібні, тому такий рядок має бути видно здалеку. */
+  tbody tr.lost{background:rgba(255,94,108,.07)}
+  tbody tr.lost:hover{background:rgba(255,94,108,.11)}
+  tbody tr.lost .mark-note{color:var(--danger)}
+
+  .store-note{display:none;align-items:center;gap:9px;font-size:12.5px;color:var(--warning);
+    background:rgba(255,200,77,.10);border:1px solid rgba(255,200,77,.25);
+    border-radius:12px;padding:10px 14px;margin-bottom:14px}
+  .store-note.show{display:flex}
+  .store-note i{width:15px;height:15px;flex-shrink:0}
+
   .tbl-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
     margin-top:14px;font-size:12.5px;color:var(--ink-dim)}
   .more-btn{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;
@@ -277,6 +306,8 @@
   </div>
 
   <div class="panel">
+    <div class="store-note" id="store-note"><i data-lucide="alert-triangle"></i><span id="store-note-text"></span></div>
+
     <div class="chips" id="chips"></div>
 
     <div class="toolbar">
@@ -289,7 +320,11 @@
         <option value="cat">Сортувати: категорія</option>
         <option value="name">Сортувати: назва</option>
         <option value="issue">Сортувати: тип проблеми</option>
+        <option value="mark">Сортувати: статус роботи</option>
       </select>
+      <label class="who" title="Підставляється в позначку, щоб було видно, хто взяв картку">
+        Я: <input type="text" id="who" placeholder="ім'я" autocomplete="off">
+      </label>
     </div>
 
     <div id="tbl-host"></div>
@@ -319,7 +354,23 @@ const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
 let DATA=null, TYPES={}, shown=PAGE;
+// MARKS: {url: {status, author, updated_at, days, lost}} — хто взяв картку в
+// роботу і коли. Живе окремо від DATA, бо DATA перезаписується кожним сканом.
+let MARKS={}, LOST_DAYS=7, DONE_COUNT=0;
 const state={issue:'', cat:'', q:'', sort:'cat'};
+
+const MARK_LABEL={in_progress:'В роботі', ready:'Текст готовий', done:'Зроблено'};
+
+// Ім'я підписанта зберігаємо в браузері: це зручність для конкретної людини
+// на конкретному комп'ютері, а не спільні дані. Саме такі дрібниці й можна
+// тримати в localStorage — на відміну від самих позначок, які потрібні всій
+// команді й тому лежать у таблиці.
+function who(){
+  try{ return localStorage.getItem('audit_author')||''; }catch(e){ return ''; }
+}
+function setWho(v){
+  try{ localStorage.setItem('audit_author', v); }catch(e){}
+}
 
 function toast(msg){
   const el=document.getElementById('toast');
@@ -366,8 +417,58 @@ async function load(){
   document.getElementById('scan-meta').innerHTML= DATA.generated_at
     ? `Останній скан<br>${esc(DATA.generated_at)}` : 'Даних ще немає';
 
+  await loadMarks();
+
   renderChips();
   renderCats();
+  render();
+}
+
+async function loadMarks(){
+  try{
+    const r=await fetch('/api/audit/marks?_='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    MARKS=d.marks||{};
+    LOST_DAYS=d.lost_after_days||7;
+    DONE_COUNT=Object.values(MARKS).filter(m=>m.status==='done').length;
+    // Показуємо проблему зі сховищем прямо на сторінці. Мовчазний перехід на
+    // локальний файл — найгірший з варіантів: позначки нібито ставляться, а
+    // після передеплою Render зникають, і ніхто не розуміє чому.
+    const note=document.getElementById('store-note');
+    if(d.storage!=='sheet'){
+      document.getElementById('store-note-text').textContent=
+        'Позначки зберігаються тимчасово на сервері та зникнуть при оновленні коду'
+        + (d.detail ? ' — ' + d.detail : '') + '. Потрібна Google Таблиця.';
+      note.classList.add('show');
+    }else if(d.detail){
+      document.getElementById('store-note-text').textContent='Таблиця відповіла з помилкою: '+d.detail;
+      note.classList.add('show');
+    }else{
+      note.classList.remove('show');
+    }
+  }catch(e){
+    MARKS={}; DONE_COUNT=0;
+  }
+  icons();
+}
+
+async function saveMark(url, value){
+  const body={url:url, status:value, author:who()};
+  try{
+    const r=await fetch('/api/audit/marks',{method:'POST',
+      headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
+    if(value) MARKS[url]=d.mark; else delete MARKS[url];
+    toast(value ? `Позначено: ${MARK_LABEL[value]}` : 'Позначку знято');
+  }catch(e){
+    toast('Не вдалося зберегти: '+e.message);
+  }
+  // Лічильники в чіпах рахуються з MARKS, тому їх теж треба перемалювати —
+  // інакше картку видно як узяту в роботу, а лічильник «В роботі» стоїть на
+  // місці до перезавантаження сторінки.
+  renderChips();
   render();
 }
 
@@ -380,7 +481,26 @@ function renderChips(){
     .concat(types.map(t=>`<div class="chip ${state.issue===t.key?'on':''}" data-issue="${esc(t.key)}">
       <span class="dot2" style="background:${ISSUE_COLORS[t.color]||ISSUE_COLORS.neutral}"></span>${esc(t.label)}<span class="ct">${fmt(t.count)}</span></div>`))
     .join('');
-  host.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  // Статуси роботи — такі самі чіпи, але фільтрують не за типом проблеми,
+  // а за тим, що з карткою робить людина.
+  const items=DATA.items||[];
+  const cnt=k=>items.filter(i=>(MARKS[i.url]||{}).status===k).length;
+  const lostCnt=items.filter(i=>(MARKS[i.url]||{}).lost).length;
+  const extra=[
+    {k:'mark:in_progress', label:'В роботі',      color:'#9B7FE8', n:cnt('in_progress')},
+    {k:'mark:ready',       label:'Текст готовий', color:'#32D8FF', n:cnt('ready')},
+    {k:'mark:lost',        label:`Загубилось (>${LOST_DAYS} дн.)`, color:'#FF5E6C', n:lostCnt},
+  ].filter(x=>x.n>0);
+  if(extra.length){
+    host.innerHTML += extra.map(x=>`<div class="chip ${state.issue===x.k?'on':''}" data-issue="${esc(x.k)}">
+      <span class="dot2" style="background:${x.color}"></span>${esc(x.label)}<span class="ct">${fmt(x.n)}</span></div>`).join('');
+  }
+  if(DONE_COUNT){
+    host.innerHTML += `<div class="chip" style="cursor:default;opacity:.75" title="Позначки, які закрилися самі: сканер більше не бачить проблеми на цих сторінках">
+      <span class="dot2" style="background:#27E37A"></span>Закрито<span class="ct">${fmt(DONE_COUNT)}</span></div>`;
+  }
+
+  host.querySelectorAll('.chip[data-issue]').forEach(c=>c.addEventListener('click',()=>{
     state.issue=c.dataset.issue; shown=PAGE; renderChips(); render();
   }));
 }
@@ -392,15 +512,28 @@ function renderCats(){
   sel.value=state.cat;
 }
 
+function markMatch(i){
+  if(!state.issue.startsWith('mark:')) return i.issue===state.issue;
+  const m=MARKS[i.url]||{};
+  const want=state.issue.slice(5);
+  return want==='lost' ? !!m.lost : m.status===want;
+}
+
 function filtered(){
   const q=state.q.trim().toLowerCase();
   let rows=(DATA.items||[]).filter(i=>
-    (!state.issue || i.issue===state.issue) &&
+    (!state.issue || markMatch(i)) &&
     (!state.cat   || i.category===state.cat) &&
     (!q || String(i.name||'').toLowerCase().includes(q) || String(i.url||'').toLowerCase().includes(q))
   );
   const lab=k=>(TYPES[k]||{}).label||k||'';
+  // Порядок сортування за статусом обраний за терміновістю: спершу те, що
+  // загубилось, далі готове, далі взяте в роботу, і вже потім нічийні картки.
+  const markRank=i=>{ const m=MARKS[i.url]||{};
+    return m.lost?0 : m.status==='ready'?1 : m.status==='in_progress'?2 : 3; };
   rows.sort((a,b)=>{
+    if(state.sort==='mark')  return markRank(a)-markRank(b)
+                                 || String(a.name||'').localeCompare(String(b.name||''),'uk');
     if(state.sort==='name')  return String(a.name||'').localeCompare(String(b.name||''),'uk');
     if(state.sort==='issue') return lab(a.issue).localeCompare(lab(b.issue),'uk')
                                  || String(a.name||'').localeCompare(String(b.name||''),'uk');
@@ -433,16 +566,29 @@ function render(){
   document.getElementById('tbl-host').innerHTML=`
     <div class="tbl-wrap"><table>
       <thead><tr>
-        ${th('name','Товар')}${th('cat','Категорія')}${th('issue','Проблема')}<th></th>
+        ${th('name','Товар')}${th('cat','Категорія')}${th('issue','Проблема')}${th('mark','Робота')}<th></th>
       </tr></thead>
       <tbody>${page.map(i=>{
         const t=TYPES[i.issue]||{label:i.issue,color:'neutral'};
         const col=ISSUE_COLORS[t.color]||ISSUE_COLORS.neutral;
-        return `<tr>
+        const m=MARKS[i.url]||{};
+        const cur=m.status==='done' ? '' : (m.status||'');
+        const note = m.lost
+          ? `текст готовий ${m.days} дн. тому, а опису на сайті досі немає`
+          : (cur ? `${esc(m.author||'без імені')} · ${esc(m.updated_at||'')}` : '');
+        return `<tr class="${m.lost?'lost':''}">
           <td class="c-name">${esc(i.name)}</td>
           <td class="c-cat">${esc(i.category||'—')}</td>
           <td><span class="badge" style="color:${col};background:${ISSUE_TINT[t.color]||ISSUE_TINT.neutral}">
             <span class="dot2" style="background:${col}"></span>${esc(t.label)}</span></td>
+          <td class="c-mark">
+            <select class="mark-sel ${cur?'set':''}" data-url="${esc(i.url)}">
+              <option value=""${cur===''?' selected':''}>— не взято</option>
+              <option value="in_progress"${cur==='in_progress'?' selected':''}>В роботі</option>
+              <option value="ready"${cur==='ready'?' selected':''}>Текст готовий</option>
+            </select>
+            ${note?`<div class="mark-note">${note}</div>`:''}
+          </td>
           <td class="c-open"><a href="${esc(i.url)}" target="_blank" rel="noopener" title="Відкрити на сайті">
             <i data-lucide="external-link"></i></a></td>
         </tr>`;
@@ -453,6 +599,10 @@ function render(){
   const more=document.getElementById('more-btn');
   more.style.display = rows.length>shown ? 'block' : 'none';
 
+  document.querySelectorAll('select.mark-sel').forEach(el=>el.addEventListener('change',()=>{
+    saveMark(el.dataset.url, el.value);
+  }));
+
   document.querySelectorAll('thead th.sortable').forEach(el=>el.addEventListener('click',()=>{
     state.sort=el.dataset.sort;
     document.getElementById('f-sort').value=state.sort;
@@ -462,6 +612,10 @@ function render(){
 // тому не даємо помилці зупинити решту скрипта.
 icons();
 }
+
+const whoEl=document.getElementById('who');
+whoEl.value=who();
+whoEl.addEventListener('input',e=>setWho(e.target.value.trim()));
 
 document.getElementById('q').addEventListener('input',e=>{ state.q=e.target.value; shown=PAGE; render(); });
 document.getElementById('f-cat').addEventListener('change',e=>{ state.cat=e.target.value; shown=PAGE; render(); });

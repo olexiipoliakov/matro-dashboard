@@ -243,6 +243,58 @@ def audit_scan():
         return jsonify({"status": "already_running"}), 409
     return jsonify({"status": "started"}), 202
 
+# ── Позначки роботи над описами ─────────────────────────────────────────
+# Сканер бачить лише результат на сайті, а позначки закривають проміжок між
+# «текст написали» і «текст залили» (див. audit_store.py).
+import audit_store
+
+
+def _current_problem_urls():
+    """Адреси, які останній скан вважає проблемними.
+
+    Повертаємо None, якщо файл аудиту не читається: для audit_store це сигнал
+    «список проблем невідомий», і він не стане закривати позначки. Інакше
+    через одну збійну ночі всі незавершені картки разом оголосили б
+    зробленими.
+    """
+    f = BASE_DIR / "audit_data.json"
+    if not f.exists():
+        return None
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return {i.get("url") for i in (data.get("items") or []) if i.get("url")}
+
+
+@app.route("/api/audit/marks", methods=["GET"])
+@requires_auth
+def audit_marks_list():
+    return jsonify({"marks": audit_store.list_marks(_current_problem_urls()),
+                    **audit_store.status()})
+
+
+@app.route("/api/audit/marks", methods=["POST"])
+@requires_auth
+def audit_marks_set():
+    data = request.get_json(silent=True) or {}
+    url = (data.get("url") or "").strip()
+    new_status = (data.get("status") or "").strip()
+    if not url:
+        return jsonify({"error": "Не вказано адресу товару"}), 400
+    if new_status and new_status not in audit_store.VALID_STATUSES:
+        return jsonify({"error": f"Невідомий статус: {new_status}"}), 400
+    try:
+        if not new_status:
+            audit_store.clear_mark(url)
+            return jsonify({"status": "cleared"})
+        mark = audit_store.set_mark(url, new_status,
+                                    data.get("author", ""), data.get("note", ""))
+    except audit_store.StorageError as e:
+        return jsonify({"error": str(e)}), 502
+    return jsonify({"mark": mark})
+
+
 @app.route("/api/audit/status")
 @requires_auth
 def audit_status():
