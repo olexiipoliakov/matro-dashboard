@@ -1,80 +1,24 @@
 {
   "demo": false,
-  "generated_at": "28.09.2026 12:45",
-  "duration_sec": 449.1,
-  "total_checked": 693,
+  "generated_at": "29.09.2026 12:10",
+  "duration_sec": 395.6,
+  "total_checked": 694,
   "total_errors": 0,
   "issue_types": [
     {
       "key": "no_description",
       "label": "Без опису",
       "color": "danger",
-      "count": 85
+      "count": 73
     },
     {
       "key": "short_description",
       "label": "Короткий опис",
       "color": "warning",
-      "count": 70
+      "count": 66
     }
   ],
   "items": [
-    {
-      "name": "Антресоль Askania/Асканія 2-дв",
-      "url": "https://matroluxe.ua/ua/antresol-askania-2-dw",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Антресоль Askania Ultra/Асканія Ультра 2-дв",
-      "url": "https://matroluxe.ua/ua/antresol-askania-ultra-2-dw",
-      "category": "HoReCa",
-      "issue": "short_description",
-      "detail": "43 символів"
-    },
-    {
-      "name": "Антресоль Loom/Лум 1-ая",
-      "url": "https://matroluxe.ua/ua/antresol-loom-1dv",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Антресоль Loom/Лум 2-ая",
-      "url": "https://matroluxe.ua/ua/antresol-loom-2dv",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Антресоль Loom/Лум 3-ая",
-      "url": "https://matroluxe.ua/ua/antresol-loom-3dv",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Антресоль Loom/Лум 4-ая",
-      "url": "https://matroluxe.ua/ua/antresol-loom-4dv",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Антресоль Loom/Лум 5-ая",
-      "url": "https://matroluxe.ua/ua/antresol-loom-5dv",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Антресоль Noir/Нуар 2-дв",
-      "url": "https://matroluxe.ua/ua/antresol-noir-2dv",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
     {
       "name": "Антресоль Noir/Нуар 3-дв",
       "url": "https://matroluxe.ua/ua/antresol-noir-3dv",
@@ -202,25 +146,11 @@
       "detail": "188 символів"
     },
     {
-      "name": "Крісло Vesta/Веста",
-      "url": "https://matroluxe.ua/ua/kresli-vesta",
-      "category": "—",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Крісло Sky/Скай",
-      "url": "https://matroluxe.ua/ua/kreslo-skay",
+      "name": "Крісло Cloud/Клоуд",
+      "url": "https://matroluxe.ua/ua/kreslo-cloud",
       "category": "—",
       "issue": "short_description",
-      "detail": "295 символів"
-    },
-    {
-      "name": "Крісло Mavka/Мавка",
-      "url": "https://matroluxe.ua/ua/kresls-mavka",
-      "category": "—",
-      "issue": "short_description",
-      "detail": "150 символів"
+      "detail": "296 символів"
     },
     {
       "name": "Ліжко-подіум Aria/Аріа (1200х2000)",
@@ -321,20 +251,6 @@
       "detail": ""
     },
     {
-      "name": "Пуф Mellow/Меллоу",
-      "url": "https://matroluxe.ua/ua/mellow-puf",
-      "category": "—",
-      "issue": "short_description",
-      "detail": "260 символів"
-    },
-    {
-      "name": "Наматрацник Polet v empireye 2/Політ в емпіреї водоутримуючий 2",
-      "url": "https://matroluxe.ua/ua/namatrasnik-vodonepronicaemyj-polet-v-imperee-2",
-      "category": "Текстиль та аксесуари",
-      "issue": "short_description",
-      "detail": "63 символів"
-    },
-    {
       "name": "Пенал Askania/Асканія 1",
       "url": "https://matroluxe.ua/ua/penal-askania-1",
       "category": "HoReCa",
@@ -412,27 +328,6 @@
       "detail": ""
     },
     {
-      "name": "Пуф Круглий D-450 на чорних опорах",
-      "url": "https://matroluxe.ua/ua/puf-d-450",
-      "category": "—",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пуф Круглий g 450",
-      "url": "https://matroluxe.ua/ua/puf-g-450",
-      "category": "—",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пуф Круглий g 700",
-      "url": "https://matroluxe.ua/ua/puf-g-700",
-      "category": "—",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
       "name": "Шафа розпашна Askania Ultra/Асканія Ультра 4-дв.",
       "url": "https://matroluxe.ua/ua/shafa-askania-ultra-4-dv",
       "category": "HoReCa",
@@ -450,13 +345,6 @@
       "name": "Шафа розпашна 1500 3-дв. Noir/Нуар",
       "url": "https://matroluxe.ua/ua/shafa-noir-1500",
       "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Шкаф распашной 2000 4-дв. Noir/Нуар",
-      "url": "https://matroluxe.ua/ua/shafa-noir-2000",
-      "category": "Корпусні меблі",
       "issue": "no_description",
       "detail": ""
     },
