@@ -501,6 +501,53 @@ def summarize_deal_products(rows):
     return f"{names[0]} + ще {len(names) - 1} поз."
 
 # ── Main ───────────────────────────────────────────────────────────────────
+# Розділи, які мають сенс лише заповненими. Якщо Bitrix віддав порожнечу
+# (портал під навантаженням, 503, урізаний scope вебхука), краще залишити
+# вчорашні дані, ніж записати порожній розділ.
+SECTION_IS_GOOD = {
+    "meta": lambda v: isinstance(v, dict) and bool(v.get("stages")),
+    "deals": lambda v: isinstance(v, list) and len(v) > 0,
+    "leads": lambda v: isinstance(v, list) and len(v) > 0,
+    "deal_categories": lambda v: isinstance(v, list) and len(v) > 0,
+    "overdue_tasks": lambda v: isinstance(v, dict) and v.get("count") is not None,
+}
+
+
+def save_result(result):
+    """Зберігаємо результат, переносячи вцілілі розділи з попереднього файлу.
+
+    Раніше файл переписувався цілком. Якщо Bitrix віддавав помилку по одному
+    розділу, на його місце лягала порожнеча — і сторінка, яка читає файл
+    цілком, показувала «Не вдалося завантажити bitrix_data.json». Саме звідси
+    бралося «то працює, то не працює»: один невдалий запит знищував дані,
+    зібрані вдалими.
+
+    Запис атомарний (тимчасовий файл + rename): інакше падіння посеред
+    запису лишало б обрізаний JSON, який не читається взагалі.
+    """
+    prev = {}
+    if OUT.exists():
+        try:
+            prev = json.loads(OUT.read_text(encoding="utf-8"))
+        except Exception:
+            prev = {}
+
+    carried = []
+    for key, is_good in SECTION_IS_GOOD.items():
+        if is_good(result.get(key)):
+            continue
+        if key in prev and is_good(prev.get(key)):
+            result[key] = prev[key]
+            carried.append(key)
+    if carried:
+        result["stale_sections"] = carried
+        print(f"  ↺ залишено попередні дані для: {', '.join(carried)}")
+
+    tmp = OUT.with_name(OUT.name + ".tmp")
+    tmp.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    os.replace(tmp, OUT)
+
+
 if __name__ == "__main__":
     print("=== Bitrix24 CRM Fetch ===")
     if not WEBHOOK_URL:
@@ -509,7 +556,13 @@ if __name__ == "__main__":
 
     start_date = date.today() - timedelta(days=DAYS_BACK)
     ok = True
-    result = {"generated_at": str(date.today()), "period_from": str(start_date)}
+    # Час, а не лише дата. Без нього шапка дашборда писала «Оновлено:
+    # 2026-09-30» — і це виглядало як «дані за сьогодні повні», хоча насправді
+    # вони могли бути зняті о 14:57, коли з 23 угод дня в CRM було лише 11.
+    # Саме на цьому й спіймали розбіжність із вивантаженням.
+    result = {"generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+              "generated_date": str(date.today()),
+              "period_from": str(start_date)}
     user_names = {}
     try:
         print("  → Довідники (стадії угод, статуси/джерела лідів, користувачі)")
@@ -606,7 +659,7 @@ if __name__ == "__main__":
         print(f"  ⚠ не вдалося отримати задачі (можливо, вебхуку не вистачає доступу 'task'): {e}")
         result["overdue_tasks"] = {"count": None, "items": [], "error": str(e)}
 
-    OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2))
+    save_result(result)
     if "deals" in result and "leads" in result:
         print(f"\n✓ bitrix_data.json сохранён: {len(result['deals'])} угод, {len(result['leads'])} лідів")
     else:

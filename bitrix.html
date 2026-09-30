@@ -106,6 +106,29 @@
   .period-cal input[type=date]:focus{border-color:rgba(155,127,232,.4)}
   .period-info{font-size:12px;color:var(--ink-dim);font-weight:600;white-space:nowrap;margin-left:auto}
 
+  /* ── крок по одному дню ── */
+  .day-step{display:flex;align-items:center;gap:6px}
+  .day-step .arr{width:34px;height:34px;display:grid;place-items:center;cursor:pointer;
+    font-family:inherit;font-size:13px;color:var(--ink-soft);
+    border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:10px;
+    transition:all 180ms ease}
+  .day-step .arr:hover:not(:disabled){color:var(--ink);border-color:rgba(155,127,232,.4);
+    background:rgba(155,127,232,.10)}
+  .day-step .arr:disabled{opacity:.3;cursor:default}
+  .day-step input[type=date]{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);
+    padding:8px 10px;border:1px solid var(--border);border-radius:10px;
+    background:rgba(255,255,255,.03);color-scheme:dark;outline:none;
+    transition:border-color 180ms ease}
+  .day-step input[type=date]:focus{border-color:rgba(155,127,232,.4)}
+
+  /* Попередження про незакритий день. Без нього сьогоднішня сума виглядає
+     як підсумок дня, хоча це зріз на момент останнього оновлення. */
+  .fresh-note{display:none;align-items:center;gap:9px;font-size:12.5px;color:var(--warning);
+    background:rgba(255,200,77,.10);border:1px solid rgba(255,200,77,.25);
+    border-radius:12px;padding:10px 14px;margin-bottom:18px}
+  .fresh-note.show{display:flex}
+  .fresh-note i{width:15px;height:15px;flex-shrink:0}
+
   /* ── kpi ── */
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
   .kpi{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);
@@ -297,10 +320,12 @@
     <div class="period-btns">
       <button class="pbtn" onclick="setPeriodDays(0,this)">Сьогодні</button>
       <button class="pbtn" onclick="setPeriodDays(1,this)">Вчора</button>
-      <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 днів</button>
-      <button class="pbtn" data-days="14" onclick="setPeriod(14,this)">14 днів</button>
-      <button class="pbtn active" data-days="30" onclick="setPeriod(30,this)">30 днів</button>
-      <button class="pbtn" data-days="90" onclick="setPeriod(90,this)">Всі</button>
+      <button class="pbtn active" data-days="90" onclick="setPeriod(90,this)">Всі</button>
+    </div>
+    <div class="day-step">
+      <button class="arr" id="day-prev" onclick="stepDay(-1)" title="Попередній день">◀</button>
+      <input type="date" id="day-pick" onchange="pickDay(this.value)" title="Один конкретний день">
+      <button class="arr" id="day-next" onclick="stepDay(1)" title="Наступний день">▶</button>
     </div>
     <div class="period-cal">
       <span>або період:</span>
@@ -309,6 +334,8 @@
       <input type="date" id="date-to" onchange="setCustom()">
     </div>
     <div class="period-info" id="period-info">—</div>
+  </div>
+  <div class="fresh-note" id="fresh-note"><i data-lucide="clock"></i><span id="fresh-note-text"></span>
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -434,7 +461,7 @@ async function load(){
     META = RAW.meta || META;
     document.getElementById('updated').textContent = RAW.generated_at || '—';
     document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
-    setPeriod(30, document.querySelector('.pbtn[data-days="30"]'));
+    setPeriod(90, document.querySelector('.pbtn[data-days="90"]'));
     renderOverdue(RAW.overdue_tasks||{});
   }catch(e){
     showError('Не удалось загрузить bitrix_data.json: '+e.message);
@@ -445,6 +472,46 @@ function showError(msg){ document.getElementById('error-box').innerHTML=`<div cl
 function allDates(){
   const deals=(RAW&&RAW.deals)||[], leads=(RAW&&RAW.leads)||[];
   return [...new Set([...deals.map(d=>d.date),...leads.map(l=>l.date)].filter(Boolean))].sort();
+}
+
+// Один конкретний день зі стрілками. Крок робимо по календарю, а не по днях,
+// де є угоди: день без жодної угоди — теж відповідь, і перестрибувати його
+// означало б приховати саме те, що людина шукає.
+function pickDay(iso){
+  if(!iso) return;
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  curFrom=curTo=iso;
+  document.getElementById('date-from').value=iso;
+  document.getElementById('date-to').value=iso;
+  document.getElementById('day-pick').value=iso;
+  applyFilter();
+}
+
+function stepDay(delta){
+  const base = curTo || curFrom || todayIso();
+  // Полудень, а не північ: опівночі крок на добу може дати той самий день
+  // у датах переходу на літній/зимовий час.
+  const d = new Date(base+'T12:00:00');
+  d.setDate(d.getDate()+delta);
+  pickDay(isoOf(d));
+}
+
+function todayIso(){ return isoOf(new Date()); }
+function isoOf(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function syncStepper(){
+  const pick=document.getElementById('day-pick');
+  if(!pick) return;
+  const dates=allDates();
+  const one = curFrom && curTo && curFrom===curTo;
+  pick.value = one ? curFrom : '';
+  // Уперед далі за сьогодні йти нікуди, назад — далі за перший день даних.
+  const min = dates.length ? dates[0] : null;
+  const max = todayIso();
+  document.getElementById('day-prev').disabled = !!(one && min && curFrom<=min);
+  document.getElementById('day-next').disabled = !!(one && curTo>=max);
 }
 
 function setPeriod(days,btn){
@@ -497,6 +564,8 @@ function applyFilter(){
   const info=document.getElementById('period-info');
   const dd=new Set([...deals.map(d=>d.date),...leads.map(l=>l.date)]).size;
   info.textContent = curFrom||curTo ? `${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.` : 'весь період';
+  syncStepper();
+  renderFreshness();
   render(deals, leads);
   renderCategoryTurnover(dealCats);
 }
@@ -522,6 +591,40 @@ function isDropped(stage_id){
 // занос і збірку (разом з типовими описками менеджерів). Тут ми лише
 // беремо готове число.
 let CLEAN_TURNOVER = {};
+
+// Дані — це зріз на момент останнього запуску fetch_bitrix.py, а не підсумок
+// дня. Поки в generated_at стояла сама дата, шапка писала «Оновлено:
+// 2026-09-30», і зріз о 14:57 виглядав як закритий день: у CRM за 30.09 було
+// 23 угоди, у файлі — 11, і сторінка про це мовчала.
+function renderFreshness(){
+  const note=document.getElementById('fresh-note');
+  if(!note || !RAW) return;
+  const stamp = RAW.generated_at || '';
+  const day = (RAW.generated_date || stamp.slice(0,10) || '');
+  const time = stamp.length > 10 ? stamp.slice(11,16) : '';
+  const parts=[];
+
+  // День, на який знято дані, ще триває — сума по ньому неминуче неповна.
+  // Попереджаємо лише на коротких періодах: на «30 днів» чи «Всі» один
+  // недобраний день майже не рухає підсумок, а банер, який висить завжди,
+  // перестають читати вже на третій день.
+  const spanDays = (curFrom && curTo)
+    ? Math.round((new Date(curTo+'T12:00:00') - new Date(curFrom+'T12:00:00'))/86400000) + 1
+    : 999;
+  if(day && curTo && curTo >= day && spanDays <= 7){
+    parts.push(time
+      ? `Дані зняті ${fmtDate(day)} о ${time}. Угоди, створені пізніше, сюди ще не потрапили — сума за цей день виросте.`
+      : `Дані зняті ${fmtDate(day)}. Угоди, створені пізніше, сюди ще не потрапили.`);
+  }
+  // Розділи, які цього разу не оновились і взяті з попереднього прогону.
+  if(Array.isArray(RAW.stale_sections) && RAW.stale_sections.length){
+    parts.push(`Не оновилися цього разу: ${RAW.stale_sections.join(', ')} — показано дані з попереднього запуску.`);
+  }
+
+  note.classList.toggle('show', parts.length>0);
+  if(parts.length) document.getElementById('fresh-note-text').textContent = parts.join(' ');
+  if(window.lucide){ try{ lucide.createIcons(); }catch(e){} }
+}
 
 function stageMeta(id){
   const raw = (META.stages&&META.stages[id]) || {name:id||'(без стадії)', semantics:''};
