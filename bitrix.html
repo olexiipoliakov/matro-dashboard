@@ -122,6 +122,9 @@
   .kpi .val{font-size:clamp(20px,3vw,26px);font-weight:700;letter-spacing:-.5px;line-height:1;
     word-break:break-word;font-variant-numeric:tabular-nums}
   .kpi .sub{font-size:11.5px;margin-top:7px;color:var(--ink-dim)}
+  /* Другий рядок — «валом», тобто те саме число, що показує сам Bitrix.
+     Він тьмяніший за основний: це довідка для звірки, а не показник. */
+  .kpi .sub.raw{font-size:10.5px;margin-top:4px;color:#46557A}
 
   /* ── заголовки секцій ── */
   .sec-head{display:flex;align-items:center;gap:12px;margin:34px 0 16px}
@@ -486,6 +489,8 @@ function setCustom(){
 
 function applyFilter(){
   if(!RAW) return;
+  CLEAN_TURNOVER = {};
+  (RAW.deal_categories||[]).forEach(c=>{ CLEAN_TURNOVER[c.deal_id] = c.turnover || 0; });
   const deals=(RAW.deals||[]).filter(d=>(!curFrom||d.date>=curFrom)&&(!curTo||d.date<=curTo));
   const leads=(RAW.leads||[]).filter(l=>(!curFrom||l.date>=curFrom)&&(!curTo||l.date<=curTo));
   const dealCats=(RAW.deal_categories||[]).filter(d=>(!curFrom||d.date>=curFrom)&&(!curTo||d.date<=curTo));
@@ -495,6 +500,28 @@ function applyFilter(){
   render(deals, leads);
   renderCategoryTurnover(dealCats);
 }
+
+// Стадії, які за методикою прибираються ЦІЛОЮ угодою, а не окремим рядком:
+// відмова і помилка — це не про товар, а про всю угоду, тому летить увесь її
+// ID разом з доставкою й накладеним платежем.
+//
+// Звіряємось саме за НАЗВОЮ стадії, а не за stage_id. На цьому порталі
+// «Отказ клиента» має id «LOSE» і його ловило регулярне вираження, а
+// «Ошибочный» — це «7», «Рекламация» — «8» і «C22:APOLOGY». Жодне
+// регулярне вираження по id їх не впіймає, і плитка «Забраковано угод»
+// роками показувала б менше, ніж є насправді.
+const DROP_STAGE_NAMES = ['отказ клиента', 'ошибочный', 'рекламация'];
+
+function isDropped(stage_id){
+  const n = (stageMeta(stage_id).name || '').trim().toLowerCase();
+  return DROP_STAGE_NAMES.includes(n);
+}
+
+// deal_id → оборот за самими товарними рядками. Рахує fetch_bitrix.py: він
+// догружає позиції кожної угоди й відкидає доставку, накладений платіж,
+// занос і збірку (разом з типовими описками менеджерів). Тут ми лише
+// беремо готове число.
+let CLEAN_TURNOVER = {};
 
 function stageMeta(id){
   const raw = (META.stages&&META.stages[id]) || {name:id||'(без стадії)', semantics:''};
@@ -546,10 +573,24 @@ function leadSourceLabel(l){
 }
 
 function aggregateDeals(deals){
-  const daily={}, byStage={}, byManager={}, byUtm={};
+  const daily={}, byStage={}, byManager={}, byUtm={}, dropByName={};
   let total=0,totalSum=0,won=0,wonSum=0,lost=0,lostSum=0;
+  // «Чисті» показники за методикою: угоди без відмов і помилок, а сума —
+  // тільки за товарними рядками. «Валові» (total_*) лишаємо поруч, бо саме
+  // їх показує сам Bitrix, і без них неможливо звіритись.
+  let cleanCount=0, cleanSum=0;
   deals.forEach(d=>{
     total++; totalSum+=d.amount;
+
+    const dropped=isDropped(d.stage_id);
+    if(dropped){
+      const nm=stageMeta(d.stage_id).name||'—';
+      if(!dropByName[nm]) dropByName[nm]=0;
+      dropByName[nm]++;
+    }else{
+      cleanCount++;
+      cleanSum += (CLEAN_TURNOVER[d.id] || 0);
+    }
     if(!daily[d.date]) daily[d.date]={date:d.date,count:0,sum:0};
     daily[d.date].count++; daily[d.date].sum+=d.amount;
 
@@ -557,13 +598,13 @@ function aggregateDeals(deals){
     if(!byStage[d.stage_id]) byStage[d.stage_id]={stage_id:d.stage_id,name:st.name,semantics:st.semantics,count:0,sum:0};
     byStage[d.stage_id].count++; byStage[d.stage_id].sum+=d.amount;
     if(st.semantics==='S'){ won++; wonSum+=d.amount; }
-    else if(st.semantics==='F'){ lost++; lostSum+=d.amount; }
+    if(dropped){ lost++; lostSum+=d.amount; }
 
     const mgr=d.manager_id||'';
     if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0,leadsRejected:0};
     byManager[mgr].deals++; byManager[mgr].dealsSum+=d.amount;
     if(st.semantics==='S'){ byManager[mgr].won++; byManager[mgr].wonSum+=d.amount; }
-    else if(st.semantics==='F'){ byManager[mgr].lost++; byManager[mgr].lostSum+=d.amount; }
+    if(dropped){ byManager[mgr].lost++; byManager[mgr].lostSum+=d.amount; }
 
     // Об'єднуємо по джерело+канал (без розрізу по кампаніях) — інакше один
     // і той самий google/cpc розпадається на десятки рядків по кампаніях.
@@ -574,6 +615,8 @@ function aggregateDeals(deals){
   });
   return {
     total_count:total, total_sum:totalSum, won_count:won, won_sum:wonSum, lost_count:lost, lost_sum:lostSum,
+    clean_count:cleanCount, clean_sum:cleanSum,
+    drop_by_name:Object.entries(dropByName).sort((a,b)=>b[1]-a[1]),
     daily:Object.values(daily).sort((a,b)=>a.date<b.date?-1:1),
     by_stage:Object.values(byStage).sort((a,b)=>b.count-a.count),
     by_manager:byManager,
@@ -637,8 +680,14 @@ function render(dealsRaw, leadsRaw){
   CURRENT_BY_MANAGER = deals.by_manager; // після aggregateLeads тут вже є й дані по лідах (той самий об'єкт)
 
   document.getElementById('kpis').innerHTML=`
-    <div class="kpi"><div class="lbl">Угод</div><div class="val">${fmt(deals.total_count)}</div><div class="sub">${fmt(deals.total_sum)} грн</div></div>
-    <div class="kpi"><div class="lbl">Забраковано угод</div><div class="val" style="color:var(--bad)">${fmt(deals.lost_count)}</div><div class="sub">${fmt(deals.lost_sum)} грн</div></div>
+    <div class="kpi" title="Угоди без відмов і помилок. Сума — тільки товарні рядки: доставка, накладений платіж, занос і збірка не рахуються.">
+      <div class="lbl">Угод</div><div class="val">${fmt(deals.clean_count)}</div>
+      <div class="sub">${fmt(deals.clean_sum)} грн за товарами</div>
+      <div class="sub raw">валом: ${fmt(deals.total_count)} · ${fmt(deals.total_sum)} грн</div></div>
+    <div class="kpi" title="Відмова клієнта, помилкова угода і рекламація — за назвою стадії, а не за її кодом.">
+      <div class="lbl">Забраковано угод</div><div class="val" style="color:var(--bad)">${fmt(deals.lost_count)}</div>
+      <div class="sub">${fmt(deals.lost_sum)} грн</div>
+      <div class="sub raw">${deals.drop_by_name.length ? deals.drop_by_name.map(([n,c])=>`${escapeHtml(n)}: ${c}`).join(' · ') : 'немає'}</div></div>
     <div class="kpi"><div class="lbl">Лідів</div><div class="val">${fmt(leads.total_count)}</div><div class="sub">${fmt(leads.converted_count)} конвертовано</div></div>
     <div class="kpi"><div class="lbl">Забраковано лідів</div><div class="val" style="color:var(--bad)">${fmt(leads.rejected_count)}</div><div class="sub">${fmt1(leads.rejected_rate)}%</div></div>`;
 
