@@ -221,6 +221,14 @@ def classify_query(q):
 SITES = [
     {"id": "https://matroluxe.ua/",  "name": "Matroluxe UA",
      "alt_ids": ["sc-domain:matroluxe.ua"]},
+    # matroluxe.com — другий сайт того самого бренду й того самого ринку
+    # (українська мова, гривні, ті самі матраци). Тому brand_substr і
+    # brand_words не перевизначаємо: бренд той самий, що й у matroluxe.ua.
+    {"id": "https://matroluxe.com/", "name": "Matroluxe COM",
+     "alt_ids": ["sc-domain:matroluxe.com",
+                 "https://www.matroluxe.com/",
+                 "http://matroluxe.com/",
+                 "http://www.matroluxe.com/"]},
     {"id": "https://simplershop.com.ua/", "name": "Simpler Shop",
      "alt_ids": ["sc-domain:simplershop.com.ua",
                  "https://www.simplershop.com.ua/",
