@@ -1,7 +1,7 @@
 {
   "demo": false,
-  "generated_at": "30.09.2026 21:47",
-  "duration_sec": 536.7,
+  "generated_at": "01.10.2026 12:26",
+  "duration_sec": 443.3,
   "total_checked": 694,
   "total_errors": 0,
   "issue_types": [
@@ -9,36 +9,22 @@
       "key": "no_description",
       "label": "Без опису",
       "color": "danger",
-      "count": 73
+      "count": 68
     },
     {
       "key": "short_description",
       "label": "Короткий опис",
       "color": "warning",
-      "count": 66
+      "count": 62
     }
   ],
   "items": [
-    {
-      "name": "Антресоль Noir/Нуар 3-дв",
-      "url": "https://matroluxe.ua/ua/antresol-noir-3dv",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
     {
       "name": "Тумба під ТВ1 Askania/Асканія",
       "url": "https://matroluxe.ua/ua/askania-tumba-pod-tb1",
       "category": "HoReCa",
       "issue": "no_description",
       "detail": ""
-    },
-    {
-      "name": "Диван Mavka/Мавка без механізму",
-      "url": "https://matroluxe.ua/ua/divan-mavka-bes-m",
-      "category": "HoReCa",
-      "issue": "short_description",
-      "detail": "150 символів"
     },
     {
       "name": "Комод Loom/Лум №2",
@@ -104,20 +90,6 @@
       "detail": ""
     },
     {
-      "name": "Комод 1000 Noir/Нуар",
-      "url": "https://matroluxe.ua/ua/komod-noir-1000",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод 800 Noir/Нуар",
-      "url": "https://matroluxe.ua/ua/komod-noir-800",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
       "name": "Комод Space/Спейс",
       "url": "https://matroluxe.ua/ua/komod-space",
       "category": "HoReCa",
@@ -132,25 +104,11 @@
       "detail": ""
     },
     {
-      "name": "Комод дзеркальний 800 Noir/Нуар",
-      "url": "https://matroluxe.ua/ua/komod-zerkalo-noir-800",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
       "name": "Консоль Space/Спейс з Дзеркалом",
       "url": "https://matroluxe.ua/ua/konsole-space-s-zerkalom",
       "category": "HoReCa",
       "issue": "short_description",
       "detail": "188 символів"
-    },
-    {
-      "name": "Крісло Cloud/Клоуд",
-      "url": "https://matroluxe.ua/ua/kreslo-cloud",
-      "category": "—",
-      "issue": "short_description",
-      "detail": "296 символів"
     },
     {
       "name": "Ліжко-подіум Aria/Аріа (1200х2000)",
@@ -970,27 +928,6 @@
       "category": "HoReCa",
       "issue": "no_description",
       "detail": ""
-    },
-    {
-      "name": "Дзеркало Loom/Лум",
-      "url": "https://matroluxe.ua/ua/zerkalo-loom",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Дзеркало Space/Спейс (496х34х1410/1610 мм)",
-      "url": "https://matroluxe.ua/ua/zerkalo-space",
-      "category": "HoReCa",
-      "issue": "short_description",
-      "detail": "75 символів"
-    },
-    {
-      "name": "Дзеркало Space/Спейс (596х34х2300/2500 мм)",
-      "url": "https://matroluxe.ua/ua/zerkalo-space-1",
-      "category": "HoReCa",
-      "issue": "short_description",
-      "detail": "72 символів"
     }
   ]
 }
