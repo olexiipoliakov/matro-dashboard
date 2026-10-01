@@ -122,6 +122,30 @@
      суму на кшталт 19 405 543 ₴ переносило так, що ₴ падав на окремий рядок. */
   .kpi-card .v .cur{font-size:.6em;font-weight:600;color:var(--ink-soft);margin-left:4px}
   .kpi-note{font-size:11.5px;color:var(--ink-dim);margin:0 0 20px 2px}
+
+  /* ── перемикач періоду над показниками ──
+     Той самий елемент, що на сторінці CRM: однакова поведінка в двох місцях
+     важливіша за економію десятка рядків CSS. Акцент беремо кольором CRM, бо
+     й показники з CRM — так видно, звідки числа. */
+  .kpi-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .pbtn{padding:9px 16px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--ink-soft);
+    border-radius:11px;transition:all 180ms ease;white-space:nowrap}
+  .pbtn:hover{color:var(--ink);border-color:var(--border-strong)}
+  .pbtn.active{background:linear-gradient(90deg,var(--crm),var(--crm-2));color:#fff;border-color:transparent}
+  .day-step{display:flex;align-items:center;gap:6px}
+  .day-step .arr{width:34px;height:34px;display:grid;place-items:center;cursor:pointer;
+    font-family:inherit;font-size:13px;color:var(--ink-soft);
+    border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:10px;
+    transition:all 180ms ease}
+  .day-step .arr:hover:not(:disabled){color:var(--ink);border-color:rgba(155,127,232,.4);
+    background:rgba(155,127,232,.10)}
+  .day-step .arr:disabled{opacity:.3;cursor:default}
+  .day-step input[type=date]{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);
+    padding:8px 10px;border:1px solid var(--border);border-radius:10px;
+    background:rgba(255,255,255,.03);color-scheme:dark;outline:none;
+    transition:border-color 180ms ease}
+  .day-step input[type=date]:focus{border-color:rgba(155,127,232,.4)}
   @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:560px){.kpi-row{grid-template-columns:1fr}}
 
@@ -281,6 +305,17 @@
       </div>
     </div>
   </header>
+
+  <div class="kpi-bar">
+    <button class="pbtn" id="kb-today" onclick="kpiPreset('today',this)">Сьогодні</button>
+    <button class="pbtn" id="kb-yest" onclick="kpiPreset('yesterday',this)">Вчора</button>
+    <button class="pbtn active" id="kb-all" onclick="kpiPreset('all',this)">Всі</button>
+    <div class="day-step">
+      <button class="arr" id="kb-prev" onclick="kpiStep(-1)" title="Попередній день">◀</button>
+      <input type="date" id="kb-date" onchange="kpiPickDay(this.value)" title="Один конкретний день">
+      <button class="arr" id="kb-next" onclick="kpiStep(1)" title="Наступний день">▶</button>
+    </div>
+  </div>
 
   <div class="kpi-row">
     <div class="kpi-card" title="Сума товарних рядків: без доставки, накладеного платежу, заносу й збірки; угоди з відмовою та помилкові не рахуються">
@@ -529,6 +564,116 @@ async function loadSEO(){
   }
 }
 
+// ── ключові показники з перемикачем періоду ──────────────────────────────
+let CRM_RAW=null, KPI_FROM=null, KPI_TO=null;
+
+// Методика та сама, що на сторінці CRM: відмови, помилкові й рекламації
+// прибираються ЦІЛОЮ угодою, оборот береться за товарними рядками.
+// Звіряємось за НАЗВОЮ стадії, бо на цьому порталі «Ошибочный» — це id «7»,
+// «Рекламация» — «8» і «C22:APOLOGY», і по id їх не впіймати.
+const KPI_DROP_NAMES = ['отказ клиента', 'ошибочный', 'рекламация'];
+
+function kpiIso(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function kpiToday(){ return kpiIso(new Date()); }
+
+function kpiDates(){
+  if(!CRM_RAW) return [];
+  return [...new Set([...(CRM_RAW.deals||[]).map(d=>d.date),
+                      ...(CRM_RAW.leads||[]).map(l=>l.date)].filter(Boolean))].sort();
+}
+
+function renderKpi(){
+  if(!CRM_RAW) return;
+  const stages=(CRM_RAW.meta&&CRM_RAW.meta.stages)||{};
+  const inRange = x => (!KPI_FROM || x.date>=KPI_FROM) && (!KPI_TO || x.date<=KPI_TO);
+  const dropped = d => KPI_DROP_NAMES.includes(
+    String((stages[d.stage_id]||{}).name||'').trim().toLowerCase());
+
+  const turnoverById={};
+  (CRM_RAW.deal_categories||[]).forEach(c=>{ turnoverById[c.deal_id]=c.turnover||0; });
+
+  let nDeals=0, turnover=0, nRejected=0;
+  (CRM_RAW.deals||[]).filter(inRange).forEach(d=>{
+    if(dropped(d)){ nRejected++; return; }
+    nDeals++;
+    turnover += turnoverById[d.id] || 0;
+  });
+  const nLeads=(CRM_RAW.leads||[]).filter(inRange).length;
+
+  document.getElementById('kpi-turnover').innerHTML = fmt(turnover)+'<span class="cur">₴</span>';
+  document.getElementById('kpi-deals').textContent    = fmt(nDeals);
+  document.getElementById('kpi-leads').textContent    = fmt(nLeads);
+  document.getElementById('kpi-rejected').textContent = fmt(nRejected);
+
+  const period = (KPI_FROM&&KPI_TO&&KPI_FROM===KPI_TO) ? fmtKpiDate(KPI_FROM)
+    : (KPI_FROM||KPI_TO) ? `${fmtKpiDate(KPI_FROM)} — ${fmtKpiDate(KPI_TO)}`
+    : (CRM_RAW.period_from ? `з ${fmtKpiDate(CRM_RAW.period_from)}` : 'весь період');
+  // День, на який знято дані, ще триває — нулі за «сьогодні» це не поломка,
+  // а відсутність зрізу. Без цього рядка порожні картки виглядали б як
+  // «сьогодні не продали нічого».
+  const stamp = CRM_RAW.generated_at || '';
+  const snapDay = CRM_RAW.generated_date || stamp.slice(0,10) || '';
+  const time = stamp.length > 10 ? stamp.slice(11,16) : '';
+  const stale = !!(snapDay && KPI_TO && KPI_TO >= snapDay);
+
+  const note=document.getElementById('kpi-note');
+  note.textContent = `${period} · оборот за товарами, без відмов і помилкових угод`
+    + (stamp ? ` · зріз ${stamp}` : '')
+    + (stale ? (time ? ` · день ще не закритий, дані станом на ${time}`
+                     : ' · день ще не закритий') : '');
+  note.style.color = stale ? 'var(--warning)' : '';
+
+  kpiSyncStepper();
+}
+
+function fmtKpiDate(iso){
+  if(!iso) return '—';
+  const [y,m,d]=iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+function kpiSyncStepper(){
+  const pick=document.getElementById('kb-date');
+  if(!pick) return;
+  const one = KPI_FROM && KPI_TO && KPI_FROM===KPI_TO;
+  pick.value = one ? KPI_FROM : '';
+  const dates=kpiDates();
+  const min = dates.length ? dates[0] : null;
+  document.getElementById('kb-prev').disabled = !!(one && min && KPI_FROM<=min);
+  document.getElementById('kb-next').disabled = !!(one && KPI_TO>=kpiToday());
+}
+
+function kpiPreset(kind, btn){
+  document.querySelectorAll('.kpi-bar .pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(kind==='all'){ KPI_FROM=KPI_TO=null; }
+  else{
+    const d=new Date(); d.setDate(d.getDate() - (kind==='yesterday'?1:0));
+    KPI_FROM=KPI_TO=kpiIso(d);
+  }
+  renderKpi();
+}
+
+// Крок по календарю, а не по днях з угодами: день без жодної угоди — теж
+// відповідь, і перестрибувати його означало б сховати саме те, що шукають.
+function kpiPickDay(iso){
+  if(!iso) return;
+  document.querySelectorAll('.kpi-bar .pbtn').forEach(b=>b.classList.remove('active'));
+  KPI_FROM=KPI_TO=iso;
+  renderKpi();
+}
+
+function kpiStep(delta){
+  const base = KPI_TO || KPI_FROM || kpiToday();
+  // Полудень, а не північ: опівночі крок на добу може дати той самий день
+  // у дати переходу на літній/зимовий час.
+  const d=new Date(base+'T12:00:00');
+  d.setDate(d.getDate()+delta);
+  kpiPickDay(kpiIso(d));
+}
+
 async function loadCRM(){
   try{
     const res=await fetch('bitrix_data.json?_='+Date.now());
@@ -541,37 +686,12 @@ async function loadCRM(){
     const deals = data.deals, leads = data.leads;
 
     // ── ключові показники ──
-    // Рахуємо рівно тією самою методикою, що й сторінка CRM: угоди з
-    // відмовою, помилкові та рекламації прибираються ЦІЛКОМ, а оборот
-    // береться за товарними рядками (доставка, накладений платіж, занос і
-    // збірка не рахуються). Інакше головна й CRM показували б різні числа
-    // про одне й те саме, і довіри не було б до жодної з них.
-    //
-    // Звіряємось за НАЗВОЮ стадії, а не за stage_id: на цьому порталі
-    // «Ошибочный» — це «7», «Рекламация» — «8» і «C22:APOLOGY», і жодне
-    // регулярне вираження по id їх не впіймає.
-    const DROP_NAMES = ['отказ клиента', 'ошибочный', 'рекламация'];
-    const dropped = d => DROP_NAMES.includes(
-      String((stages[d.stage_id]||{}).name||'').trim().toLowerCase());
-
-    const turnoverById = {};
-    (data.deal_categories||[]).forEach(c=>{ turnoverById[c.deal_id]=c.turnover||0; });
-
-    let kpiDeals=0, kpiTurnover=0, kpiRejected=0;
-    deals.forEach(d=>{
-      if(dropped(d)){ kpiRejected++; return; }
-      kpiDeals++;
-      kpiTurnover += turnoverById[d.id] || 0;
-    });
-
-    document.getElementById('kpi-turnover').innerHTML = fmt(kpiTurnover)+'<span class="cur">₴</span>';
-    document.getElementById('kpi-deals').textContent    = fmt(kpiDeals);
-    document.getElementById('kpi-leads').textContent    = fmt(leads.length);
-    document.getElementById('kpi-rejected').textContent = fmt(kpiRejected);
-    document.getElementById('kpi-note').textContent =
-      (data.period_from ? `З ${data.period_from} · ` : 'Останні 90 днів · ')
-      + 'оборот за товарами, без відмов і помилкових угод'
-      + (data.generated_at ? ` · зріз ${data.generated_at}` : '');
+    // ── ключові показники ──
+    // Дані кладемо в CRM_RAW, а малюємо окремою функцією: над картками є
+    // перемикач періоду, і перерахунок має відбуватись без повторного
+    // звернення до сервера.
+    CRM_RAW = data;
+    renderKpi();
 
     const byDate={};
     let wonCount=0, lostCount=0;
@@ -604,6 +724,10 @@ async function loadCRM(){
     ['kpi-turnover','kpi-deals','kpi-leads','kpi-rejected']
       .forEach(id=>{ document.getElementById(id).textContent='—'; });
     document.getElementById('kpi-note').textContent='Дані CRM не завантажились';
+    // Без даних перемикати нічого: залишена активною кнопка виглядала б так,
+    // ніби показники просто порожні за цей день.
+    document.querySelectorAll('.kpi-bar button, .kpi-bar input')
+      .forEach(el=>{ el.disabled=true; });
     document.getElementById('crm-tag').textContent='Немає даних';
     document.getElementById('crm-trend').classList.remove('show');
     document.getElementById('crm-stats').innerHTML='<div class="skeleton">Не вдалося завантажити bitrix_data.json</div>';
