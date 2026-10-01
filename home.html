@@ -105,6 +105,26 @@
   .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
   @media(max-width:900px){.grid2{grid-template-columns:1fr}}
 
+  /* ── ключові показники ──
+     Самостійний ряд між привітанням і дзвінками, не всередині жодної картки.
+     Ширина, відступи й скруглення взяті з решти інтерфейсу, щоб ряд не
+     виглядав чужим. */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-bottom:12px}
+  .kpi-card{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--border);border-radius:16px;padding:20px 22px;min-width:0;
+    transition:border-color 300ms cubic-bezier(.2,.8,.2,1)}
+  .kpi-card:hover{border-color:var(--border-strong)}
+  .kpi-card .l{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px}
+  .kpi-card .v{font-size:clamp(21px,2.3vw,28px);font-weight:700;color:var(--ink);
+    letter-spacing:-.5px;line-height:1.1;font-variant-numeric:tabular-nums;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Знак гривні меншим і тьмянішим: інакше він з'їдає ширину картки й
+     суму на кшталт 19 405 543 ₴ переносило так, що ₴ падав на окремий рядок. */
+  .kpi-card .v .cur{font-size:.6em;font-weight:600;color:var(--ink-soft);margin-left:4px}
+  .kpi-note{font-size:11.5px;color:var(--ink-dim);margin:0 0 20px 2px}
+  @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:560px){.kpi-row{grid-template-columns:1fr}}
+
   /* ── широкий віджет дзвінків (над grid2) ── */
   .calls-wide{margin-bottom:20px}
   .calls-stat-row{display:flex;align-items:center;flex-wrap:wrap;gap:32px 40px;margin-bottom:18px}
@@ -261,6 +281,18 @@
       </div>
     </div>
   </header>
+
+  <div class="kpi-row">
+    <div class="kpi-card" title="Сума товарних рядків: без доставки, накладеного платежу, заносу й збірки; угоди з відмовою та помилкові не рахуються">
+      <div class="l">Загальний оборот</div><div class="v" id="kpi-turnover">—</div></div>
+    <div class="kpi-card" title="Угоди без відмов і помилкових">
+      <div class="l">Угоди</div><div class="v" id="kpi-deals">—</div></div>
+    <div class="kpi-card">
+      <div class="l">Ліди</div><div class="v" id="kpi-leads">—</div></div>
+    <div class="kpi-card" title="Відмова клієнта, помилкова угода, рекламація">
+      <div class="l">Відхилені угоди</div><div class="v" id="kpi-rejected">—</div></div>
+  </div>
+  <div class="kpi-note" id="kpi-note">Останні 90 днів</div>
 
   <a href="ringostat.html" class="glass calls calls-wide" style="text-decoration:none;color:inherit;display:block">
     <div class="card-top">
@@ -508,6 +540,39 @@ async function loadCRM(){
     const stages = (data.meta && data.meta.stages) || {};
     const deals = data.deals, leads = data.leads;
 
+    // ── ключові показники ──
+    // Рахуємо рівно тією самою методикою, що й сторінка CRM: угоди з
+    // відмовою, помилкові та рекламації прибираються ЦІЛКОМ, а оборот
+    // береться за товарними рядками (доставка, накладений платіж, занос і
+    // збірка не рахуються). Інакше головна й CRM показували б різні числа
+    // про одне й те саме, і довіри не було б до жодної з них.
+    //
+    // Звіряємось за НАЗВОЮ стадії, а не за stage_id: на цьому порталі
+    // «Ошибочный» — це «7», «Рекламация» — «8» і «C22:APOLOGY», і жодне
+    // регулярне вираження по id їх не впіймає.
+    const DROP_NAMES = ['отказ клиента', 'ошибочный', 'рекламация'];
+    const dropped = d => DROP_NAMES.includes(
+      String((stages[d.stage_id]||{}).name||'').trim().toLowerCase());
+
+    const turnoverById = {};
+    (data.deal_categories||[]).forEach(c=>{ turnoverById[c.deal_id]=c.turnover||0; });
+
+    let kpiDeals=0, kpiTurnover=0, kpiRejected=0;
+    deals.forEach(d=>{
+      if(dropped(d)){ kpiRejected++; return; }
+      kpiDeals++;
+      kpiTurnover += turnoverById[d.id] || 0;
+    });
+
+    document.getElementById('kpi-turnover').innerHTML = fmt(kpiTurnover)+'<span class="cur">₴</span>';
+    document.getElementById('kpi-deals').textContent    = fmt(kpiDeals);
+    document.getElementById('kpi-leads').textContent    = fmt(leads.length);
+    document.getElementById('kpi-rejected').textContent = fmt(kpiRejected);
+    document.getElementById('kpi-note').textContent =
+      (data.period_from ? `З ${data.period_from} · ` : 'Останні 90 днів · ')
+      + 'оборот за товарами, без відмов і помилкових угод'
+      + (data.generated_at ? ` · зріз ${data.generated_at}` : '');
+
     const byDate={};
     let wonCount=0, lostCount=0;
     deals.forEach(d=>{
@@ -536,6 +601,9 @@ async function loadCRM(){
     document.getElementById('crm-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
   }catch(e){
     setSys('sys-bitrix', false);
+    ['kpi-turnover','kpi-deals','kpi-leads','kpi-rejected']
+      .forEach(id=>{ document.getElementById(id).textContent='—'; });
+    document.getElementById('kpi-note').textContent='Дані CRM не завантажились';
     document.getElementById('crm-tag').textContent='Немає даних';
     document.getElementById('crm-trend').classList.remove('show');
     document.getElementById('crm-stats').innerHTML='<div class="skeleton">Не вдалося завантажити bitrix_data.json</div>';
