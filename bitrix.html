@@ -89,6 +89,16 @@
   .sub{font-size:14px;color:var(--ink-soft)}
   .meta-line{text-align:right;font-size:12.5px;color:var(--ink-dim);line-height:1.7;
     background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:11px 16px}
+  .head-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  .refresh-btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#fff;
+    border:none;cursor:pointer;padding:10px 18px;border-radius:12px;white-space:nowrap;font-family:inherit;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    transition:transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease}
+  .refresh-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 28px rgba(125,95,214,.32)}
+  .refresh-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+  .refresh-btn i{width:15px;height:15px}
+  .refresh-btn.busy i{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
   .meta-line b{color:var(--ink-soft);font-weight:600}
 
   /* ── период ── */
@@ -311,7 +321,11 @@
       </div>
       <div class="sub">Bitrix24 · угоди та ліди</div>
     </div>
-    <div class="meta-line">Дані з: <b id="period-from">—</b><br>Оновлено: <b id="updated">—</b></div>
+    <div class="head-right">
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshData()">
+        <i data-lucide="refresh-cw"></i> Оновити дані</button>
+      <div class="meta-line">Дані з: <b id="period-from">—</b><br>Оновлено: <b id="updated">—</b></div>
+    </div>
   </header>
 
   <div id="error-box"></div>
@@ -463,10 +477,90 @@ async function load(){
     document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
     setPeriod(90, document.querySelector('.pbtn[data-days="90"]'));
     renderOverdue(RAW.overdue_tasks||{});
+    // Збір міг стартувати за розкладом, з вебхука Bitrix або з іншої вкладки.
+    // Показуємо це одразу при відкритті, а не тільки після натискання кнопки.
+    try{
+      const r=await fetch('/api/bitrix/refresh/status?_='+Date.now());
+      if(r.ok && (await r.json()).running) startRefreshPoll();
+    }catch(e){}
   }catch(e){
     showError('Не удалось загрузить bitrix_data.json: '+e.message);
   }
 }
+// ── ручне оновлення даних ────────────────────────────────────────────────
+// Збір триває хвилини: скрипт догружає товарні позиції кожної угоди. Тому
+// кнопка лише СТАРТУЄ його, а сторінка потім питає стан — інакше запит висів
+// би хвилинами й його прибив би таймаут проксі Render.
+let refreshPoll=null, refreshStartedAt='';
+const REFRESH_IDLE='<i data-lucide="refresh-cw"></i> Оновити дані';
+
+function setRefreshBusy(on, label){
+  const b=document.getElementById('refresh-btn');
+  if(!b) return;
+  b.disabled=on;
+  b.classList.toggle('busy', on);
+  b.innerHTML = on ? `<i data-lucide="refresh-cw"></i> ${label||'Оновлюю…'}` : REFRESH_IDLE;
+  if(window.lucide){ try{ lucide.createIcons(); }catch(e){} }
+}
+
+async function pollRefresh(){
+  let st;
+  try{
+    const r=await fetch('/api/bitrix/refresh/status?_='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    st=await r.json();
+  }catch(e){ return; }   // мережа моргнула — чекаємо наступного тіку
+  if(st.running){ setRefreshBusy(true); return; }
+
+  clearInterval(refreshPoll); refreshPoll=null;
+  setRefreshBusy(false);
+
+  // Скрипт міг завершитись помилкою: Bitrix віддав 503, вебхуку не вистачає
+  // доступу, портал під навантаженням. Тоді час зрізу у файлі не зміниться.
+  // Мовчати про це не можна — людина натиснула кнопку, побачила, що вона
+  // відпрацювала, і вирішила б, що на екрані свіжі дані.
+  if(refreshStartedAt && st.generated_at === refreshStartedAt){
+    showError('Оновлення завершилось, але дані не змінились — Bitrix не віддав нові. '
+            + 'Спробуйте ще раз за кілька хвилин; старі дані на місці.');
+    return;
+  }
+  document.getElementById('error-box').innerHTML='';
+  // Дані на диску змінились — перечитуємо файл і перемальовуємо сторінку,
+  // зберігши вибраний період.
+  const from=curFrom, to=curTo;
+  await load();
+  if(from||to){
+    // load() виставляє період за замовчуванням і підсвічує кнопку «Всі».
+    // Повертаємо те, що людина дивилась, і знімаємо чужу підсвітку, інакше
+    // кнопка каже «Всі», а на екрані один день.
+    document.querySelectorAll('.period-btns .pbtn').forEach(b=>b.classList.remove('active'));
+    curFrom=from; curTo=to;
+    document.getElementById('date-from').value=from||'';
+    document.getElementById('date-to').value=to||'';
+    applyFilter();
+  }
+}
+
+function startRefreshPoll(){
+  if(refreshPoll) return;
+  refreshPoll=setInterval(pollRefresh, 3000);
+  pollRefresh();
+}
+
+async function refreshData(){
+  refreshStartedAt = (RAW && RAW.generated_at) || '';
+  setRefreshBusy(true,'Запускаю…');
+  try{
+    const r=await fetch('/api/bitrix/refresh',{method:'POST'});
+    if(r.status===409){ startRefreshPoll(); return; }   // вже йде — просто стежимо
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    startRefreshPoll();
+  }catch(e){
+    setRefreshBusy(false);
+    showError('Не вдалося запустити оновлення: '+e.message);
+  }
+}
+
 function showError(msg){ document.getElementById('error-box').innerHTML=`<div class="err">${msg}</div>`; }
 
 function allDates(){
@@ -1204,12 +1298,18 @@ function managerNameOverdue(items, id){
   return t ? (t.responsible_name||id) : id;
 }
 
+// Аксесуари — повноцінна категорія, а не виноска: подушки, ковдри й
+// наматрацники це 700 тис. грн за квартал. Разом з «Іншим» (товари, назву
+// яких правила не впізнали) усі смуги тепер складаються рівно в оборот —
+// якщо щось не сходиться, це видно одразу, а не ховається.
 const CAT_TURNOVER_LABELS = {
-  mattresses:"Матраци", soft_furniture:"М'яка меблі", wardrobes:"Шафи", case_furniture:"Корпусні меблі",
+  mattresses:"Матраци", soft_furniture:"М'яка меблі", accessories:"Аксесуари",
+  wardrobes:"Шафи", case_furniture:"Корпусні меблі", unrecognized:"Інше",
 };
 const CAT_TURNOVER_COLORS = {
   // Кольори перевірені на тёмному фоні (контраст + дальтонізм).
-  mattresses:"#7E63D6", soft_furniture:"#E06A1F", wardrobes:"#1CA478", case_furniture:"#B7880C",
+  mattresses:"#7E63D6", soft_furniture:"#E06A1F", accessories:"#32D8FF",
+  wardrobes:"#1CA478", case_furniture:"#B7880C", unrecognized:"#5A6A8A",
 };
 
 function renderCategoryTurnover(rows){
@@ -1229,15 +1329,21 @@ function renderCategoryTurnover(rows){
     return;
   }
 
-  let orders=rows.length, turnover=0, accessories=0;
-  const catSums={mattresses:0,soft_furniture:0,wardrobes:0,case_furniture:0};
+  let orders=rows.length, turnover=0;
+  const catSums={mattresses:0,soft_furniture:0,accessories:0,
+                 wardrobes:0,case_furniture:0,unrecognized:0};
   const bySource={};
   const flagRows=[];
 
   rows.forEach(r=>{
     turnover+=r.turnover||0;
-    accessories+=r.accessories||0;
-    Object.keys(catSums).forEach(k=>catSums[k]+=(r.categories&&r.categories[k])||0);
+    // Аксесуари й нерозпізнане лежать у корені запису, а не в categories —
+    // так їх рахує fetch_bitrix.py, тому дістаємо окремо.
+    catSums.accessories += r.accessories||0;
+    catSums.unrecognized += r.unrecognized||0;
+    Object.keys(r.categories||{}).forEach(k=>{
+      if(k in catSums) catSums[k]+=r.categories[k]||0;
+    });
 
     const src=r.source_id||'(не вказано)';
     if(!bySource[src]) bySource[src]={name:sourceName(r.source_id),count:0,sum:0};
@@ -1253,10 +1359,11 @@ function renderCategoryTurnover(rows){
   kpis.innerHTML=`
     <div class="kpi"><div class="lbl">Замовлень</div><div class="val">${fmt(orders)}</div></div>
     <div class="kpi"><div class="lbl">Оборот</div><div class="val">${fmt(turnover)} грн</div></div>
-    <div class="kpi"><div class="lbl">Аксесуари</div><div class="val">${fmt(accessories)} грн</div><div class="sub">окремо від 4 категорій</div></div>`;
+    <div class="kpi"><div class="lbl">Середній чек</div><div class="val">${fmt(orders?turnover/orders:0)} грн</div>
+      <div class="sub">за товарами, без доставки</div></div>`;
 
   const maxCat=Math.max(1,...Object.values(catSums));
-  funnel.innerHTML = Object.keys(catSums).map(k=>{
+  funnel.innerHTML = Object.keys(catSums).sort((a,b)=>catSums[b]-catSums[a]).map(k=>{
     const v=catSums[k], w=Math.max(2,v/maxCat*100);
     return `<div class="funnel-row">
       <div class="funnel-name" style="color:${CAT_TURNOVER_COLORS[k]}">${CAT_TURNOVER_LABELS[k]}</div>
