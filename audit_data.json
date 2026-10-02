@@ -1,21 +1,21 @@
 {
   "demo": false,
-  "generated_at": "01.10.2026 12:26",
-  "duration_sec": 443.3,
-  "total_checked": 694,
+  "generated_at": "02.10.2026 11:57",
+  "duration_sec": 430.0,
+  "total_checked": 696,
   "total_errors": 0,
   "issue_types": [
     {
       "key": "no_description",
       "label": "Без опису",
       "color": "danger",
-      "count": 68
+      "count": 56
     },
     {
       "key": "short_description",
       "label": "Короткий опис",
       "color": "warning",
-      "count": 62
+      "count": 61
     }
   ],
   "items": [
@@ -27,116 +27,11 @@
       "detail": ""
     },
     {
-      "name": "Комод Loom/Лум №2",
-      "url": "https://matroluxe.ua/ua/komod-2-loom",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Aura/Аура №1",
-      "url": "https://matroluxe.ua/ua/komod-aura-1",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Aura/Аура №1 з кришкою 32 мм",
-      "url": "https://matroluxe.ua/ua/komod-aura-1-k",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Aura/Аура №2",
-      "url": "https://matroluxe.ua/ua/komod-aura-2",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Aura/Аура №3",
-      "url": "https://matroluxe.ua/ua/komod-aura-3",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Aura/Аура №3 з кришкою 32 мм",
-      "url": "https://matroluxe.ua/ua/komod-aura-3-k",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Aura/Аура №2 з кришкою 32 мм",
-      "url": "https://matroluxe.ua/ua/komod-aura-k",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Leada/Леада",
-      "url": "https://matroluxe.ua/ua/komod-leada",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Комод Loom/Лум",
-      "url": "https://matroluxe.ua/ua/komod-loom",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
       "name": "Комод Space/Спейс",
       "url": "https://matroluxe.ua/ua/komod-space",
       "category": "HoReCa",
       "issue": "short_description",
-      "detail": "122 символів"
-    },
-    {
-      "name": "Комод дзеркальний1000 Noir/Нуар",
-      "url": "https://matroluxe.ua/ua/komod-zerkalo-noir-1000",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Консоль Space/Спейс з Дзеркалом",
-      "url": "https://matroluxe.ua/ua/konsole-space-s-zerkalom",
-      "category": "HoReCa",
-      "issue": "short_description",
-      "detail": "188 символів"
-    },
-    {
-      "name": "Ліжко-подіум Aria/Аріа (1200х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-aria-120-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Aria/Аріа (1400х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-aria-140-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Aria/Аріа (1600х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-aria-160-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Aria/Аріа (1800х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-aria-180-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
+      "detail": "293 символів"
     },
     {
       "name": "Ліжко-подіум Canto/Канто (1200х2000)",
@@ -195,6 +90,13 @@
       "detail": ""
     },
     {
+      "name": "Матрац Asa/Аса",
+      "url": "https://matroluxe.ua/ua/matras-asa",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
       "name": "Матрац Diamond/Діамант",
       "url": "https://matroluxe.ua/ua/matras-diamond",
       "category": "HoReCa",
@@ -204,6 +106,13 @@
     {
       "name": "Матрац Diamond premium/Діамант преміум",
       "url": "https://matroluxe.ua/ua/matras-diamond-premium",
+      "category": "HoReCa",
+      "issue": "no_description",
+      "detail": ""
+    },
+    {
+      "name": "Матрац Sora/Сора",
+      "url": "https://matroluxe.ua/ua/matras-sora",
       "category": "HoReCa",
       "issue": "no_description",
       "detail": ""
