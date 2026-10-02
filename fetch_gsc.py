@@ -610,21 +610,33 @@ if __name__ == "__main__":
     # Сайт, який цього разу не вивантажився, беремо з попереднього файлу.
     # Інакше тимчасовий збій по одному ресурсу стирає з дашборда і другий:
     # сторінка читає seo_data.json цілком, і чого в ньому немає — того немає.
-    prev = {}
-    if OUT.exists():
-        try:
-            prev = json.loads(OUT.read_text())
-        except Exception:
-            prev = {}
+    # Попередній файл читаємо ТІЛЬКИ якщо цього разу якийсь сайт не вивантажився.
+    # Раніше його читали завжди — а це ще один повний розбір 40-мегабайтного
+    # JSON (≈150 МБ обʼєктів у памʼяті) у процесі, який і без того тримає
+    # щойно зібрані дані. На тарифі Starter (512 МБ) цього вистачало, щоб
+    # Render убив інстанс за перевищення памʼяті.
     fresh = {s["site_name"] for s in result["sites"]}
-    for old_site in prev.get("sites", []):
-        if old_site.get("site_name") not in fresh and old_site.get("daily"):
-            old_site["stale_since"] = prev.get("generated_at", "")
-            result["sites"].append(old_site)
-            print(f"  ↺ {old_site.get('site_name')}: залишено дані від {old_site['stale_since']}")
+    if len(fresh) < len(SITES):
+        prev = {}
+        if OUT.exists():
+            try:
+                prev = json.loads(OUT.read_text())
+            except Exception:
+                prev = {}
+        for old_site in prev.get("sites", []):
+            if old_site.get("site_name") not in fresh and old_site.get("daily"):
+                old_site["stale_since"] = prev.get("generated_at", "")
+                result["sites"].append(old_site)
+                print(f"  ↺ {old_site.get('site_name')}: залишено дані від {old_site['stale_since']}")
+        del prev
 
     tmp = OUT.with_name(OUT.name + ".tmp")
-    tmp.write_text(json.dumps(result, ensure_ascii=False, indent=2))
+    # Пишемо потоком у файл і без відступів. json.dumps(..., indent=2) спершу
+    # будував рядок на 41 МБ цілком у памʼяті — плюс ~200 МБ піку. Відступи в
+    # машинному файлі нікому не потрібні, а розмір вони подвоюють: 41 МБ проти
+    # 17 МБ. Сторінка качає цей файл при кожному відкритті, тож це ще й швидше.
+    with open(tmp, "w", encoding="utf-8") as fp:
+        json.dump(result, fp, ensure_ascii=False, separators=(",", ":"))
     os.replace(tmp, OUT)
     print(f"\n✓ seo_data.json сохранён: сайтів {len(result['sites'])}")
     if not ok:

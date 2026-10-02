@@ -551,7 +551,11 @@ def save_result(result):
         print(f"  ↺ залишено попередні дані для: {', '.join(carried)}")
 
     tmp = OUT.with_name(OUT.name + ".tmp")
-    tmp.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Потоком і без відступів: рядок на весь файл більше не будується в
+    # памʼяті, а сам файл стає вдвічі меншим. Відступи в машинному JSON
+    # ніхто не читає, а сторінка качає цей файл при кожному відкритті.
+    with open(tmp, "w", encoding="utf-8") as fp:
+        json.dump(result, fp, ensure_ascii=False, separators=(",", ":"))
     os.replace(tmp, OUT)
 
 
