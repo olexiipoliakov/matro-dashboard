@@ -1,7 +1,7 @@
 {
   "demo": false,
-  "generated_at": "02.10.2026 11:57",
-  "duration_sec": 430.0,
+  "generated_at": "03.10.2026 11:09",
+  "duration_sec": 436.1,
   "total_checked": 696,
   "total_errors": 0,
   "issue_types": [
@@ -9,7 +9,7 @@
       "key": "no_description",
       "label": "Без опису",
       "color": "danger",
-      "count": 56
+      "count": 35
     },
     {
       "key": "short_description",
@@ -34,62 +34,6 @@
       "detail": "293 символів"
     },
     {
-      "name": "Ліжко-подіум Canto/Канто (1200х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-canto-120-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Canto/Канто (1400х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-canto-140-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Canto/Канто (1600х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-canto-160-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Canto/Канто (1800х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-canto-180-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Nera/Нера (1200х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-nero-120-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Nera/Нера (1400х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-nero-140-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Nera/Нера (1600х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-nero-160-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Ліжко-подіум Nera/Нера (1800х2000)",
-      "url": "https://matroluxe.ua/ua/krovat-podium-nero-180-200",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
       "name": "Матрац Asa/Аса",
       "url": "https://matroluxe.ua/ua/matras-asa",
       "category": "HoReCa",
@@ -97,99 +41,8 @@
       "detail": ""
     },
     {
-      "name": "Матрац Diamond/Діамант",
-      "url": "https://matroluxe.ua/ua/matras-diamond",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Матрац Diamond premium/Діамант преміум",
-      "url": "https://matroluxe.ua/ua/matras-diamond-premium",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
       "name": "Матрац Sora/Сора",
       "url": "https://matroluxe.ua/ua/matras-sora",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Askania/Асканія 1",
-      "url": "https://matroluxe.ua/ua/penal-askania-1",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Askania/Асканія 2",
-      "url": "https://matroluxe.ua/ua/penal-askania-2",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Askania Ultra/Асканія Ультра 1",
-      "url": "https://matroluxe.ua/ua/penal-askania-ultra-1",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Askania Ultra/Асканія Ультра 2",
-      "url": "https://matroluxe.ua/ua/penal-askania-ultra-2",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Leada/Леада №1",
-      "url": "https://matroluxe.ua/ua/penal-leada-1",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Leada/Леада №2",
-      "url": "https://matroluxe.ua/ua/penal-leada-2",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Loom/Лум №1",
-      "url": "https://matroluxe.ua/ua/penal-loom-1",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал для передпокою Loom/Лум",
-      "url": "https://matroluxe.ua/ua/penal-loom-2",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Noir/Нуар №1",
-      "url": "https://matroluxe.ua/ua/penal-noir-1",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Пенал Noir/Нуар №2",
-      "url": "https://matroluxe.ua/ua/penal-noir-2",
-      "category": "HoReCa",
-      "issue": "no_description",
-      "detail": ""
-    },
-    {
-      "name": "Подушка Барви/Barvy",
-      "url": "https://matroluxe.ua/ua/podushka-barvy",
       "category": "HoReCa",
       "issue": "no_description",
       "detail": ""
