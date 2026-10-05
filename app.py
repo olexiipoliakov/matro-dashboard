@@ -364,15 +364,27 @@ FIRST_RUN_DELAY_SEC = 180
 FRESH_HOURS = 6
 
 
+# ringostat_data.json у репозиторій не комітиться — він зʼявляється лише
+# після запуску fetch_ringostat.py на сервері. Після деплою диск скидається
+# до версії з GitHub, тобто журналу дзвінків на ньому немає взагалі.
+NEEDED_FILES = ("bitrix_data.json", "seo_data.json", "data.json", "ringostat_data.json")
+
+
 def _data_is_fresh():
-    """True, якщо головні файли оновлювались нещодавно."""
+    """True, лише якщо ВСІ потрібні файли на місці й оновлювались нещодавно.
+
+    Відсутній файл — це не «свіжо», це «нема чого показувати». Інакше
+    виходить пастка: три файли приїхали свіжими з репозиторію, перевірка
+    каже «все гаразд», стартовий збір пропускається, а журнал дзвінків,
+    якого в репозиторії немає й не було, не зʼявляється ще три години.
+    """
     newest = 0.0
-    for name in ("bitrix_data.json", "seo_data.json", "data.json"):
+    for name in NEEDED_FILES:
         f = BASE_DIR / name
-        if f.exists():
-            newest = max(newest, f.stat().st_mtime)
-    if not newest:
-        return False
+        if not f.exists():
+            print(f"[scheduler] немає {name} — збір потрібен", flush=True)
+            return False
+        newest = max(newest, f.stat().st_mtime)
     return (time.time() - newest) < FRESH_HOURS * 3600
 
 
