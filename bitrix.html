@@ -228,6 +228,10 @@
   table.data-table tbody tr{transition:background 160ms ease}
   table.data-table tbody tr:hover td{background:rgba(255,255,255,.03)}
 
+  /* Під відсотком — самі числа. Без них 50% у менеджера з двома лідами
+     виглядає так само вагомо, як 50% у менеджера з двомастами. */
+  .conv-sub{font-size:10.5px;color:var(--ink-dim);font-weight:500;margin-top:3px;white-space:nowrap}
+
   .overdue-badge{display:inline-block;font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:99px}
   .overdue-badge.mid{background:var(--mid-bg);color:var(--mid)}
   .overdue-badge.bad{background:var(--bad-bg);color:var(--bad)}
@@ -675,6 +679,23 @@ function applyFilter(){
 // роками показувала б менше, ніж є насправді.
 const DROP_STAGE_NAMES = ['отказ клиента', 'ошибочный', 'рекламация'];
 
+// ── джерела для колонок конверсії ──
+// Загальна конверсія лід→угода змішує дві різні роботи. Дзвінок — це
+// розмова з людиною, яка ще нічого не вибрала; корзина — це вже зібране
+// замовлення, яке треба підтвердити. У цифрах різниця кратна (14–22% проти
+// 69–93%), тож одна спільна цифра не каже нічого про те, хто як працює.
+//
+// Що саме вважати корзиною — рішення команди, а не коду, тому списки лежать
+// тут одним місцем. Додати джерело = дописати його id у потрібний рядок.
+// Решта джерел (Jivosite, Instagram, Розетка, Заявка симплер) навмисно не
+// потрапляють у жодну колонку: це окремі канали, і підмішувати їх до
+// корзини означало б знову отримати середню температуру.
+const SRC_CALL = ['CALL', 'CALLBACK', 'Обратный звонок', 'WEB - Зворотний дзвінок'];
+const SRC_CART = ['UC_5B6PJK'];   // «WEB» — замовлення з сайту
+
+const srcGroup = id => SRC_CALL.includes(id) ? 'call'
+                     : SRC_CART.includes(id) ? 'cart' : null;
+
 function isDropped(stage_id){
   const n = (stageMeta(stage_id).name || '').trim().toLowerCase();
   return DROP_STAGE_NAMES.includes(n);
@@ -798,8 +819,11 @@ function aggregateDeals(deals){
     if(dropped){ lost++; lostSum+=d.amount; }
 
     const mgr=d.manager_id||'';
-    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0,leadsRejected:0};
+    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0,leadsRejected:0,dealsCall:0,dealsCart:0,leadsCall:0,leadsCart:0};
     byManager[mgr].deals++; byManager[mgr].dealsSum+=d.amount;
+    const dg=srcGroup(d.source_id);
+    if(dg==='call') byManager[mgr].dealsCall++;
+    else if(dg==='cart') byManager[mgr].dealsCart++;
     if(st.semantics==='S'){ byManager[mgr].won++; byManager[mgr].wonSum+=d.amount; }
     if(dropped){ byManager[mgr].lost++; byManager[mgr].lostSum+=d.amount; }
 
@@ -845,8 +869,11 @@ function aggregateLeads(leads, byManagerFromDeals){
     }
 
     const mgr=l.manager_id||'';
-    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0,leadsRejected:0};
+    if(!byManager[mgr]) byManager[mgr]={manager_id:mgr,name:managerName(mgr),deals:0,dealsSum:0,won:0,wonSum:0,lost:0,lostSum:0,leads:0,leadsConverted:0,leadsRejected:0,dealsCall:0,dealsCart:0,leadsCall:0,leadsCart:0};
     byManager[mgr].leads++;
+    const lg=srcGroup(l.source_id);
+    if(lg==='call') byManager[mgr].leadsCall++;
+    else if(lg==='cart') byManager[mgr].leadsCart++;
     if(l.semantic==='C') byManager[mgr].leadsConverted++;
     else if(l.semantic==='F') byManager[mgr].leadsRejected++;
 
@@ -986,7 +1013,13 @@ function renderManagers(byManager){
   const table=document.getElementById('manager-table');
   const rows=Object.values(byManager).sort((a,b)=>b.dealsSum-a.dealsSum);
   if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
-  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th><th>Забраковано лідів</th><th>Конверсія лід→угода</th></tr></thead>`;
+  const callNames = SRC_CALL.map(id=>sourceName(id)||id).join(', ');
+  const cartNames = SRC_CART.map(id=>sourceName(id)||id).join(', ');
+  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th>
+    <th>Забраковано лідів</th>
+    <th title="Конверсія дзвінок→угода. Угоди з джерел «${escapeHtml(callNames)}» поділені на ліди з тих самих джерел">Дзвінок→угода</th>
+    <th title="Конверсія корзина→угода. Угоди з джерел «${escapeHtml(cartNames)}» поділені на ліди з тих самих джерел">Корзина→угода</th>
+    <th title="Усі угоди менеджера поділені на всі його ліди, незалежно від джерела">Усього</th></tr></thead>`;
   const body=rows.map(m=>{
     // Конверсія = частка лідів менеджера, що в підсумку стали угодами.
     // Офіційний прапор Bitrix "лід конвертовано" (semantic 'C') на цьому
@@ -994,10 +1027,17 @@ function renderManagers(byManager){
     // з порожнім SEMANTICS у стадій угод) — тому рахуємо практично, через
     // співвідношення кількості угод до кількості лідів менеджера.
     const rate = m.leads ? round1(m.deals/m.leads*100) : 0;
+    // Прочерк, а не нуль: нуль читається як «працював і нічого не продав»,
+    // хоча насправді лідів цього типу в нього просто не було.
+    const cell = (deals, leads) => leads
+      ? `<b>${fmt1(round1(deals/leads*100))}%</b><div class="conv-sub">${fmt(deals)} з ${fmt(leads)}</div>`
+      : '<span style="color:var(--ink-dim)">—</span>';
     const active = SELECTED_MANAGER===m.manager_id ? 'style="background:rgba(155,127,232,.12);cursor:pointer" ' : 'style="cursor:pointer" ';
     return `<tr ${active}onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити угоди та ліди">
     <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
     <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
+    <td>${cell(m.dealsCall, m.leadsCall)}</td>
+    <td>${cell(m.dealsCart, m.leadsCart)}</td>
     <td><b>${fmt1(rate)}%</b></td>
   </tr>`;
   }).join('');

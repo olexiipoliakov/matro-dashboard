@@ -324,8 +324,45 @@ scheduler.add_job(run_all_periodic, "interval", hours=3, id="periodic_fetch")
 # і зранку на дашборді вже свіжі дані.
 scheduler.add_job(scheduled_audit, "cron", hour=1, minute=0, id="daily_audit")
 scheduler.start()
-# Перший прогін одразу при старті сервера, щоб дані з'явились без очікування 3 годин.
-threading.Thread(target=run_all_periodic, daemon=True).start()
+
+
+# ── Перший прогін після старту ──────────────────────────────────────────
+# Раніше важкий збір стартував прямо в момент запуску сервера. На інстансі
+# з 512 МБ це найгірший можливий момент: процес ще піднімається, Render
+# чекає відповіді від /healthz, а поруч уже працюють fetch-скрипти. Якщо
+# памʼяті не вистачить саме там — контейнер гине ДО того, як сервіс устиг
+# піднятись, Render пробує знову, і сервіс назавжди лишається "Failed".
+#
+# Тому тепер: спершу дати серверу піднятись і пройти перевірку здоровʼя, і
+# лише потім братись за дані. І не братись взагалі, якщо дані свіжі — після
+# деплою файли приїжджають з репозиторію, куди їх щойно поклав GitHub
+# Actions, і перезбирати їх одразу нема сенсу.
+FIRST_RUN_DELAY_SEC = 180
+FRESH_HOURS = 6
+
+
+def _data_is_fresh():
+    """True, якщо головні файли оновлювались нещодавно."""
+    newest = 0.0
+    for name in ("bitrix_data.json", "seo_data.json", "data.json"):
+        f = BASE_DIR / name
+        if f.exists():
+            newest = max(newest, f.stat().st_mtime)
+    if not newest:
+        return False
+    return (time.time() - newest) < FRESH_HOURS * 3600
+
+
+def _first_run():
+    time.sleep(FIRST_RUN_DELAY_SEC)
+    if _data_is_fresh():
+        print(f"[scheduler] дані свіжіші за {FRESH_HOURS} год — стартовий збір пропускаю", flush=True)
+        return
+    print("[scheduler] стартовий збір даних", flush=True)
+    run_all_periodic()
+
+
+threading.Thread(target=_first_run, daemon=True).start()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
