@@ -37,6 +37,25 @@ HEADER = ["key", "value"]
 # вага дзвінка вища.
 DEFAULTS = {"w_call": 2.0, "step_grn": 500.0, "w_acc": 1.0}
 
+# Звідки брати вхідні дзвінки — знаменник апруву. Це не технічна дрібниця,
+# а рішення про правила конкурсу, тому зберігається поруч із вагами й
+# однакове для всіх.
+#
+#   "crm"       — ліди з джерелом «Звонок». Працює завжди, але залежить від
+#                 того, наскільки акуратно менеджери заводять ліди: дублі
+#                 роздувають знаменник, незаведений лід його занижує.
+#   "ringostat" — журнал дзвінків. Менеджер його не редагує, тож накрутити
+#                 не можна. Але прив'язка йде за тим, ХТО ПРИЙНЯВ дзвінок, а
+#                 угода — за «Відповідальним», і це не завжди одна людина.
+#
+# За замовчуванням — Ringostat. Причина не технічна: знаменник апруву не
+# повинен бути в руках того, кого цим апрувом міряють. Ліди заводять руками,
+# і як тільки за апрув дають бали, у знаменника з'являється зацікавлена
+# сторона. У журналі дзвінків сміття теж є, але черга розкидає його між усіма
+# приблизно порівну — це шум, а не перекіс у чиюсь користь.
+INCOMING_SOURCES = ("crm", "ringostat")
+DEFAULT_INCOMING = "ringostat"
+
 # Межі розумного. Нуль у кроці — ділення на нуль; від'ємна вага — бали за
 # те, що менеджер працював. Обидва варіанти хтось рано чи пізно впише.
 LIMITS = {"w_call": (0, 1000), "step_grn": (1, 1000000), "w_acc": (0, 1000)}
@@ -105,6 +124,8 @@ def _clean(raw):
     зіпсована комірка в таблиці не повинна обвалити сторінку з балами.
     """
     out = dict(DEFAULTS)
+    src = str(raw.get("incoming_src", DEFAULT_INCOMING)).strip().lower()
+    out["incoming_src"] = src if src in INCOMING_SOURCES else DEFAULT_INCOMING
     for k, default in DEFAULTS.items():
         try:
             v = float(str(raw.get(k, default)).replace(",", "."))
@@ -125,7 +146,7 @@ def get_settings():
                     return _clean(json.loads(LOCAL_FILE.read_text(encoding="utf-8")))
                 except Exception:
                     pass
-            return dict(DEFAULTS)
+            return _clean({})
         try:
             _ensure_tab(svc)
             rows = svc.spreadsheets().values().get(
@@ -138,14 +159,14 @@ def get_settings():
         except Exception as e:
             global _service_error
             _service_error = f"{type(e).__name__}: {e}"
-            return dict(DEFAULTS)
+            return _clean({})
 
 
 def save_settings(values):
     cleaned = _clean(values or {})
     with _lock:
         svc = _get_service()
-        rows = [HEADER] + [[k, cleaned[k]] for k in DEFAULTS]
+        rows = [HEADER] + [[k, cleaned[k]] for k in DEFAULTS] + [["incoming_src", cleaned["incoming_src"]]]
         if not svc:
             tmp = LOCAL_FILE.with_name(LOCAL_FILE.name + ".tmp")
             tmp.write_text(json.dumps(cleaned, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -178,4 +199,5 @@ def status():
         "detail": _service_error,
         "tab": SHEET_TAB,
         "defaults": DEFAULTS,
+        "incoming_sources": list(INCOMING_SOURCES),
     }

@@ -155,6 +155,10 @@
   .pts-weekend td{background:rgba(255,255,255,.02)}
   .pts-dim{color:var(--ink-dim)}
   tr.pts-sum td{border-top:1px solid var(--border-strong);font-weight:700}
+  /* Контрольна колонка — другий знаменник. Відділена рискою й приглушена,
+     щоб її не читали як частину розрахунку балів. */
+  .pts-ctl{border-left:1px solid var(--border-strong);color:var(--ink-soft);
+    font-weight:400;white-space:nowrap}
 
   .pts-cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:16px}
   .pts-field{background:rgba(255,255,255,.03);border:1px solid var(--border);
@@ -164,6 +168,8 @@
     background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;
     padding:9px 12px;outline:none;transition:border-color 180ms ease}
   .pts-field input:focus{border-color:rgba(155,127,232,.45)}
+  .pts-src{width:100%;font-family:inherit;font-size:14px;font-weight:600;color:var(--ink);
+    background:#141A29;border:1px solid var(--border);border-radius:10px;padding:10px 12px;outline:none}
   .pts-field .h{font-size:11.5px;color:var(--ink-dim);margin-top:8px;line-height:1.4}
   .pts-save{font-family:inherit;font-size:13px;font-weight:600;color:#fff;border:none;cursor:pointer;
     padding:11px 22px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));
@@ -489,8 +495,13 @@ function showError(msg){ document.getElementById('error-box').innerHTML=`<div cl
 // Успішний дзвінок — вхідний дзвінок, номер якого збігся з телефоном
 // контакта угоди-продажу. Зіставляємо не самі номери, а їх хеші (phone_key):
 // у публічному репозиторії телефонів клієнтів бути не повинно.
-let PTS={w_call:2, step_grn:500, w_acc:1};
-let PTS_MONTH=null, PTS_TAB='days', PTS_STORE='', PTS_OUTSIDE=0;
+let PTS={w_call:2, step_grn:500, w_acc:1, incoming_src:'ringostat'};
+let CALLS=null, CALLS_ERR='', CALL_STAFF={};
+// Зіставлення співробітника Ringostat із користувачем CRM: {ringostat_id: crm_id}
+// плюс ті, кого зіставити не вдалося, — їх показуємо людині, а не ховаємо.
+let PTS_STAFF_MAP={}, PTS_STAFF_LOST=[];
+let PTS_MONTH=null, PTS_TAB='days', PTS_STORE='', PTS_OUTSIDE=0, PTS_NOMGR=0;
+let PTS_INC_OK=true, PTS_ALT_OK=false, PTS_UNMAPPED=0;
 
 // Стадії, у яких угода вважається продажем. Відмова й помилкова
 // викидаються цілою угодою — як і всюди в дашборді.
@@ -507,11 +518,112 @@ const ptsIsSale = d => PTS_SALE_STAGES.includes(ptsStageName(d.stage_id));
 const ptsMonthOf = iso => (iso||'').slice(0,7);
 
 async function ptsLoadExtras(){
-  // Журнал дзвінків більше не потрібен: і вхідні, і успішні рахуються з CRM.
   try{
     const r=await fetch('api/points/settings');
     if(r.ok){ const d=await r.json(); PTS={...PTS, ...(d.settings||{})}; PTS_STORE=d.storage||''; }
   }catch(e){}
+  await ptsLoadCalls();
+}
+
+// Журнал дзвінків читаємо завжди, навіть коли вхідні беруться з CRM: другий
+// знаменник потрібен у підсумку місяця як контрольна колонка. А ось рахувати
+// бали мовчки за іншим джерелом, ніж обране, не можна — місяці стануть
+// непорівнянними, і це гірше за відсутність цифр.
+async function ptsLoadCalls(){
+  CALLS=null; CALLS_ERR=''; CALL_STAFF={};
+  try{
+    const r=await fetch('ringostat_data.json?_='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    CALLS=Array.isArray(d.calls)?d.calls:[];
+    CALL_STAFF=(d.meta&&d.meta.staff)||{};
+    if(CALLS.length && CALLS[0].caller_key===undefined){
+      CALLS=null; CALLS_ERR='журнал у старому форматі — дочекайтесь наступного збору';
+    }
+  }catch(e){ CALLS=null; CALLS_ERR='журнал недоступний ('+e.message+')'; }
+  ptsBuildStaffMap();
+}
+
+// ── Мост між двома довідниками людей ─────────────────────────────────────
+// Ringostat нумерує співробітників по-своєму (employee_number), Bitrix — по
+// своєму (ID користувача). Спільного ключа немає взагалі, тільки ПІБ. Якщо
+// цього не зшити, менеджер потрапить у таблицю двічі: один рядок із самими
+// вхідними (id Ringostat), другий — із самими угодами (id CRM), і апрув у
+// обох буде безглуздий. Саме так і виглядав би «перехід на Ringostat», якби
+// ми просто перемкнули джерело.
+//
+// Зшиваємо за іменем, і навмисно з запасом: порядок слів різний («Соседко
+// Катерина» проти «Катерина Соседко»), частина імен у CRM записана
+// латиницею, десь є по батькові. Тому обидві сторони переводимо в латиницю,
+// ріжемо на слова й шукаємо збіг хоча б двох слів.
+//
+// Головне правило: невпевнений збіг — це НЕ збіг. Якщо ім'я підійшло до двох
+// людей або ні до кого, дзвінки цього співробітника не додаються нікому, а
+// сам він виводиться в попередженні над таблицею. Чужі дзвінки в чужих балах
+// помітити неможливо; дірку в таблиці — можна.
+const PTS_TR={'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ie',
+  'ж':'zh','з':'z','и':'y','і':'i','ї':'i','й':'i','к':'k','л':'l','м':'m',
+  'н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh',
+  'ц':'ts','ч':'ch','ш':'sh','щ':'sch','ь':'','ю':'iu','я':'ia','ы':'y',
+  'э':'e','ё':'e','ъ':''};
+
+// Ручні виправлення на випадок, коли ім'я в Ringostat і в CRM написані
+// по-різному настільки, що автоматика не впоралась (у попередженні над
+// таблицею видно, кого саме). Формат: 'id_у_Ringostat': 'id_у_CRM'.
+const PTS_STAFF_FIX={};
+
+function ptsTranslit(s){
+  return String(s||'').toLowerCase().replace(/[^a-zа-яіїєґёъыэ\s'-]/g,' ')
+    .replace(/[а-яіїєґёъыэ]/g, ch=>PTS_TR[ch]!==undefined?PTS_TR[ch]:ch);
+}
+function ptsWords(s){
+  return ptsTranslit(s).split(/[\s'-]+/).filter(w=>w.length>=3);
+}
+// Два слова вважаємо одним іменем, якщо вони збігаються або одне є початком
+// іншого (щонайменше чотири літери). Це закриває «Катерина/Екатерина» та
+// відмінкові хвости, але не зшиває різних людей: «Коваль» і «Коваленко»
+// розійдуться тільки якщо решта імені теж не збіглась.
+function ptsWordSame(a,b){
+  if(a===b) return true;
+  const [s,l] = a.length<b.length ? [a,b] : [b,a];
+  return s.length>=4 && l.startsWith(s);
+}
+function ptsNameScore(aw,bw){
+  let n=0;
+  const used=new Set();
+  aw.forEach(a=>{
+    for(let i=0;i<bw.length;i++){
+      if(used.has(i)) continue;
+      if(ptsWordSame(a,bw[i])){ used.add(i); n++; return; }
+    }
+  });
+  return n;
+}
+
+function ptsBuildStaffMap(){
+  PTS_STAFF_MAP={}; PTS_STAFF_LOST=[];
+  const users=META.users||{};
+  const crm=Object.keys(users).map(id=>({id:String(id), words:ptsWords(users[id])}));
+  Object.keys(CALL_STAFF).forEach(rid=>{
+    const fio=CALL_STAFF[rid];
+    if(PTS_STAFF_FIX[rid]){ PTS_STAFF_MAP[String(rid)]=String(PTS_STAFF_FIX[rid]); return; }
+    // Той самий id в обох системах буває випадково, але якщо ім'я при цьому
+    // теж збігається — це та сама людина, і зайвих здогадок не потрібно.
+    const rw=ptsWords(fio);
+    if(!rw.length) return;
+    let best=[], bestScore=0;
+    crm.forEach(u=>{
+      const sc=ptsNameScore(rw, u.words);
+      if(sc>bestScore){ bestScore=sc; best=[u]; }
+      else if(sc===bestScore && sc>0){ best.push(u); }
+    });
+    if(bestScore>=2 && best.length===1){ PTS_STAFF_MAP[String(rid)]=best[0].id; return; }
+    // Одне слово — зазвичай тільки прізвище. Приймаємо, якщо воно підійшло
+    // рівно до однієї людини в CRM.
+    if(bestScore===1 && best.length===1 && rw.length===1){ PTS_STAFF_MAP[String(rid)]=best[0].id; return; }
+    PTS_STAFF_LOST.push({id:String(rid), fio:fio||('ID '+rid),
+      why: best.length>1 ? 'в CRM кілька схожих імен' : 'в CRM такого імені немає'});
+  });
 }
 
 
@@ -552,6 +664,17 @@ function ptsTab(tab, btn){
 function ptsNote(){
   const note=document.getElementById('pts-note');
   const msgs=[];
+  if(PTS.incoming_src==='ringostat' && !CALLS)
+    msgs.push('Вхідні взято з Ringostat, але '+CALLS_ERR+'. Апрув не рахується — '
+            + 'підставляти замість нього ліди з CRM не можна, це інша метрика.');
+  if(PTS.incoming_src==='ringostat' && CALLS && PTS_STAFF_LOST.length)
+    msgs.push('Не зіставлено з CRM за іменем: '
+            + PTS_STAFF_LOST.map(s=>`${s.fio} (${s.why})`).join(', ')
+            + '. Їхні дзвінки у знаменник не входять.');
+  if(PTS.incoming_src==='ringostat' && CALLS && PTS_UNMAPPED)
+    msgs.push(`Дзвінків на незіставлених операторів: ${fmt(PTS_UNMAPPED)} — у знаменник не ввійшли.`);
+  if(PTS.incoming_src==='ringostat' && CALLS && PTS_NOMGR)
+    msgs.push(`Вхідних без оператора (слухавку ніхто не взяв): ${fmt(PTS_NOMGR)} — записати їх нікому, тому в апрув не входять.`);
   if(PTS_STORE && PTS_STORE!=='sheet') msgs.push('Налаштування балів зберігаються тимчасово на сервері й зникнуть при оновленні коду.');
     note.classList.toggle('show', msgs.length>0);
     note.textContent=msgs.join(' ');
@@ -597,7 +720,7 @@ function ptsRenderDays(host, rows){
     return `<tr${weekend}>
       <td>${fmtDate(r.date)}</td>
       <td>${esc(managerName(r.mid))}</td>
-      <td>${ptsNum(r.incoming)}</td>
+      <td${r.alt!=null&&PTS_ALT_OK?` title="${PTS.incoming_src==='ringostat'?'Лідів із джерелом «Звонок» у CRM цього дня':'Вхідних у журналі Ringostat цього дня'}: ${fmt(r.alt)}"`:''}>${ptsNum(r.incoming)}</td>
       <td>${ptsNum(r.success, r.incoming>0)}</td>
       <td>${r.acc ? fmt(r.acc)+' грн' : '<span class="pts-dim">—</span>'}</td>
       <td>${ptsPct(r.approve)}</td>
@@ -616,28 +739,50 @@ function ptsRenderDays(host, rows){
 function ptsRenderMonth(host, rows){
   const by={};
   rows.forEach(r=>{
-    if(!by[r.mid]) by[r.mid]={mid:r.mid, incoming:0, success:0, acc:0, ptsCall:0, ptsAcc:0, total:0};
+    if(!by[r.mid]) by[r.mid]={mid:r.mid, incoming:0, alt:0, success:0, acc:0, ptsCall:0, ptsAcc:0, total:0};
     const a=by[r.mid];
-    a.incoming+=r.incoming; a.success+=r.success; a.acc+=r.acc;
+    a.incoming+=r.incoming||0; a.alt+=r.alt||0; a.success+=r.success; a.acc+=r.acc;
     a.ptsCall+=r.ptsCall; a.ptsAcc+=r.ptsAcc; a.total+=r.total;
   });
   const list=Object.values(by).sort((a,b)=>b.total-a.total);
   if(!list.length){ host.innerHTML='<div class="empty-note">За цей місяць даних немає.</div>'; return; }
-  const sum=list.reduce((a,r)=>({incoming:a.incoming+r.incoming, success:a.success+r.success,
-    acc:a.acc+r.acc, ptsCall:a.ptsCall+r.ptsCall, ptsAcc:a.ptsAcc+r.ptsAcc, total:a.total+r.total}),
-    {incoming:0,success:0,acc:0,ptsCall:0,ptsAcc:0,total:0});
+  const sum=list.reduce((a,r)=>({incoming:a.incoming+r.incoming, alt:a.alt+r.alt,
+    success:a.success+r.success, acc:a.acc+r.acc, ptsCall:a.ptsCall+r.ptsCall,
+    ptsAcc:a.ptsAcc+r.ptsAcc, total:a.total+r.total}),
+    {incoming:0,alt:0,success:0,acc:0,ptsCall:0,ptsAcc:0,total:0});
   // Апрув місяця — сума успішних на суму вхідних, а НЕ середнє денних
   // відсотків: інакше день з двома дзвінками важив би стільки ж, скільки
   // день із сорока.
   const rate = o => o.incoming ? o.success/o.incoming*100 : null;
+  const useRing = PTS.incoming_src==='ringostat';
+  const altName = useRing ? 'CRM' : 'Ringostat';
+  // Розбіжність двох знаменників у відсотках від того, за яким рахуємо бали.
+  // Підсвічуємо від третини: до того це звичайна різниця «хто прийняв» проти
+  // «хто відповідальний», а далі вже схоже на те, що дзвінки чи ліди губляться.
+  const gap = o => {
+    if(!PTS_ALT_OK || !PTS_INC_OK) return '<span class="pts-dim">—</span>';
+    // Нуль у джерелі балів і при цьому дзвінки в другому джерелі — найцікавіший
+    // випадок: людина працює, але її вхідні йдуть не на неї. Прочерк тут
+    // приховав би саму причину, через яку колонка й з'явилась.
+    if(!o.incoming) return o.alt
+      ? `<span style="color:var(--warning)" title="У джерелі, за яким рахуються бали, у цього менеджера вхідних немає — перевірте прив'язку">${fmt(o.alt)} <span class="pts-dim">(у джерелі балів 0)</span></span>`
+      : '<span class="pts-dim">—</span>';
+    const d=o.alt-o.incoming, p=Math.round(Math.abs(d)/o.incoming*100);
+    const txt=(d>0?'+':d<0?'−':'')+fmt(Math.abs(d))+(d?` (${p}%)`:'');
+    return p>=33 ? `<span style="color:var(--warning)" title="Знаменники розходяться сильно — варто подивитись, чиї дзвінки або ліди губляться">${fmt(o.alt)} <span class="pts-dim">${txt}</span></span>`
+                 : `${fmt(o.alt)} <span class="pts-dim">${txt}</span>`;
+  };
   const row = (name, o, cls) => `<tr${cls||''}>
-    <td>${esc(name)}</td><td>${ptsNum(o.incoming)}</td><td>${ptsNum(o.success, o.incoming>0)}</td>
+    <td>${esc(name)}</td><td>${PTS_INC_OK?ptsNum(o.incoming):'<span class="pts-dim">—</span>'}</td>
+    <td>${ptsNum(o.success, o.incoming>0)}</td>
     <td>${ptsPct(rate(o))}</td><td>${o.acc?fmt(o.acc)+' грн':'<span class="pts-dim">—</span>'}</td>
     <td>${ptsNum(o.ptsCall, o.incoming>0)}</td><td>${ptsNum(o.ptsAcc, o.acc>0)}</td>
-    <td class="pts-total">${ptsNum(o.total, o.incoming>0||o.acc>0)}</td></tr>`;
+    <td class="pts-total">${ptsNum(o.total, o.incoming>0||o.acc>0)}</td>
+    <td class="pts-ctl">${gap(o)}</td></tr>`;
   host.innerHTML=`<div class="table-scroll"><table class="data-table">
     <thead><tr><th>Менеджер</th><th>Вхідних</th><th>Успішних</th><th>Апрув місяця</th>
-      <th>Аксесуари</th><th>Бали за дзвінки</th><th>Бали за аксесуари</th><th>Всього балів</th></tr></thead>
+      <th>Аксесуари</th><th>Бали за дзвінки</th><th>Бали за аксесуари</th><th>Всього балів</th>
+      <th class="pts-ctl" title="Той самий місяць, але знаменник з іншого джерела. На бали не впливає — це перевірка, чи не губляться дзвінки або ліди.">Для порівняння: ${altName}</th></tr></thead>
     <tbody>${list.map(o=>row(managerName(o.mid),o)).join('')}
       ${row('Разом', sum, ' class="pts-sum"')}</tbody></table></div>`;
 }
@@ -655,6 +800,21 @@ function ptsRenderCfg(host){
         <input type="number" id="cfg-w_acc" step="0.5" min="0" value="${PTS.w_acc}">
         <div class="h">Неповний крок не рахується.</div></div>
     </div>
+    <div class="pts-field" style="margin-bottom:16px">
+      <div class="l">Звідки брати вхідні дзвінки</div>
+      <select id="cfg-incoming_src" class="pts-src">
+        <option value="ringostat"${PTS.incoming_src==='ringostat'?' selected':''}>Ringostat — журнал дзвінків (основне)</option>
+        <option value="crm"${PTS.incoming_src==='crm'?' selected':''}>CRM — ліди з джерелом «Звонок» (запасне)</option>
+      </select>
+      <div class="h">Основне джерело — журнал Ringostat. Не тому, що він точніший сам по собі, а тому,
+      що знаменник апруву не повинен залежати від того, кого цим апрувом міряють: ліди заводять
+      руками, і дубль роздуває знаменник, а незаведений лід його занижує. Сміття в журналі теж є,
+      але черга розкидає його між усіма приблизно порівну.
+      Зворотний бік: дзвінок прив'язаний до того, <b>хто його прийняв</b>, а угода — до
+      «Відповідального», і це не завжди одна людина. Саме цю розбіжність показує остання колонка
+      в «Підсумку місяця»: там той самий місяць, порахований другим джерелом.
+      Міняти джерело посеред місяця не варто — бали стануть непорівнянними.</div>
+    </div>
     <button class="pts-save" id="cfg-save" onclick="ptsSaveCfg()">Зберегти і перерахувати</button>
     <div class="pts-formula">
       <code>бали = успішні × ${PTS.w_call} + floor(аксесуари ÷ ${fmt(PTS.step_grn)}) × ${PTS.w_acc}</code><br>
@@ -663,7 +823,9 @@ function ptsRenderCfg(host){
       <b>${5*PTS.w_call + Math.floor(2350/(PTS.step_grn||1))*PTS.w_acc} балів</b>.<br>
       Ваги спільні для всіх: вони лежать у Google Таблиці поруч із правилами роботи,
       тому змінену вагу одразу бачить уся команда.<br><br>
-      <b>Звідки числа.</b> Вхідний дзвінок — лід із джерелом «Звонок».
+      <b>Звідки числа.</b> Вхідний дзвінок — ${PTS.incoming_src==='ringostat'
+        ? 'вхідний дзвінок у журналі Ringostat, записаний на того, хто його прийняв'
+        : 'лід у CRM із джерелом «Звонок»'}.
       Успішний — угода з тим самим джерелом у «чистих» стадіях: відмова
       клієнта й помилкова не рахуються. Аксесуари — товарні рядки тих самих
       чистих угод. Одне правило на обидва показники: бали нараховуються за
@@ -677,6 +839,7 @@ async function ptsSaveCfg(){
     w_call: parseFloat(document.getElementById('cfg-w_call').value),
     step_grn: parseFloat(document.getElementById('cfg-step_grn').value),
     w_acc: parseFloat(document.getElementById('cfg-w_acc').value),
+    incoming_src: document.getElementById('cfg-incoming_src').value,
   };
   btn.disabled=true; btn.textContent='Зберігаю…';
   try{
@@ -685,6 +848,7 @@ async function ptsSaveCfg(){
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
     PTS={...PTS, ...(d.settings||{})}; PTS_STORE=d.storage||PTS_STORE;
+    await ptsLoadCalls();   // джерело могли змінити — перечитуємо журнал
     btn.textContent='Збережено';
     setTimeout(()=>{ btn.disabled=false; btn.textContent='Зберегти і перерахувати'; }, 1200);
     ptsRender();
@@ -700,16 +864,26 @@ function ptsCompute(month){
   const cells={};
   const touch=(d,m)=>{
     const k=d+'|'+m;
-    if(!cells[k]) cells[k]={date:d, mid:m, incoming:0, success:0, acc:0};
+    if(!cells[k]) cells[k]={date:d, mid:m, inRing:0, inCrm:0, success:0, acc:0};
     return cells[k];
   };
 
-  // Вхідний дзвінок — лід із джерелом «Звонок». Журнал Ringostat тут не
-  // потрібен: і чисельник, і знаменник беруться з CRM, тому модуль працює
-  // навіть коли телефонія недоступна.
+  // Обидва знаменники рахуємо завжди: один іде в бали, другий — у контрольну
+  // колонку підсумку місяця. Поки джерело нове, розбіжність між ними має бути
+  // на очах, а не з'явитись у вигляді скарги через місяць.
+  PTS_NOMGR=0; PTS_UNMAPPED=0;
+  (CALLS||[]).forEach(c=>{
+    if(c.direction!=='incoming' || !c.date || ptsMonthOf(c.date)!==month) return;
+    const rid=String(c.manager_id||'');
+    if(!rid){ PTS_NOMGR++; return; }            // ніхто не взяв слухавку
+    const mid=PTS_STAFF_MAP[rid];
+    if(!mid){ PTS_UNMAPPED++; return; }         // оператора не знайшли в CRM
+    touch(c.date, mid).inRing++;
+  });
   (RAW.leads||[]).forEach(l=>{
     if(!l.date || ptsMonthOf(l.date)!==month || !ptsIsCall(l)) return;
-    touch(l.date, l.manager_id||'').incoming++;
+    if(!l.manager_id) return;
+    touch(l.date, String(l.manager_id)).inCrm++;
   });
 
   // Успішний дзвінок — угода з джерелом «Звонок» і тільки в «чистих»
@@ -722,21 +896,31 @@ function ptsCompute(month){
   // які не стали продажем.
   (RAW.deals||[]).forEach(d=>{
     if(!d.date || ptsMonthOf(d.date)!==month || !ptsIsSale(d)) return;
-    const cell=touch(d.date, d.manager_id||'');
+    if(!d.manager_id) return;
+    const cell=touch(d.date, String(d.manager_id));
     if(ptsIsCall(d)) cell.success++;
     cell.acc += accById[d.id]||0;
   });
 
   // У конкурсі беруть участь ті, хто працює: є угоди або вхідні дзвінки.
   const active=new Set();
-  Object.values(cells).forEach(c=>{ if(c.success||c.acc||c.incoming) active.add(c.mid); });
+  Object.values(cells).forEach(c=>{ if(c.success||c.acc||c.inRing||c.inCrm) active.add(c.mid); });
   PTS_OUTSIDE=0;
+  const useRing = PTS.incoming_src==='ringostat';
+  // Чи є взагалі чим заповнити кожну з двох колонок. Нуль і «немає даних» —
+  // різні речі: нуль у знаменнику зробив би апрув порожнім, а недоступний
+  // журнал мусить читатись як «не рахували», а не як «дзвінків не було».
+  PTS_INC_OK = useRing ? !!CALLS : true;
+  PTS_ALT_OK = useRing ? true : !!CALLS;
 
   return Object.values(cells).filter(c=>active.has(c.mid)).map(c=>{
     const ptsCall = c.success*PTS.w_call;
     const ptsAcc  = Math.floor(c.acc/(PTS.step_grn||1))*PTS.w_acc;
-    return {...c, ptsCall, ptsAcc, total:ptsCall+ptsAcc,
-            approve: c.incoming ? c.success/c.incoming*100 : null};
+    // incoming — знаменник, за яким рахуються бали; alt — другий, для ока.
+    const incoming = useRing ? (CALLS ? c.inRing : null) : c.inCrm;
+    const alt      = useRing ? c.inCrm : (CALLS ? c.inRing : null);
+    return {...c, incoming, alt, ptsCall, ptsAcc, total:ptsCall+ptsAcc,
+            approve: incoming ? c.success/incoming*100 : null};
   }).sort((a,b)=> a.date<b.date?-1 : a.date>b.date?1 : managerName(a.mid).localeCompare(managerName(b.mid),'uk'));
 }
 
