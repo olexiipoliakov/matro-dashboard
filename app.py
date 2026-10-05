@@ -175,6 +175,29 @@ def faq_delete(item_id):
     return jsonify({"status": "deleted"})
 
 
+# ── Налаштування балів менеджерів ───────────────────────────────────────
+# Ваги спільні для всіх, тому лежать у таблиці, а не в браузері (див.
+# points_store.py).
+import points_store
+
+
+@app.route("/api/points/settings", methods=["GET"])
+@requires_auth
+def points_settings_get():
+    return jsonify({"settings": points_store.get_settings(), **points_store.status()})
+
+
+@app.route("/api/points/settings", methods=["POST"])
+@requires_auth
+def points_settings_set():
+    data = request.get_json(silent=True) or {}
+    try:
+        saved = points_store.save_settings(data)
+    except points_store.StorageError as e:
+        return jsonify({"error": str(e)}), 502
+    return jsonify({"settings": saved, **points_store.status()})
+
+
 @app.route("/healthz")
 def healthz():
     # Без пароля — Render використовує це, щоб перевіряти, що сервіс живий.

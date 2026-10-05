@@ -93,7 +93,6 @@
   .meta-line b{color:var(--ink-soft);font-weight:600}
 
   /* ── период ── */
-  .period-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
   .period-btns{display:flex;gap:8px;flex-wrap:wrap}
   .pbtn{padding:9px 16px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
     border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--ink-soft);
@@ -131,6 +130,48 @@
     background:rgba(155,127,232,.10);
     border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0}
   .sec-head .ln{flex:1;height:1px;background:var(--border);min-width:20px}
+
+  /* ── модуль балів ── */
+  .pts-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .pts-month{font-size:13.5px;font-weight:600;min-width:150px;text-align:center}
+  .pts-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .day-step{display:flex;align-items:center;gap:6px}
+  .day-step .arr{width:34px;height:34px;display:grid;place-items:center;cursor:pointer;
+    font-family:inherit;font-size:13px;color:var(--ink-soft);
+    border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:10px;
+    transition:all 180ms ease}
+  .day-step .arr:hover:not(:disabled){color:var(--ink);border-color:rgba(155,127,232,.4);
+    background:rgba(155,127,232,.10)}
+  .day-step .arr:disabled{opacity:.3;cursor:default}
+
+  /* Жовта смуга — коли частину чисел порахувати нема з чого. Порожні
+     колонки без пояснення читаються як «менеджер нічого не зробив». */
+  .pts-note{display:none;align-items:center;gap:9px;font-size:12.5px;color:var(--warning);
+    background:rgba(255,200,77,.10);border:1px solid rgba(255,200,77,.25);
+    border-radius:12px;padding:10px 14px;margin-bottom:16px}
+  .pts-note.show{display:flex}
+
+  .pts-total{font-weight:700;color:var(--accent)}
+  .pts-weekend td{background:rgba(255,255,255,.02)}
+  .pts-dim{color:var(--ink-dim)}
+  tr.pts-sum td{border-top:1px solid var(--border-strong);font-weight:700}
+
+  .pts-cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:16px}
+  .pts-field{background:rgba(255,255,255,.03);border:1px solid var(--border);
+    border-radius:14px;padding:16px 18px}
+  .pts-field .l{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px}
+  .pts-field input{width:100%;font-family:inherit;font-size:19px;font-weight:700;color:var(--ink);
+    background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;
+    padding:9px 12px;outline:none;transition:border-color 180ms ease}
+  .pts-field input:focus{border-color:rgba(155,127,232,.45)}
+  .pts-field .h{font-size:11.5px;color:var(--ink-dim);margin-top:8px;line-height:1.4}
+  .pts-save{font-family:inherit;font-size:13px;font-weight:600;color:#fff;border:none;cursor:pointer;
+    padding:11px 22px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    transition:filter 180ms ease}
+  .pts-save:hover:not(:disabled){filter:brightness(1.1)}
+  .pts-save:disabled{opacity:.5;cursor:default}
+  .pts-formula{font-size:12.5px;color:var(--ink-soft);margin-top:14px;line-height:1.7}
+  .pts-formula code{font-size:12px;background:rgba(255,255,255,.05);padding:2px 7px;border-radius:6px}
 
   .panel{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);
     border:1px solid var(--border);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.35);
@@ -348,26 +389,22 @@
 
   <div id="error-box"></div>
 
-  <div class="period-bar">
-    <div class="period-btns">
-      <button class="pbtn" onclick="setPeriodDays(0,this)">Сьогодні</button>
-      <button class="pbtn" onclick="setPeriodDays(1,this)">Вчора</button>
-      <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 днів</button>
-      <button class="pbtn" data-days="14" onclick="setPeriod(14,this)">14 днів</button>
-      <button class="pbtn active" data-days="30" onclick="setPeriod(30,this)">30 днів</button>
-      <button class="pbtn" data-days="90" onclick="setPeriod(90,this)">Всі</button>
-    </div>
-    <div class="period-cal">
-      <span>або період:</span>
-      <input type="date" id="date-from" onchange="setCustom()">
-      <span>—</span>
-      <input type="date" id="date-to" onchange="setCustom()">
-    </div>
-    <div class="period-info" id="period-info">—</div>
-  </div>
 
   <div class="panel">
-    <div class="table-scroll"><table class="data-table" id="manager-table"></table></div>
+    <div class="pts-bar">
+      <div class="day-step">
+        <button class="arr" id="pts-prev" onclick="ptsShiftMonth(-1)" title="Попередній місяць">◀</button>
+        <span class="pts-month" id="pts-month">—</span>
+        <button class="arr" id="pts-next" onclick="ptsShiftMonth(1)" title="Наступний місяць">▶</button>
+      </div>
+      <div class="pts-tabs">
+        <button class="pbtn active" data-tab="days"  onclick="ptsTab('days',this)">По днях</button>
+        <button class="pbtn"        data-tab="month" onclick="ptsTab('month',this)">Підсумок місяця</button>
+        <button class="pbtn"        data-tab="cfg"   onclick="ptsTab('cfg',this)">Налаштування</button>
+      </div>
+    </div>
+    <div class="pts-note" id="pts-note"></div>
+    <div id="pts-body"></div>
   </div>
 
   <div class="panel" id="faq-panel">
@@ -431,67 +468,291 @@ async function load(){
     fillAuthors();
     document.getElementById('updated').textContent = RAW.generated_at || '—';
     document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
-    setPeriod(30, document.querySelector('.pbtn[data-days="30"]'));
+    // Модуль балів живе місяцями, а не ковзним періодом: конкурс рахується
+    // саме за календарний місяць.
+    const last=(allDates().slice(-1)[0]) || new Date().toISOString().slice(0,10);
+    PTS_MONTH=last.slice(0,7);
+    await ptsLoadExtras();
+    ptsRender();
   }catch(e){
     showError('Не удалось загрузить bitrix_data.json: '+e.message);
   }
 }
 function showError(msg){ document.getElementById('error-box').innerHTML=`<div class="err">${msg}</div>`; }
 
+// ── Модуль балів менеджерів ──────────────────────────────────────────────
+// Формула з ТЗ, один в один з прототипу в Excel:
+//   бали за дзвінки   = успішні × W_CALL
+//   бали за аксесуари = floor(сума_аксесуарів ÷ STEP_GRN) × W_ACC
+//   всього            = сума двох
+//
+// Успішний дзвінок — вхідний дзвінок, номер якого збігся з телефоном
+// контакта угоди-продажу. Зіставляємо не самі номери, а їх хеші (phone_key):
+// у публічному репозиторії телефонів клієнтів бути не повинно.
+let CALLS=null, CALLS_ERR='', PTS={w_call:2, step_grn:500, w_acc:1};
+let PTS_MONTH=null, PTS_TAB='days', PTS_STORE='', PTS_OUTSIDE=0;
+
+// Стадії, у яких угода вважається продажем. Відмова й помилкова
+// викидаються цілою угодою — як і всюди в дашборді.
+const PTS_SALE_STAGES = ['заказ','заказ проведен оператором','товар оплачен',
+                         'заказ отгружен клиенту','сделка успешна'];
+
+const ptsStageName = id => String(((META.stages||{})[id]||{}).name||'').trim().toLowerCase();
+const ptsIsSale = d => PTS_SALE_STAGES.includes(ptsStageName(d.stage_id));
+const ptsMonthOf = iso => (iso||'').slice(0,7);
+
+async function ptsLoadExtras(){
+  // Журнал дзвінків лежить окремим файлом і збирається тільки на сервері.
+  try{
+    const r=await fetch('ringostat_data.json?_='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    CALLS=Array.isArray(d.calls)?d.calls:[];
+    if(CALLS.length && CALLS[0].caller_key===undefined){
+      CALLS=null; CALLS_ERR='журнал дзвінків у старому форматі (без номера) — дочекайтесь наступного збору';
+    }
+  }catch(e){ CALLS=null; CALLS_ERR='журнал дзвінків недоступний ('+e.message+')'; }
+
+  try{
+    const r=await fetch('api/points/settings');
+    if(r.ok){ const d=await r.json(); PTS={...PTS, ...(d.settings||{})}; PTS_STORE=d.storage||''; }
+  }catch(e){}
+}
+
+function ptsManagers(){
+  const ids=new Set();
+  (RAW.deals||[]).forEach(d=>{ if(d.manager_id) ids.add(d.manager_id); });
+  (CALLS||[]).forEach(c=>{ if(c.manager_id) ids.add(c.manager_id); });
+  return [...ids].map(id=>({id, name:managerName(id)}))
+                 .sort((a,b)=>a.name.localeCompare(b.name,'uk'));
+}
+
+// Набір хешів номерів, з яких узагалі були вхідні дзвінки. Перевіряти день і
+// менеджера дзвінка навмисно не будемо: клієнт міг подзвонити вчора, а угоду
+// оформили сьогодні — за ТЗ успіх рахується на день створення угоди.
+function ptsIncomingKeys(){
+  const set=new Set();
+  (CALLS||[]).forEach(c=>{ if(c.direction==='incoming' && c.caller_key) set.add(c.caller_key); });
+  return set;
+}
+
+// ── відмальовка ──────────────────────────────────────────────────────────
+const PTS_MON=['січня','лютого','березня','квітня','травня','червня',
+               'липня','серпня','вересня','жовтня','листопада','грудня'];
+const ptsMonthLabel = m => {
+  const [y,mm]=m.split('-');
+  const name=PTS_MON[parseInt(mm,10)-1]||mm;
+  return name.replace(/я$/,'ень').replace(/ого$/,'ень') + ' ' + y;
+};
+const ptsFmtMonth = m => {
+  const [y,mm]=m.split('-');
+  const names=['Січень','Лютий','Березень','Квітень','Травень','Червень',
+               'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+  return (names[parseInt(mm,10)-1]||mm)+' '+y;
+};
+
+function ptsShiftMonth(delta){
+  const [y,m]=PTS_MONTH.split('-').map(Number);
+  const d=new Date(y, m-1+delta, 1);
+  PTS_MONTH=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  ptsRender();
+}
+
+function ptsTab(tab, btn){
+  PTS_TAB=tab;
+  document.querySelectorAll('.pts-tabs .pbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  ptsRender();
+}
+
+
+function ptsNote(){
+  const note=document.getElementById('pts-note');
+  const msgs=[];
+  if(!CALLS) msgs.push('Дзвінки не враховані: '+CALLS_ERR+'. Бали рахуються тільки за аксесуарами.');
+  if(PTS_OUTSIDE) msgs.push(`${fmt(PTS_OUTSIDE)} вхідних дзвінків надійшли співробітникам без угод за цей місяць — у підсумок вони не входять.`);
+  if(PTS_STORE && PTS_STORE!=='sheet') msgs.push('Налаштування балів зберігаються тимчасово на сервері й зникнуть при оновленні коду.');
+    note.classList.toggle('show', msgs.length>0);
+    note.textContent=msgs.join(' ');
+}
+
+function ptsRender(){
+  if(!RAW) return;
+  document.getElementById('pts-month').textContent=ptsFmtMonth(PTS_MONTH);
+  // Вперед далі за поточний місяць іти нікуди.
+  const now=new Date();
+  const cur=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('pts-next').disabled = PTS_MONTH>=cur;
+
+
+
+  const host=document.getElementById('pts-body');
+  const rows = PTS_TAB==='cfg' ? [] : ptsCompute(PTS_MONTH);
+  ptsNote();
+  if(PTS_TAB==='cfg')  return ptsRenderCfg(host);
+  if(PTS_TAB==='month') return ptsRenderMonth(host, rows);
+  return ptsRenderDays(host, rows);
+}
+
+const ptsPct = v => v==null ? '<span class="pts-dim">—</span>' : `${fmt1(v)}%`;
+// Прочерк означає «нічого не було», нуль — «було, але результат нульовий».
+// Плутати їх не можна: 0 успішних із 40 вхідних і день без жодного дзвінка —
+// це різні речі, і в конкурсі різниця принципова.
+const ptsNum = (v, show) => (v || show) ? fmt(v) : '<span class="pts-dim">—</span>';
+
+function ptsRenderDays(host, rows){
+  if(!rows.length){
+    host.innerHTML='<div class="empty-note">За цей місяць даних немає.</div>'; return;
+  }
+  const body=rows.map(r=>{
+    const wd=new Date(r.date+'T12:00:00').getDay();
+    const weekend = (wd===0||wd===6) ? ' class="pts-weekend"' : '';
+    return `<tr${weekend}>
+      <td>${fmtDate(r.date)}</td>
+      <td>${esc(managerName(r.mid))}</td>
+      <td>${ptsNum(r.incoming)}</td>
+      <td>${ptsNum(r.success, r.incoming>0)}</td>
+      <td>${r.acc ? fmt(r.acc)+' грн' : '<span class="pts-dim">—</span>'}</td>
+      <td>${ptsPct(r.approve)}</td>
+      <td>${ptsNum(r.ptsCall, r.incoming>0)}</td>
+      <td>${ptsNum(r.ptsAcc, r.acc>0)}</td>
+      <td class="pts-total">${ptsNum(r.total, r.incoming>0||r.acc>0)}</td>
+    </tr>`;
+  }).join('');
+  host.innerHTML=`<div class="table-scroll table-scroll-v"><table class="data-table">
+    <thead><tr><th>Дата</th><th>Менеджер</th><th>Вхідних</th><th>Успішних</th>
+      <th>Аксесуари</th><th>Апрув дня</th><th>Бали за дзвінки</th>
+      <th>Бали за аксесуари</th><th>Всього балів</th></tr></thead>
+    <tbody>${body}</tbody></table></div>`;
+}
+
+function ptsRenderMonth(host, rows){
+  const by={};
+  rows.forEach(r=>{
+    if(!by[r.mid]) by[r.mid]={mid:r.mid, incoming:0, success:0, acc:0, ptsCall:0, ptsAcc:0, total:0};
+    const a=by[r.mid];
+    a.incoming+=r.incoming; a.success+=r.success; a.acc+=r.acc;
+    a.ptsCall+=r.ptsCall; a.ptsAcc+=r.ptsAcc; a.total+=r.total;
+  });
+  const list=Object.values(by).sort((a,b)=>b.total-a.total);
+  if(!list.length){ host.innerHTML='<div class="empty-note">За цей місяць даних немає.</div>'; return; }
+  const sum=list.reduce((a,r)=>({incoming:a.incoming+r.incoming, success:a.success+r.success,
+    acc:a.acc+r.acc, ptsCall:a.ptsCall+r.ptsCall, ptsAcc:a.ptsAcc+r.ptsAcc, total:a.total+r.total}),
+    {incoming:0,success:0,acc:0,ptsCall:0,ptsAcc:0,total:0});
+  // Апрув місяця — сума успішних на суму вхідних, а НЕ середнє денних
+  // відсотків: інакше день з двома дзвінками важив би стільки ж, скільки
+  // день із сорока.
+  const rate = o => o.incoming ? o.success/o.incoming*100 : null;
+  const row = (name, o, cls) => `<tr${cls||''}>
+    <td>${esc(name)}</td><td>${ptsNum(o.incoming)}</td><td>${ptsNum(o.success, o.incoming>0)}</td>
+    <td>${ptsPct(rate(o))}</td><td>${o.acc?fmt(o.acc)+' грн':'<span class="pts-dim">—</span>'}</td>
+    <td>${ptsNum(o.ptsCall, o.incoming>0)}</td><td>${ptsNum(o.ptsAcc, o.acc>0)}</td>
+    <td class="pts-total">${ptsNum(o.total, o.incoming>0||o.acc>0)}</td></tr>`;
+  host.innerHTML=`<div class="table-scroll"><table class="data-table">
+    <thead><tr><th>Менеджер</th><th>Вхідних</th><th>Успішних</th><th>Апрув місяця</th>
+      <th>Аксесуари</th><th>Бали за дзвінки</th><th>Бали за аксесуари</th><th>Всього балів</th></tr></thead>
+    <tbody>${list.map(o=>row(managerName(o.mid),o)).join('')}
+      ${row('Разом', sum, ' class="pts-sum"')}</tbody></table></div>`;
+}
+
+function ptsRenderCfg(host){
+  host.innerHTML=`
+    <div class="pts-cfg">
+      <div class="pts-field"><div class="l">Балів за 1 успішний дзвінок</div>
+        <input type="number" id="cfg-w_call" step="0.5" min="0" value="${PTS.w_call}">
+        <div class="h">Апрув пріоритетніший за аксесуари, тому вага вища.</div></div>
+      <div class="pts-field"><div class="l">Крок суми аксесуарів, грн</div>
+        <input type="number" id="cfg-step_grn" step="50" min="1" value="${PTS.step_grn}">
+        <div class="h">Кожні повні стільки гривень дають бали.</div></div>
+      <div class="pts-field"><div class="l">Балів за кожен крок</div>
+        <input type="number" id="cfg-w_acc" step="0.5" min="0" value="${PTS.w_acc}">
+        <div class="h">Неповний крок не рахується.</div></div>
+    </div>
+    <button class="pts-save" id="cfg-save" onclick="ptsSaveCfg()">Зберегти і перерахувати</button>
+    <div class="pts-formula">
+      <code>бали = успішні × ${PTS.w_call} + floor(аксесуари ÷ ${fmt(PTS.step_grn)}) × ${PTS.w_acc}</code><br>
+      Приклад: 5 успішних дзвінків і аксесуарів на 2 350 грн →
+      5×${PTS.w_call} + floor(2350÷${fmt(PTS.step_grn)})×${PTS.w_acc} =
+      <b>${5*PTS.w_call + Math.floor(2350/(PTS.step_grn||1))*PTS.w_acc} балів</b>.<br>
+      Ваги спільні для всіх: вони лежать у Google Таблиці поруч із правилами роботи,
+      тому змінену вагу одразу бачить уся команда.
+    </div>`;
+}
+
+async function ptsSaveCfg(){
+  const btn=document.getElementById('cfg-save');
+  const body={
+    w_call: parseFloat(document.getElementById('cfg-w_call').value),
+    step_grn: parseFloat(document.getElementById('cfg-step_grn').value),
+    w_acc: parseFloat(document.getElementById('cfg-w_acc').value),
+  };
+  btn.disabled=true; btn.textContent='Зберігаю…';
+  try{
+    const r=await fetch('api/points/settings',{method:'POST',
+      headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
+    PTS={...PTS, ...(d.settings||{})}; PTS_STORE=d.storage||PTS_STORE;
+    btn.textContent='Збережено';
+    setTimeout(()=>{ btn.disabled=false; btn.textContent='Зберегти і перерахувати'; }, 1200);
+    ptsRender();
+  }catch(e){
+    btn.disabled=false; btn.textContent='Зберегти і перерахувати';
+    showError('Не вдалося зберегти налаштування: '+e.message);
+  }
+}
+
+function ptsCompute(month){
+  const accById={};
+  (RAW.deal_categories||[]).forEach(c=>{ accById[c.deal_id]=c.accessories||0; });
+  const inKeys=ptsIncomingKeys();
+  const cells={};   // "дата|менеджер" → показники
+  const touch=(d,m)=>{
+    const k=d+'|'+m;
+    if(!cells[k]) cells[k]={date:d, mid:m, incoming:0, success:0, acc:0};
+    return cells[k];
+  };
+
+  (CALLS||[]).forEach(c=>{
+    if(c.direction!=='incoming' || !c.date || ptsMonthOf(c.date)!==month) return;
+    touch(c.date, c.manager_id||'').incoming++;
+  });
+
+  (RAW.deals||[]).forEach(d=>{
+    if(!d.date || ptsMonthOf(d.date)!==month || !ptsIsSale(d)) return;
+    const cell=touch(d.date, d.manager_id||'');
+    cell.acc += accById[d.id]||0;
+    // Один успіх на угоду: повторні дзвінки того самого клієнта не множать
+    // результат.
+    if(CALLS && (d.phone_keys||[]).some(k=>inKeys.has(k))) cell.success++;
+  });
+
+  // У конкурсі беруть участь ті, хто продає. Вхідні дзвінки трапляються і в
+  // людей без жодної угоди (програміст, склад) — їхні рядки в таблиці балів
+  // не потрібні, інакше поруч із менеджерами стоять сторонні з апрувом 0%.
+  const sellers=new Set();
+  (RAW.deals||[]).forEach(d=>{
+    if(d.date && ptsMonthOf(d.date)===month && ptsIsSale(d)) sellers.add(d.manager_id||'');
+  });
+  let outsideCalls=0;
+  Object.values(cells).forEach(c=>{ if(!sellers.has(c.mid)) outsideCalls+=c.incoming; });
+  PTS_OUTSIDE=outsideCalls;
+
+  return Object.values(cells).filter(c=>sellers.has(c.mid)).map(c=>{
+    const ptsCall = c.success*PTS.w_call;
+    const ptsAcc  = Math.floor(c.acc/(PTS.step_grn||1))*PTS.w_acc;
+    return {...c, ptsCall, ptsAcc, total:ptsCall+ptsAcc,
+            approve: c.incoming ? c.success/c.incoming*100 : null};
+  }).sort((a,b)=> a.date<b.date?-1 : a.date>b.date?1 : managerName(a.mid).localeCompare(managerName(b.mid),'uk'));
+}
+
 function allDates(){
   const deals=(RAW&&RAW.deals)||[], leads=(RAW&&RAW.leads)||[];
   return [...new Set([...deals.map(d=>d.date),...leads.map(l=>l.date)].filter(Boolean))].sort();
 }
 
-function setPeriod(days,btn){
-  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  const dates=allDates();
-  if(!dates.length){ curFrom=curTo=null; applyFilter(); return; }
-  const todayIso=new Date().toISOString().slice(0,10);
-  const maxD=dates[dates.length-1];
-  const toIso = todayIso<=maxD ? todayIso : maxD;
-  const to=new Date(toIso+'T00:00:00');
-  const from=new Date(to); from.setDate(from.getDate()-(days-1));
-  const fromIso=from.toISOString().slice(0,10);
-  curFrom = fromIso<dates[0] ? dates[0] : fromIso;
-  curTo = toIso;
-  document.getElementById('date-from').value=curFrom;
-  document.getElementById('date-to').value=curTo;
-  applyFilter();
-}
-function setPeriodDays(daysAgo, btn){
-  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  const dates=allDates();
-  if(!dates.length){ curFrom=curTo=null; applyFilter(); return; }
-  const today=new Date(); today.setDate(today.getDate()-daysAgo);
-  const iso=today.toISOString().slice(0,10);
-  const minD=dates[0], maxD=dates[dates.length-1];
-  const clamped = iso<minD?minD:(iso>maxD?maxD:iso);
-  curFrom=clamped; curTo=clamped;
-  document.getElementById('date-from').value=curFrom;
-  document.getElementById('date-to').value=curTo;
-  applyFilter();
-}
-function setCustom(){
-  const f=document.getElementById('date-from').value;
-  const t=document.getElementById('date-to').value;
-  if(f&&t&&f>t) return;
-  curFrom=f||null; curTo=t||null;
-  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
-  applyFilter();
-}
-
-function applyFilter(){
-  if(!RAW) return;
-  const deals=(RAW.deals||[]).filter(d=>(!curFrom||d.date>=curFrom)&&(!curTo||d.date<=curTo));
-  const leads=(RAW.leads||[]).filter(l=>(!curFrom||l.date>=curFrom)&&(!curTo||l.date<=curTo));
-  const info=document.getElementById('period-info');
-  const dd=new Set([...deals.map(d=>d.date),...leads.map(l=>l.date)]).size;
-  info.textContent = curFrom||curTo ? `${fmtDate(curFrom)} — ${fmtDate(curTo)} · ${dd} дн.` : 'весь період';
-  render(deals, leads);
-}
+// Період більше не потрібен: модуль балів перемикається по місяцях, а інших
+// таблиць на цій сторінці немає. Функції прибрані разом із панеллю періоду.
 
 function stageMeta(id){
   const raw = (META.stages&&META.stages[id]) || {name:id||'(без стадії)', semantics:''};
@@ -521,28 +782,6 @@ function aggregateManagers(deals, leads){
   });
   return byManager;
 }
-
-function render(dealsRaw, leadsRaw){
-  const byManager=aggregateManagers(dealsRaw, leadsRaw);
-  renderManagers(byManager);
-}
-
-function renderManagers(byManager){
-  const table=document.getElementById('manager-table');
-  const rows=Object.values(byManager).sort((a,b)=>b.dealsSum-a.dealsSum);
-  if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
-  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th><th>Забраковано лідів</th><th>Конверсія лід→угода</th></tr></thead>`;
-  const body=rows.map(m=>{
-    const rate = m.leads ? round1(m.deals/m.leads*100) : 0;
-    return `<tr>
-    <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
-    <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
-    <td><b>${fmt1(rate)}%</b></td>
-  </tr>`;
-  }).join('');
-  table.innerHTML=head+`<tbody>${body}</tbody>`;
-}
-
 
 // ── FAQ: правила роботи ───────────────────────────────────────────────────
 // Записи зберігає сервер (див. faq_store.py). Сторінка лише показує їх і
