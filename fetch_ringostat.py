@@ -39,6 +39,9 @@ caller/dst проти довідника напрямків співробітн
 import json, os, re, sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
+
+# Один спосіб рахувати ключ телефону для обох збирачів — див. phone_key.py
+from phone_key import phone_key
 import requests
 
 AUTH_KEY = os.environ.get("RINGOSTAT_AUTH_KEY", "")
@@ -251,12 +254,32 @@ def slim_calls(rows, known_staff_names):
 
         out.append({
             "date": d,
+            # Точний час і ключ номера потрібні модулю балів: за ними
+            # відкидаються дублі (той самий дзвінок приходить у журналі
+            # 2–3 рази) і шукається угода того самого клієнта.
+            "ts": calldate,
+            "caller_key": phone_key(r.get("caller")),
             "direction": direction,
             "status": call_status(disposition),
             "manager_id": staff_id,
             "duration": int(r.get("billsec") or 0),
         })
-    return out, extra_names, no_employee
+
+    # Дедуплікація: один дзвінок = один (час, номер, напрямок). У журналі
+    # Ringostat той самий дзвінок трапляється кілька разів, і без цього
+    # «вхідних» виходило б удвічі-втричі більше, ніж було насправді.
+    seen = set()
+    deduped = []
+    for c in out:
+        key = (c["ts"], c["caller_key"], c["direction"])
+        if c["ts"] and key in seen:
+            continue
+        seen.add(key)
+        deduped.append(c)
+    dropped = len(out) - len(deduped)
+    if dropped:
+        print(f"     дублів у журналі відкинуто: {dropped} з {len(out)}")
+    return deduped, extra_names, no_employee
 
 # ── Main ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":

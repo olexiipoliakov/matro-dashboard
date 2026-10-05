@@ -14,6 +14,9 @@ fetch_meta.py / fetch_gsc.py.
 import json, os, sys, time
 from datetime import date, datetime, timedelta
 from pathlib import Path
+
+# Один спосіб рахувати ключ телефону для обох збирачів — див. phone_key.py
+from phone_key import phone_key
 import urllib.request
 import urllib.parse
 
@@ -112,6 +115,9 @@ def fetch_users():
 # ── Угоди (Deals) ────────────────────────────────────────────────────────────
 DEAL_FIELDS = ["ID", "TITLE", "STAGE_ID", "CATEGORY_ID", "OPPORTUNITY", "CURRENCY_ID",
                "DATE_CREATE", "CLOSEDATE", "CLOSED", "SOURCE_ID", "ASSIGNED_BY_ID",
+               # Потрібен, щоб дотягнути телефон клієнта й зіставити угоду з
+               # вхідним дзвінком у Ringostat (модуль балів менеджерів).
+               "CONTACT_ID",
                "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM"]
 
 def fetch_deals(start_date):
@@ -237,6 +243,34 @@ def fetch_lead_reasons(lead_ids, chunk_size=50):
         # відповідав 503 на щільну серію запитів.
         time.sleep(0.3)
     return out
+
+def fetch_contact_phones(contact_ids, chunk_size=25):
+    """{contact_id: [хеші телефонів]} — батчами, як і товарні рядки.
+
+    У контакта може бути кілька номерів (робочий, мобільний), тому повертаємо
+    список: дзвінок міг прийти з будь-якого з них.
+    """
+    out = {}
+    ids = [c for c in dict.fromkeys(contact_ids) if c]
+    for i in range(0, len(ids), chunk_size):
+        chunk = ids[i:i + chunk_size]
+        cmds = {f"c{j}": f"crm.contact.get?id={cid}" for j, cid in enumerate(chunk)}
+        try:
+            result = fetch_batch(cmds)
+        except Exception as e:
+            print(f"  ⚠ не вдалося отримати контакти (батч {i}): {e}")
+            continue
+        for j, cid in enumerate(chunk):
+            c = result.get(f"c{j}") or {}
+            keys = []
+            for ph in (c.get("PHONE") or []):
+                k = phone_key(ph.get("VALUE"))
+                if k and k not in keys:
+                    keys.append(k)
+            if keys:
+                out[cid] = keys
+    return out
+
 
 def fetch_deal_products(deal_ids, chunk_size=25):
     """Товарні рядки для списку угод, батчами по `chunk_size` (ліміт Bitrix —
@@ -442,6 +476,7 @@ def slim_deals(deals):
             "stage_id": d.get("STAGE_ID", ""),
             "amount": float(d.get("OPPORTUNITY") or 0),
             "manager_id": str(d.get("ASSIGNED_BY_ID") or ""),
+            "contact_id": str(d.get("CONTACT_ID") or ""),
             # SOURCE_ID уже запитувався у DEAL_FIELDS, але раніше губився тут —
             # без нього фронтенд не міг показати "джерело" для конкретної угоди
             # (тільки UTM, який на більшості угод порожній).
@@ -653,6 +688,21 @@ if __name__ == "__main__":
         product_summary_by_id = {did: summarize_deal_products(rows) for did, rows in product_rows.items()}
         for d in result.get("deals", []):
             d["product"] = product_summary_by_id.get(d["id"], "")
+
+        # Телефони контактів — лише хеші (див. phone_key). Потрібні модулю
+        # балів, щоб зіставити угоду з вхідним дзвінком.
+        try:
+            print("  → Телефони контактів (для зіставлення з дзвінками)")
+            phones = fetch_contact_phones(d.get("contact_id") for d in result["deals"])
+            hit = 0
+            for d in result["deals"]:
+                keys = phones.get(d.get("contact_id")) or []
+                if keys:
+                    d["phone_keys"] = keys
+                    hit += 1
+            print(f"     угод з телефоном: {hit} з {len(result['deals'])}")
+        except Exception as e:
+            print(f"  ⚠ не вдалося отримати телефони контактів: {e}")
     except Exception as e:
         print(f"  ⚠ не вдалося категоризувати товарообіг: {e}")
         result["deal_categories"] = []
