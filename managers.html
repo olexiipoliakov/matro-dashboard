@@ -489,7 +489,7 @@ function showError(msg){ document.getElementById('error-box').innerHTML=`<div cl
 // Успішний дзвінок — вхідний дзвінок, номер якого збігся з телефоном
 // контакта угоди-продажу. Зіставляємо не самі номери, а їх хеші (phone_key):
 // у публічному репозиторії телефонів клієнтів бути не повинно.
-let CALLS=null, CALLS_ERR='', PTS={w_call:2, step_grn:500, w_acc:1};
+let PTS={w_call:2, step_grn:500, w_acc:1};
 let PTS_MONTH=null, PTS_TAB='days', PTS_STORE='', PTS_OUTSIDE=0;
 
 // Стадії, у яких угода вважається продажем. Відмова й помилкова
@@ -497,44 +497,27 @@ let PTS_MONTH=null, PTS_TAB='days', PTS_STORE='', PTS_OUTSIDE=0;
 const PTS_SALE_STAGES = ['заказ','заказ проведен оператором','товар оплачен',
                          'заказ отгружен клиенту','сделка успешна'];
 
+// Джерела, які вважаються дзвінком. Той самий список, що в колонках
+// конверсії на сторінці CRM — щоб два екрани не рахували по-різному.
+const PTS_CALL_SRC = ['CALL','CALLBACK','Обратный звонок','WEB - Зворотний дзвінок'];
+const ptsIsCall = x => PTS_CALL_SRC.includes(x.source_id);
+
 const ptsStageName = id => String(((META.stages||{})[id]||{}).name||'').trim().toLowerCase();
 const ptsIsSale = d => PTS_SALE_STAGES.includes(ptsStageName(d.stage_id));
 const ptsMonthOf = iso => (iso||'').slice(0,7);
 
 async function ptsLoadExtras(){
-  // Журнал дзвінків лежить окремим файлом і збирається тільки на сервері.
-  try{
-    const r=await fetch('ringostat_data.json?_='+Date.now());
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    CALLS=Array.isArray(d.calls)?d.calls:[];
-    if(CALLS.length && CALLS[0].caller_key===undefined){
-      CALLS=null; CALLS_ERR='журнал дзвінків у старому форматі (без номера) — дочекайтесь наступного збору';
-    }
-  }catch(e){ CALLS=null; CALLS_ERR='журнал дзвінків недоступний ('+e.message+')'; }
-
+  // Журнал дзвінків більше не потрібен: і вхідні, і успішні рахуються з CRM.
   try{
     const r=await fetch('api/points/settings');
     if(r.ok){ const d=await r.json(); PTS={...PTS, ...(d.settings||{})}; PTS_STORE=d.storage||''; }
   }catch(e){}
 }
 
-function ptsManagers(){
-  const ids=new Set();
-  (RAW.deals||[]).forEach(d=>{ if(d.manager_id) ids.add(d.manager_id); });
-  (CALLS||[]).forEach(c=>{ if(c.manager_id) ids.add(c.manager_id); });
-  return [...ids].map(id=>({id, name:managerName(id)}))
-                 .sort((a,b)=>a.name.localeCompare(b.name,'uk'));
-}
 
 // Набір хешів номерів, з яких узагалі були вхідні дзвінки. Перевіряти день і
 // менеджера дзвінка навмисно не будемо: клієнт міг подзвонити вчора, а угоду
 // оформили сьогодні — за ТЗ успіх рахується на день створення угоди.
-function ptsIncomingKeys(){
-  const set=new Set();
-  (CALLS||[]).forEach(c=>{ if(c.direction==='incoming' && c.caller_key) set.add(c.caller_key); });
-  return set;
-}
 
 // ── відмальовка ──────────────────────────────────────────────────────────
 const PTS_MON=['січня','лютого','березня','квітня','травня','червня',
@@ -569,8 +552,6 @@ function ptsTab(tab, btn){
 function ptsNote(){
   const note=document.getElementById('pts-note');
   const msgs=[];
-  if(!CALLS) msgs.push('Дзвінки не враховані: '+CALLS_ERR+'. Бали рахуються тільки за аксесуарами.');
-  if(PTS_OUTSIDE) msgs.push(`${fmt(PTS_OUTSIDE)} вхідних дзвінків надійшли співробітникам без угод за цей місяць — у підсумок вони не входять.`);
   if(PTS_STORE && PTS_STORE!=='sheet') msgs.push('Налаштування балів зберігаються тимчасово на сервері й зникнуть при оновленні коду.');
     note.classList.toggle('show', msgs.length>0);
     note.textContent=msgs.join(' ');
@@ -594,7 +575,13 @@ function ptsRender(){
   return ptsRenderDays(host, rows);
 }
 
-const ptsPct = v => v==null ? '<span class="pts-dim">—</span>' : `${fmt1(v)}%`;
+// Апрув понад 100% — не помилка розрахунку. Угоду з джерелом «Звонок»
+// можна створити без ліда або лід записаний на іншого менеджера, і тоді
+// чисельник більший за знаменник. Ховати це не можна: цифра дивна, і
+// людина має бачити, що вона дивна не випадково.
+const ptsPct = v => v==null ? '<span class="pts-dim">—</span>'
+  : v>100 ? `<span style="color:var(--warning)" title="Угод із джерелом «Звонок» більше, ніж лідів із тим самим джерелом: угоду створили без ліда або лід записаний на іншого менеджера">${fmt1(v)}%</span>`
+  : `${fmt1(v)}%`;
 // Прочерк означає «нічого не було», нуль — «було, але результат нульовий».
 // Плутати їх не можна: 0 успішних із 40 вхідних і день без жодного дзвінка —
 // це різні речі, і в конкурсі різниця принципова.
@@ -675,7 +662,12 @@ function ptsRenderCfg(host){
       5×${PTS.w_call} + floor(2350÷${fmt(PTS.step_grn)})×${PTS.w_acc} =
       <b>${5*PTS.w_call + Math.floor(2350/(PTS.step_grn||1))*PTS.w_acc} балів</b>.<br>
       Ваги спільні для всіх: вони лежать у Google Таблиці поруч із правилами роботи,
-      тому змінену вагу одразу бачить уся команда.
+      тому змінену вагу одразу бачить уся команда.<br><br>
+      <b>Звідки числа.</b> Вхідний дзвінок — лід із джерелом «Звонок».
+      Успішний — угода з тим самим джерелом у «чистих» стадіях: відмова
+      клієнта й помилкова не рахуються. Аксесуари — товарні рядки тих самих
+      чистих угод. Одне правило на обидва показники: бали нараховуються за
+      продаж, а не за створену заявку.
     </div>`;
 }
 
@@ -705,46 +697,49 @@ async function ptsSaveCfg(){
 function ptsCompute(month){
   const accById={};
   (RAW.deal_categories||[]).forEach(c=>{ accById[c.deal_id]=c.accessories||0; });
-  const inKeys=ptsIncomingKeys();
-  const cells={};   // "дата|менеджер" → показники
+  const cells={};
   const touch=(d,m)=>{
     const k=d+'|'+m;
     if(!cells[k]) cells[k]={date:d, mid:m, incoming:0, success:0, acc:0};
     return cells[k];
   };
 
-  (CALLS||[]).forEach(c=>{
-    if(c.direction!=='incoming' || !c.date || ptsMonthOf(c.date)!==month) return;
-    touch(c.date, c.manager_id||'').incoming++;
+  // Вхідний дзвінок — лід із джерелом «Звонок». Журнал Ringostat тут не
+  // потрібен: і чисельник, і знаменник беруться з CRM, тому модуль працює
+  // навіть коли телефонія недоступна.
+  (RAW.leads||[]).forEach(l=>{
+    if(!l.date || ptsMonthOf(l.date)!==month || !ptsIsCall(l)) return;
+    touch(l.date, l.manager_id||'').incoming++;
   });
 
+  // Успішний дзвінок — угода з джерелом «Звонок» і тільки в «чистих»
+  // стадіях: відмова клієнта й помилкова не рахуються. Так само, як і
+  // аксесуари, — одне правило на обидва показники.
+  //
+  // Це свідомо розходиться з колишньою внутрішньою таблицею (там успішною
+  // була будь-яка угода з дзвінка, разом із відмовами — 327 проти 281 у
+  // Катерини). Нове правило суворіше й не дає набирати бали за заявки,
+  // які не стали продажем.
   (RAW.deals||[]).forEach(d=>{
     if(!d.date || ptsMonthOf(d.date)!==month || !ptsIsSale(d)) return;
     const cell=touch(d.date, d.manager_id||'');
+    if(ptsIsCall(d)) cell.success++;
     cell.acc += accById[d.id]||0;
-    // Один успіх на угоду: повторні дзвінки того самого клієнта не множать
-    // результат.
-    if(CALLS && (d.phone_keys||[]).some(k=>inKeys.has(k))) cell.success++;
   });
 
-  // У конкурсі беруть участь ті, хто продає. Вхідні дзвінки трапляються і в
-  // людей без жодної угоди (програміст, склад) — їхні рядки в таблиці балів
-  // не потрібні, інакше поруч із менеджерами стоять сторонні з апрувом 0%.
-  const sellers=new Set();
-  (RAW.deals||[]).forEach(d=>{
-    if(d.date && ptsMonthOf(d.date)===month && ptsIsSale(d)) sellers.add(d.manager_id||'');
-  });
-  let outsideCalls=0;
-  Object.values(cells).forEach(c=>{ if(!sellers.has(c.mid)) outsideCalls+=c.incoming; });
-  PTS_OUTSIDE=outsideCalls;
+  // У конкурсі беруть участь ті, хто працює: є угоди або вхідні дзвінки.
+  const active=new Set();
+  Object.values(cells).forEach(c=>{ if(c.success||c.acc||c.incoming) active.add(c.mid); });
+  PTS_OUTSIDE=0;
 
-  return Object.values(cells).filter(c=>sellers.has(c.mid)).map(c=>{
+  return Object.values(cells).filter(c=>active.has(c.mid)).map(c=>{
     const ptsCall = c.success*PTS.w_call;
     const ptsAcc  = Math.floor(c.acc/(PTS.step_grn||1))*PTS.w_acc;
     return {...c, ptsCall, ptsAcc, total:ptsCall+ptsAcc,
             approve: c.incoming ? c.success/c.incoming*100 : null};
   }).sort((a,b)=> a.date<b.date?-1 : a.date>b.date?1 : managerName(a.mid).localeCompare(managerName(b.mid),'uk'));
 }
+
 
 function allDates(){
   const deals=(RAW&&RAW.deals)||[], leads=(RAW&&RAW.leads)||[];
