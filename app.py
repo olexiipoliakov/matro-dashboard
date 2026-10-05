@@ -49,19 +49,31 @@ def requires_auth(f):
     return decorated
 
 # ── Фонові прогони fetch-скриптів ────────────────────────────────────────
+# Остання доля кожного скрипта: {назва: {ok, code, finished_at, note}}.
+# Без цього єдиним способом дізнатись, чому немає даних, були логи Render —
+# а туди не завжди є доступ у того, хто дивиться на дашборд.
+LAST_RUN = {}
+
+
 def run_script(name, timeout=1200):
     print(f"[scheduler] запускаю {name}…", flush=True)
+    started = time.time()
     try:
         result = subprocess.run([sys.executable, str(BASE_DIR / name)], check=False, timeout=timeout)
         # Раніше тут писали "завершено" незалежно від коду завершення —
         # якщо скрипт падав з необробленим винятком (traceback), лог все
         # одно виглядав так, ніби все пройшло успішно, і це маскувало
         # реальні збої (саме так довго непомітно ламався fetch_meta.py).
+        LAST_RUN[name] = {"ok": result.returncode == 0, "code": result.returncode,
+                          "finished_at": time.time(), "seconds": round(time.time() - started),
+                          "note": ""}
         if result.returncode == 0:
             print(f"[scheduler] {name} завершено", flush=True)
         else:
             print(f"[scheduler] ✗ {name} ЗАВЕРШИВСЯ З ПОМИЛКОЮ (код {result.returncode}) — дивись traceback вище", flush=True)
     except Exception as e:
+        LAST_RUN[name] = {"ok": False, "code": None, "finished_at": time.time(),
+                          "seconds": round(time.time() - started), "note": str(e)[:300]}
         print(f"[scheduler] {name} впав: {e}", flush=True)
 
 def run_all_periodic():
@@ -196,6 +208,24 @@ def points_settings_set():
     except points_store.StorageError as e:
         return jsonify({"error": str(e)}), 502
     return jsonify({"settings": saved, **points_store.status()})
+
+
+@app.route("/api/data/status")
+@requires_auth
+def data_status():
+    """Що є на диску і чим це зібрано. Відповідає на питання «чому немає
+    даних» без походу в логи Render."""
+    files = {}
+    for name, script in FILE_OWNER.items():
+        f = BASE_DIR / name
+        info = {"exists": f.exists(), "script": script}
+        if f.exists():
+            st = f.stat()
+            info["size_mb"] = round(st.st_size / 1048576, 2)
+            info["age_minutes"] = round((time.time() - st.st_mtime) / 60)
+        info["last_run"] = LAST_RUN.get(script)
+        files[name] = info
+    return jsonify({"files": files, "server_time": time.strftime("%Y-%m-%d %H:%M:%S")})
 
 
 @app.route("/healthz")
@@ -388,10 +418,33 @@ def _data_is_fresh():
     return (time.time() - newest) < FRESH_HOURS * 3600
 
 
+# Який скрипт відповідає за який файл. Потрібно, щоб після деплою спершу
+# зібрати те, чого на диску НЕМАЄ, а не йти по черзі з початку.
+FILE_OWNER = {
+    "ringostat_data.json": "fetch_ringostat.py",
+    "bitrix_data.json": "fetch_bitrix.py",
+    "seo_data.json": "fetch_gsc.py",
+    "data.json": "fetch_meta.py",
+}
+
+
 def _first_run():
     time.sleep(FIRST_RUN_DELAY_SEC)
+
+    # Файли, яких на диску немає. Після деплою це завжди ringostat_data.json:
+    # його не комітять у репозиторій, тож він зникає при кожному передеплої.
+    # Раніше він стояв останнім у черзі — після meta, SEO і Bitrix, який ще й
+    # тягне контакти, — і сторінка балів хвилин п'ятнадцять показувала
+    # «журнал дзвінків недоступний». Тому спершу добираємо відсутнє.
+    missing = [n for n in NEEDED_FILES if not (BASE_DIR / n).exists()]
+    for name in missing:
+        script = FILE_OWNER.get(name)
+        if script:
+            print(f"[scheduler] немає {name} — збираю {script} першим", flush=True)
+            run_script(script)
+
     if _data_is_fresh():
-        print(f"[scheduler] дані свіжіші за {FRESH_HOURS} год — стартовий збір пропускаю", flush=True)
+        print(f"[scheduler] решта даних свіжіша за {FRESH_HOURS} год — повний збір пропускаю", flush=True)
         return
     print("[scheduler] стартовий збір даних", flush=True)
     run_all_periodic()
