@@ -186,6 +186,9 @@
   .badge .dot2{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
   /* ── позначки роботи над описом ── */
+  /* Уточнення під бейджем: скільки символів, скільки дублів. Без нього
+     «Довжина title» нічого не каже — незрозуміло, довгий він чи короткий. */
+  .issue-detail{font-size:11.5px;color:var(--ink-dim);margin-top:5px;max-width:320px;line-height:1.35}
   .who{display:flex;align-items:center;gap:8px;min-width:170px;
     background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;
     padding:0 12px;font-size:12.5px;color:var(--ink-dim);white-space:nowrap}
@@ -269,7 +272,7 @@
         <span class="ti"><i data-lucide="shield-check"></i></span>
         Аудит сайту
       </div>
-      <div class="sub">Якість карток товарів на <a href="https://matroluxe.ua" target="_blank" rel="noopener">matroluxe.ua</a></div>
+      <div class="sub">Якість карток і тегів видачі на <a href="https://matroluxe.ua" target="_blank" rel="noopener">matroluxe.ua</a></div>
     </div>
     <div class="head-right">
       <button class="scan-btn" id="scan-btn"><i data-lucide="radar"></i> Запустити скан</button>
@@ -284,12 +287,12 @@
 
   <div class="kpi-row">
     <div class="kpi">
-      <div class="l">Перевірено товарів</div>
+      <div class="l">Перевірено сторінок</div>
       <div class="v" id="k-total">—</div>
       <div class="h" id="k-total-h">за останній скан</div>
     </div>
     <div class="kpi bad">
-      <div class="l">Товарів з проблемами</div>
+      <div class="l">Сторінок з проблемами</div>
       <div class="v" id="k-problems">—</div>
       <div class="h" id="k-problems-h">потребують уваги</div>
     </div>
@@ -313,7 +316,7 @@
     <div class="toolbar">
       <div class="search">
         <i data-lucide="search"></i>
-        <input type="text" id="q" placeholder="Пошук за назвою товару…" autocomplete="off">
+        <input type="text" id="q" placeholder="Пошук за назвою сторінки…" autocomplete="off">
       </div>
       <select id="f-cat"><option value="">Усі категорії</option></select>
       <select id="f-sort">
@@ -408,8 +411,13 @@ async function load(){
   const health= total ? Math.round((total-problems)/total*100) : 0;
 
   document.getElementById('k-total').textContent=fmt(total);
+  // Окремо показуємо, скільки з них картки товару: теги перевіряються на
+  // всьому сайті, а опис і фото — тільки на товарах, і без цього числа
+  // незрозуміло, від чого рахується «без опису».
+  document.getElementById('k-total-h').textContent = DATA.total_products
+    ? `з них ${fmt(DATA.total_products)} карток товару` : 'за останній скан';
   document.getElementById('k-problems').textContent=fmt(problems);
-  document.getElementById('k-problems-h').textContent= total ? `${Math.round(problems/total*100)}% каталогу` : '—';
+  document.getElementById('k-problems-h').textContent= total ? `${Math.round(problems/total*100)}% сторінок` : '—';
   document.getElementById('k-health').textContent=health+'%';
   document.getElementById('k-health-bar').style.width=health+'%';
   document.getElementById('k-time').textContent=humanDuration(DATA.duration_sec);
@@ -566,7 +574,7 @@ function render(){
   document.getElementById('tbl-host').innerHTML=`
     <div class="tbl-wrap"><table>
       <thead><tr>
-        ${th('name','Товар')}${th('cat','Категорія')}${th('issue','Проблема')}${th('mark','Робота')}<th></th>
+        ${th('name','Сторінка')}${th('cat','Категорія')}${th('issue','Проблема')}${th('mark','Робота')}<th></th>
       </tr></thead>
       <tbody>${page.map(i=>{
         const t=TYPES[i.issue]||{label:i.issue,color:'neutral'};
@@ -580,7 +588,8 @@ function render(){
           <td class="c-name">${esc(i.name)}</td>
           <td class="c-cat">${esc(i.category||'—')}</td>
           <td><span class="badge" style="color:${col};background:${ISSUE_TINT[t.color]||ISSUE_TINT.neutral}">
-            <span class="dot2" style="background:${col}"></span>${esc(t.label)}</span></td>
+            <span class="dot2" style="background:${col}"></span>${esc(t.label)}</span>
+            ${i.detail?`<div class="issue-detail">${esc(i.detail)}</div>`:''}</td>
           <td class="c-mark">
             <select class="mark-sel ${cur?'set':''}" data-url="${esc(i.url)}">
               <option value=""${cur===''?' selected':''}>— не взято</option>

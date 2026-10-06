@@ -4,14 +4,22 @@ audit.py — аудит карток товарів на matroluxe.ua.
 Що робить:
   1. Бере /ua/sitemap.xml (український основний — міські sitemap'и дублюють
      ті самі товари під префіксом міста, тому їх свідомо не чіпаємо).
+     Беруться всі сторінки, включно з головною, блогом і вкладеними
+     категоріями: теги видачі потрібні їм так само, як карткам товару.
   2. Викидає блог і службові сторінки, обходить решту й на кожній сторінці
      визначає: це картка товару чи категорія/стаття.
-  3. Для карток товару перевіряє чотири речі:
+  3. Для КОЖНОЇ сторінки перевіряє теги видачі:
+       no_title / no_meta_desc   — тега немає або він порожній
+       dup_title / dup_meta_desc — такий самий текст є ще десь на сайті
+       title_length / desc_length — задовгий (обріжеться) або закороткий
+     Дублі рахуються після обходу всього сайту: поки не побачено всі
+     сторінки, про повтор нічого сказати не можна.
+  4. Для карток товару додатково перевіряє чотири речі:
        no_description    — вкладки «Опис» немає або вона порожня
        short_description — опис є, але коротший за SHORT_LIMIT символів
        no_photo          — фото немає або стоїть заглушка
        page_error        — сторінка є в sitemap, але віддає 404/500/таймаут
-  4. Пише audit_data.json (результат) і audit_progress.json (прогрес,
+  5. Пише audit_data.json (результат) і audit_progress.json (прогрес,
      який читає /api/audit/status, щоб показувати «150 з 362» на сторінці).
 
 Окремий режим для перевірки самих правил на одній сторінці:
@@ -55,16 +63,35 @@ UA = "Mozilla/5.0 (compatible; MatroDashboardAudit/1.0; +https://matroluxe.ua)"
 
 ISSUE_TYPES = [
     {"key": "page_error",        "label": "Сторінка не відкривається", "color": "danger"},
+    {"key": "no_title",          "label": "Без title",                 "color": "danger"},
+    {"key": "no_meta_desc",      "label": "Без meta description",      "color": "danger"},
+    {"key": "dup_title",         "label": "Дубль title",               "color": "warning"},
+    {"key": "dup_meta_desc",     "label": "Дубль meta description",    "color": "warning"},
+    {"key": "title_length",      "label": "Довжина title",             "color": "info"},
+    {"key": "desc_length",       "label": "Довжина meta description",  "color": "info"},
     {"key": "no_description",    "label": "Без опису",                 "color": "danger"},
     {"key": "short_description", "label": "Короткий опис",             "color": "warning"},
     {"key": "no_photo",          "label": "Без фото",                  "color": "info"},
 ]
 
+# Межі довжини title і description. Це не вимога пошукових систем — вони
+# нічого не обрізають «по символах», а малюють сніпет по ширині. Але рядок
+# довший за TITLE_MAX майже завжди обрізається в видачі, а коротший за
+# TITLE_MIN — ознака не написаного, а згенерованого шаблоном заголовка.
+TITLE_MIN = int(os.environ.get("AUDIT_TITLE_MIN", "25"))
+TITLE_MAX = int(os.environ.get("AUDIT_TITLE_MAX", "65"))
+DESC_MIN  = int(os.environ.get("AUDIT_DESC_MIN", "70"))
+DESC_MAX  = int(os.environ.get("AUDIT_DESC_MAX", "170"))
+
 # Сторінки, які не є товарами й не мають потрапляти в аудит.
+# Сторінки, які не має сенсу перевіряти взагалі: кошик, пошук, вхід.
+# Блог і сторінки «Про нас»/«Доставка» тут більше НЕ перелічені: карток товару
+# з них не вийде, але title і description їм потрібні так само, як усім іншим,
+# а в видачі вони часто стоять на запитах, за якими товарні сторінки не
+# ранжуються.
 SKIP_PATTERNS = (
-    "/blog", "/news", "/about", "/contact", "/delivery", "/payment",
-    "/warranty", "/oplata", "/dostavka", "/kontakty", "/pro-nas",
     "/index.php", "/search", "/login", "/cart", "/checkout", "/sitemap",
+    "/compare", "/wishlist", "?route=",
 )
 
 PLACEHOLDER_IMG = ("no_image", "noimage", "no-image", "placeholder", "default.png")
@@ -107,16 +134,35 @@ def fetch_sitemap_urls(session):
     out = []
     for u in urls:
         path = u.replace(SITE, "").rstrip("/")
-        if not path.startswith("/ua/"):
+        # Беремо українську версію разом із самою /ua (головна сторінка: саме
+        # вона найчастіше й лишається з тегами «з коробки»). Раніше тут ще
+        # відсікались усі вкладені шляхи — через це блог і категорії другого
+        # рівня взагалі не перевірялись; для тегів видачі вони потрібні.
+        if path != "/ua" and not path.startswith("/ua/"):
             continue
-        slug = path[len("/ua/"):]
-        if not slug or "/" in slug:          # категорії другого рівня і блог
-            continue
-        if any(p.strip("/") == slug or slug.startswith(p.strip("/") + "-")
-               for p in SKIP_PATTERNS):
+        if is_service_url(u, path):
             continue
         out.append(u)
     return sorted(set(out))
+
+
+def is_service_url(url, path):
+    """Кошик, пошук, вхід — сторінки, яких у видачі бути не повинно.
+
+    Порівнюємо посегментно, а не підрядком: інакше товар зі слагом на кшталт
+    «cartoon-matras» вилетів би з аудиту через те, що в ньому є літери «cart».
+    """
+    segs = [x for x in path.lower().split("/") if x]
+    for pat in SKIP_PATTERNS:
+        t = pat.strip("/").lower()
+        if not t:
+            continue
+        if "?" in t or "=" in t:
+            if t in url.lower():
+                return True
+        elif any(s == t or s.startswith(t + "-") for s in segs):
+            return True
+    return False
 
 
 # ── розбір сторінки ──────────────────────────────────────────────────────
@@ -281,8 +327,89 @@ def product_category(soup, ld=None):
     return "—"
 
 
+def page_meta(soup):
+    """title і meta description сторінки, вже почищені від переносів.
+
+    Беремо саме <title> і <meta name="description">, а не og:title/og:description:
+    у видачу йдуть перші, og — це для соцмереж, і на цьому сайті вони часто
+    заповнені тоді, коли звичайні теги порожні. Якщо дивитись на og, аудит
+    покаже, що все добре, а в Google сторінка лишиться без заголовка.
+    """
+    t = soup.find("title")
+    title = re.sub(r"\s+", " ", t.get_text(" ", strip=True)).strip() if t else ""
+    desc = ""
+    for sel in ('meta[name="description"]', 'meta[name="Description"]'):
+        m = soup.select_one(sel)
+        if m and m.get("content"):
+            desc = re.sub(r"\s+", " ", m["content"]).strip()
+            break
+    return title, desc
+
+
+def norm_tag(v):
+    """Ключ для пошуку дублів. Регістр і зайві пробіли людина не бачить, тож
+    «Матрац Арлон» і «матрац  арлон» — це один і той самий заголовок."""
+    return re.sub(r"\s+", " ", str(v or "")).strip().lower()
+
+
+def seo_issues(pages):
+    """Знахідки по title і description на всіх зібраних сторінках.
+
+    Дублі рахуються тільки тут, після обходу: поки не побачено весь сайт,
+    про повтор нічого сказати не можна. Саме тому ця перевірка не живе
+    всередині check_url разом з рештою.
+    """
+    found = []
+    by_title, by_desc = {}, {}
+    for pg in pages:
+        if pg["title"]:
+            by_title.setdefault(norm_tag(pg["title"]), []).append(pg)
+        if pg["desc"]:
+            by_desc.setdefault(norm_tag(pg["desc"]), []).append(pg)
+
+    def row(pg, issue, detail):
+        return {"name": pg["name"], "url": pg["url"], "category": pg["category"],
+                "issue": issue, "detail": detail}
+
+    for pg in pages:
+        title, desc = pg["title"], pg["desc"]
+
+        if not title:
+            found.append(row(pg, "no_title", ""))
+        else:
+            n = len(title)
+            if n > TITLE_MAX:
+                found.append(row(pg, "title_length", f"{n} символів — задовгий, обріжеться у видачі"))
+            elif n < TITLE_MIN:
+                found.append(row(pg, "title_length", f"{n} символів — закороткий"))
+            dups = by_title.get(norm_tag(title), [])
+            if len(dups) > 1:
+                found.append(row(pg, "dup_title",
+                                 f"такий самий title ще на {len(dups) - 1} стор."))
+
+        if not desc:
+            found.append(row(pg, "no_meta_desc", ""))
+        else:
+            n = len(desc)
+            if n > DESC_MAX:
+                found.append(row(pg, "desc_length", f"{n} символів — задовгий, обріжеться у видачі"))
+            elif n < DESC_MIN:
+                found.append(row(pg, "desc_length", f"{n} символів — закороткий"))
+            dups = by_desc.get(norm_tag(desc), [])
+            if len(dups) > 1:
+                found.append(row(pg, "dup_meta_desc",
+                                 f"такий самий опис ще на {len(dups) - 1} стор."))
+    return found
+
+
 def check_url(session, url):
-    """Повертає (це_товар, список_знахідок) по одній сторінці."""
+    """Повертає (це_товар, список_знахідок, дані_сторінки) по одній сторінці.
+
+    Третє значення — title/description сторінки. Воно повертається навіть для
+    категорій і статей, бо перевірка тегів стосується всього сайту, а не лише
+    карток товару: порожній title на категорії коштує дорожче, ніж на одному
+    товарі. None означає, що сторінка не відповіла й дивитись там нічого.
+    """
     try:
         r = session.get(url, timeout=TIMEOUT)
     except Exception:
@@ -292,20 +419,25 @@ def check_url(session, url):
         except Exception as e:
             return True, [{"name": url.rstrip("/").split("/")[-1], "url": url,
                            "category": "—", "issue": "page_error",
-                           "detail": f"немає відповіді: {type(e).__name__}"}]
+                           "detail": f"немає відповіді: {type(e).__name__}"}], None
 
     if r.status_code >= 400:
         return True, [{"name": url.rstrip("/").split("/")[-1], "url": url,
                        "category": "—", "issue": "page_error",
-                       "detail": f"HTTP {r.status_code}"}]
+                       "detail": f"HTTP {r.status_code}"}], None
 
     soup = BeautifulSoup(r.text, "html.parser")
     ld = jsonld(soup)
-    if not is_product(soup, ld):
-        return False, []               # категорія або стаття — не наша справа
-
     name = product_name(soup, url, ld)
     cat = product_category(soup, ld)
+    title, desc = page_meta(soup)
+    meta = {"url": url, "name": name, "category": cat,
+            "title": title, "desc": desc, "is_product": is_product(soup, ld)}
+
+    if not meta["is_product"]:
+        # Категорія або стаття: вміст картки не перевіряємо, а теги — так.
+        return False, [], meta
+
     found = []
 
     text, _ = find_description(soup, ld)
@@ -321,7 +453,7 @@ def check_url(session, url):
         found.append({"name": name, "url": url, "category": cat,
                       "issue": "no_photo", "detail": ""})
 
-    return True, found
+    return True, found, meta
 
 
 # ── прогін ───────────────────────────────────────────────────────────────
@@ -343,6 +475,7 @@ def scan():
     write_progress("Перевіряю сторінки", force=True)
 
     items, errors, products = [], 0, 0
+    pages = []          # title/description усіх сторінок, що відповіли
     local = threading.local()
 
     def worker(url):
@@ -357,18 +490,26 @@ def scan():
         return res
 
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        for was_product, res in pool.map(worker, urls):
-            if was_product:
-                products += 1
+        for was_product, res, meta in pool.map(worker, urls):
+            if meta:
+                pages.append(meta)
+                if meta["is_product"]:
+                    products += 1
             for row in res:
                 if row["issue"] == "page_error":
                     errors += 1
                 items.append(row)
 
-    # Рахуємо тільки сторінки, які виявились картками товару. Категорії й
-    # статті з знаменника викидаємо — інакше «здоров'я каталогу» вийде
-    # завищеним за рахунок сторінок, які ми й не перевіряли.
-    checked = products
+    # Дублі видно тільки після обходу всього сайту, тому ця перевірка —
+    # окремим проходом по вже зібраних сторінках.
+    write_progress("Перевіряю title і description", force=True)
+    items.extend(seo_issues(pages))
+
+    # Знаменник здоров'я — усі сторінки, які ми справді відкрили. Раніше тут
+    # стояли лише картки товару, бо й перевірялись лише вони; тепер теги
+    # перевіряються на всьому сайті, і рахувати відсоток від самих товарів
+    # означало б ділити проблеми категорій на кількість матраців.
+    checked = len(pages)
     counts = {t["key"]: 0 for t in ISSUE_TYPES}
     for row in items:
         counts[row["issue"]] = counts.get(row["issue"], 0) + 1
@@ -378,6 +519,7 @@ def scan():
         "generated_at": datetime.now().strftime("%d.%m.%Y %H:%M"),
         "duration_sec": round(time.time() - started, 1),
         "total_checked": checked,
+        "total_products": products,
         "total_errors": errors,
         "issue_types": [dict(t, count=counts.get(t["key"], 0)) for t in ISSUE_TYPES
                         if counts.get(t["key"], 0) > 0],
@@ -403,6 +545,9 @@ if __name__ == "__main__":
         print(f"  плиток товарів у списку: {sig['tiles']} "
               f"(від {LISTING_MIN_TILES} вважаємо сторінкою-підбіркою)")
         print(f"  Product у мікророзмітці з ціною: {'ТАК' if sig['ld_product_with_offer'] else 'ні'}")
+        title, mdesc = page_meta(soup)
+        print(f"title          : {len(title)} симв. — {title or 'НЕМАЄ'}")
+        print(f"description    : {len(mdesc)} симв. — {mdesc[:120] or 'НЕМАЄ'}")
         print(f"назва          : {product_name(soup, url, ld)}")
         print(f"категорія      : {product_category(soup, ld)}")
         print(f"опис знайдено  : {how or 'НІ — жодна стратегія не спрацювала'}")
