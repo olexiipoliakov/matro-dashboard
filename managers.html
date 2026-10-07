@@ -143,6 +143,11 @@
   /* Підпис під панеллю: який саме період зараз на екрані. Без нього при
      перемиканні стрілками легко загубитись, особливо коли період не день. */
   .pts-sub{font-size:12.5px;color:var(--ink-dim);margin:-6px 0 14px}
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap;transition:color 160ms ease}
+  th.sortable:hover{color:var(--ink)}
+  th.sortable .ar{margin-left:5px;font-size:9px;opacity:.35}
+  th.sortable.sorted{color:var(--accent)}
+  th.sortable.sorted .ar{opacity:1}
   .pts-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
   .day-step{display:flex;align-items:center;gap:6px}
   .day-step .arr{width:34px;height:34px;display:grid;place-items:center;cursor:pointer;
@@ -526,6 +531,41 @@ let PTS_STAFF_MAP={}, PTS_STAFF_LOST=[];
 let PTS_FROM=null, PTS_TO=null, PTS_TAB='sum', PTS_STORE='', PTS_OUTSIDE=0, PTS_NOMGR=0;
 let PTS_INC_OK=true, PTS_ALT_OK=false, PTS_UNMAPPED=0;
 
+// Сортування окремо для кожної таблиці: у підсумку логічно починати з балів
+// (хто попереду), у розбивці по днях — з дати, бо там читають хронологію.
+// Спільний стан зробив би так, що перемикання вкладки щоразу плутало б порядок.
+const PTS_SORT={ sum:{k:'total', d:-1}, days:{k:'date', d:1} };
+// Текст сортуємо за абеткою (за зростанням), числа — від більшого: клікаючи
+// на «Всього балів», людина хоче побачити лідера, а не нулі.
+const PTS_TEXT_KEYS=['name','date'];
+
+function ptsSortBy(tab, key){
+  const st=PTS_SORT[tab];
+  if(st.k===key) st.d=-st.d;
+  else { st.k=key; st.d = PTS_TEXT_KEYS.includes(key) ? 1 : -1; }
+  ptsRender();
+}
+const ptsTh=(tab,key,label,cls)=>{
+  const st=PTS_SORT[tab], on=st.k===key;
+  return `<th class="sortable${on?' sorted':''}${cls?' '+cls:''}" onclick="ptsSortBy('${tab}','${key}')">`
+       + `${label}<span class="ar">${on ? (st.d>0?'▲':'▼') : '▾'}</span></th>`;
+};
+// null у числовій колонці («вхідних не рахували») завжди в кінці, у будь-якому
+// напрямку: інакше при сортуванні за зростанням угорі опиняться прочерки.
+function ptsSortRows(rows, tab, get){
+  const st=PTS_SORT[tab];
+  const txt=PTS_TEXT_KEYS.includes(st.k);
+  return rows.slice().sort((a,b)=>{
+    const x=get(a,st.k), y=get(b,st.k);
+    if(txt) return String(x||'').localeCompare(String(y||''),'uk') * st.d;
+    const ax=(x==null||isNaN(x)), ay=(y==null||isNaN(y));
+    if(ax&&ay) return 0;
+    if(ax) return 1;
+    if(ay) return -1;
+    return (x-y)*st.d;
+  });
+}
+
 // Стадії, у яких угода вважається продажем. Відмова й помилкова
 // викидаються цілою угодою — як і всюди в дашборді.
 const PTS_SALE_STAGES = ['заказ','заказ проведен оператором','товар оплачен',
@@ -784,7 +824,11 @@ function ptsRenderDays(host, rows){
   if(!rows.length){
     host.innerHTML='<div class="empty-note">За цей період даних немає.</div>'; return;
   }
-  const body=rows.map(r=>{
+  const sorted=ptsSortRows(rows, 'days', (r,k)=>
+    k==='name' ? managerName(r.mid) :
+    k==='date' ? r.date :
+    k==='approve' ? r.approve : r[k]);
+  const body=sorted.map(r=>{
     const wd=new Date(r.date+'T12:00:00').getDay();
     const weekend = (wd===0||wd===6) ? ' class="pts-weekend"' : '';
     return `<tr${weekend}>
@@ -800,9 +844,11 @@ function ptsRenderDays(host, rows){
     </tr>`;
   }).join('');
   host.innerHTML=`<div class="table-scroll table-scroll-v"><table class="data-table">
-    <thead><tr><th>Дата</th><th>Менеджер</th><th>Вхідних</th><th>Успішних</th>
-      <th>Аксесуари</th><th>Апрув дня</th><th>Бали за дзвінки</th>
-      <th>Бали за аксесуари</th><th>Всього балів</th></tr></thead>
+    <thead><tr>${ptsTh('days','date','Дата')}${ptsTh('days','name','Менеджер')}
+      ${ptsTh('days','incoming','Вхідних')}${ptsTh('days','success','Успішних')}
+      ${ptsTh('days','acc','Аксесуари')}${ptsTh('days','approve','Апрув дня')}
+      ${ptsTh('days','ptsCall','Бали за дзвінки')}${ptsTh('days','ptsAcc','Бали за аксесуари')}
+      ${ptsTh('days','total','Всього балів')}</tr></thead>
     <tbody>${body}</tbody></table></div>`;
 }
 
@@ -814,7 +860,10 @@ function ptsRenderSum(host, rows){
     a.incoming+=r.incoming||0; a.alt+=r.alt||0; a.success+=r.success; a.acc+=r.acc;
     a.ptsCall+=r.ptsCall; a.ptsAcc+=r.ptsAcc; a.total+=r.total;
   });
-  const list=Object.values(by).sort((a,b)=>b.total-a.total);
+  const rate0 = o => o.incoming ? o.success/o.incoming*100 : null;
+  const list=ptsSortRows(Object.values(by), 'sum', (o,k)=>
+    k==='name' ? managerName(o.mid) :
+    k==='approve' ? rate0(o) : o[k]);
   if(!list.length){ host.innerHTML='<div class="empty-note">За цей період даних немає.</div>'; return; }
   const sum=list.reduce((a,r)=>({incoming:a.incoming+r.incoming, alt:a.alt+r.alt,
     success:a.success+r.success, acc:a.acc+r.acc, ptsCall:a.ptsCall+r.ptsCall,
@@ -850,9 +899,11 @@ function ptsRenderSum(host, rows){
     <td class="pts-total">${ptsNum(o.total, o.incoming>0||o.acc>0)}</td>
     <td class="pts-ctl">${gap(o)}</td></tr>`;
   host.innerHTML=`<div class="table-scroll"><table class="data-table">
-    <thead><tr><th>Менеджер</th><th>Вхідних</th><th>Успішних</th><th>Апрув періоду</th>
-      <th>Аксесуари</th><th>Бали за дзвінки</th><th>Бали за аксесуари</th><th>Всього балів</th>
-      <th class="pts-ctl" title="Той самий місяць, але знаменник з іншого джерела. На бали не впливає — це перевірка, чи не губляться дзвінки або ліди.">Для порівняння: ${altName}</th></tr></thead>
+    <thead><tr>${ptsTh('sum','name','Менеджер')}${ptsTh('sum','incoming','Вхідних')}
+      ${ptsTh('sum','success','Успішних')}${ptsTh('sum','approve','Апрув періоду')}
+      ${ptsTh('sum','acc','Аксесуари')}${ptsTh('sum','ptsCall','Бали за дзвінки')}
+      ${ptsTh('sum','ptsAcc','Бали за аксесуари')}${ptsTh('sum','total','Всього балів')}
+      ${ptsTh('sum','alt','Для порівняння: '+altName,'pts-ctl')}</tr></thead>
     <tbody>${list.map(o=>row(managerName(o.mid),o)).join('')}
       ${row('Разом', sum, ' class="pts-sum"')}</tbody></table></div>`;
 }
