@@ -59,6 +59,15 @@ LOST_AFTER_DAYS = 7
 
 VALID_STATUSES = ("in_progress", "ready")
 
+# Позначки живуть на двох різних списках: сторінки сайту (ключ — URL) і картки
+# з товарного фіда (ключ — "feed:назва"). Списки збираються різними скриптами
+# й ламаються незалежно. Якщо не розрізняти їх, то ніч, коли не зібрався фід,
+# закрила б усі позначки по описах як «зроблено»: у списку проблем їх немає,
+# отже начебто виправлено. Тому кожна позначка знає свій список, і закривається
+# тільки тоді, коли саме цей список прочитався.
+def mark_scope(url):
+    return "feed" if str(url).startswith("feed:") else "page"
+
 
 class StorageError(Exception):
     """Не вдалося записати в таблицю. Піднімаємо нагору, щоб людина побачила
@@ -218,7 +227,7 @@ def _days_since(stamp):
         return 0
 
 
-def list_marks(current_urls=None):
+def list_marks(current_urls=None, scopes_ok=None):
     """Усі позначки. Якщо передати адреси, які сканер ЗАРАЗ вважає
     проблемними, позначки на все інше автоматично закриваються: сканер більше
     не бачить проблеми, отже опис на сайті з'явився.
@@ -241,6 +250,8 @@ def list_marks(current_urls=None):
         if current_urls is not None:
             today = str(date.today())
             for url, m in marks.items():
+                if scopes_ok is not None and not scopes_ok.get(mark_scope(url)):
+                    continue          # цей список зараз невідомий — не чіпаємо
                 if m["status"] in VALID_STATUSES and url not in current_urls:
                     m["status"] = "done"
                     m["done_at"] = today

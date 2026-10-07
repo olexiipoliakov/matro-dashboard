@@ -11,11 +11,14 @@ audit.py — аудит карток товарів на matroluxe.ua.
   3. Для КОЖНОЇ сторінки перевіряє теги видачі:
        no_title / no_meta_desc   — тега немає або він порожній
        dup_title / dup_meta_desc — такий самий текст є ще десь на сайті
-       title_length / desc_length — задовгий (обріжеться) або закороткий
+       title_long / title_short   — обріжеться у видачі або майже порожній
+       desc_long / desc_short     — те саме для meta description
      Дублі рахуються після обходу всього сайту: поки не побачено всі
      сторінки, про повтор нічого сказати не можна.
   4. Для карток товару додатково перевіряє чотири речі:
-       no_description    — вкладки «Опис» немає або вона порожня
+       no_description    — вкладки «Опис» немає, вона порожня або в ній
+                           стоїть сама назва товару (так тема заповнює
+                           порожнє поле, і це довго приймалось за опис)
        short_description — опис є, але коротший за SHORT_LIMIT символів
        no_photo          — фото немає або стоїть заглушка
        page_error        — сторінка є в sitemap, але віддає 404/500/таймаут
@@ -67,18 +70,24 @@ ISSUE_TYPES = [
     {"key": "no_meta_desc",      "label": "Без meta description",      "color": "danger"},
     {"key": "dup_title",         "label": "Дубль title",               "color": "warning"},
     {"key": "dup_meta_desc",     "label": "Дубль meta description",    "color": "warning"},
-    {"key": "title_length",      "label": "Довжина title",             "color": "info"},
-    {"key": "desc_length",       "label": "Довжина meta description",  "color": "info"},
+    {"key": "title_long",        "label": "Title задовгий",            "color": "warning"},
+    {"key": "title_short",       "label": "Title закороткий",          "color": "info"},
+    {"key": "desc_long",         "label": "Опис задовгий",             "color": "warning"},
+    {"key": "desc_short",        "label": "Опис закороткий",           "color": "info"},
     {"key": "no_description",    "label": "Без опису",                 "color": "danger"},
     {"key": "short_description", "label": "Короткий опис",             "color": "warning"},
     {"key": "no_photo",          "label": "Без фото",                  "color": "info"},
 ]
 
-# Межі довжини title і description. Це не вимога пошукових систем — вони
+# Межі довжини title і description. Задовге й закоротке — РІЗНІ знахідки, і
+# саме тому вони розведені в окремі типи. На цьому сайті «закороткий» ловить
+# майже кожну сторінку (шаблонні заголовки на кшталт «Адвент»), і якби обидва
+# випадки лежали в одному чіпі, сорок справді обрізаних заголовків загубились
+# би серед дев'ятисот коротких, а список перестав би бути списком роботи. Це не вимога пошукових систем — вони
 # нічого не обрізають «по символах», а малюють сніпет по ширині. Але рядок
 # довший за TITLE_MAX майже завжди обрізається в видачі, а коротший за
 # TITLE_MIN — ознака не написаного, а згенерованого шаблоном заголовка.
-TITLE_MIN = int(os.environ.get("AUDIT_TITLE_MIN", "25"))
+TITLE_MIN = int(os.environ.get("AUDIT_TITLE_MIN", "20"))
 TITLE_MAX = int(os.environ.get("AUDIT_TITLE_MAX", "65"))
 DESC_MIN  = int(os.environ.get("AUDIT_DESC_MIN", "70"))
 DESC_MAX  = int(os.environ.get("AUDIT_DESC_MAX", "170"))
@@ -379,9 +388,9 @@ def seo_issues(pages):
         else:
             n = len(title)
             if n > TITLE_MAX:
-                found.append(row(pg, "title_length", f"{n} символів — задовгий, обріжеться у видачі"))
+                found.append(row(pg, "title_long", f"{n} символів — обріжеться у видачі"))
             elif n < TITLE_MIN:
-                found.append(row(pg, "title_length", f"{n} символів — закороткий"))
+                found.append(row(pg, "title_short", f"{n} символів"))
             dups = by_title.get(norm_tag(title), [])
             if len(dups) > 1:
                 found.append(row(pg, "dup_title",
@@ -392,14 +401,38 @@ def seo_issues(pages):
         else:
             n = len(desc)
             if n > DESC_MAX:
-                found.append(row(pg, "desc_length", f"{n} символів — задовгий, обріжеться у видачі"))
+                found.append(row(pg, "desc_long", f"{n} символів — обріжеться у видачі"))
             elif n < DESC_MIN:
-                found.append(row(pg, "desc_length", f"{n} символів — закороткий"))
+                found.append(row(pg, "desc_short", f"{n} символів"))
             dups = by_desc.get(norm_tag(desc), [])
             if len(dups) > 1:
                 found.append(row(pg, "dup_meta_desc",
                                  f"такий самий опис ще на {len(dups) - 1} стор."))
     return found
+
+
+def drop_name_echo(text, name):
+    """Опис, який складається з самої назви товару, — це не опис.
+
+    Тема підставляє у вкладку «Опис» заголовок товару, коли поле в базі
+    порожнє. Виглядає як текст, довжина ненульова, і перевірка через це
+    показувала 696 карток без жодної проблеми — при тому, що у фіді шість
+    сотень товарів із порожнім описом, а на самій сторінці, крім назви й
+    таблиці характеристик, нічого немає.
+
+    Повертає (текст, чи_це_була_сама_назва). Залишок коротший за EMPTY_LIMIT
+    теж вважаємо назвою з хвостиком: «... колір Біле дерево» — це все ще не
+    опис товару.
+    """
+    if not text or not name:
+        return text, False
+    norm = lambda s: re.sub(r"[^0-9a-zа-яіїєґ]+", "", str(s or "").lower())
+    t, n = norm(text), norm(name)
+    if not n:
+        return text, False
+    if t == n or (t.startswith(n) and len(t) - len(n) < EMPTY_LIMIT):
+        return "", True
+    return text, False
 
 
 def check_url(session, url):
@@ -441,9 +474,10 @@ def check_url(session, url):
     found = []
 
     text, _ = find_description(soup, ld)
+    text, only_name = drop_name_echo(text, name)
     if not text:
-        found.append({"name": name, "url": url, "category": cat,
-                      "issue": "no_description", "detail": ""})
+        found.append({"name": name, "url": url, "category": cat, "issue": "no_description",
+                      "detail": "у вкладці «Опис» лише назва товару" if only_name else ""})
     elif len(text) < SHORT_LIMIT:
         found.append({"name": name, "url": url, "category": cat,
                       "issue": "short_description",
@@ -523,6 +557,12 @@ def scan():
         "total_errors": errors,
         "issue_types": [dict(t, count=counts.get(t["key"], 0)) for t in ISSUE_TYPES
                         if counts.get(t["key"], 0) > 0],
+        # Перелік усіх знайдених карток товару — не для самого аудиту, а щоб
+        # інші сторінки могли зіставити назву товару з адресою на сайті.
+        # Товарний фід, наприклад, назву має, а посилання — ні, і без цього
+        # списку з нього не можна було б відкрити картку.
+        "products": [{"name": p["name"], "url": p["url"]}
+                     for p in pages if p["is_product"]],
         "items": items,
     }
     return data

@@ -99,6 +99,59 @@ def trigger_bitrix_refresh():
         _last_bitrix_trigger = now
     threading.Thread(target=lambda: run_script("fetch_bitrix.py"), daemon=True).start()
 
+# Ручне оновлення CRM кнопкою «Оновити дані» на сторінці Bitrix. Дані
+# збираються раз на добу, а менеджеру часом треба побачити угоду, оформлену
+# десять хвилин тому, — без цього він дивиться на вчорашній зріз і не розуміє,
+# чому його продажу немає.
+_bitrix_running = False
+_bitrix_run_lock = threading.Lock()
+
+
+def _bitrix_worker():
+    global _bitrix_running
+    try:
+        run_script("fetch_bitrix.py", timeout=1800)
+    finally:
+        with _bitrix_run_lock:
+            _bitrix_running = False
+
+
+def start_bitrix_refresh():
+    """True — запустили, False — вже виконується."""
+    global _bitrix_running
+    with _bitrix_run_lock:
+        if _bitrix_running:
+            return False
+        _bitrix_running = True
+    threading.Thread(target=_bitrix_worker, daemon=True).start()
+    return True
+
+
+@app.route("/api/bitrix/refresh", methods=["POST"])
+@requires_auth
+def bitrix_refresh():
+    if not start_bitrix_refresh():
+        return jsonify({"status": "already_running"}), 409
+    return jsonify({"status": "started"}), 202
+
+
+@app.route("/api/bitrix/refresh/status")
+@requires_auth
+def bitrix_refresh_status():
+    # Чи живий процес — знає тільки сервер; час зрізу читаємо з самого файлу,
+    # щоб сторінка могла зрозуміти, що дані вже змінились, і перечитати їх.
+    stamp = ""
+    f = BASE_DIR / "bitrix_data.json"
+    if f.exists():
+        try:
+            stamp = json.loads(f.read_text(encoding="utf-8")).get("generated_at", "")
+        except Exception:
+            stamp = ""
+    with _bitrix_run_lock:
+        running = _bitrix_running
+    return jsonify({"running": running, "generated_at": stamp})
+
+
 @app.route("/webhook/bitrix", methods=["POST"])
 def bitrix_webhook():
     # Bitrix надсилає application/x-www-form-urlencoded з полем
@@ -289,6 +342,47 @@ def scheduled_audit():
     if not start_audit():
         print("[scheduler] аудит вже виконується — пропускаю запуск за розкладом", flush=True)
 
+# Фід описів. Завантаження й розбір — секунди, тому окрема кнопка: після
+# того, як контент-менеджер залив описи, він має побачити, що лічильник
+# зменшився, не чекаючи ні нічного запуску, ні дев'ятихвилинного скану сайту.
+_feed_running = False
+_feed_lock = threading.Lock()
+
+
+def _feed_worker():
+    global _feed_running
+    try:
+        run_script("fetch_feed.py", timeout=300)
+    finally:
+        with _feed_lock:
+            _feed_running = False
+
+
+@app.route("/api/feed/refresh", methods=["POST"])
+@requires_auth
+def feed_refresh():
+    global _feed_running
+    with _feed_lock:
+        if _feed_running:
+            return jsonify({"status": "already_running"}), 409
+        _feed_running = True
+    threading.Thread(target=_feed_worker, daemon=True).start()
+    return jsonify({"status": "started"}), 202
+
+
+@app.route("/api/feed/status")
+@requires_auth
+def feed_status():
+    stamp = ""
+    data = _read_json("feed_data.json")
+    if data:
+        stamp = data.get("generated_at", "")
+    with _feed_lock:
+        running = _feed_running
+    return jsonify({"running": running, "generated_at": stamp,
+                    "last_run": LAST_RUN.get("fetch_feed.py")})
+
+
 @app.route("/api/audit/scan", methods=["POST"])
 @requires_auth
 def audit_scan():
@@ -303,27 +397,45 @@ import audit_store
 
 
 def _current_problem_urls():
-    """Адреси, які останній скан вважає проблемними.
+    """Що саме зараз вважається проблемним — і за сторінками сайту, і за
+    товарним фідом. Повертає (множина ключів, які списки прочитались).
 
-    Повертаємо None, якщо файл аудиту не читається: для audit_store це сигнал
-    «список проблем невідомий», і він не стане закривати позначки. Інакше
-    через одну збійну ночі всі незавершені картки разом оголосили б
-    зробленими.
+    Список, який не прочитався, позначаємо як невідомий, і audit_store не
+    закриває позначки з нього. Інакше одна збійна ніч оголосила б усі
+    незавершені картки зробленими — їх же немає в списку проблем.
     """
-    f = BASE_DIR / "audit_data.json"
+    urls, scopes = set(), {"page": False, "feed": False}
+
+    data = _read_json("audit_data.json")
+    if data is not None:
+        urls |= {i.get("url") for i in (data.get("items") or []) if i.get("url")}
+        scopes["page"] = True
+
+    feed = _read_json("feed_data.json")
+    if feed is not None:
+        urls |= {i.get("key") for i in (feed.get("items") or []) if i.get("key")}
+        scopes["feed"] = True
+
+    if not any(scopes.values()):
+        return None, None
+    return urls, scopes
+
+
+def _read_json(name):
+    f = BASE_DIR / name
     if not f.exists():
         return None
     try:
-        data = json.loads(f.read_text(encoding="utf-8"))
+        return json.loads(f.read_text(encoding="utf-8"))
     except Exception:
         return None
-    return {i.get("url") for i in (data.get("items") or []) if i.get("url")}
 
 
 @app.route("/api/audit/marks", methods=["GET"])
 @requires_auth
 def audit_marks_list():
-    return jsonify({"marks": audit_store.list_marks(_current_problem_urls()),
+    urls, scopes = _current_problem_urls()
+    return jsonify({"marks": audit_store.list_marks(urls, scopes),
                     **audit_store.status()})
 
 
@@ -421,6 +533,7 @@ def _data_is_fresh():
 # Який скрипт відповідає за який файл. Потрібно, щоб після деплою спершу
 # зібрати те, чого на диску НЕМАЄ, а не йти по черзі з початку.
 FILE_OWNER = {
+    "feed_data.json": "fetch_feed.py",
     "ringostat_data.json": "fetch_ringostat.py",
     "bitrix_data.json": "fetch_bitrix.py",
     "seo_data.json": "fetch_gsc.py",

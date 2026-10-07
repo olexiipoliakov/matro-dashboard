@@ -131,6 +131,14 @@
     animation:rise .5s cubic-bezier(.2,.8,.2,1) .2s forwards}
 
   /* ── фільтри-чіпи по типах проблем ── */
+  .mode-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .mode-btn{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:9px 16px;
+    transition:all 160ms ease}
+  .mode-btn:hover{color:var(--ink);border-color:var(--border-strong)}
+  .mode-btn.on{color:var(--audit);background:rgba(94,231,176,.12);border-color:rgba(94,231,176,.35)}
+  .mode-btn .ct{margin-left:7px;opacity:.75;font-variant-numeric:tabular-nums}
+  /* Уточнення під бейджем проблеми */
   .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
   .chip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
     color:var(--ink-soft);background:rgba(255,255,255,.03);border:1px solid var(--border);
@@ -287,22 +295,22 @@
 
   <div class="kpi-row">
     <div class="kpi">
-      <div class="l">Перевірено сторінок</div>
+      <div class="l" id="l-total">Перевірено сторінок</div>
       <div class="v" id="k-total">—</div>
       <div class="h" id="k-total-h">за останній скан</div>
     </div>
     <div class="kpi bad">
-      <div class="l">Сторінок з проблемами</div>
+      <div class="l" id="l-problems">Сторінок з проблемами</div>
       <div class="v" id="k-problems">—</div>
       <div class="h" id="k-problems-h">потребують уваги</div>
     </div>
     <div class="kpi good">
-      <div class="l">Індекс здоров'я</div>
+      <div class="l" id="l-health">Індекс здоров'я</div>
       <div class="v" id="k-health">—</div>
       <div class="health-track"><span id="k-health-bar"></span></div>
     </div>
     <div class="kpi">
-      <div class="l">Тривалість скану</div>
+      <div class="l" id="l-time">Тривалість скану</div>
       <div class="v" id="k-time">—</div>
       <div class="h" id="k-time-h">—</div>
     </div>
@@ -310,6 +318,11 @@
 
   <div class="panel">
     <div class="store-note" id="store-note"><i data-lucide="alert-triangle"></i><span id="store-note-text"></span></div>
+
+    <div class="mode-row">
+      <button class="mode-btn on" data-mode="pages">Сторінки сайту</button>
+      <button class="mode-btn" data-mode="feed">Описи товарів <span class="ct" id="mode-feed-ct"></span></button>
+    </div>
 
     <div class="chips" id="chips"></div>
 
@@ -360,6 +373,7 @@ let DATA=null, TYPES={}, shown=PAGE;
 // MARKS: {url: {status, author, updated_at, days, lost}} — хто взяв картку в
 // роботу і коли. Живе окремо від DATA, бо DATA перезаписується кожним сканом.
 let MARKS={}, LOST_DAYS=7, DONE_COUNT=0;
+let MODE='pages';
 const state={issue:'', cat:'', q:'', sort:'cat'};
 
 const MARK_LABEL={in_progress:'В роботі', ready:'Текст готовий', done:'Зроблено'};
@@ -398,38 +412,135 @@ async function load(){
     return;
   }
 
-  TYPES={};
-  (DATA.issue_types||[]).forEach(t=>TYPES[t.key]=t);
-
-  document.getElementById('demo-note').classList.toggle('show', !!DATA.demo);
-
-  const total=DATA.total_checked||0;
-  const items=DATA.items||[];
-  // Один товар може мати кілька проблем одразу — рахуємо унікальні URL,
-  // інакше «проблемних товарів» вийде більше, ніж усього перевірено.
-  const problems=new Set(items.map(i=>i.url)).size;
-  const health= total ? Math.round((total-problems)/total*100) : 0;
-
-  document.getElementById('k-total').textContent=fmt(total);
-  // Окремо показуємо, скільки з них картки товару: теги перевіряються на
-  // всьому сайті, а опис і фото — тільки на товарах, і без цього числа
-  // незрозуміло, від чого рахується «без опису».
-  document.getElementById('k-total-h').textContent = DATA.total_products
-    ? `з них ${fmt(DATA.total_products)} карток товару` : 'за останній скан';
-  document.getElementById('k-problems').textContent=fmt(problems);
-  document.getElementById('k-problems-h').textContent= total ? `${Math.round(problems/total*100)}% сторінок` : '—';
-  document.getElementById('k-health').textContent=health+'%';
-  document.getElementById('k-health-bar').style.width=health+'%';
-  document.getElementById('k-time').textContent=humanDuration(DATA.duration_sec);
-  document.getElementById('k-time-h').textContent= DATA.total_errors ? `${DATA.total_errors} стор. не відповіли` : 'без помилок';
-  document.getElementById('scan-meta').innerHTML= DATA.generated_at
-    ? `Останній скан<br>${esc(DATA.generated_at)}` : 'Даних ще немає';
+  PAGES_DATA=DATA;
+  await loadFeed();
+  applyMode();
 
   await loadMarks();
 
   renderChips();
   renderCats();
   render();
+}
+
+// ── Два списки на одній сторінці ─────────────────────────────────────────
+// Сторінки сайту збирає сканер, описи — товарний фід. Це різні джерела з
+// різними знаменниками, тому вони не зливаються в один список: злиті, вони
+// дали б «здоров'я», поділене невідомо на що. Перемикач показує то одне, то
+// інше, а позначки роботи спільні — людині однаково, звідки взялась картка.
+let PAGES_DATA=null, FEED_DATA=null, FEED_RAW=null;
+
+async function loadFeed(){
+  try{
+    const r=await fetch('feed_data.json?_='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    FEED_RAW=await r.json();
+  }catch(e){ FEED_RAW=null; }
+  FEED_DATA=FEED_RAW ? feedToItems(FEED_RAW) : null;
+  const ct=document.getElementById('mode-feed-ct');
+  if(ct) ct.textContent = FEED_DATA ? fmt(FEED_DATA.items.length) : '';
+}
+
+// Рядки фіда → такі самі рядки, як у сканера, щоб таблиця, фільтри,
+// сортування й позначки працювали без другого набору коду.
+// Групування по моделях робить fetch_feed.py: 599 позицій без опису — це
+// дев'ять моделей, решта різниця лише в розмірі й кольорі, а опис у них
+// спільний. url у рядку — ключ позначки, посилання на сайт лежать окремо.
+function feedToItems(raw){
+  const items=(raw.items||[]).map(i=>({
+    name: i.title, url: i.key, link: i.url||'', link2: i.url_filled||'',
+    category: i.category||'—',
+    issue: i.kind==='copy' ? 'feed_copy' : 'feed_write',
+    detail: [
+      `${i.variants} варіант${i.variants===1?'' : i.variants<5?'и':'ів'} без опису`,
+      i.kind==='copy' ? 'текст уже є в іншого варіанта — залишилось розставити'
+                      : 'тексту немає в жодного варіанта',
+    ].join(' · '),
+  }));
+  const n=k=>items.filter(i=>i.issue===k).length;
+  return {
+    generated_at: raw.generated_at, duration_sec: raw.duration_sec,
+    total_checked: raw.total||0, total_errors: 0, feed: raw,
+    issue_types: [
+      {key:'feed_write', label:'Написати текст',        color:'danger',  count:n('feed_write')},
+      {key:'feed_copy',  label:'Розставити наявний',    color:'warning', count:n('feed_copy')},
+    ].filter(t=>t.count>0),
+    items,
+  };
+}
+
+function applyMode(){
+  DATA = (MODE==='feed' && FEED_DATA) ? FEED_DATA : PAGES_DATA;
+  TYPES={};
+  (DATA.issue_types||[]).forEach(t=>TYPES[t.key]=t);
+  document.getElementById('demo-note').classList.toggle('show', !!DATA.demo);
+  renderKpi();
+  const btn=document.getElementById('scan-btn');
+  btn.innerHTML = btnIdle();
+  icons();
+}
+
+function renderKpi(){
+  const el=id=>document.getElementById(id);
+  // Підписи KPI теж змінюються: у режимі описів «перевірено сторінок» —
+  // неправда, там рахуються позиції фіда, а не сторінки сайту.
+  const lab=(id,txt)=>{ const e=document.getElementById(id); if(e) e.textContent=txt; };
+  if(MODE==='feed'){
+    lab('l-total','Позицій у фіді'); lab('l-problems','Моделей без опису');
+    lab('l-health','Покриття описами'); lab('l-time','Обсяг роботи');
+    const f=DATA.feed||{};
+    const total=f.total||0, missing=f.missing||0;
+    const cover= total ? Math.round((total-missing)/total*100) : 0;
+    el('k-total').textContent=fmt(total);
+    el('k-total-h').textContent='позицій у товарному фіді';
+    // Головне число тут — моделі, бо стільки треба текстів. Позиції (те саме
+    // 599, яке називав підрядник) лишаємо підписом: без них не зійдуться
+    // цифри в розмові, з ними одними — незрозумілий обсяг роботи.
+    el('k-problems').textContent=fmt(f.missing_cards||0);
+    // Дві цифри поруч навмисно: у фіді один товар стоїть кількома рядками —
+    // по одному на розмір, — а опис у нього спільний і пишеться один раз.
+    el('k-problems-h').textContent = `${fmt(missing)} позицій у фіді`;
+    el('k-health').textContent=cover+'%';
+    el('k-health-bar').style.width=cover+'%';
+    el('k-time').textContent = f.to_write!=null ? fmt(f.to_write) : '—';
+    el('k-time-h').textContent = f.to_write!=null
+      ? `текстів писати · ще ${fmt(f.to_copy||0)} розставити` : '—';
+    el('scan-meta').innerHTML = DATA.generated_at
+      ? `Фід прочитано<br>${esc(DATA.generated_at)}` : 'Фід ще не читали';
+    return;
+  }
+  lab('l-total','Перевірено сторінок'); lab('l-problems','Сторінок з проблемами');
+  lab('l-health',"Індекс здоров'я"); lab('l-time','Тривалість скану');
+  const total=DATA.total_checked||0;
+  const items=DATA.items||[];
+  // Один товар може мати кілька проблем одразу — рахуємо унікальні URL,
+  // інакше «проблемних товарів» вийде більше, ніж усього перевірено.
+  const problems=new Set(items.map(i=>i.url)).size;
+  const health= total ? Math.round((total-problems)/total*100) : 0;
+  el('k-total').textContent=fmt(total);
+  // Окремо показуємо, скільки з них картки товару: теги перевіряються на
+  // всьому сайті, а опис і фото — тільки на товарах, і без цього числа
+  // незрозуміло, від чого рахується «без опису».
+  el('k-total-h').textContent = DATA.total_products
+    ? `з них ${fmt(DATA.total_products)} карток товару` : 'за останній скан';
+  el('k-problems').textContent=fmt(problems);
+  el('k-problems-h').textContent= total ? `${Math.round(problems/total*100)}% сторінок` : '—';
+  el('k-health').textContent=health+'%';
+  el('k-health-bar').style.width=health+'%';
+  el('k-time').textContent=humanDuration(DATA.duration_sec);
+  el('k-time-h').textContent= DATA.total_errors ? `${DATA.total_errors} стор. не відповіли` : 'без помилок';
+  el('scan-meta').innerHTML= DATA.generated_at
+    ? `Останній скан<br>${esc(DATA.generated_at)}` : 'Даних ще немає';
+}
+
+function switchMode(mode){
+  if(mode==='feed' && !FEED_DATA){
+    toast('Фід ще не читали — натисніть «Оновити фід»');
+  }
+  MODE=mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
+  state.issue=''; state.cat=''; shown=PAGE;
+  applyMode(); renderChips(); renderCats(); render();
 }
 
 async function loadMarks(){
@@ -485,7 +596,7 @@ function renderChips(){
   const all=(DATA.items||[]).length;
   const host=document.getElementById('chips');
   host.innerHTML=[`<div class="chip ${state.issue===''?'on':''}" data-issue="">
-      <span class="dot2" style="background:${ISSUE_COLORS.neutral}"></span>Усі проблеми<span class="ct">${fmt(all)}</span></div>`]
+      <span class="dot2" style="background:${ISSUE_COLORS.neutral}"></span>${MODE==='feed'?'Усі моделі':'Усі проблеми'}<span class="ct">${fmt(all)}</span></div>`]
     .concat(types.map(t=>`<div class="chip ${state.issue===t.key?'on':''}" data-issue="${esc(t.key)}">
       <span class="dot2" style="background:${ISSUE_COLORS[t.color]||ISSUE_COLORS.neutral}"></span>${esc(t.label)}<span class="ct">${fmt(t.count)}</span></div>`))
     .join('');
@@ -532,7 +643,7 @@ function filtered(){
   let rows=(DATA.items||[]).filter(i=>
     (!state.issue || markMatch(i)) &&
     (!state.cat   || i.category===state.cat) &&
-    (!q || String(i.name||'').toLowerCase().includes(q) || String(i.url||'').toLowerCase().includes(q))
+    (!q || `${i.name||''} ${i.url||''} ${i.detail||''}`.toLowerCase().includes(q))
   );
   const lab=k=>(TYPES[k]||{}).label||k||'';
   // Порядок сортування за статусом обраний за терміновістю: спершу те, що
@@ -574,7 +685,7 @@ function render(){
   document.getElementById('tbl-host').innerHTML=`
     <div class="tbl-wrap"><table>
       <thead><tr>
-        ${th('name','Сторінка')}${th('cat','Категорія')}${th('issue','Проблема')}${th('mark','Робота')}<th></th>
+        ${th('name', MODE==='feed'?'Модель':'Сторінка')}${th('cat','Категорія')}${th('issue','Проблема')}${th('mark','Робота')}<th></th>
       </tr></thead>
       <tbody>${page.map(i=>{
         const t=TYPES[i.issue]||{label:i.issue,color:'neutral'};
@@ -598,8 +709,12 @@ function render(){
             </select>
             ${note?`<div class="mark-note">${note}</div>`:''}
           </td>
-          <td class="c-open"><a href="${esc(i.url)}" target="_blank" rel="noopener" title="Відкрити на сайті">
-            <i data-lucide="external-link"></i></a></td>
+          <td class="c-open">${(i.link||i.url||'').startsWith('http')
+            ? `<a href="${esc(i.link||i.url)}" target="_blank" rel="noopener" title="Відкрити картку без опису">
+                 <i data-lucide="external-link"></i></a>` : ''}
+            ${(i.link2||'').startsWith('http')
+            ? `<a href="${esc(i.link2)}" target="_blank" rel="noopener" title="Варіант, у якого текст уже є — звідси копіювати">
+                 <i data-lucide="copy"></i></a>` : ''}</td>
         </tr>`;
       }).join('')}</tbody>
     </table></div>`;
@@ -633,13 +748,15 @@ document.getElementById('more-btn').addEventListener('click',()=>{ shown+=PAGE; 
 
 // ── запуск скану і стеження за прогресом ────────────────────────────────
 const btn=document.getElementById('scan-btn');
-const btnIdle='<i data-lucide="radar"></i> Запустити скан';
+const btnIdle=()=> MODE==='feed'
+  ? '<i data-lucide="refresh-cw"></i> Оновити фід'
+  : '<i data-lucide="radar"></i> Запустити скан';
 let polling=null;
 
 function setBusy(on, text){
   btn.disabled=on;
   btn.classList.toggle('busy',on);
-  btn.innerHTML = on ? `<i data-lucide="loader"></i> ${esc(text||'Сканую…')}` : btnIdle;
+  btn.innerHTML = on ? `<i data-lucide="loader"></i> ${esc(text||'Сканую…')}` : btnIdle();
   icons();
 }
 
@@ -669,7 +786,37 @@ function startPolling(){
   pollStatus();
 }
 
+// Читання фіда — секунди, скан сайту — хвилини. Тому кнопка одна, а дія
+// залежить від того, який список зараз відкритий: оновлювати дев'ять хвилин
+// усе підряд, коли людина чекає нову цифру по описах, безглуздо.
+async function runFeed(){
+  setBusy(true,'Читаю фід…');
+  const was=FEED_RAW && FEED_RAW.generated_at;
+  try{
+    const r=await fetch('/api/feed/refresh',{method:'POST'});
+    if(r.status!==409 && !r.ok) throw new Error('HTTP '+r.status);
+  }catch(e){ setBusy(false); return toast('Не вдалося запустити: '+e.message); }
+
+  let tries=0;
+  const t=setInterval(async()=>{
+    tries++;
+    let st;
+    try{ st=await (await fetch('/api/feed/status?_='+Date.now())).json(); }catch(e){ return; }
+    if(st.running) return;
+    if(st.generated_at && st.generated_at!==was){
+      clearInterval(t); setBusy(false);
+      await loadFeed(); applyMode(); renderChips(); renderCats(); render();
+      toast('Фід оновлено');
+    }else if(tries>4){
+      clearInterval(t); setBusy(false);
+      toast('Фід не оновився — подивіться /api/data/status');
+    }
+    if(tries>40){ clearInterval(t); setBusy(false); }
+  }, 3000);
+}
+
 btn.addEventListener('click',async()=>{
+  if(MODE==='feed') return runFeed();
   setBusy(true,'Запускаю…');
   try{
     const r=await fetch('/api/audit/scan',{method:'POST'});
@@ -682,6 +829,9 @@ btn.addEventListener('click',async()=>{
     toast('Не вдалося запустити скан: '+e.message);
   }
 });
+
+document.querySelectorAll('.mode-btn').forEach(b=>
+  b.addEventListener('click',()=>switchMode(b.dataset.mode)));
 
 // Скан міг стартувати за розкладом або з іншої вкладки — показуємо прогрес
 // одразу при відкритті сторінки, а не тільки після натискання кнопки.

@@ -48,6 +48,18 @@ jobs:
         continue-on-error: true
         run: python audit.py
 
+      # Після аудиту, а не до нього: фід бере з audit_data.json перелік
+      # сторінок товарів, щоб підставити посилання до назв.
+      - name: Run product feed check
+        continue-on-error: true
+        env:
+          # Адреса Google-фіда містить токен, тому лежить у секретах, а не в
+          # коді: репозиторій публічний. Без неї збір працює — просто
+          # посилання на картки підставляються за назвою, і лише для назв,
+          # які зустрічаються один раз.
+          GOOGLE_FEED_URL: ${{ secrets.GOOGLE_FEED_URL }}
+        run: python fetch_feed.py
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
@@ -58,5 +70,6 @@ jobs:
           git add seo_data.json 2>/dev/null || true
           git add bitrix_data.json 2>/dev/null || true
           git add audit_data.json 2>/dev/null || true
+          git add feed_data.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Update dashboard data $(date +'%Y-%m-%d')"
           git push
