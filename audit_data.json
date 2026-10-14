@@ -1,9 +1,9 @@
 {
   "demo": false,
-  "generated_at": "14.10.2026 11:15",
-  "duration_sec": 581.3,
-  "total_checked": 1048,
-  "total_products": 696,
+  "generated_at": "14.10.2026 21:35",
+  "duration_sec": 491.4,
+  "total_checked": 1049,
+  "total_products": 697,
   "total_errors": 0,
   "issue_types": [
     {
@@ -28,7 +28,7 @@
       "key": "title_long",
       "label": "Title задовгий",
       "color": "warning",
-      "count": 879
+      "count": 880
     },
     {
       "key": "title_short",
@@ -40,7 +40,7 @@
       "key": "desc_long",
       "label": "Опис задовгий",
       "color": "warning",
-      "count": 21
+      "count": 20
     },
     {
       "key": "desc_short",
@@ -1069,6 +1069,10 @@
     {
       "name": "Ліжко Sacramento/Сакраменто",
       "url": "https://matroluxe.ua/ua/krovat-sakramento-osnova-1"
+    },
+    {
+      "name": "Ліжко Selen/Селен",
+      "url": "https://matroluxe.ua/ua/krovat-selen"
     },
     {
       "name": "Ліжко-топчан Junior/Джуніор",
@@ -5658,6 +5662,13 @@
       "detail": "99 символів — обріжеться у видачі"
     },
     {
+      "name": "Ліжко Selen/Селен",
+      "url": "https://matroluxe.ua/ua/krovat-selen",
+      "category": "HoReCa",
+      "issue": "title_long",
+      "detail": "88 символів — обріжеться у видачі"
+    },
+    {
       "name": "Ліжко-топчан Junior/Джуніор",
       "url": "https://matroluxe.ua/ua/krovat-topchan-junior",
       "category": "Ліжка",
@@ -7849,18 +7860,11 @@
       "detail": "175 символів — обріжеться у видачі"
     },
     {
-      "name": "Двоспальні ліжка з м'яким узголів'ям",
+      "name": "Ліжко з м'яким узголів'ям",
       "url": "https://matroluxe.ua/ua/s-myagkim-izgolovem-krovati-dvuspalnye",
       "category": "Двоярусні",
       "issue": "title_long",
-      "detail": "97 символів — обріжеться у видачі"
-    },
-    {
-      "name": "Двоспальні ліжка з м'яким узголів'ям",
-      "url": "https://matroluxe.ua/ua/s-myagkim-izgolovem-krovati-dvuspalnye",
-      "category": "Двоярусні",
-      "issue": "desc_long",
-      "detail": "177 символів — обріжеться у видачі"
+      "detail": "74 символів — обріжеться у видачі"
     },
     {
       "name": "Шафи-купе з піскоструменем",
