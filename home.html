@@ -681,6 +681,49 @@ function kpiStep(delta){
   kpiPickDay(kpiIso(d));
 }
 
+// ── свіжість даних ───────────────────────────────────────────────────────
+// Збір CRM іде за розкладом що півгодини. Якщо сторінку відкрили в проміжку
+// і зріз старший за STALE_MIN, запускаємо збір самі й перемальовуємо, коли
+// він закінчиться. Людина заходить подивитись, як справи зараз, — вона не
+// повинна знати про існування кнопки оновлення на іншій сторінці.
+const STALE_MIN = 20;
+let autoPoll = null;
+
+function ageMin(stamp){
+  if(!stamp) return Infinity;
+  const t = Date.parse(String(stamp).replace(' ', 'T'));   // місцевий час сервера
+  return isNaN(t) ? Infinity : (Date.now() - t) / 60000;
+}
+
+async function maybeAutoRefresh(stamp){
+  if(autoPoll || ageMin(stamp) <= STALE_MIN) return;
+  const was = stamp || '';
+  const note = document.getElementById('kpi-note');
+  const prev = note ? note.textContent : '';
+  if(note) note.textContent = 'Дані застаріли — оновлюю…';
+  try{
+    const r = await fetch('/api/bitrix/refresh', {method:'POST'});
+    if(!r.ok && r.status !== 409) throw new Error('HTTP ' + r.status);
+  }catch(e){
+    if(note) note.textContent = prev;
+    return;
+  }
+  let tries = 0;
+  autoPoll = setInterval(async () => {
+    tries++;
+    let st;
+    try{ st = await (await fetch('/api/bitrix/refresh/status?_=' + Date.now())).json(); }
+    catch(e){ return; }
+    if(st.running) return;
+    clearInterval(autoPoll); autoPoll = null;
+    // Перечитуємо файл, тільки якщо зріз справді змінився: інакше збір
+    // закінчився помилкою, і показувати «оновлено» було б неправдою.
+    if(st.generated_at && st.generated_at !== was) loadCRM();
+    else if(note) note.textContent = prev;
+  }, 4000);
+  setTimeout(() => { if(autoPoll){ clearInterval(autoPoll); autoPoll = null; } }, 300000);
+}
+
 async function loadCRM(){
   try{
     const res=await fetch('bitrix_data.json?_='+Date.now());
@@ -699,6 +742,7 @@ async function loadCRM(){
     // звернення до сервера.
     CRM_RAW = data;
     renderKpi();
+    maybeAutoRefresh(data.generated_at);
 
     const byDate={};
     let wonCount=0, lostCount=0;

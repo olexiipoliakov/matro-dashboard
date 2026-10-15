@@ -76,11 +76,19 @@ def run_script(name, timeout=1200):
                           "seconds": round(time.time() - started), "note": str(e)[:300]}
         print(f"[scheduler] {name} впав: {e}", flush=True)
 
-def run_all_periodic():
-    run_script("fetch_meta.py")
-    run_script("fetch_gsc.py")
+# Збір розділено на два розклади, бо джерела живуть із різною швидкістю.
+# CRM і дзвінки міняються протягом дня — угоду оформили о другій, і о другій
+# же її хочуть побачити. Реклама й Search Console оновлюються на стороні
+# Google і Meta раз на кілька годин, тягати їх частіше немає сенсу: це довгі
+# запити, які на 0.5 CPU займають сервер на хвилини.
+def run_fast_periodic():
     run_script("fetch_bitrix.py")
     run_script("fetch_ringostat.py")
+
+
+def run_slow_periodic():
+    run_script("fetch_meta.py")
+    run_script("fetch_gsc.py")
 
 # ── Вебхук з Bitrix — миттєве оновлення при зміні угоди/ліда ────────────
 WEBHOOK_SECRET = os.environ.get("BITRIX_INCOMING_WEBHOOK_SECRET", "")
@@ -484,7 +492,10 @@ def audit_status():
 
 # ── Планувальник: fetch_meta/gsc/bitrix раз на 3 години ─────────────────
 scheduler = BackgroundScheduler()
-scheduler.add_job(run_all_periodic, "interval", hours=3, id="periodic_fetch")
+scheduler.add_job(run_fast_periodic, "interval", minutes=30, id="fast_fetch",
+                  max_instances=1, coalesce=True)
+scheduler.add_job(run_slow_periodic, "interval", hours=3, id="slow_fetch",
+                  max_instances=1, coalesce=True)
 # Аудит — раз на добу о 01:00 UTC (04:00 за Києвом): вночі і сайт вільний,
 # і зранку на дашборді вже свіжі дані.
 scheduler.add_job(scheduled_audit, "cron", hour=1, minute=0, id="daily_audit")
@@ -560,7 +571,8 @@ def _first_run():
         print(f"[scheduler] решта даних свіжіша за {FRESH_HOURS} год — повний збір пропускаю", flush=True)
         return
     print("[scheduler] стартовий збір даних", flush=True)
-    run_all_periodic()
+    run_fast_periodic()
+    run_slow_periodic()
 
 
 threading.Thread(target=_first_run, daemon=True).start()
