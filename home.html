@@ -307,9 +307,9 @@
   </header>
 
   <div class="kpi-bar">
-    <button class="pbtn" id="kb-today" onclick="kpiPreset('today',this)">Сьогодні</button>
+    <button class="pbtn active" id="kb-today" onclick="kpiPreset('today',this)">Сьогодні</button>
     <button class="pbtn" id="kb-yest" onclick="kpiPreset('yesterday',this)">Вчора</button>
-    <button class="pbtn active" id="kb-all" onclick="kpiPreset('all',this)">Всі</button>
+    <button class="pbtn" id="kb-all" onclick="kpiPreset('all',this)">Всі</button>
     <div class="day-step">
       <button class="arr" id="kb-prev" onclick="kpiStep(-1)" title="Попередній день">◀</button>
       <input type="date" id="kb-date" onchange="kpiPickDay(this.value)" title="Один конкретний день">
@@ -565,7 +565,14 @@ async function loadSEO(){
 }
 
 // ── ключові показники з перемикачем періоду ──────────────────────────────
-let CRM_RAW=null, KPI_FROM=null, KPI_TO=null;
+// Головна відкривається на сьогоднішньому дні, а не на всьому періоді.
+// Керівник заходить сюди з питанням «як ми йдемо сьогодні», і сума за три
+// місяці на його місці — не відповідь. «Всі» лишаються кнопкою поруч.
+const KPI_START = (() => {
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+})();
+let CRM_RAW=null, KPI_FROM=KPI_START, KPI_TO=KPI_START;
 
 // Методика та сама, що на сторінці CRM: відмови, помилкові й рекламації
 // прибираються ЦІЛОЮ угодою, оборот береться за товарними рядками.
