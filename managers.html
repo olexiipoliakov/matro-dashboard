@@ -415,8 +415,6 @@
       <div class="period-btns">
         <button class="pbtn" data-p="today" onclick="ptsPreset('today',this)">Сьогодні</button>
         <button class="pbtn" data-p="yday"  onclick="ptsPreset('yday',this)">Вчора</button>
-        <button class="pbtn" data-p="week"  onclick="ptsPreset('week',this)">7 днів</button>
-        <button class="pbtn" data-p="month" onclick="ptsPreset('month',this)">Місяць</button>
       </div>
       <div class="day-step">
         <button class="arr" id="pts-prev" onclick="ptsShift(-1)" title="Попередній період">◀</button>
@@ -574,6 +572,12 @@ const PTS_SALE_STAGES = ['заказ','заказ проведен операт�
 // Джерела, які вважаються дзвінком. Той самий список, що в колонках
 // конверсії на сторінці CRM — щоб два екрани не рахували по-різному.
 const PTS_CALL_SRC = ['CALL','CALLBACK','Обратный звонок','WEB - Зворотний дзвінок'];
+
+// Кого не показувати в таблиці балів. У конкурсі беруть участь менеджери
+// продажів; керівник і службові облікові записи дають рядки з нулями, які
+// ніхто не читає, і при цьому підмішують свої дзвінки в рядок «Разом».
+// Прибираємо повністю — і з таблиці, і з підсумку.
+const PTS_HIDE_MANAGERS = ['122', '14'];   // Олексій Поляков; ID 14 — без імені в CRM
 const ptsIsCall = x => PTS_CALL_SRC.includes(x.source_id);
 
 const ptsStageName = id => String(((META.stages||{})[id]||{}).name||'').trim().toLowerCase();
@@ -725,8 +729,6 @@ function ptsPreset(kind, btn){
   const today=ptsToday();
   if(kind==='today'){ PTS_FROM=PTS_TO=today; }
   else if(kind==='yday'){ PTS_FROM=PTS_TO=ptsAddDays(today,-1); }
-  else if(kind==='week'){ PTS_TO=today; PTS_FROM=ptsAddDays(today,-6); }
-  else if(kind==='month'){ PTS_TO=today; PTS_FROM=today.slice(0,8)+'01'; }
   ptsSyncInputs(); ptsRender();
 }
 
@@ -758,9 +760,7 @@ function ptsSyncInputs(){
   // Підсвічуємо пресет, якщо поточне вікно збігається з ним
   const yday=ptsAddDays(today,-1);
   const match = (PTS_FROM===PTS_TO && PTS_FROM===today) ? 'today'
-              : (PTS_FROM===PTS_TO && PTS_FROM===yday) ? 'yday'
-              : (PTS_TO===today && PTS_FROM===ptsAddDays(today,-6)) ? 'week'
-              : (PTS_TO===today && PTS_FROM===today.slice(0,8)+'01') ? 'month' : '';
+              : (PTS_FROM===PTS_TO && PTS_FROM===yday) ? 'yday' : '';
   document.querySelectorAll('.period-btns .pbtn').forEach(b=>
     b.classList.toggle('active', b.dataset.p===match));
 }
@@ -834,7 +834,7 @@ function ptsRenderDays(host, rows){
     return `<tr${weekend}>
       <td>${fmtDate(r.date)}</td>
       <td>${esc(managerName(r.mid))}</td>
-      <td${r.alt!=null&&PTS_ALT_OK?` title="${PTS.incoming_src==='ringostat'?'Лідів із джерелом «Звонок» у CRM цього дня':'Вхідних у журналі Ringostat цього дня'}: ${fmt(r.alt)}"`:''}>${ptsNum(r.incoming)}</td>
+      <td>${ptsNum(r.incoming)}</td>
       <td>${ptsNum(r.success, r.incoming>0)}</td>
       <td>${r.acc ? fmt(r.acc)+' грн' : '<span class="pts-dim">—</span>'}</td>
       <td>${ptsPct(r.approve)}</td>
@@ -873,37 +873,17 @@ function ptsRenderSum(host, rows){
   // відсотків: інакше день з двома дзвінками важив би стільки ж, скільки
   // день із сорока.
   const rate = o => o.incoming ? o.success/o.incoming*100 : null;
-  const useRing = PTS.incoming_src==='ringostat';
-  const altName = useRing ? 'CRM' : 'Ringostat';
-  // Розбіжність двох знаменників у відсотках від того, за яким рахуємо бали.
-  // Підсвічуємо від третини: до того це звичайна різниця «хто прийняв» проти
-  // «хто відповідальний», а далі вже схоже на те, що дзвінки чи ліди губляться.
-  const gap = o => {
-    if(!PTS_ALT_OK || !PTS_INC_OK) return '<span class="pts-dim">—</span>';
-    // Нуль у джерелі балів і при цьому дзвінки в другому джерелі — найцікавіший
-    // випадок: людина працює, але її вхідні йдуть не на неї. Прочерк тут
-    // приховав би саму причину, через яку колонка й з'явилась.
-    if(!o.incoming) return o.alt
-      ? `<span style="color:var(--warning)" title="У джерелі, за яким рахуються бали, у цього менеджера вхідних немає — перевірте прив'язку">${fmt(o.alt)} <span class="pts-dim">(у джерелі балів 0)</span></span>`
-      : '<span class="pts-dim">—</span>';
-    const d=o.alt-o.incoming, p=Math.round(Math.abs(d)/o.incoming*100);
-    const txt=(d>0?'+':d<0?'−':'')+fmt(Math.abs(d))+(d?` (${p}%)`:'');
-    return p>=33 ? `<span style="color:var(--warning)" title="Знаменники розходяться сильно — варто подивитись, чиї дзвінки або ліди губляться">${fmt(o.alt)} <span class="pts-dim">${txt}</span></span>`
-                 : `${fmt(o.alt)} <span class="pts-dim">${txt}</span>`;
-  };
   const row = (name, o, cls) => `<tr${cls||''}>
     <td>${esc(name)}</td><td>${PTS_INC_OK?ptsNum(o.incoming):'<span class="pts-dim">—</span>'}</td>
     <td>${ptsNum(o.success, o.incoming>0)}</td>
     <td>${ptsPct(rate(o))}</td><td>${o.acc?fmt(o.acc)+' грн':'<span class="pts-dim">—</span>'}</td>
     <td>${ptsNum(o.ptsCall, o.incoming>0)}</td><td>${ptsNum(o.ptsAcc, o.acc>0)}</td>
-    <td class="pts-total">${ptsNum(o.total, o.incoming>0||o.acc>0)}</td>
-    <td class="pts-ctl">${gap(o)}</td></tr>`;
+    <td class="pts-total">${ptsNum(o.total, o.incoming>0||o.acc>0)}</td></tr>`;
   host.innerHTML=`<div class="table-scroll"><table class="data-table">
     <thead><tr>${ptsTh('sum','name','Менеджер')}${ptsTh('sum','incoming','Вхідних')}
       ${ptsTh('sum','success','Успішних')}${ptsTh('sum','approve','Апрув періоду')}
       ${ptsTh('sum','acc','Аксесуари')}${ptsTh('sum','ptsCall','Бали за дзвінки')}
-      ${ptsTh('sum','ptsAcc','Бали за аксесуари')}${ptsTh('sum','total','Всього балів')}
-      ${ptsTh('sum','alt','Для порівняння: '+altName,'pts-ctl')}</tr></thead>
+      ${ptsTh('sum','ptsAcc','Бали за аксесуари')}${ptsTh('sum','total','Всього балів')}</tr></thead>
     <tbody>${list.map(o=>row(managerName(o.mid),o)).join('')}
       ${row('Разом', sum, ' class="pts-sum"')}</tbody></table></div>`;
 }
@@ -1034,7 +1014,9 @@ function ptsCompute(from, to){
   PTS_INC_OK = useRing ? !!CALLS : true;
   PTS_ALT_OK = useRing ? true : !!CALLS;
 
-  return Object.values(cells).filter(c=>active.has(c.mid)).map(c=>{
+  return Object.values(cells)
+    .filter(c=>active.has(c.mid) && !PTS_HIDE_MANAGERS.includes(String(c.mid)))
+    .map(c=>{
     const ptsCall = c.success*PTS.w_call;
     const ptsAcc  = Math.floor(c.acc/(PTS.step_grn||1))*PTS.w_acc;
     // incoming — знаменник, за яким рахуються бали; alt — другий, для ока.
