@@ -82,6 +82,10 @@
     text-decoration:none;margin-bottom:14px;transition:color 180ms ease}
   .home-link:hover{color:var(--ink)}
   .home-link i{width:14px;height:14px}
+  .back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);
+    text-decoration:none;margin-bottom:14px;transition:color 180ms ease}
+  .back-link:hover{color:var(--ink)}
+  .back-link i{width:14px;height:14px}
   .page-title{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-.5px;
     display:flex;align-items:center;gap:12px;margin-bottom:6px}
   .page-title .ti{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;
@@ -398,6 +402,7 @@
 <div class="wrap">
   <header>
     <div>
+      <a href="home.html" class="back-link"><i data-lucide="arrow-left"></i> На головну</a>
       <div class="page-title">
         <span class="ti"><i data-lucide="users"></i></span>
         Менеджери
