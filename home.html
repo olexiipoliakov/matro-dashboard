@@ -128,6 +128,17 @@
      важливіша за економію десятка рядків CSS. Акцент беремо кольором CRM, бо
      й показники з CRM — так видно, звідки числа. */
   .kpi-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .kpi-refresh{margin-left:auto;display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-soft);
+    background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;
+    padding:9px 14px;transition:all 160ms ease}
+  .kpi-refresh:hover:not(:disabled){color:var(--ink);border-color:var(--border-strong)}
+  .kpi-refresh:disabled{opacity:.6;cursor:default}
+  .kpi-refresh i{width:14px;height:14px}
+  .kpi-refresh.busy i{animation:spin 1s linear infinite}
+  .kpi-refresh.stale{color:var(--warning);border-color:rgba(255,200,77,.35)}
+  .kpi-refresh .age{font-weight:500;opacity:.7;font-variant-numeric:tabular-nums}
   .pbtn{padding:9px 16px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;
     border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--ink-soft);
     border-radius:11px;transition:all 180ms ease;white-space:nowrap}
@@ -315,6 +326,10 @@
       <input type="date" id="kb-date" onchange="kpiPickDay(this.value)" title="Один конкретний день">
       <button class="arr" id="kb-next" onclick="kpiStep(1)" title="Наступний день">▶</button>
     </div>
+    <button class="kpi-refresh" id="crm-refresh" onclick="refreshCRM()">
+      <i data-lucide="refresh-cw"></i> Оновити
+      <span class="age" id="crm-refresh-age">—</span>
+    </button>
   </div>
 
   <div class="kpi-row">
@@ -681,13 +696,11 @@ function kpiStep(delta){
   kpiPickDay(kpiIso(d));
 }
 
-// ── свіжість даних ───────────────────────────────────────────────────────
-// Збір CRM іде за розкладом що півгодини. Якщо сторінку відкрили в проміжку
-// і зріз старший за STALE_MIN, запускаємо збір самі й перемальовуємо, коли
-// він закінчиться. Людина заходить подивитись, як справи зараз, — вона не
-// повинна знати про існування кнопки оновлення на іншій сторінці.
-const STALE_MIN = 20;
-let autoPoll = null;
+// ── оновлення даних кнопкою ──────────────────────────────────────────────
+// Збір CRM триває кілька хвилин і помітно вантажить сервер, тому сторінка
+// нічого не запускає сама: людина бачить вік зрізу й вирішує, чи їй потрібні
+// свіжіші цифри. За розкладом збір усе одно йде у фоні.
+let kpiPoll = null;
 
 function ageMin(stamp){
   if(!stamp) return Infinity;
@@ -695,33 +708,58 @@ function ageMin(stamp){
   return isNaN(t) ? Infinity : (Date.now() - t) / 60000;
 }
 
-async function maybeAutoRefresh(stamp){
-  if(autoPoll || ageMin(stamp) <= STALE_MIN) return;
-  const was = stamp || '';
-  const note = document.getElementById('kpi-note');
-  const prev = note ? note.textContent : '';
-  if(note) note.textContent = 'Дані застаріли — оновлюю…';
+function fmtAge(min){
+  if(!isFinite(min)) return '';
+  if(min < 1) return 'щойно';
+  if(min < 60) return `${Math.round(min)} хв тому`;
+  const h=Math.floor(min/60);
+  return h < 24 ? `${h} год тому` : `${Math.floor(h/24)} дн. тому`;
+}
+
+function syncRefreshBtn(stamp){
+  const b=document.getElementById('crm-refresh');
+  if(!b) return;
+  const age=ageMin(stamp);
+  b.title = stamp ? `Зріз CRM: ${stamp} (${fmtAge(age)})` : 'Дані CRM ще не збирались';
+  // Підсвічуємо, коли зріз уже старий: кнопку легко не помітити, а застарілі
+  // цифри виглядають так само впевнено, як свіжі.
+  b.classList.toggle('stale', age > 30);
+  const lab=document.getElementById('crm-refresh-age');
+  if(lab) lab.textContent = stamp ? fmtAge(age) : '—';
+}
+
+async function refreshCRM(){
+  const b=document.getElementById('crm-refresh');
+  if(!b || b.disabled) return;
+  const was=(CRM_RAW && CRM_RAW.generated_at) || '';
+  b.disabled=true; b.classList.add('busy');
+  const lab=document.getElementById('crm-refresh-age');
+  if(lab) lab.textContent='оновлюю…';
   try{
-    const r = await fetch('/api/bitrix/refresh', {method:'POST'});
-    if(!r.ok && r.status !== 409) throw new Error('HTTP ' + r.status);
+    const r=await fetch('/api/bitrix/refresh', {method:'POST'});
+    if(!r.ok && r.status!==409) throw new Error('HTTP '+r.status);
   }catch(e){
-    if(note) note.textContent = prev;
+    b.disabled=false; b.classList.remove('busy');
+    if(lab) lab.textContent='не вдалося';
     return;
   }
-  let tries = 0;
-  autoPoll = setInterval(async () => {
+  let tries=0;
+  clearInterval(kpiPoll);
+  kpiPoll=setInterval(async()=>{
     tries++;
     let st;
-    try{ st = await (await fetch('/api/bitrix/refresh/status?_=' + Date.now())).json(); }
+    try{ st=await (await fetch('/api/bitrix/refresh/status?_='+Date.now())).json(); }
     catch(e){ return; }
     if(st.running) return;
-    clearInterval(autoPoll); autoPoll = null;
+    clearInterval(kpiPoll); kpiPoll=null;
+    b.disabled=false; b.classList.remove('busy');
     // Перечитуємо файл, тільки якщо зріз справді змінився: інакше збір
-    // закінчився помилкою, і показувати «оновлено» було б неправдою.
-    if(st.generated_at && st.generated_at !== was) loadCRM();
-    else if(note) note.textContent = prev;
+    // закінчився помилкою, і писати «оновлено» було б неправдою.
+    if(st.generated_at && st.generated_at!==was) loadCRM();
+    else if(lab) lab.textContent='без змін';
   }, 4000);
-  setTimeout(() => { if(autoPoll){ clearInterval(autoPoll); autoPoll = null; } }, 300000);
+  setTimeout(()=>{ if(kpiPoll){ clearInterval(kpiPoll); kpiPoll=null;
+    b.disabled=false; b.classList.remove('busy'); } }, 600000);
 }
 
 async function loadCRM(){
@@ -742,7 +780,7 @@ async function loadCRM(){
     // звернення до сервера.
     CRM_RAW = data;
     renderKpi();
-    maybeAutoRefresh(data.generated_at);
+    syncRefreshBtn(data.generated_at);
 
     const byDate={};
     let wonCount=0, lostCount=0;
