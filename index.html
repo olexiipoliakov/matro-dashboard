@@ -270,6 +270,10 @@
   footer code{background:rgba(255,255,255,.05);padding:2px 6px;border-radius:5px;color:var(--ink-soft)}
   .err{background:var(--bad-bg);color:var(--bad);border:1px solid rgba(255,94,108,.25);
     padding:14px 18px;border-radius:12px;font-size:13px;margin-bottom:20px}
+  /* М'якше попередження: дані показуємо, але просимо перезібрати (напр. файл
+     зібраний старою версією скрипта, без підпису кабінету). */
+  .warn{background:rgba(255,176,32,.10);color:#ffb020;border:1px solid rgba(255,176,32,.28);
+    padding:12px 18px;border-radius:12px;font-size:13px;margin-bottom:20px}
 
   /* ── мобільні картки ── */
   .mob-sort{display:none;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
@@ -548,6 +552,35 @@ let DATA=null, CAMPS=[];
 
 // ── переключение аккаунтов ──
 let currentDataFile = 'data.json';
+
+// Сторож підміни кабінету.
+//
+// Дані обох кабінетів лежать у двох файлах однакової структури, і сторінка
+// не мала жодного способу перевірити, ЧИЇ цифри вона показує: порожній
+// секрет META_ACCOUNT_ID_2 змушував збір записати кабінет Plume у
+// data2.json, і вкладка «Matro» місяцями показувала цифри Plume як свої.
+// Тепер fetch_meta.py підписує файл полем account, а тут ми цей підпис
+// перевіряємо: чужий кабінет — показуємо помилку замість чужих чисел,
+// файл без підпису (зібраний старою версією) — просимо перезібрати.
+function checkAccount(name, file){
+  const box = document.getElementById('error-box');
+  const got = DATA && DATA.account;
+  if(got && name && got !== name){
+    box.innerHTML = `<div class="err">У файлі <b>${file}</b> лежать дані кабінету
+      <b>${got}</b>, а не <b>${name}</b>. Цифри цієї вкладки показувати не можна —
+      перевірте секрети <code>META_ACCOUNT_ID</code> / <code>META_ACCOUNT_ID_2</code>
+      і перезапустіть збір Meta.</div>`;
+    return false;
+  }
+  if(!got){
+    box.innerHTML = `<div class="warn">Файл <b>${file}</b> без підпису кабінету —
+      зібраний старою версією <code>fetch_meta.py</code>. Переконатись, що тут саме
+      <b>${name}</b>, можна лише після перезапуску збору Meta.</div>`;
+    return true;
+  }
+  box.innerHTML = '';
+  return true;
+}
 async function switchAccount(file, name, btn){
   if(currentDataFile === file) return;
   document.querySelectorAll('.acc-tab').forEach(t=>t.classList.remove('active'));
@@ -556,11 +589,21 @@ async function switchAccount(file, name, btn){
   // сбрасываем фильтр кампании
   activeChartCamp = null;
   document.getElementById('chart-filter').style.display = 'none';
-  // обновляем заголовок
-  document.querySelector('.eyebrow').textContent = `Эффективность рекламы · ${name}`;
+  // Підпис під заголовком. Тут стояв '.eyebrow' — клас, якого на сторінці
+  // вже немає (після редизайну підзаголовок став '.sub'). querySelector
+  // повертав null, присвоєння textContent кидало TypeError — і перемикання
+  // акаунта вмирало на ЦЬОМУ рядку, ще до fetch(data2.json). Вкладка
+  // «Matro» підсвічувалась, а дані лишались від Plume: саме так виглядало
+  // «Matro показує не ті цифри». Тому ще й перевірка на null: зникне колись
+  // і '.sub' — сторінка покаже не ті дані, а просто старий підпис.
+  const sub = document.querySelector('.sub');
+  if(sub) sub.textContent = `Meta Ads · ефективність кампаній · ${name}`;
   // загружаем новые данные
   try{
     DATA = await (await fetch(file+'?'+Date.now())).json();
+    // Чужий кабінет у файлі — не показуємо нічого, щоб ці цифри не прийняли
+    // за свої (саме так і сталось із Matro).
+    if(!checkAccount(name, file)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
     initPeriod();
   }catch(e){
     document.getElementById('error-box').innerHTML=
@@ -574,7 +617,16 @@ async function switchAccount(file, name, btn){
 }
 
 async function load(){
-  try{ DATA=await (await fetch(currentDataFile+'?'+Date.now())).json(); }
+  try{
+    DATA=await (await fetch(currentDataFile+'?'+Date.now())).json();
+    // Перша вкладка — Plume; та сама перевірка підпису кабінету, що й при
+    // перемиканні.
+    if(!checkAccount('Plume', currentDataFile)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+    // Кабінет у підзаголовку з самого початку, а не лише після перемикання:
+    // інакше незрозуміло, чиї цифри на екрані при відкритті сторінки.
+    const sub0 = document.querySelector('.sub');
+    if(sub0) sub0.textContent = 'Meta Ads · ефективність кампаній · Plume';
+  }
   catch(e){
     document.getElementById('error-box').innerHTML='<div class="err">Не удалось загрузить <b>data.json</b>. '+
       'При открытии через file:// браузер блокирует чтение — запусти <code>python -m http.server</code> или открой на GitHub Pages.</div>';

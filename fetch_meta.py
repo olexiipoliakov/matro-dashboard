@@ -25,12 +25,26 @@ import os, sys, json, time, datetime as dt
 from pathlib import Path
 import requests
 
-ACCESS_TOKEN  = os.environ.get("META_ACCESS_TOKEN", "PASTE_YOUR_TOKEN_HERE")
+def env(name, default=""):
+    """Значення змінної оточення, де порожній рядок означає «не задано».
+
+    Чому не os.environ.get(name, default). GitHub Actions підставляє
+    неіснуючий секрет як ПОРОЖНІЙ рядок, а не як відсутню змінну, тому
+    os.environ.get("META_ACCOUNT_ID_2", "act_…") повертав "" замість
+    запасного значення. Далі build(account_id="") не перезаписував
+    глобальний ACCOUNT_ID — і збір Matro тихо збирав кабінет Plume,
+    записуючи його в data2.json. На вкладці «Matro» показувались цифри
+    Plume, і зовні це виглядало просто як «неправильні дані».
+    """
+    return (os.environ.get(name) or "").strip() or default
+
+
+ACCESS_TOKEN  = env("META_ACCESS_TOKEN", "PASTE_YOUR_TOKEN_HERE")
 # Окремий токен для акаунта Matro — може відрізнятись від Plume (інший Business
 # Manager / інша авторизація). Якщо не задано — падає назад на META_ACCESS_TOKEN.
-ACCESS_TOKEN_2 = os.environ.get("META_ACCESS_TOKEN_MATRO", "")
-ACCOUNT_ID    = os.environ.get("META_ACCOUNT_ID",   "act_XXXXXXXXXX")
-ACCOUNT_ID_2  = os.environ.get("META_ACCOUNT_ID_2", "act_248358219946238")  # Matro
+ACCESS_TOKEN_2 = env("META_ACCESS_TOKEN_MATRO")
+ACCOUNT_ID    = env("META_ACCOUNT_ID",   "act_XXXXXXXXXX")
+ACCOUNT_ID_2  = env("META_ACCOUNT_ID_2", "act_248358219946238")  # Matro
 API_VERSION   = "v21.0"
 DATE_PRESET   = "last_90d"    # тянем широкий период; фильтр по датам — в дашборде
 CURRENCY      = "грн"
@@ -334,6 +348,10 @@ def build(account_id=None, out_path=None, account_name="", access_token=None):
         ACCESS_TOKEN = access_token
 
     label = f"[{account_name}] " if account_name else ""
+    # Кабінет у лозі — щоб у логі Actions було видно, ЯКИЙ кабінет пішов у
+    # ЯКИЙ файл. Саме цього рядка бракувало, щоб підміна кабінету
+    # (data2.json з цифрами Plume) не їздила місяцями непоміченою.
+    print(f"{label}кабінет {ACCOUNT_ID} → {OUT.name}")
     seen = set()
     print(f"{label}→ Тяну цели кампаний (optimization_goal)…")
     goals = fetch_campaign_goals()
@@ -431,6 +449,11 @@ def build(account_id=None, out_path=None, account_name="", access_token=None):
     out = {
         "generated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
         "source": "Meta Marketing API",
+        # Підпис кабінету прямо в даних: сторінка порівнює його з назвою
+        # вкладки й кричить, якщо у файлі лежить чужий кабінет. Без підпису
+        # сторінка не має жодного способу відрізнити цифри Plume від Matro.
+        "account": account_name,
+        "account_id": ACCOUNT_ID,
         "period": period,
         "currency": CURRENCY,
         "daily": daily,
@@ -476,7 +499,25 @@ if __name__ == "__main__":
             ok = False
 
         # Аккаунт 2 — Matro (вкладка "Matro" в index.html, switchAccount('data2.json','Matro'))
-        if "XXXX" not in ACCOUNT_ID_2:
+        #
+        # Перед збором перевіряємо сам ідентифікатор кабінету. Раніше цієї
+        # перевірки не було, і хибне значення не ламало збір, а підміняло
+        # дані: data2.json заповнювався кабінетом Plume, вкладка «Matro»
+        # показувала цифри Plume, і помилка виглядала як «дані не ті».
+        # Краще лишити вкладку з помилкою завантаження, ніж показати чужі
+        # цифри як свої.
+        if not ACCOUNT_ID_2.startswith("act_") or "XXXX" in ACCOUNT_ID_2:
+            print(f"\n✗ META_ACCOUNT_ID_2 має вигляд '{ACCOUNT_ID_2}' — це не "
+                  f"ідентифікатор кабінету (очікується act_…). Matro пропущено, "
+                  f"data2.json не перезаписано.")
+            ok = False
+        elif ACCOUNT_ID_2 == ACCOUNT_ID:
+            print(f"\n✗ META_ACCOUNT_ID_2 збігається з META_ACCOUNT_ID "
+                  f"({ACCOUNT_ID}) — це той самий кабінет. Matro пропущено, "
+                  f"data2.json не перезаписано, щоб на вкладці «Matro» не "
+                  f"з'явились цифри Plume.")
+            ok = False
+        else:
             # Якщо окремий токен для Matro не заданий — пробуємо тим самим
             # токеном, що й Plume (нерідко один Business Manager / один токен
             # має доступ одразу до кількох рекламних кабінетів). Раніше тут
@@ -511,8 +552,6 @@ if __name__ == "__main__":
                         "потрібен окремий META_ACCESS_TOKEN_MATRO)") if using_fallback else ""
                 print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}{hint}")
                 ok = False
-        else:
-            print("\n⚠  META_ACCOUNT_ID_2 не задан — аккаунт Matro пропущен.")
 
         # Явний код завершення — щоб run_script() в app.py міг чесно
         # написати в лог "ЗАВЕРШИВСЯ З ПОМИЛКОЮ", а не мовчки "завершено",
