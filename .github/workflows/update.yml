@@ -44,18 +44,8 @@ jobs:
           BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
         run: python fetch_bitrix.py
 
-      # Архів CRM за всю історію порталу — щоденні підсумки (bitrix_history.json).
-      # Перший запуск збирає все від першої угоди до початку 90-денного
-      # «живого» вікна і може тривати десятки хвилин. Далі дописується лише
-      # місяць, що вийшов із живого вікна, тобто раз на місяць; у решті днів це
-      # один запит і секунда роботи. Файл зберігається після кожного місяця,
-      # тому перерваний збір продовжиться наступним запуском, а не з нуля.
-      - name: Run Bitrix history archive
-        continue-on-error: true
-        timeout-minutes: 180
-        env:
-          BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
-        run: python fetch_bitrix_history.py
+      # Архів усієї історії CRM (bitrix_history.json) збирається окремим
+      # воркфлоу — .github/workflows/history.yml.
 
       - name: Run site audit
         continue-on-error: true
@@ -82,8 +72,16 @@ jobs:
           git add images/ 2>/dev/null || true
           git add seo_data.json 2>/dev/null || true
           git add bitrix_data.json 2>/dev/null || true
-          git add bitrix_history.json 2>/dev/null || true
           git add audit_data.json 2>/dev/null || true
           git add feed_data.json 2>/dev/null || true
-          git diff --staged --quiet || git commit -m "Update dashboard data $(date +'%Y-%m-%d')"
-          git push
+          if git diff --staged --quiet; then
+            echo "даних без змін — коміт не потрібен"
+            exit 0
+          fi
+          git commit -m "Update dashboard data $(date +'%Y-%m-%d')"
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase
+          done
+          echo "::error::дані зібрано, але запушити не вдалося за 3 спроби"
+          exit 1

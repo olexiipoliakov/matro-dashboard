@@ -1,0 +1,62 @@
+name: Bitrix History Archive
+
+# Архів CRM за всю історію порталу — окремий воркфлоу, а не крок у щоденному.
+# Щоденний Update Dashboard Data — це один job: коміт даних стоїть у кінці,
+# тому довгий збір історії всередині нього затримував би появу свіжих даних
+# Meta/GSC/Bitrix на сторінках. Тут збирається тільки архів і комітиться
+# тільки bitrix_history.json — два воркфлоу не чекають один на одного.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 2-го числа о 4:23 UTC — коли закрився місяць, що вийшов із живого вікна.
+    - cron: '23 4 2 * *'
+
+jobs:
+  history:
+    runs-on: ubuntu-latest
+    # Перший збір — від першої угоди в порталі, це десятки хвилин.
+    timeout-minutes: 180
+    permissions:
+      contents: write
+
+    # Два збори одночасно писали б в один файл і перебивали б один одного.
+    concurrency:
+      group: bitrix-history
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Collect history
+        env:
+          BITRIX_WEBHOOK_URL: ${{ secrets.BITRIX_WEBHOOK_URL }}
+        # Без continue-on-error: якщо збір упав, це треба бачити червоним.
+        # Зібрані місяці вже у файлі — наступний запуск продовжить із них.
+        run: python fetch_bitrix_history.py
+
+      - name: Commit archive
+        if: always()   # навіть якщо збір обірвався — зберігаємо, що встигли
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bitrix_history.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "архів без змін — коміт не потрібен"
+            exit 0
+          fi
+          git commit -m "Bitrix history archive $(date +'%Y-%m-%d')"
+          # Пуш може не пройти, якщо за час збору в main з'явився чужий коміт.
+          # Без цього циклу зібране загубилось би разом із раннером.
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase
+          done
+          echo "::error::архів зібрано, але запушити не вдалося за 3 спроби"
+          exit 1
