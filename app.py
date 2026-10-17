@@ -11,12 +11,12 @@ GitHub Pages. Робить три речі:
    (раз на 3 години) — так само, як раніше це робив GitHub Actions,
    просто тепер планувальник крутиться прямо тут, у самому сервері.
 """
-import os, sys, time, json, threading, subprocess
+import os, sys, time, json, hmac, threading, subprocess
 from pathlib import Path
 from functools import wraps
 
 import requests
-from flask import Flask, request, send_from_directory, Response, jsonify
+from flask import Flask, request, send_from_directory, Response, jsonify, redirect
 from apscheduler.schedulers.background import BackgroundScheduler
 
 BASE_DIR = Path(__file__).parent
@@ -177,6 +177,48 @@ def bitrix_webhook():
 @requires_auth
 def index_route():
     return send_from_directory(BASE_DIR, "home.html")
+
+# ── Сторінка з текстами для озвучки: відкрите посилання з ключем ─────────
+#
+# Актор — людина не з команди, давати їй пароль від усього дашборду (де CRM,
+# суми, менеджери) не можна. Тому рівно ця одна сторінка віддається без
+# пароля, але тільки за посиланням із секретним ключем:
+#
+#     https://…/voice/<VOICE_KEY>/
+#
+# Ключ лежить у змінній середовища на Render, а не в коді: репозиторій
+# публічний. Якщо VOICE_KEY не задано — маршрут просто не працює (404), щоб
+# сторінка не виявилась відкритою «за замовчуванням».
+#
+# Віддаємо лише білий список файлів: саму сторінку, її дані й аудіо. Інакше
+# цей маршрут став би діркою в авторизації — через нього можна було б
+# викачати bitrix_data.json так само легко, як mp3.
+VOICE_KEY = os.environ.get("VOICE_KEY", "").strip()
+VOICE_FILES = {"voice.html", "voice_data.json", "favicon.ico"}
+
+
+@app.route("/voice/<key>")
+def voice_redirect(key):
+    # Без кінцевого слеша відносні шляхи на сторінці ('voice_data.json',
+    # 'audio/…') розв'язувались би від /voice/, а не від /voice/<key>/.
+    return redirect(f"/voice/{key}/", code=302)
+
+
+@app.route("/voice/<key>/", defaults={"filename": "voice.html"})
+@app.route("/voice/<key>/<path:filename>")
+def voice_public(key, filename):
+    if not VOICE_KEY or not hmac.compare_digest(str(key), VOICE_KEY):
+        return "not found", 404
+    if filename not in VOICE_FILES and not filename.startswith("audio/"):
+        return "not found", 404
+    safe = (BASE_DIR / filename).resolve()
+    if BASE_DIR.resolve() not in safe.parents:
+        return "not found", 404
+    resp = send_from_directory(BASE_DIR, filename)
+    # Щоб посилання не спливло в пошуку, якщо актор кудись його вставить.
+    resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+    return resp
+
 
 @app.route("/<path:filename>")
 @requires_auth

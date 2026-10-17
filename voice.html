@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matro · Тексти для озвучки</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Сторінка навмисно порожня за змістом: текст і плеєр під ним, більше
+     нічого. Усе, що не є текстом або аудіо, відволікає людину, яка
+     готується читати. */
+  :root{
+    --bg:#070B14; --card:#101522;
+    --border:rgba(255,255,255,.06);
+    --ink:#F7F8FB; --ink-soft:#95A0BF; --ink-dim:#5A6A8A;
+    --accent:#FF8C42;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{font-family:'Inter',-apple-system,system-ui,sans-serif;color:var(--ink);
+    min-height:100vh;-webkit-text-size-adjust:100%}
+
+  .wrap{max-width:760px;margin:0 auto;padding:44px clamp(18px,5vw,36px) 90px}
+
+  .brand{font-size:17px;font-weight:700;letter-spacing:-.2px;margin-bottom:34px;color:var(--ink-soft)}
+  .brand span{color:var(--accent)}
+
+  /* Заголовок категорії — єдиний орієнтир на сторінці: текстів кілька, і
+     вони з різних офферів, інакше вони зливаються в один потік. */
+  .group{font-size:15px;font-weight:700;letter-spacing:-.2px;color:var(--ink);
+    padding-bottom:12px;margin:46px 0 26px;border-bottom:1px solid var(--border)}
+  .group:first-child{margin-top:0}
+
+  .block{margin-bottom:52px}
+  .label{font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:14px}
+
+  /* Текст — головне на сторінці, тому великий і з широким міжрядком:
+     його читають з телефона в руках або з екрана на відстані. */
+  .text{font-size:clamp(19px,2.6vw,23px);line-height:1.85;letter-spacing:.1px;
+    background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:clamp(20px,4vw,30px)}
+  .text p+p{margin-top:1.1em}
+
+  audio{display:block;width:100%;height:44px;margin-top:14px}
+
+  .empty{padding:70px 20px;text-align:center;color:var(--ink-dim);font-size:14.5px;line-height:1.7}
+
+  @media print{
+    body{background:#fff;color:#000}
+    audio,.brand{display:none}
+    .text{background:#fff;border-color:#ccc;break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">MATRO<span>.</span> тексти для озвучки</div>
+  <main id="list"></main>
+</div>
+
+<script>
+// Текст приходить із файлу даних і не має права стати розміткою — екрануємо.
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+// Порожній рядок у тексті — новий абзац. Інакше все злиплося б в одну
+// стіну літер, яку незручно читати вголос.
+function paragraphs(raw){
+  return esc(raw).split(/\n{2,}/)
+    .map(p => '<p>' + p.replace(/\n/g,'<br>') + '</p>').join('');
+}
+
+fetch('voice_data.json?' + Date.now())
+  .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(data => {
+    const items = data.scripts || [];
+    const list = document.getElementById('list');
+    if(!items.length){
+      list.innerHTML = '<div class="empty">Текстів поки немає.</div>';
+      return;
+    }
+    let shown = null;   // остання показана категорія
+    list.innerHTML = items.map((s,i) => {
+      const head = (s.group && s.group !== shown)
+        ? (shown = s.group, `<div class="group">${esc(s.group)}</div>`) : '';
+      return head + `
+      <section class="block">
+        <div class="label">${esc(s.title || ('Текст ' + (i+1)))}</div>
+        <div class="text">${paragraphs(s.text)}</div>
+        ${s.audio ? `<audio controls preload="metadata" src="${esc(s.audio)}"></audio>` : ''}
+      </section>`;
+    }).join('');
+  })
+  .catch(() => {
+    document.getElementById('list').innerHTML =
+      '<div class="empty">Не вдалося завантажити тексти.</div>';
+  });
+
+// Два приклади одночасно не слухають, а запустити випадково легко.
+document.addEventListener('play', e => {
+  document.querySelectorAll('audio').forEach(a => { if(a !== e.target) a.pause(); });
+}, true);
+</script>
+</body>
+</html>
