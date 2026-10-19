@@ -11,7 +11,8 @@ GitHub Pages. Робить три речі:
    (раз на 3 години) — так само, як раніше це робив GitHub Actions,
    просто тепер планувальник крутиться прямо тут, у самому сервері.
 """
-import os, sys, time, json, hmac, threading, subprocess
+import os, sys, time, json, hmac, re, threading, subprocess
+from datetime import datetime
 from pathlib import Path
 from functools import wraps
 
@@ -565,22 +566,61 @@ FRESH_HOURS = 6
 NEEDED_FILES = ("bitrix_data.json", "seo_data.json", "data.json", "ringostat_data.json")
 
 
+def _file_age_hours(path):
+    """Скільки годин даним у файлі — за полем generated_at усередині, а не
+    за часом файлу.
+
+    Чому не mtime. Диск на Render одноразовий: при кожному деплої файли
+    заново викачуються з репозиторію, і час їх створення дорівнює часу
+    деплою. Тобто одразу після пушу файл із даними за 11:43 виглядає
+    «щойно оновленим», перевірка свіжості каже «все гаразд», стартовий
+    збір пропускається — і на дашборді висять вчорашні цифри, хоча сервер
+    тільки-но перезапустився. Саме це й виглядало як «я ж щойно оновлював,
+    чому знову треба».
+
+    Читаємо лише початок файлу: generated_at стоїть першим полем, а
+    seo_data.json важить 16 МБ і розбирати його цілком заради однієї дати
+    безглуздо.
+    """
+    try:
+        with open(path, "rb") as fp:
+            head = fp.read(4096).decode("utf-8", "ignore")
+        m = re.search(r'"generated_at"\s*:\s*"([^"]+)"', head)
+        if m:
+            raw = m.group(1).strip()
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+                try:
+                    stamp = datetime.strptime(raw, fmt)
+                    return (datetime.now() - stamp).total_seconds() / 3600
+                except ValueError:
+                    continue
+    except Exception:
+        pass
+    # Немає поля або не розібрали — лишається час файлу, як було раніше.
+    return (time.time() - path.stat().st_mtime) / 3600
+
+
 def _data_is_fresh():
-    """True, лише якщо ВСІ потрібні файли на місці й оновлювались нещодавно.
+    """True, лише якщо ВСІ потрібні файли на місці й дані в них свіжі.
 
     Відсутній файл — це не «свіжо», це «нема чого показувати». Інакше
     виходить пастка: три файли приїхали свіжими з репозиторію, перевірка
     каже «все гаразд», стартовий збір пропускається, а журнал дзвінків,
     якого в репозиторії немає й не було, не зʼявляється ще три години.
     """
-    newest = 0.0
+    oldest = 0.0
     for name in NEEDED_FILES:
         f = BASE_DIR / name
         if not f.exists():
             print(f"[scheduler] немає {name} — збір потрібен", flush=True)
             return False
-        newest = max(newest, f.stat().st_mtime)
-    return (time.time() - newest) < FRESH_HOURS * 3600
+        age = _file_age_hours(f)
+        if age > FRESH_HOURS:
+            print(f"[scheduler] {name}: даним {age:.1f} год — збір потрібен", flush=True)
+            return False
+        oldest = max(oldest, age)
+    print(f"[scheduler] найстаріші дані: {oldest:.1f} год", flush=True)
+    return True
 
 
 # Який скрипт відповідає за який файл. Потрібно, щоб після деплою спершу
