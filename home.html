@@ -342,8 +342,8 @@
       <div class="l">Угоди</div><div class="v" id="kpi-deals">—</div></div>
     <div class="kpi-card">
       <div class="l">Ліди</div><div class="v" id="kpi-leads">—</div></div>
-    <div class="kpi-card" title="Відмова клієнта, помилкова угода, рекламація">
-      <div class="l">Відхилені угоди</div><div class="v" id="kpi-rejected">—</div></div>
+    <div class="kpi-card" title="Угоди поділені на ліди за той самий період. Орієнтир, а не точна конверсія ліда в угоду: частина угод заводиться без ліда (замовлення з сайту), а лід може перетворитись на угоду вже наступного дня">
+      <div class="l">Конверсія відділу</div><div class="v" id="kpi-conv">—</div></div>
   </div>
   <div class="kpi-note" id="kpi-note">Останні 90 днів</div>
 
@@ -630,7 +630,14 @@ function renderKpi(){
   document.getElementById('kpi-turnover').innerHTML = fmt(turnover)+'<span class="cur">₴</span>';
   document.getElementById('kpi-deals').textContent    = fmt(nDeals);
   document.getElementById('kpi-leads').textContent    = fmt(nLeads);
-  document.getElementById('kpi-rejected').textContent = fmt(nRejected);
+
+  // Конверсія відділу: угоди / ліди за той самий період.
+  // Без лідів ділити нема на що — показуємо прочерк, а не 0 %, бо нуль
+  // читався б як «працювали й не продали», хоча насправді даних просто нема.
+  const conv = nLeads ? (nDeals / nLeads * 100) : null;
+  document.getElementById('kpi-conv').innerHTML = conv === null ? '—'
+    : (conv < 10 ? conv.toFixed(1) : Math.round(conv)).toString().replace('.', ',')
+      + '<span class="cur">%</span>';
 
   const period = (KPI_FROM&&KPI_TO&&KPI_FROM===KPI_TO) ? fmtKpiDate(KPI_FROM)
     : (KPI_FROM||KPI_TO) ? `${fmtKpiDate(KPI_FROM)} — ${fmtKpiDate(KPI_TO)}`
@@ -644,7 +651,10 @@ function renderKpi(){
   const stale = !!(snapDay && KPI_TO && KPI_TO >= snapDay);
 
   const note=document.getElementById('kpi-note');
+  // Кількість відхилених більше не має своєї картки — її місце зайняла
+  // конверсія. Але цифра потрібна, тому вона тепер у підписі під картками.
   note.textContent = `${period} · оборот за товарами, без відмов і помилкових угод`
+    + (nRejected ? ` (${fmt(nRejected)})` : '')
     + (stamp ? ` · зріз ${stamp}` : '')
     + (stale ? (time ? ` · день ще не закритий, дані станом на ${time}`
                      : ' · день ще не закритий') : '');
@@ -813,7 +823,7 @@ async function loadCRM(){
     document.getElementById('crm-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
   }catch(e){
     setSys('sys-bitrix', false);
-    ['kpi-turnover','kpi-deals','kpi-leads','kpi-rejected']
+    ['kpi-turnover','kpi-deals','kpi-leads','kpi-conv']
       .forEach(id=>{ document.getElementById(id).textContent='—'; });
     document.getElementById('kpi-note').textContent='Дані CRM не завантажились';
     // Без даних перемикати нічого: залишена активною кнопка виглядала б так,
