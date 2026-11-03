@@ -1,16 +1,16 @@
 {
   "demo": false,
-  "generated_at": "02.11.2026 14:40",
-  "duration_sec": 527.3,
-  "total_checked": 1055,
-  "total_products": 698,
+  "generated_at": "03.11.2026 13:43",
+  "duration_sec": 504.8,
+  "total_checked": 1056,
+  "total_products": 699,
   "total_errors": 0,
   "issue_types": [
     {
       "key": "no_meta_desc",
       "label": "Без meta description",
       "color": "danger",
-      "count": 41
+      "count": 42
     },
     {
       "key": "dup_title",
@@ -28,7 +28,7 @@
       "key": "title_long",
       "label": "Title задовгий",
       "color": "warning",
-      "count": 881
+      "count": 882
     },
     {
       "key": "title_short",
@@ -1317,6 +1317,10 @@
     {
       "name": "Матрац Mons/Монс",
       "url": "https://matroluxe.ua/ua/matras-mons"
+    },
+    {
+      "name": "Матрац Сіу/Siu",
+      "url": "https://matroluxe.ua/ua/matras-mori"
     },
     {
       "name": "Матрац Nice/Найс",
@@ -4637,6 +4641,13 @@
       "detail": "81 символів — обріжеться у видачі"
     },
     {
+      "name": "Колекція Японія - матраци Asa та Sora",
+      "url": "https://matroluxe.ua/ua/japan",
+      "category": "—",
+      "issue": "no_meta_desc",
+      "detail": ""
+    },
+    {
       "name": "Каркас на ламелях з ніжками Стандарт Плюс посилений",
       "url": "https://matroluxe.ua/ua/karkas-na-lamelyakh-s-nozhkami-standart-plyus-usilennyj",
       "category": "HoReCa",
@@ -6294,6 +6305,13 @@
       "category": "HoReCa",
       "issue": "title_long",
       "detail": "87 символів — обріжеться у видачі"
+    },
+    {
+      "name": "Матрац Сіу/Siu",
+      "url": "https://matroluxe.ua/ua/matras-mori",
+      "category": "HoReCa",
+      "issue": "title_long",
+      "detail": "88 символів — обріжеться у видачі"
     },
     {
       "name": "Матрац Nice/Найс",
