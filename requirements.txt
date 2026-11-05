@@ -1,4 +1,7 @@
 flask
+# Підпис cookie сесії (app.py). Приходить разом із flask, але
+# вказуємо явно: від нього залежить вхід на дашборд.
+itsdangerous
 gunicorn
 apscheduler
 requests

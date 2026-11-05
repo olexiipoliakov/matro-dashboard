@@ -21,6 +21,18 @@ services:
         sync: false
       - key: DASHBOARD_PASSWORD
         sync: false
+      # Змінити це значення (будь-який рядок) = розлогінити всіх, кому
+      # раніше дали пароль, не змінюючи сам пароль. Див. app.py, блок
+      # "Вхід на дашборд".
+      - key: AUTH_EPOCH
+        sync: false
+      # Окремий логін тільки для сторінки озвучки /voice/… (актор).
+      - key: VOICE_KEY
+        sync: false
+      - key: VOICE_USER
+        sync: false
+      - key: VOICE_PASSWORD
+        sync: false
       - key: BITRIX_INCOMING_WEBHOOK_SECRET
         sync: false
       - key: BITRIX_WEBHOOK_URL

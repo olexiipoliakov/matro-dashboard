@@ -3,7 +3,8 @@ app.py — веб-сервер для розгортання matro-dashboard н�
 GitHub Pages. Робить три речі:
 
 1. Віддає ті самі HTML/JSON файли дашборду, що й раніше — але тепер за
-   паролем (Basic Auth), бо сервер більше не публічний статичний сайт.
+   логіном і паролем (своя сторінка /login), бо сервер більше не публічний
+   статичний сайт.
 2. Приймає вихідний вебхук з Bitrix24 (/webhook/bitrix) — при кожній зміні
    угоди/ліда Bitrix сам стукається сюди, і ми одразу перезапускаємо
    fetch_bitrix.py, замість того щоб чекати наступного розкладу.
@@ -11,42 +12,125 @@ GitHub Pages. Робить три речі:
    (раз на 3 години) — так само, як раніше це робив GitHub Actions,
    просто тепер планувальник крутиться прямо тут, у самому сервері.
 """
-import os, sys, time, json, hmac, re, threading, subprocess
+import os, sys, time, json, hmac, hashlib, re, threading, subprocess, urllib.parse
 from datetime import datetime
 from pathlib import Path
 from functools import wraps
 
 import requests
 from flask import Flask, request, send_from_directory, Response, jsonify, redirect
+from itsdangerous import URLSafeTimedSerializer
 from apscheduler.schedulers.background import BackgroundScheduler
 
 BASE_DIR = Path(__file__).parent
 app = Flask(__name__, static_folder=None)
 
-# ── Пароль на весь дашборд ───────────────────────────────────────────────
-DASH_USER = os.environ.get("DASHBOARD_USER", "admin")
+# ── Вхід на дашборд: логін, пароль і сесія в cookie ──────────────────────
+#
+# Раніше тут був Basic Auth — те саме вікно, яке браузер малює сам. У нього
+# дві вади, через які й знадобилась ця переробка:
+#
+#   1. З нього неможливо вийти й неможливо когось відключити. Браузер
+#      запам'ятовує логін з паролем і підставляє їх у кожен наступний
+#      запит — поки людина сама не почистить налаштування. Відкликати
+#      доступ у того, кому колись дали пароль, не вийшло б.
+#   2. Виглядає як системна помилка, а не як вхід до дашборду.
+#
+# Тепер: власна сторінка /login, а після входу — підписана cookie на 30 днів.
+#
+# ЯК ЗАКРИТИ ДОСТУП УСІМ ОДРАЗУ. Ключ, яким підписані cookie, виводиться з
+# самого пароля (див. _signer нижче). Тому достатньо змінити
+# DASHBOARD_PASSWORD у змінних середовища на Render — і всі раніше видані
+# cookie миттєво стають недійсними: перевірку підпису новим ключем вони не
+# проходять. Якщо пароль міняти не хочеться, а розлогінити всіх треба —
+# постав або зміни AUTH_EPOCH (будь-який рядок: 2, 3, 2026-11-05).
+DASH_USER = os.environ.get("DASHBOARD_USER", "admin").strip()
 DASH_PASS = os.environ.get("DASHBOARD_PASSWORD", "")
+AUTH_EPOCH = os.environ.get("AUTH_EPOCH", "1").strip()
 
-def check_auth(username, password):
-    return bool(DASH_PASS) and username == DASH_USER and password == DASH_PASS
+# Окремий логін тільки для сторінки озвучки (/voice/…): актор — людина не з
+# команди, і пароль від усього дашборду, де CRM і суми, йому давати не можна.
+# Якщо VOICE_PASSWORD не заданий, сторінка озвучки просто вимагає звичайний
+# логін, як і решта дашборду.
+VOICE_USER = os.environ.get("VOICE_USER", "voice").strip()
+VOICE_PASS = os.environ.get("VOICE_PASSWORD", "")
 
-def authenticate():
-    return Response(
-        "Потрібна авторизація для перегляду дашборду.",
-        401, {"WWW-Authenticate": 'Basic realm="Matro Dashboard"'},
+COOKIE_NAME = "matro_session"
+SESSION_DAYS = 30
+
+# Підпис cookie. Окрему змінну під секрет не заводимо: ключ — похідна від
+# пароля, тому зміна пароля автоматично означає «розлогінити всіх». Сам
+# пароль у cookie не потрапляє, тільки підпис, з якого його не відновити.
+_signer = None
+if DASH_PASS or VOICE_PASS:
+    _signer = URLSafeTimedSerializer(
+        hashlib.sha256(f"matro-dash|{AUTH_EPOCH}|{DASH_PASS}|{VOICE_PASS}".encode()).hexdigest(),
+        salt="dashboard-login",
     )
+
+
+def _eq(a, b):
+    # compare_digest на рядках падає, якщо в паролі є кирилиця — порівнюємо
+    # байти. Порівняння постійного часу: щоб пароль не можна було підібрати
+    # по символах, вимірюючи час відповіді.
+    return hmac.compare_digest((a or "").encode("utf-8"), (b or "").encode("utf-8"))
+
+
+def check_login(username, password):
+    """Яку частину дашборду відкриває ця пара: "all", "voice" або None."""
+    u = (username or "").strip()
+    if DASH_PASS and _eq(u, DASH_USER) and _eq(password, DASH_PASS):
+        return "all"
+    if VOICE_PASS and _eq(u, VOICE_USER) and _eq(password, VOICE_PASS):
+        return "voice"
+    return None
+
+
+def current_scope():
+    """Що дозволяє cookie цього запиту. None — не залогінений."""
+    token = request.cookies.get(COOKIE_NAME, "")
+    if not token or not _signer:
+        return None
+    try:
+        data = _signer.loads(token, max_age=SESSION_DAYS * 86400)
+    except Exception:
+        # Прострочена, підроблена або підписана старим паролем — все одно
+        # «не залогінений», різниці для нас немає.
+        return None
+    return data.get("s") if isinstance(data, dict) else None
+
+
+def _is_navigation():
+    """Людина відкриває сторінку — чи це фоновий fetch() зі сторінки.
+
+    Переадресовувати на /login можна тільки перше: якщо відповісти
+    редиректом на запит data.json, сторінка отримає HTML замість JSON і
+    впаде з незрозумілою помилкою замість того, щоб показати вхід.
+    """
+    mode = request.headers.get("Sec-Fetch-Mode", "")
+    if mode:
+        return mode == "navigate"
+    return "text/html" in request.headers.get("Accept", "")
+
+
+def _deny():
+    if _is_navigation():
+        nxt = request.full_path if request.query_string else request.path
+        return redirect("/login?next=" + urllib.parse.quote(nxt, safe=""), code=302)
+    return Response(json.dumps({"error": "auth_required"}), 401,
+                    {"Content-Type": "application/json; charset=utf-8"})
+
 
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.authorization
         if not DASH_PASS:
             # Пароль не заданий у змінних середовища — навмисно НЕ пускаємо
             # нікого, щоб не залишити дашборд відкритим "по замовчуванню".
             return Response("DASHBOARD_PASSWORD не задано на сервері.", 500)
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
+        if current_scope() == "all":
+            return f(*args, **kwargs)
+        return _deny()
     return decorated
 
 # ── Фонові прогони fetch-скриптів ────────────────────────────────────────
@@ -173,19 +257,215 @@ def bitrix_webhook():
     trigger_bitrix_refresh()
     return "ok", 200
 
+# ── Сторінка входу ───────────────────────────────────────────────────────
+#
+# Захист від перебору пароля. Пароль один на всіх, тобто вгадувати потрібно
+# рівно один рядок — без обмеження спроб його можна спокійно перебирати
+# скриптом. 10 невдач з однієї адреси за 15 хвилин, далі ця адреса чекає.
+_LOGIN_FAILS = {}            # ip → (кількість невдач, час першої з них)
+_LOGIN_FAILS_LOCK = threading.Lock()
+FAIL_LIMIT = 10
+FAIL_WINDOW = 15 * 60
+
+
+def _client_ip():
+    # Render стоїть за своїм проксі, тому request.remote_addr — це адреса
+    # проксі, однакова для всіх. Справжня адреса — перша в X-Forwarded-For.
+    fwd = request.headers.get("X-Forwarded-For", "")
+    return (fwd.split(",")[0].strip() if fwd else request.remote_addr) or "?"
+
+
+def _throttled(ip):
+    with _LOGIN_FAILS_LOCK:
+        n, since = _LOGIN_FAILS.get(ip, (0, 0.0))
+        return n >= FAIL_LIMIT and (time.time() - since) <= FAIL_WINDOW
+
+
+def _note_fail(ip):
+    with _LOGIN_FAILS_LOCK:
+        n, since = _LOGIN_FAILS.get(ip, (0, 0.0))
+        if time.time() - since > FAIL_WINDOW:
+            n, since = 0, time.time()
+        _LOGIN_FAILS[ip] = (n + 1, since)
+
+
+def _safe_next(value):
+    """Куда вести после входа. Только свой путь: с ?next=https://… чужой
+    сайт міг би отримати посилання на вхід, яке веде від нас до нього."""
+    v = (value or "/").strip()
+    if not v.startswith("/") or v.startswith("//") or "://" in v or "\\" in v:
+        return "/"
+    return v
+
+
+LOGIN_PAGE = """<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Вход · Matro Dashboard</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+  :root{
+    --bg:#070B14; --card:#101522; --border:rgba(255,255,255,.06);
+    --border-strong:rgba(255,255,255,.14);
+    --ink:#F7F8FB; --ink-soft:#95A0BF; --ink-dim:#5A6A8A;
+    --accent:#FF8C42; --accent-2:#FF6A2B; --danger:#FF5E6C;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;
+    justify-content:center;padding:24px;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    /* Два м'які відблиски у фірмових кольорах — щоб сторінка не була
+       просто чорним прямокутником з полем для пароля. */
+    background-image:radial-gradient(900px 500px at 15% -10%,rgba(255,140,66,.10),transparent 60%),
+      radial-gradient(800px 500px at 100% 110%,rgba(91,141,238,.10),transparent 60%)}
+  .box{width:100%;max-width:360px}
+  /* Той самий знак, що в шапці дашборду (home.html): «Matro» з помаранчевою
+     крапкою — щоб сторінка входу не виглядала чужою. */
+  .brand{margin:0 0 24px;text-align:center}
+  .brand b{font-size:21px;font-weight:700;letter-spacing:-.3px}
+  .brand b i{font-style:normal;color:var(--accent)}
+  .brand span{display:block;margin-top:5px;font-size:11px;font-weight:600;
+    color:var(--ink-dim);text-transform:uppercase;letter-spacing:1.3px}
+  form{background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:24px 22px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  h1{margin:0 0 4px;font-size:18px;font-weight:650;letter-spacing:-.2px}
+  .hint{margin:0 0 20px;font-size:12.5px;color:var(--ink-dim);line-height:1.5}
+  label{display:block;font-size:11px;font-weight:650;text-transform:uppercase;
+    letter-spacing:.9px;color:var(--ink-dim);margin:0 0 7px}
+  input{width:100%;font:inherit;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.03);border:1px solid var(--border-strong);
+    border-radius:10px;padding:11px 13px;margin:0 0 16px;transition:border-color 150ms}
+  input:focus{outline:none;border-color:var(--accent)}
+  button{width:100%;font:inherit;font-size:14.5px;font-weight:650;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));border:0;
+    border-radius:10px;padding:12px;cursor:pointer;transition:filter 150ms}
+  button:hover{filter:brightness(1.07)}
+  .err{display:flex;gap:9px;align-items:flex-start;font-size:13px;
+    color:var(--danger);background:rgba(255,94,108,.09);
+    border:1px solid rgba(255,94,108,.25);border-radius:10px;
+    padding:10px 12px;margin:0 0 18px;line-height:1.45}
+  .foot{margin:16px 0 0;font-size:11.5px;color:var(--ink-dim);text-align:center}
+</style></head>
+<body>
+  <div class="box">
+    <div class="brand">
+      <b>Matro<i>.</i></b><span>Digital Operations Center</span>
+    </div>
+    <form method="post" action="/login">
+      <h1>Вход</h1>
+      <p class="hint">Доступ только для сотрудников. Логин и пароль выдаёт руководитель.</p>
+      __ERROR__
+      <input type="hidden" name="next" value="__NEXT__">
+      <label for="u">Логин</label>
+      <input id="u" name="username" value="__USER__" autocomplete="username"
+             autocapitalize="off" autocorrect="off" spellcheck="false" required autofocus>
+      <label for="p">Пароль</label>
+      <input id="p" name="password" type="password" autocomplete="current-password" required>
+      <button type="submit">Войти</button>
+    </form>
+    <p class="foot">Вход запоминается на 30 дней</p>
+  </div>
+</body></html>
+"""
+
+
+def _login_page(error="", nxt="/", code=200, user=""):
+    # escape: усе, що підставляємо, потрапляє в HTML — у тому числі логін,
+    # який ввела людина, тобто будь-який рядок із форми.
+    def esc(s):
+        return (str(s).replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace('"', "&quot;"))
+    html = (LOGIN_PAGE
+            .replace("__ERROR__", f'<div class="err">{esc(error)}</div>' if error else "")
+            .replace("__NEXT__", esc(nxt))
+            # Після помилки логін лишається в полі: друкувати його заново
+            # через одну одруківку в паролі — зайве роздратування.
+            .replace("__USER__", esc(user[:80])))
+    resp = Response(html, code, {"Content-Type": "text/html; charset=utf-8"})
+    resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if not DASH_PASS:
+        return Response("DASHBOARD_PASSWORD не задано на сервері.", 500)
+
+    nxt = _safe_next(request.values.get("next", "/"))
+    scope = current_scope()
+    if scope == "all":
+        return redirect(nxt, code=302)
+
+    if request.method == "GET":
+        return _login_page(nxt=nxt)
+
+    ip = _client_ip()
+    if _throttled(ip):
+        return _login_page("Слишком много попыток. Попробуйте через 15 минут.", nxt, 429,
+                           request.form.get("username", ""))
+
+    got = check_login(request.form.get("username", ""), request.form.get("password", ""))
+    if not got:
+        _note_fail(ip)
+        print(f"[login] невдалий вхід: {ip}", flush=True)
+        return _login_page("Неверный логин или пароль.", nxt, 401,
+                           request.form.get("username", ""))
+
+    # Актор зі своїм паролем не має куди йти, крім сторінки озвучки.
+    target = nxt if got == "all" else (f"/voice/{VOICE_KEY}/" if VOICE_KEY else "/login")
+    if got == "voice" and not nxt.startswith("/voice/"):
+        nxt = target
+    print(f"[login] вхід ({got}): {ip}", flush=True)
+
+    resp = redirect(nxt if got == "all" else target, code=302)
+    resp.set_cookie(
+        COOKIE_NAME, _signer.dumps({"s": got, "t": int(time.time())}),
+        max_age=SESSION_DAYS * 86400, httponly=True, samesite="Lax",
+        # Прапорець secure тільки на https: на Render TLS знімає проксі, тому
+        # дивимось на X-Forwarded-Proto, а не на схему самого запиту. Локально
+        # по http cookie так само працює.
+        secure=(request.headers.get("X-Forwarded-Proto", "").split(",")[0].strip() == "https"
+                or request.is_secure),
+    )
+    return resp
+
+
+@app.route("/logout")
+def logout():
+    resp = redirect("/login", code=302)
+    resp.delete_cookie(COOKIE_NAME, samesite="Lax")
+    return resp
+
+
+# Іконка — без пароля: інакше на сторінці входу браузер отримує на неї 401
+# і малює порожній квадрат у вкладці.
+@app.route("/favicon.ico")
+def favicon_route():
+    return send_from_directory(BASE_DIR, "favicon.ico")
+
+
 # ── Раздача сторінок дашборду (з паролем) ────────────────────────────────
 @app.route("/")
 @requires_auth
 def index_route():
     return send_from_directory(BASE_DIR, "home.html")
 
-# ── Сторінка з текстами для озвучки: відкрите посилання з ключем ─────────
+# ── Сторінка з текстами для озвучки ──────────────────────────────────────
 #
-# Актор — людина не з команди, давати їй пароль від усього дашборду (де CRM,
-# суми, менеджери) не можна. Тому рівно ця одна сторінка віддається без
-# пароля, але тільки за посиланням із секретним ключем:
+# Два замки, і потрібні обидва: секретне посилання з ключем
 #
 #     https://…/voice/<VOICE_KEY>/
+#
+# плюс логін. Раніше тут був тільки ключ, без пароля — посилання, яке
+# переслали в месенджері, відкривалось у будь-кого, хто його побачив.
+#
+# Актор — людина не з команди, давати їй пароль від усього дашборду (де CRM,
+# суми, менеджери) не можна. Тому для нього є окрема пара VOICE_USER /
+# VOICE_PASSWORD, яка відкриває рівно цю сторінку й більше нічого. Якщо
+# VOICE_PASSWORD не заданий — сторінка вимагає звичайний логін дашборду.
 #
 # Ключ лежить у змінній середовища на Render, а не в коді: репозиторій
 # публічний. Якщо VOICE_KEY не задано — маршрут просто не працює (404), щоб
@@ -210,6 +490,8 @@ def voice_redirect(key):
 def voice_public(key, filename):
     if not VOICE_KEY or not hmac.compare_digest(str(key), VOICE_KEY):
         return "not found", 404
+    if current_scope() not in ("all", "voice"):
+        return _deny()
     if filename not in VOICE_FILES and not filename.startswith("audio/"):
         return "not found", 404
     safe = (BASE_DIR / filename).resolve()
