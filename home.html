@@ -160,15 +160,26 @@
   @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:560px){.kpi-row{grid-template-columns:1fr}}
 
-  /* ── широкий віджет дзвінків (над grid2) ── */
-  .calls-wide{margin-bottom:20px}
-  .calls-stat-row{display:flex;align-items:center;flex-wrap:wrap;gap:32px 40px;margin-bottom:18px}
-  .calls-stat-row .stat .v{font-size:clamp(20px,3.5vw,28px)}
-  .calls-online{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:13px;font-weight:600;color:var(--success)}
-  .calls-online .dot{width:8px;height:8px;border-radius:50%;background:var(--success);
+  /* ── віджет дзвінків ── */
+  /* Раніше ця картка йшла на всю ширину над сіткою, через що читалась як
+     головний блок сторінки — хоча дзвінки такий самий розділ, як SEO і SMM.
+     Тепер вона стоїть у тій самій сітці. Показників три, а не чотири, тому
+     своя кількість колонок. */
+  .calls .stat-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+  /* Індикатор «онлайн» стоїть унизу, біля кнопки. У шапці він був третім
+     значком поспіль і стискав підпис «Ringostat · активність команди» у три
+     рядки, тоді як у сусідніх картках підпис займає один. */
+  .calls-online{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;
+    color:var(--success);background:rgba(39,227,122,.10);
+    border:1px solid rgba(39,227,122,.22);padding:5px 10px;border-radius:20px;white-space:nowrap;
+    margin-left:auto}
+  .calls-online .dot{width:7px;height:7px;border-radius:50%;background:var(--success);
     box-shadow:0 0 8px var(--success);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
-  .calls-online.offline{color:var(--ink-dim)}
+  .calls-online.offline{color:var(--ink-dim);background:rgba(255,255,255,.04);border-color:var(--border)}
   .calls-online.offline .dot{background:var(--ink-dim);box-shadow:none;animation:none}
+  /* Карток у сітці непарна кількість — остання розтягується на обидві
+     колонки, щоб поруч із нею не лишалось порожнє місце. */
+  @media(min-width:901px){ .grid2 > :last-child{grid-column:1 / -1} }
 
   .glass{
     background:rgba(16,21,34,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
@@ -250,21 +261,24 @@
   .updated-note{font-size:11px;color:var(--ink-dim);text-align:right;min-width:60px;line-height:1.4}
 
   .skeleton{color:var(--ink-dim);font-size:13px;padding:20px 0;text-align:center}
-  /* .calls-wide йде першою у DOM — перебиваємо nth-of-type затримку появи */
+  /* Картка дзвінків стоїть першою в сітці — перебиваємо nth-of-type затримку появи */
   .calls{animation-delay:.02s}
 
   @media(max-width:600px){
     .wrap{padding:24px 16px 48px}
     .grid2{gap:14px}
     .glass{padding:20px}
+    /* На телефоні значки періоду й динаміки не вміщались поруч із назвою і
+       налазили на неї: вони не стискаються, а назві лишалось сантиметра
+       два. Ставимо їх під назвою. */
+    .card-top{flex-direction:column;align-items:flex-start;gap:12px}
+    .card-badges{flex-wrap:wrap}
     .stat-row{grid-template-columns:repeat(2,1fr);row-gap:14px}
     .stat .v{font-size:18px}
     .head-right{align-items:flex-start;width:100%}
     .sys-status{width:100%}
     .card-cta{flex-wrap:wrap}
     .updated-note{white-space:normal;text-align:left;width:100%}
-    .calls-stat-row{gap:16px 28px}
-    .calls-online{margin-left:0;width:100%}
   }
 </style>
 </head>
@@ -347,31 +361,31 @@
   </div>
   <div class="kpi-note" id="kpi-note">Останні 90 днів</div>
 
-  <a href="ringostat.html" class="glass calls calls-wide" style="text-decoration:none;color:inherit;display:block">
-    <div class="card-top">
-      <div class="card-id">
-        <div class="card-icon"><i data-lucide="phone-call"></i></div>
-        <div><div class="card-name">Дзвінки</div><div class="card-desc">Ringostat · активність команди</div></div>
-      </div>
-      <div class="card-badges">
-        <span class="trend-badge" id="calls-trend"></span>
-        <span class="card-tag" id="calls-tag">—</span>
-      </div>
-    </div>
-    <div class="calls-stat-row" id="calls-stats">
-      <div class="stat"><div class="v" id="calls-in">—</div><div class="l">Вхідні</div></div>
-      <div class="stat"><div class="v" id="calls-out">—</div><div class="l">Вихідні</div></div>
-      <div class="stat"><div class="v" id="calls-missed">—</div><div class="l">Пропущені</div></div>
-      <div class="calls-online" id="calls-online"><span class="dot"></span><span id="calls-online-text">—</span></div>
-    </div>
-    <div class="chart-box" id="calls-chart"></div>
-    <div class="card-cta">
-      <span class="btn-primary">Відкрити дзвінки <i data-lucide="arrow-right"></i></span>
-      <span class="updated-note" id="calls-updated"></span>
-    </div>
-  </a>
-
   <div class="grid2">
+    <a href="ringostat.html" class="glass calls" style="text-decoration:none;color:inherit;display:block">
+      <div class="card-top">
+        <div class="card-id">
+          <div class="card-icon"><i data-lucide="phone-call"></i></div>
+          <div><div class="card-name">Дзвінки</div><div class="card-desc">Ringostat · активність команди</div></div>
+        </div>
+        <div class="card-badges">
+          <span class="trend-badge" id="calls-trend"></span>
+          <span class="card-tag" id="calls-tag">—</span>
+        </div>
+      </div>
+      <div class="stat-row" id="calls-stats">
+        <div class="stat"><div class="v" id="calls-in">—</div><div class="l">Вхідні</div></div>
+        <div class="stat"><div class="v" id="calls-out">—</div><div class="l">Вихідні</div></div>
+        <div class="stat"><div class="v" id="calls-missed">—</div><div class="l">Пропущені</div></div>
+      </div>
+      <div class="chart-box" id="calls-chart"></div>
+      <div class="card-cta">
+        <span class="btn-primary">Відкрити дзвінки <i data-lucide="arrow-right"></i></span>
+        <span class="calls-online" id="calls-online"><span class="dot"></span><span id="calls-online-text">—</span></span>
+        <span class="updated-note" id="calls-updated"></span>
+      </div>
+    </a>
+
     <a href="index.html" class="glass smm" style="text-decoration:none;color:inherit;display:block">
       <div class="card-top">
         <div class="card-id">
