@@ -209,6 +209,18 @@
   .card-id > div{min-width:0}
   .card-name{font-size:16px;font-weight:600}
   .card-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  /* Перемикач рекламного кабінету просто в картці. Раніше, щоб подивитись
+     Matro, треба було відкрити дашборд і аж там клацнути вкладку — тобто
+     піти зі сторінки, яку відкривають саме щоб побачити все одразу. */
+  .acc-switch{display:inline-flex;gap:4px;padding:3px;margin:0 0 16px;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px}
+  .acc-switch button{font-family:inherit;font-size:11.5px;font-weight:600;color:var(--ink-dim);
+    background:none;border:0;border-radius:8px;padding:5px 12px;cursor:pointer;
+    transition:color 160ms ease, background 160ms ease}
+  .acc-switch button:hover{color:var(--ink)}
+  .acc-switch button.on{color:var(--ink);background:rgba(255,140,66,.16)}
+  /* У кожної картки свій колір розділу — помаранчевий у SMM, бірюзовий у SEO. */
+  .seo .acc-switch button.on{background:rgba(50,216,255,.16)}
   .card-badges{display:flex;align-items:center;gap:8px;flex-shrink:0}
   .card-tag{font-size:11px;font-weight:600;color:var(--ink-soft);background:rgba(255,255,255,.04);
     border:1px solid var(--border);padding:5px 11px;border-radius:20px;white-space:nowrap}
@@ -386,16 +398,21 @@
       </div>
     </a>
 
-    <a href="index.html" class="glass smm" style="text-decoration:none;color:inherit;display:block">
+    <a href="index.html" id="smm-link" class="glass smm" style="text-decoration:none;color:inherit;display:block">
       <div class="card-top">
         <div class="card-id">
           <div class="card-icon"><i data-lucide="megaphone"></i></div>
-          <div><div class="card-name">SMM &amp; Реклама</div><div class="card-desc">Meta Ads · Кампанії Plume</div></div>
+          <div><div class="card-name">SMM &amp; Реклама</div>
+            <div class="card-desc">Meta Ads · Кампанії <span id="smm-acc-name">Plume</span></div></div>
         </div>
         <div class="card-badges">
           <span class="trend-badge" id="smm-trend"></span>
           <span class="card-tag" id="smm-tag">—</span>
         </div>
+      </div>
+      <div class="acc-switch" id="smm-acc">
+        <button type="button" class="on" data-file="data.json" data-name="Plume">Plume</button>
+        <button type="button" data-file="data2.json" data-name="Matro">Matro</button>
       </div>
       <div class="stat-row" id="smm-stats"><div class="skeleton">Завантаження…</div></div>
       <div class="chart-box" id="smm-chart"></div>
@@ -405,17 +422,19 @@
       </div>
     </a>
 
-    <a href="seo.html" class="glass seo" style="text-decoration:none;color:inherit;display:block">
+    <a href="seo.html" id="seo-link" class="glass seo" style="text-decoration:none;color:inherit;display:block">
       <div class="card-top">
         <div class="card-id">
           <div class="card-icon"><i data-lucide="search"></i></div>
-          <div><div class="card-name">SEO</div><div class="card-desc">Google Search Console · matroluxe.ua</div></div>
+          <div><div class="card-name">SEO</div>
+            <div class="card-desc">Google Search Console · <span id="seo-site-name">—</span></div></div>
         </div>
         <div class="card-badges">
           <span class="trend-badge" id="seo-trend"></span>
           <span class="card-tag" id="seo-tag">—</span>
         </div>
       </div>
+      <div class="acc-switch" id="seo-acc" style="display:none"></div>
       <div class="stat-row" id="seo-stats"><div class="skeleton">Завантаження…</div></div>
       <div class="chart-box" id="seo-chart"></div>
       <div class="card-cta">
@@ -520,11 +539,26 @@ function renderTrend(elId, current, previous, label){
   el.innerHTML = `<span>${arrow}</span> ${sign}${fmt1(pct)}% ${label}`;
 }
 
+// Вибраний кабінет живе між заходами на сторінку — інакше при кожному
+// відкритті головної доводилось би перемикати вручну.
+const SMM_ACC_KEY = 'smm-account';
+let smmFile = 'data.json', smmName = 'Plume';
+try{
+  const saved = localStorage.getItem(SMM_ACC_KEY);
+  if(saved === 'Matro'){ smmFile = 'data2.json'; smmName = 'Matro'; }
+}catch(e){}
+let smmSeq = 0;
+
 async function loadSMM(){
+  // Номер завантаження: два файли по півмегабайта, і при швидкому
+  // перемиканні відповіді приходять не в тому порядку, в якому їх просили.
+  const my = ++smmSeq;
+  const file = smmFile, name = smmName;
   try{
-    const res=await fetch('data.json?_='+Date.now());
+    const res=await fetch(file+'?_='+Date.now());
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
+    if(my !== smmSeq) return;        // поки вантажилось, перемкнули кабінет
     setSys('sys-meta', true);
     const rows=data.daily||[];
     const allDates=[...new Set(rows.map(r=>r.date))].sort();
@@ -545,21 +579,62 @@ async function loadSMM(){
     const prevLeads=prevRows.reduce((a,r)=>a+(r.leads||0),0);
     renderTrend('smm-trend', leads, prevLeads, 'лідів');
 
+    // Валюта — з файлу: кабінети виставлені в різних валютах, і прошите ₴
+    // підписувало б долари Matro гривнями. Для гривні лишаємо знак ₴, щоб
+    // картка виглядала як раніше.
+    const sign = (data.currency && data.currency !== 'грн') ? data.currency : '₴';
     document.getElementById('smm-tag').textContent='Останні 30 днів';
     document.getElementById('smm-stats').innerHTML=`
       <div class="stat"><div class="v">${fmt(campaigns)}</div><div class="l">Кампаній</div></div>
-      <div class="stat"><div class="v">${fmt(spend)}</div><div class="l">Витрати ₴</div></div>
+      <div class="stat"><div class="v">${fmt(spend)}</div><div class="l">Витрати ${sign}</div></div>
       <div class="stat"><div class="v">${fmt(leads)}</div><div class="l">Лідів</div></div>
-      <div class="stat"><div class="v">${fmt(cpl)}</div><div class="l">Ціна ліда ₴</div></div>`;
+      <div class="stat"><div class="v">${fmt(cpl)}</div><div class="l">Ціна ліда ${sign}</div></div>`;
     document.getElementById('smm-chart').innerHTML = series.length ? sparkline(series,'#FF8C42') : '';
     document.getElementById('smm-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
   }catch(e){
+    if(my !== smmSeq) return;
     setSys('sys-meta', false);
     document.getElementById('smm-tag').textContent='Немає даних';
     document.getElementById('smm-trend').classList.remove('show');
-    document.getElementById('smm-stats').innerHTML='<div class="skeleton">Не вдалося завантажити data.json</div>';
+    document.getElementById('smm-stats').innerHTML=
+      `<div class="skeleton">Не вдалося завантажити ${file}</div>`;
+    document.getElementById('smm-chart').innerHTML='';
+    document.getElementById('smm-updated').textContent='';
   }
 }
+
+function setSmmAccount(file, name){
+  smmFile = file; smmName = name;
+  try{ localStorage.setItem(SMM_ACC_KEY, name); }catch(e){}
+  document.querySelectorAll('#smm-acc button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.file === file);
+  });
+  document.getElementById('smm-acc-name').textContent = name;
+  // Кнопка «Відкрити дашборд» має вести на ТОЙ САМИЙ кабінет, що обраний
+  // тут, інакше перехід мовчки повертає на Plume.
+  document.getElementById('smm-link').setAttribute(
+    'href', name === 'Matro' ? 'index.html#matro' : 'index.html');
+  document.getElementById('smm-stats').innerHTML='<div class="skeleton">Завантаження…</div>';
+  loadSMM();
+}
+
+// Картка загорнута в посилання на дашборд — без цього клік по кнопці
+// кабінету одразу йшов би на index.html замість перемикання.
+document.getElementById('smm-acc').addEventListener('click', e=>{
+  const b = e.target.closest('button');
+  if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  if(b.dataset.file === smmFile) return;
+  setSmmAccount(b.dataset.file, b.dataset.name);
+});
+// Початковий стан (міг прийти з localStorage) — без повторного запиту:
+// loadSMM() нижче все одно викличеться загальним стартом сторінки.
+document.querySelectorAll('#smm-acc button').forEach(b=>{
+  b.classList.toggle('on', b.dataset.file === smmFile);
+});
+document.getElementById('smm-acc-name').textContent = smmName;
+document.getElementById('smm-link').setAttribute(
+  'href', smmName === 'Matro' ? 'index.html#matro' : 'index.html');
 
 async function loadSEO(){
   try{
@@ -567,8 +642,63 @@ async function loadSEO(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
     setSys('sys-gsc', true);
-    const site=(data.sites||[])[0];
-    if(!site) throw new Error('no sites');
+    // Файл один на всі сайти — перемикання між ними не потребує нового
+    // запиту, тому просто запам'ятовуємо його цілком.
+    SEO_DATA = data;
+    const sites = data.sites || [];
+    if(!sites.length) throw new Error('no sites');
+    let idx = 0;
+    try{
+      const saved = localStorage.getItem(SEO_SITE_KEY);
+      const found = sites.findIndex(s=>s.site_url===saved);
+      if(found >= 0) idx = found;
+    }catch(e){}
+    renderSeoTabs(idx);
+    renderSEO(idx);
+  }catch(e){
+    setSys('sys-gsc', false);
+    document.getElementById('seo-tag').textContent='Немає даних';
+    document.getElementById('seo-trend').classList.remove('show');
+    document.getElementById('seo-stats').innerHTML='<div class="skeleton">Не вдалося завантажити seo_data.json</div>';
+  }
+}
+
+// Сайтів у GSC більше одного (matroluxe.ua і simplershop.com.ua), а картка
+// завжди показувала перший. Щоб побачити другий, треба було відкрити
+// дашборд і там клацнути вкладку.
+const SEO_SITE_KEY = 'seo-site';
+let SEO_DATA = null, seoIdx = 0;
+
+function seoDomain(url){
+  return String(url||'').replace(/^https?:\/\//,'').replace(/\/$/,'');
+}
+
+function renderSeoTabs(idx){
+  const sites = (SEO_DATA && SEO_DATA.sites) || [];
+  const el = document.getElementById('seo-acc');
+  // Один сайт — перемикати нема що, кнопки тільки займали б місце.
+  el.style.display = sites.length > 1 ? '' : 'none';
+  el.innerHTML = sites.map((s,i)=>
+    `<button type="button" class="${i===idx?'on':''}" data-i="${i}">${s.site_name||seoDomain(s.site_url)}</button>`
+  ).join('');
+}
+
+function renderSEO(i){
+  const sites = (SEO_DATA && SEO_DATA.sites) || [];
+  const site = sites[i];
+  if(!site) return;
+  seoIdx = i;
+  try{ localStorage.setItem(SEO_SITE_KEY, site.site_url||''); }catch(e){}
+  document.getElementById('seo-site-name').textContent = seoDomain(site.site_url);
+  // Кнопка має вести на той самий сайт, що обраний тут.
+  document.getElementById('seo-link').setAttribute(
+    'href', i ? 'seo.html#site='+i : 'seo.html');
+  document.querySelectorAll('#seo-acc button').forEach(b=>{
+    b.classList.toggle('on', Number(b.dataset.i) === i);
+  });
+
+  try{
+    const data = SEO_DATA;
     const rows=site.daily||[];
     const series=rows.map(r=>r.clicks||0);
 
@@ -589,12 +719,20 @@ async function loadSEO(){
     document.getElementById('seo-chart').innerHTML = series.length ? sparkline(series,'#32D8FF') : '';
     document.getElementById('seo-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
   }catch(e){
-    setSys('sys-gsc', false);
-    document.getElementById('seo-tag').textContent='Немає даних';
-    document.getElementById('seo-trend').classList.remove('show');
-    document.getElementById('seo-stats').innerHTML='<div class="skeleton">Не вдалося завантажити seo_data.json</div>';
+    document.getElementById('seo-stats').innerHTML='<div class="skeleton">Не вдалося показати цей сайт</div>';
   }
 }
+
+// Картка загорнута в посилання — без цього клік по кнопці сайту одразу
+// відкривав би seo.html замість перемикання.
+document.getElementById('seo-acc').addEventListener('click', e=>{
+  const b = e.target.closest('button');
+  if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const i = Number(b.dataset.i);
+  if(i === seoIdx) return;
+  renderSEO(i);
+});
 
 // ── ключові показники з перемикачем періоду ──────────────────────────────
 // Головна відкривається на сьогоднішньому дні, а не на всьому періоді.

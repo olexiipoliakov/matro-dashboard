@@ -406,6 +406,14 @@ async function load(){
     DATA=await res.json();
     SITES=DATA.sites||[];
     if(!SITES.length){ showError('В seo_data.json нет данных по сайтам.'); return; }
+    // Головна передає сюди обраний сайт через #site=N у посиланні: там, у
+    // картці SEO, сайт теж перемикається, і без цього перехід «Відкрити
+    // дашборд» мовчки повертав би на перший.
+    const m = /^#site=(\d+)$/.exec(location.hash||'');
+    if(m){
+      const i = Number(m[1]);
+      if(i >= 0 && i < SITES.length) CUR = i;
+    }
     document.getElementById('updated').textContent=DATA.generated_at||'—';
     renderSiteTabs();
     render();

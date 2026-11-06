@@ -653,6 +653,16 @@ async function switchAccount(file, name, btn){
 }
 
 async function load(){
+  // Головна передає сюди вибраний кабінет через #matro у посиланні: там, у
+  // картці SMM, кабінет теж перемикається, і без цього перехід «Відкрити
+  // дашборд» мовчки повертав би на Plume.
+  const wanted = String(location.hash||'').toLowerCase() === '#matro' ? 'Matro' : 'Plume';
+  if(wanted === 'Matro'){
+    currentDataFile = 'data2.json';
+    document.querySelectorAll('.acc-tab').forEach(b=>{
+      b.classList.toggle('active', b.textContent.trim() === 'Matro');
+    });
+  }
   const my = ++loadSeq;
   try{
     const got = await (await fetch(currentDataFile+'?'+Date.now())).json();
@@ -661,17 +671,16 @@ async function load(){
     if(my !== loadSeq) return;
     DATA = got;
     lastLoadOk = true;
-    // Перша вкладка — Plume; та сама перевірка підпису кабінету, що й при
-    // перемиканні.
-    if(!checkAccount('Plume', currentDataFile)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+    // Та сама перевірка підпису кабінету, що й при перемиканні вкладок.
+    if(!checkAccount(wanted, currentDataFile)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
     // Кабінет у підзаголовку з самого початку, а не лише після перемикання:
     // інакше незрозуміло, чиї цифри на екрані при відкритті сторінки.
     const sub0 = document.querySelector('.sub');
-    if(sub0) sub0.textContent = 'Meta Ads · ефективність кампаній · Plume';
+    if(sub0) sub0.textContent = 'Meta Ads · ефективність кампаній · ' + wanted;
   }
   catch(e){
     if(my !== loadSeq) return;
-    document.getElementById('error-box').innerHTML='<div class="err">Не удалось загрузить <b>data.json</b>. '+
+    document.getElementById('error-box').innerHTML=`<div class="err">Не удалось загрузить <b>${currentDataFile}</b>. `+
       'При открытии через file:// браузер блокирует чтение — запусти <code>python -m http.server</code> или открой на GitHub Pages.</div>';
     lastLoadOk = false;
     DATA={daily:[],banners:[],period:'—',generated_at:'—'};
