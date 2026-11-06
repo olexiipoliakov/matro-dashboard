@@ -47,7 +47,12 @@ ACCOUNT_ID    = env("META_ACCOUNT_ID",   "act_XXXXXXXXXX")
 ACCOUNT_ID_2  = env("META_ACCOUNT_ID_2", "act_248358219946238")  # Matro
 API_VERSION   = "v21.0"
 DATE_PRESET   = "last_90d"    # тянем широкий период; фильтр по датам — в дашборде
+# Валюта за замовчуванням — якщо кабінет раптом не відповів. Справжню
+# валюту питаємо в самого кабінета (fetch_account_currency): Plume
+# виставляється в гривні, Matro — в доларах, а сторінка до цього підписувала
+# «грн» під обома, і долари читались як гривні.
 CURRENCY      = "грн"
+CURRENCY_SIGNS = {"UAH": "грн", "USD": "$", "EUR": "€", "PLN": "zł", "GBP": "£"}
 
 # ── Маппинг: цель оптимизации кампании -> какой action_type считать "результатом".
 # Meta отдаёт optimization_goal у группы объявлений; для надёжности мы
@@ -138,6 +143,24 @@ def paged(url, params):
             break
         url, params = nxt, {}
     return out
+
+
+def fetch_account_currency():
+    """Валюта кабінету: ("грн"|"$"|…, ISO-код). Запит дешевий — одне поле.
+
+    Якщо кабінет не відповів, повертаємо гривню: краще підписати старим
+    значенням, ніж зірвати весь збір через один необов'язковий запит.
+    """
+    try:
+        d = _get(f"{BASE}/{ACCOUNT_ID}",
+                 {"fields": "currency", "access_token": ACCESS_TOKEN})
+        code = str(d.get("currency") or "").upper()
+    except Exception as e:
+        print(f"  ⚠ не вдалося прочитати валюту кабінету ({e}) — лишаю {CURRENCY}")
+        return CURRENCY, ""
+    if not code:
+        return CURRENCY, ""
+    return CURRENCY_SIGNS.get(code, code), code
 
 
 def fetch_campaign_goals():
@@ -352,6 +375,8 @@ def build(account_id=None, out_path=None, account_name="", access_token=None):
     # ЯКИЙ файл. Саме цього рядка бракувало, щоб підміна кабінету
     # (data2.json з цифрами Plume) не їздила місяцями непоміченою.
     print(f"{label}кабінет {ACCOUNT_ID} → {OUT.name}")
+    cur_sign, cur_code = fetch_account_currency()
+    print(f"{label}валюта кабінету: {cur_code or '?'} ({cur_sign})")
     seen = set()
     print(f"{label}→ Тяну цели кампаний (optimization_goal)…")
     goals = fetch_campaign_goals()
@@ -455,7 +480,8 @@ def build(account_id=None, out_path=None, account_name="", access_token=None):
         "account": account_name,
         "account_id": ACCOUNT_ID,
         "period": period,
-        "currency": CURRENCY,
+        "currency": cur_sign,
+        "currency_code": cur_code,
         "daily": daily,
         "banners": banners,
     }

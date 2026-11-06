@@ -404,8 +404,8 @@
       <thead><tr>
         <th data-k="campaign">Кампания</th>
         <th data-k="goal">Тип</th>
-        <th data-k="daily_budget">Бюджет, грн</th>
-        <th data-k="spend">Расход, грн</th>
+        <th data-k="daily_budget" data-curlabel="Бюджет">Бюджет, грн</th>
+        <th data-k="spend" data-curlabel="Расход">Расход, грн</th>
         <th data-k="leads">Результатов</th>
         <th data-k="cost_per_lead">Цена результата</th>
         <th data-k="share">Доля расхода</th>
@@ -438,7 +438,7 @@
   </div>
   <div class="panel">
     <div class="chart-block">
-      <div class="chart-title">Расход, грн</div>
+      <div class="chart-title" data-curlabel="Расход">Расход, грн</div>
       <div class="chart" id="chart-spend"></div>
     </div>
     <div class="chart-block">
@@ -446,7 +446,7 @@
       <div class="chart" id="chart-leads"></div>
     </div>
     <div class="chart-block">
-      <div class="chart-title">Цена за лид, грн</div>
+      <div class="chart-title" data-curlabel="Цена за лид">Цена за лид, грн</div>
       <div class="chart" id="chart-cpl"></div>
     </div>
     <div class="legend"><span>Клик по строке кампании выше — фильтр графиков по этой кампании</span></div>
@@ -494,7 +494,7 @@
           <th data-k="banner">Баннер</th>
           <th data-k="campaign">Кампания</th>
           <th data-k="goal">Тип</th>
-          <th data-k="spend">Расход, грн</th>
+          <th data-k="spend" data-curlabel="Расход">Расход, грн</th>
           <th data-k="leads">Результатов</th>
           <th data-k="cost_per_lead">Цена результата</th>
           <th data-k="ctr">CTR</th>
@@ -550,6 +550,20 @@ icons();
 const fmt=n=>new Intl.NumberFormat('uk-UA').format(Math.round(n||0));
 let DATA=null, CAMPS=[];
 
+// Валюта — з самого файлу даних, а не прошита в сторінку.
+// Кабінети виставляються в різних валютах: Plume у гривні, Matro в доларах.
+// Сторінка підписувала «грн» під обома, і долари Matro читались як гривні —
+// різниця в 40 разів у кожній цифрі. fetch_meta.py тепер питає валюту в
+// самого кабінету й кладе її у файл; тут ми лише показуємо те, що прийшло.
+let CUR = 'грн';
+function applyCurrency(){
+  CUR = (DATA && DATA.currency) || 'грн';
+  document.querySelectorAll('.cur').forEach(e=>{ e.textContent = CUR; });
+  document.querySelectorAll('[data-curlabel]').forEach(e=>{
+    e.textContent = e.dataset.curlabel + ', ' + CUR;
+  });
+}
+
 // ── переключение аккаунтов ──
 let currentDataFile = 'data.json';
 
@@ -581,8 +595,22 @@ function checkAccount(name, file){
   box.innerHTML = '';
   return true;
 }
+// Лічильник завантажень. Два кабінети — два файли по півмегабайта, і
+// відповіді приходять не в тому порядку, в якому їх просили: клік «Matro»,
+// одразу «Plume» — і файл Matro, прийшовши другим, лягав поверх Plume.
+// Вкладка підсвічена одна, цифри на екрані з іншого кабінету; саме так
+// виглядало «перемикаю на Matro, а цифри не ті / не міняються». Тепер кожне
+// завантаження має номер, і відповідь застосовується, тільки якщо вона досі
+// найсвіжіша.
+let loadSeq = 0;
+let lastLoadOk = true;
+
 async function switchAccount(file, name, btn){
-  if(currentDataFile === file) return;
+  // Повторний клік по вже відкритій вкладці ігноруємо — але тільки якщо
+  // попереднє завантаження вдалося. Інакше вкладка, яка один раз не
+  // завантажилась, лишалась мертвою назавжди: currentDataFile уже
+  // перемкнувся, і клік по ній нічого не робив.
+  if(currentDataFile === file && lastLoadOk) return;
   document.querySelectorAll('.acc-tab').forEach(t=>t.classList.remove('active'));
   if(btn) btn.classList.add('active');
   currentDataFile = file;
@@ -599,26 +627,40 @@ async function switchAccount(file, name, btn){
   const sub = document.querySelector('.sub');
   if(sub) sub.textContent = `Meta Ads · ефективність кампаній · ${name}`;
   // загружаем новые данные
+  const my = ++loadSeq;
   try{
-    DATA = await (await fetch(file+'?'+Date.now())).json();
+    const got = await (await fetch(file+'?'+Date.now())).json();
+    if(my !== loadSeq) return;        // поки вантажилось, перемкнули далі
+    DATA = got;
+    lastLoadOk = true;
     // Чужий кабінет у файлі — не показуємо нічого, щоб ці цифри не прийняли
     // за свої (саме так і сталось із Matro).
     if(!checkAccount(name, file)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+    applyCurrency();
     initPeriod();
   }catch(e){
+    if(my !== loadSeq) return;
+    lastLoadOk = false;               // щоб клік по цій же вкладці спробував ще раз
     document.getElementById('error-box').innerHTML=
       `<div class="err">Не удалось загрузить <b>${file}</b>. Возможно данные ещё не выгружены.</div>`;
     // Раніше тут DATA лишався від попереднього акаунта — і картки під
     // вкладкою з помилкою тихо показували чужі (старі) цифри, ніби це
     // дані саме цього акаунта. Тепер явно скидаємо на порожній стан.
     DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+    applyCurrency();
     initPeriod();
   }
 }
 
 async function load(){
+  const my = ++loadSeq;
   try{
-    DATA=await (await fetch(currentDataFile+'?'+Date.now())).json();
+    const got = await (await fetch(currentDataFile+'?'+Date.now())).json();
+    // Якщо людина встигла клацнути вкладку, поки вантажився Plume, —
+    // її вибір головніший за наш стартовий.
+    if(my !== loadSeq) return;
+    DATA = got;
+    lastLoadOk = true;
     // Перша вкладка — Plume; та сама перевірка підпису кабінету, що й при
     // перемиканні.
     if(!checkAccount('Plume', currentDataFile)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
@@ -628,10 +670,13 @@ async function load(){
     if(sub0) sub0.textContent = 'Meta Ads · ефективність кампаній · Plume';
   }
   catch(e){
+    if(my !== loadSeq) return;
     document.getElementById('error-box').innerHTML='<div class="err">Не удалось загрузить <b>data.json</b>. '+
       'При открытии через file:// браузер блокирует чтение — запусти <code>python -m http.server</code> или открой на GitHub Pages.</div>';
+    lastLoadOk = false;
     DATA={daily:[],banners:[],period:'—',generated_at:'—'};
   }
+  applyCurrency();
   initPeriod();
 }
 
@@ -834,7 +879,7 @@ function _updateTotRow(){
     totRow.cells[0].textContent='ИТОГО';
     totRow.cells[3].textContent=fmt(totSpend);
     totRow.cells[4].textContent=fmt(tl);
-    totRow.cells[5].textContent=tl?fmt(Math.round(totSpend/tl))+' грн':'—';
+    totRow.cells[5].textContent=tl?fmt(Math.round(totSpend/tl))+' '+CUR:'—';
     totRow.cells[6].textContent='100%';
   } else {
     const sel=CAMPS.filter(c=>activeCamps.has(c.campaign));
@@ -843,7 +888,7 @@ function _updateTotRow(){
     totRow.cells[0].textContent='ИТОГО (выбр.)';
     totRow.cells[3].textContent=fmt(ts);
     totRow.cells[4].textContent=fmt(tl);
-    totRow.cells[5].textContent=tl?fmt(Math.round(ts/tl))+' грн':'—';
+    totRow.cells[5].textContent=tl?fmt(Math.round(ts/tl))+' '+CUR:'—';
     totRow.cells[6].textContent=(totSpend?ts/totSpend*100:0).toFixed(0)+'%';
   }
 }
@@ -886,9 +931,9 @@ function renderCharts(){
     cpls=dates.map(d=>bydate[d].leads?bydate[d].spend/bydate[d].leads:0);
   }
 
-  drawChart('chart-spend', spends, labels, v=>fmt(v)+' грн', '#E06A1F', false);
+  drawChart('chart-spend', spends, labels, v=>fmt(v)+' '+CUR, '#E06A1F', false);
   drawChart('chart-leads', leads, labels, v=>fmt(v), '#1CA478', false);
-  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' грн', '#4A76D6', false);
+  drawChart('chart-cpl',   cpls,  labels, v=>fmt(v)+' '+CUR, '#4A76D6', false);
 }
 
 function drawChart(id, values, labels, fmtFn, color, showAvg=false){
@@ -936,12 +981,12 @@ function renderTable(key,asc){
     <td>${c.daily_budget?fmt(c.daily_budget)+'<span style="font-size:10px;color:#888;margin-left:3px">/'+c.budget_type+'</span>':'—'}</td>
     <td>${fmt(c.spend)}</td>
     <td>${fmt(c.leads)}</td>
-    <td><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></td>
+    <td><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} ${CUR}</span></td>
     <td>${c.share.toFixed(0)}%</td>
   </tr>`).join('');
   const totCplVis2=totLeadsVis?Math.round(totSpendVis/totLeadsVis):0;
   html+=`<tr class="tot-row"><td>ИТОГО${activeCamps.size>0?' (выбр.)':''}</td><td></td><td></td><td>${fmt(totSpendVis)}</td><td>${fmt(totLeadsVis)}</td>
-    <td>${totCplVis2?fmt(totCplVis2)+' грн':'—'}</td><td>${activeCamps.size>0?(totSpendVis/totSpend*100).toFixed(0)+'%':'100%'}</td></tr>`;
+    <td>${totCplVis2?fmt(totCplVis2)+' '+CUR:'—'}</td><td>${activeCamps.size>0?(totSpendVis/totSpend*100).toFixed(0)+'%':'100%'}</td></tr>`;
   document.getElementById('camp-body').innerHTML=html;
   // восстанавливаем подсветку и блокировку после перерисовки
   _applyGoalFilter();
@@ -1006,7 +1051,7 @@ function renderBanners(){
   const best=ranked.sort((a,b)=>a.ratio-b.ratio)[0];
 
   document.getElementById('b-best').textContent=best?best.banner:'—';
-  document.getElementById('b-best-cpl').textContent=best?(best.goal+': '+fmt(best.cost_per_lead)+' грн · CTR '+fmt1(best.ctr)+'%'):'—';
+  document.getElementById('b-best-cpl').textContent=best?(best.goal+': '+fmt(best.cost_per_lead)+' '+CUR+' · CTR '+fmt1(best.ctr)+'%'):'—';
   document.getElementById('b-count').textContent=bs.length;
   document.getElementById('b-avg-cpl').textContent=Object.keys(g).length;
   document.getElementById('b-avg-ctr').textContent=fmt1(avgCtr)+'%';
@@ -1040,7 +1085,7 @@ function renderBannerTable(key,asc){
       <td><span class="goal-tag">${b.goal||'—'}</span></td>
       <td>${fmt(b.spend)}</td>
       <td>${fmt(b.leads)}</td>
-      <td><b>${fmt(b.cost_per_lead)} грн</b></td>
+      <td><b>${fmt(b.cost_per_lead)} ${CUR}</b></td>
       <td>${fmt1(b.ctr)}%</td>
       <td><span class="grade ${gcls}">${gtxt}</span></td>
     </tr>`;
@@ -1073,9 +1118,9 @@ function renderMobCamps(camps){
         <span class="goal-tag">${c.goal||'—'}</span>
       </div>
       <div class="mob-card-grid">
-        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(c.spend)} <span style="font-size:12px;color:var(--ink-soft)">грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(c.spend)} <span style="font-size:12px;color:var(--ink-soft)">${CUR}</span></div></div>
         <div class="mob-stat"><div class="ml">Результатов</div><div class="mv">${fmt(c.leads)}</div></div>
-        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv"><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv"><span class="cpl-tag ${cplClass(c.cost_per_lead,c.goal)}">${fmt(c.cost_per_lead)} ${CUR}</span></div></div>
         <div class="mob-stat"><div class="ml">Доля расхода</div><div class="mv">${c.share.toFixed(0)}%</div></div>
       </div>
     </div>`).join('');
@@ -1092,9 +1137,9 @@ function renderMobBanners(banners){
         <span class="goal-tag">${b.goal||'—'}</span>
       </div>
       <div class="mob-card-grid">
-        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(b.spend)} <span style="font-size:12px;color:var(--ink-soft)">грн</span></div></div>
+        <div class="mob-stat"><div class="ml">Расход</div><div class="mv">${fmt(b.spend)} <span style="font-size:12px;color:var(--ink-soft)">${CUR}</span></div></div>
         <div class="mob-stat"><div class="ml">Результатов</div><div class="mv">${fmt(b.leads)}</div></div>
-        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv">${b.cost_per_lead?fmt(b.cost_per_lead)+' грн':'—'}</div></div>
+        <div class="mob-stat"><div class="ml">Цена результата</div><div class="mv">${b.cost_per_lead?fmt(b.cost_per_lead)+' '+CUR:'—'}</div></div>
         <div class="mob-stat"><div class="ml">CTR · Оценка</div><div class="mv">${fmt1(b.ctr)}% <span class="grade ${gcls}">${gtxt}</span></div></div>
       </div>
     </div>`;
@@ -1127,7 +1172,7 @@ async function genInsights(tab){
 
 function buildCampsPrompt(){
   const period=document.getElementById('period-info').textContent;
-  const rows=CAMPS.map(c=>`• ${c.campaign} [${c.goal}]: расход ${fmt(c.spend)} грн, результатов ${c.leads}, цена результата ${c.cost_per_lead?fmt(c.cost_per_lead)+' грн':'—'}, доля ${c.share.toFixed(0)}%`).join('\n');
+  const rows=CAMPS.map(c=>`• ${c.campaign} [${c.goal}]: расход ${fmt(c.spend)} ${CUR}, результатов ${c.leads}, цена результата ${c.cost_per_lead?fmt(c.cost_per_lead)+' '+CUR:'—'}, доля ${c.share.toFixed(0)}%`).join('\n');
   return `Ты — аналитик по рекламе для мебельного бизнеса Matro (матрасы, кровати, диваны). Проанализируй данные рекламных кампаний Meta Ads за период ${period} и дай конкретные практические выводы на русском языке.
 
 Данные по кампаниям:
@@ -1145,7 +1190,7 @@ ${rows}
 
 function buildBannersPrompt(){
   const bs=BANNERS_AGG.slice(0,20); // топ 20 чтобы не перегружать
-  const rows=bs.map(b=>`• "${b.banner}" [${b.campaign}, ${b.goal}]: расход ${fmt(b.spend)} грн, результатов ${b.leads}, цена ${b.cost_per_lead?fmt(b.cost_per_lead)+' грн':'—'}, CTR ${b.ctr.toFixed(1)}%`).join('\n');
+  const rows=bs.map(b=>`• "${b.banner}" [${b.campaign}, ${b.goal}]: расход ${fmt(b.spend)} ${CUR}, результатов ${b.leads}, цена ${b.cost_per_lead?fmt(b.cost_per_lead)+' '+CUR:'—'}, CTR ${b.ctr.toFixed(1)}%`).join('\n');
   return `Ты — аналитик по рекламе для мебельного бизнеса Matro (матрасы, кровати, диваны). Проанализируй эффективность рекламных баннеров Meta Ads и дай конкретные практические выводы на русском языке.
 
 Данные по баннерам:

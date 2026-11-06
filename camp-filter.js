@@ -99,7 +99,10 @@
           cells[0].textContent = 'ИТОГО (' + (mode === 'active' ? 'активные' : 'выключенные') + ')';
           cells[3].textContent = f(spend);
           cells[4].textContent = f(leads);
-          cells[5].textContent = leads ? f(Math.round(spend / leads)) + ' грн' : '—';
+          // Валюта та сама, що на сторінці: кабінети в різних валютах,
+          // і прошите тут «грн» підписувало б долари Matro гривнями.
+          var cur = (typeof CUR !== 'undefined' && CUR) ? CUR : 'грн';
+          cells[5].textContent = leads ? f(Math.round(spend / leads)) + ' ' + cur : '—';
           cells[6].textContent = all ? (spend / all * 100).toFixed(0) + '%' : '0%';
         }
         tot.style.display = '';
