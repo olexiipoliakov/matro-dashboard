@@ -155,6 +155,9 @@
   .kpi .val{font-size:clamp(20px,3vw,26px);font-weight:700;letter-spacing:-.5px;line-height:1;
     word-break:break-word;font-variant-numeric:tabular-nums}
   .kpi .sub{font-size:11.5px;margin-top:7px;color:var(--ink-dim)}
+  /* Знак валюти й відсотка — дрібніше за саме число, як на головній. */
+  .kpi .val .cur{font-size:.6em;font-weight:600;color:var(--ink-soft);margin-left:4px}
+  .kpi .sub b{color:var(--bad);font-weight:700}
   /* Другий рядок — «валом», тобто те саме число, що показує сам Bitrix.
      Він тьмяніший за основний: це довідка для звірки, а не показник. */
   .kpi .sub.raw{font-size:10.5px;margin-top:4px;color:#46557A}
@@ -356,7 +359,36 @@
   <div class="fresh-note" id="fresh-note"><i data-lucide="clock"></i><span id="fresh-note-text"></span>
   </div>
 
-  <div class="kpis" id="kpis"></div>
+  <!-- Набір показників той самий, що на головній: оборот, угоди, ліди,
+       конверсія. Забраковані нікуди не поділись — вони стали дрібними
+       підписами під відповідними числами.
+       Картки стоять у розмітці, а не збираються щоразу в JS: kpi-trend.js
+       позначає їх один раз при старті, і перемальовування рядка цілком
+       відбирало б у нього клік «показати динаміку». -->
+  <div class="kpis" id="kpis">
+    <div class="kpi" title="Сума тільки товарних рядків: доставка, накладений платіж, занос і збірка не рахуються. Відмови й помилкові угоди не враховані.">
+      <div class="lbl">Загальний оборот</div>
+      <div class="val" id="kpi-turnover">—</div>
+      <div class="sub raw" id="kpi-turnover-sub"></div>
+    </div>
+    <div class="kpi" title="Угоди без відмов і помилкових. Відмова клієнта, помилкова угода і рекламація визначаються за назвою стадії, а не за її кодом.">
+      <div class="lbl">Угоди</div>
+      <div class="val" id="kpi-deals">—</div>
+      <div class="sub" id="kpi-deals-sub"></div>
+      <div class="sub raw" id="kpi-deals-drop"></div>
+    </div>
+    <div class="kpi" title="Усі ліди за вибраний період.">
+      <div class="lbl">Ліди</div>
+      <div class="val" id="kpi-leads">—</div>
+      <div class="sub" id="kpi-leads-sub"></div>
+      <div class="sub raw" id="kpi-leads-conv"></div>
+    </div>
+    <div class="kpi" title="Угоди поділені на ліди за той самий період. Орієнтир, а не точна конверсія ліда в угоду: частина угод заводиться без ліда (замовлення з сайту), а лід може перетворитись на угоду вже наступного дня.">
+      <div class="lbl">Конверсія відділу</div>
+      <div class="val" id="kpi-conv">—</div>
+      <div class="sub">угоди / ліди за період</div>
+    </div>
+  </div>
 
   <div class="sec-head"><span class="n">1</span><h2>Менеджери</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Угоди та ліди за вибраний період у розрізі відповідального · <a href="managers.html" style="color:var(--accent);font-weight:600">окрема сторінка для команди &rarr;</a></div>
@@ -466,6 +498,9 @@ const escapeHtml=s=>String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;
 
 let RAW=null, META={stages:{},lead_statuses:{},lead_sources:{},users:{}};
 let curFrom=null, curTo=null;
+// Аліаси для kpi-trend.js: він читає дані й межі періоду саме під цими
+// іменами (так само, як на головній).
+let CRM_RAW=null, KPI_FROM=null, KPI_TO=null;
 
 async function load(){
   try{
@@ -654,6 +689,7 @@ function setCustom(){
 
 function applyFilter(){
   if(!RAW) return;
+  CRM_RAW = RAW; KPI_FROM = curFrom; KPI_TO = curTo;
   CLEAN_TURNOVER = {};
   (RAW.deal_categories||[]).forEach(c=>{ CLEAN_TURNOVER[c.deal_id] = c.turnover || 0; });
   const deals=(RAW.deals||[]).filter(d=>(!curFrom||d.date>=curFrom)&&(!curTo||d.date<=curTo));
@@ -678,6 +714,9 @@ function applyFilter(){
 // регулярне вираження по id їх не впіймає, і плитка «Забраковано угод»
 // роками показувала б менше, ніж є насправді.
 const DROP_STAGE_NAMES = ['отказ клиента', 'ошибочный', 'рекламация'];
+// Ті самі імена, під якими kpi-trend.js знає головну: один адаптер на дві
+// сторінки замість копії коду графіка.
+const KPI_DROP_NAMES = DROP_STAGE_NAMES;
 
 // ── джерела для колонок конверсії ──
 // Загальна конверсія лід→угода змішує дві різні роботи. Дзвінок — це
@@ -897,23 +936,39 @@ function round1(n){ return Math.round(n*10)/10; }
 
 let CURRENT_LEADS_RAW=[], CURRENT_DEALS_RAW=[], SELECTED_MANAGER=null, CURRENT_BY_MANAGER={};
 
+// Окремою функцією — і щоб було видно, що саме показують плитки, і тому що
+// kpi-trend.js обгортає саме renderKpi: її виклик для нього сигнал, що дані
+// змінились і графік час перемалювати.
+function renderKpi(deals, leads){
+  const set = (id, html) => { const el=document.getElementById(id); if(el) el.innerHTML = html; };
+  // Конверсія без лідів — прочерк, а не нуль: нуль читався б як «працювали
+  // й не продали», хоча насправді ділити нема на що.
+  const conv = leads.total_count ? deals.clean_count / leads.total_count * 100 : null;
+
+  set('kpi-turnover', `${fmt(deals.clean_sum)}<span class="cur">₴</span>`);
+  set('kpi-turnover-sub', `валом: ${fmt(deals.total_count)} · ${fmt(deals.total_sum)} грн`);
+
+  set('kpi-deals', fmt(deals.clean_count));
+  set('kpi-deals-sub', `забраковано: <b>${fmt(deals.lost_count)}</b> · ${fmt(deals.lost_sum)} грн`);
+  set('kpi-deals-drop', deals.drop_by_name.length
+      ? deals.drop_by_name.map(([n,c])=>`${escapeHtml(n)}: ${c}`).join(' · ')
+      : 'відмов і помилкових немає');
+
+  set('kpi-leads', fmt(leads.total_count));
+  set('kpi-leads-sub', `забраковано: <b>${fmt(leads.rejected_count)}</b> · ${fmt1(leads.rejected_rate)}%`);
+  set('kpi-leads-conv', `${fmt(leads.converted_count)} конвертовано`);
+
+  set('kpi-conv', conv === null ? '—'
+      : `${conv < 10 ? fmt1(conv) : fmt(conv)}<span class="cur">%</span>`);
+}
+
 function render(dealsRaw, leadsRaw){
   CURRENT_DEALS_RAW=dealsRaw; CURRENT_LEADS_RAW=leadsRaw;
   const deals=aggregateDeals(dealsRaw);
   const leads=aggregateLeads(leadsRaw, deals.by_manager);
   CURRENT_BY_MANAGER = deals.by_manager; // після aggregateLeads тут вже є й дані по лідах (той самий об'єкт)
 
-  document.getElementById('kpis').innerHTML=`
-    <div class="kpi" title="Угоди без відмов і помилок. Сума — тільки товарні рядки: доставка, накладений платіж, занос і збірка не рахуються.">
-      <div class="lbl">Угод</div><div class="val">${fmt(deals.clean_count)}</div>
-      <div class="sub">${fmt(deals.clean_sum)} грн за товарами</div>
-      <div class="sub raw">валом: ${fmt(deals.total_count)} · ${fmt(deals.total_sum)} грн</div></div>
-    <div class="kpi" title="Відмова клієнта, помилкова угода і рекламація — за назвою стадії, а не за її кодом.">
-      <div class="lbl">Забраковано угод</div><div class="val" style="color:var(--bad)">${fmt(deals.lost_count)}</div>
-      <div class="sub">${fmt(deals.lost_sum)} грн</div>
-      <div class="sub raw">${deals.drop_by_name.length ? deals.drop_by_name.map(([n,c])=>`${escapeHtml(n)}: ${c}`).join(' · ') : 'немає'}</div></div>
-    <div class="kpi"><div class="lbl">Лідів</div><div class="val">${fmt(leads.total_count)}</div><div class="sub">${fmt(leads.converted_count)} конвертовано</div></div>
-    <div class="kpi"><div class="lbl">Забраковано лідів</div><div class="val" style="color:var(--bad)">${fmt(leads.rejected_count)}</div><div class="sub">${fmt1(leads.rejected_rate)}%</div></div>`;
+  renderKpi(deals, leads);
 
   renderRejectReasons(leadsRaw);
   renderManagers(deals.by_manager);
@@ -1431,5 +1486,6 @@ function renderCategoryTurnover(rows){
 load();
 icons();
 </script>
+<script src="kpi-trend.js?v=2"></script>
 </body>
 </html>
