@@ -339,9 +339,9 @@
 
   <div class="period-bar">
     <div class="period-btns">
-      <button class="pbtn" onclick="setPeriodDays(0,this)">Сьогодні</button>
+      <button class="pbtn active" id="pbtn-today" onclick="setPeriodDays(0,this)">Сьогодні</button>
       <button class="pbtn" onclick="setPeriodDays(1,this)">Вчора</button>
-      <button class="pbtn active" data-days="90" onclick="setPeriod(90,this)">Всі</button>
+      <button class="pbtn" data-days="90" onclick="setPeriod(90,this)">Всі</button>
     </div>
     <div class="day-step">
       <button class="arr" id="day-prev" onclick="stepDay(-1)" title="Попередній день">◀</button>
@@ -514,7 +514,10 @@ async function load(){
     META = RAW.meta || META;
     document.getElementById('updated').textContent = RAW.generated_at || '—';
     document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
-    setPeriod(90, document.querySelector('.pbtn[data-days="90"]'));
+    // Відкриваємося на сьогоднішньому дні, як головна: керівник заходить
+    // сюди з питанням «як ми йдемо сьогодні», і підсумок за три місяці на
+    // його місці — не відповідь. «Всі» лишаються сусідньою кнопкою.
+    setPeriodDays(0, document.getElementById('pbtn-today'));
     renderOverdue(RAW.overdue_tasks||{});
     // Збір міг стартувати за розкладом, з вебхука Bitrix або з іншої вкладки.
     // Показуємо це одразу при відкритті, а не тільки після натискання кнопки.
