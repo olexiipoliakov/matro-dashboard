@@ -235,9 +235,6 @@
      виглядає так само вагомо, як 50% у менеджера з двомастами. */
   .conv-sub{font-size:10.5px;color:var(--ink-dim);font-weight:500;margin-top:3px;white-space:nowrap}
 
-  .overdue-badge{display:inline-block;font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:99px}
-  .overdue-badge.mid{background:var(--mid-bg);color:var(--mid)}
-  .overdue-badge.bad{background:var(--bad-bg);color:var(--bad)}
   .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .table-scroll-v{max-height:420px;overflow-y:auto}
 
@@ -263,19 +260,6 @@
   .warn-box{background:var(--mid-bg);color:var(--mid);border:1px solid rgba(255,200,77,.25);
     padding:12px 16px;border-radius:12px;font-size:12.5px;margin-bottom:14px}
   .empty-note{color:var(--ink-dim);font-style:italic;font-size:12.5px}
-  /* ── картка простроченої задачі (як у списку лідів Bitrix) ── */
-  .task-card{padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-  .task-card:last-child{border-bottom:none}
-  .task-due{font-size:12.5px;font-weight:600;color:var(--bad)}
-  /* підкреслення саме на даті — інакше пунктир тягнеться і на "прострочено N дн." */
-  .task-due .dt{text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px}
-  .task-due .ago{color:var(--ink-dim);font-weight:400;margin-left:8px}
-  .task-title{font-size:13.5px;margin:5px 0 3px;display:block;color:var(--ink);text-decoration:none}
-  a.task-title:hover{color:var(--accent)}
-  .task-for{font-size:12px;color:var(--ink-dim)}
-  .task-for a{color:var(--accent);text-decoration:none}
-  .task-for a:hover{text-decoration:underline}
-
   .more-btn{margin-top:10px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-soft);
     cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;
     padding:8px 14px;transition:all 180ms ease;width:100%}
@@ -414,47 +398,7 @@
     </div>
   </div>
 
-  <div class="sec-head"><span class="n">4</span><h2>Прострочені задачі</h2><span class="ln"></span></div>
-  <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Поточний стан на момент останнього оновлення — не залежить від вибраного вище періоду</div>
-  <div class="panel">
-    <div id="overdue-warn"></div>
-    <div class="bucket-row" id="overdue-buckets"></div>
-
-    <div id="overdue-days-wrap" style="margin:18px 0 22px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:4px">Прострочення по днях дедлайну</div>
-      <div class="sub-hint" id="overdue-days-hint">Скільки задач зависло з дедлайном на кожну дату · наведіть на стовпчик</div>
-
-      <div class="period-bar" style="margin-bottom:12px">
-        <div class="period-btns">
-          <button class="pbtn active" id="od-all" onclick="setOverdueDate('')">Усі дні</button>
-          <button class="pbtn" id="od-today" onclick="setOverdueDate('today')">Сьогодні</button>
-          <button class="pbtn" id="od-yest" onclick="setOverdueDate('yesterday')">Вчора</button>
-        </div>
-        <div class="period-cal">
-          <span>або дата дедлайну:</span>
-          <input type="date" id="od-date" onchange="setOverdueDate(this.value)">
-        </div>
-      </div>
-
-      <div class="bucket-row" id="overdue-mgr-chips" style="margin-bottom:12px"></div>
-      <div class="chart" id="overdue-days"></div>
-      <div id="overdue-days-axis" style="display:flex;justify-content:space-between;
-        font-size:10.5px;color:var(--ink-dim);margin-top:6px"></div>
-    </div>
-
-    <div class="cols2" style="margin-bottom:20px">
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px">За відповідальним</div>
-        <div id="overdue-by-manager"></div>
-      </div>
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px" id="overdue-table-title">Найстаріші прострочення</div>
-        <div class="table-scroll table-scroll-v"><table class="data-table" id="overdue-table"></table></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec-head"><span class="n">5</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
+  <div class="sec-head"><span class="n">4</span><h2>Товарообіг за категоріями</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">За методикою розбору DEAL_*.xls: виключені відмови/помилкові угоди та доставка/наложка/занос; за вибраний вище період</div>
   <div class="panel">
     <div id="cat-turnover-warn"></div>
@@ -518,7 +462,6 @@ async function load(){
     // сюди з питанням «як ми йдемо сьогодні», і підсумок за три місяці на
     // його місці — не відповідь. «Всі» лишаються сусідньою кнопкою.
     setPeriodDays(0, document.getElementById('pbtn-today'));
-    renderOverdue(RAW.overdue_tasks||{});
     // Збір міг стартувати за розкладом, з вебхука Bitrix або з іншої вкладки.
     // Показуємо це одразу при відкритті, а не тільки після натискання кнопки.
     try{
@@ -1236,164 +1179,6 @@ function renderUtmTable(elId, items, withSum){
     return `<tr><td>${x.source}</td><td>${x.medium}</td><td>${fmt(x.count)}</td>${sumCell}</tr>`;
   }).join('');
   table.innerHTML=head+`<tbody>${rows}</tbody>`;
-}
-
-let OVERDUE_MGR='';          // '' = усі відповідальні
-let OVERDUE_DATE='';         // '' = усі дні, інакше ISO-дата дедлайну
-let OVERDUE_CACHE=null;
-
-function isoShift(days){
-  const d=new Date(); d.setDate(d.getDate()+days);
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-
-function setOverdueDate(v){
-  OVERDUE_DATE = v==='today' ? isoShift(0) : (v==='yesterday' ? isoShift(-1) : (v||''));
-  document.getElementById('od-date').value = OVERDUE_DATE;
-  ['od-all','od-today','od-yest'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  const btn = !OVERDUE_DATE ? 'od-all'
-            : (OVERDUE_DATE===isoShift(0) ? 'od-today'
-            : (OVERDUE_DATE===isoShift(-1) ? 'od-yest' : null));
-  if(btn) document.getElementById(btn).classList.add('active');
-  renderOverdue(OVERDUE_CACHE);
-}
-
-function setOverdueMgr(id){
-  OVERDUE_MGR = (OVERDUE_MGR===id) ? '' : id;
-  renderOverdue(OVERDUE_CACHE);
-}
-
-function renderOverdueDays(items){
-  const el=document.getElementById('overdue-days');
-  const axis=document.getElementById('overdue-days-axis');
-  const scoped = OVERDUE_MGR ? items.filter(t=>(t.responsible_id||'')===OVERDUE_MGR) : items;
-  if(!scoped.length){ el.innerHTML='<div class="empty-note">Немає прострочень.</div>'; axis.innerHTML=''; return; }
-
-  // Групуємо за датою дедлайну і показуємо суцільний ряд днів (включно з
-  // порожніми), інакше пропуски візуально стискаються і день з двадцятьма
-  // задачами стоїть поруч із днем з однією, ніби вони сусідні.
-  const by={};
-  scoped.forEach(t=>{ by[t.deadline]=(by[t.deadline]||0)+1; });
-  const days=Object.keys(by).sort();
-  const from=new Date(days[0]), to=new Date(days[days.length-1]);
-  const seq=[];
-  for(let d=new Date(from); d<=to; d.setDate(d.getDate()+1)){
-    const iso=d.toISOString().slice(0,10);
-    seq.push({date:iso, count:by[iso]||0});
-  }
-  const max=Math.max(1,...seq.map(x=>x.count));
-  el.innerHTML=seq.map(x=>{
-    const h=x.count?Math.max(4,x.count/max*100):1;
-    const tip=`${fmtDate(x.date)} · ${x.count} задач`;
-    const on = OVERDUE_DATE===x.date;
-    return `<div class="col" style="cursor:pointer" onclick="setOverdueDate('${x.date}')">
-      <div class="barwrap"><div class="bar"
-      style="height:${h}%;${x.count?'':'opacity:.25'}${on?';outline:2px solid var(--ink);outline-offset:1px':''}"
-      data-v="${tip}"></div></div></div>`;
-  }).join('');
-  axis.innerHTML = `<span>${fmtDate(seq[0].date)}</span><span>${fmtDate(seq[seq.length-1].date)}</span>`;
-  document.getElementById('overdue-days-hint').textContent =
-    `${fmt(scoped.length)} задач з дедлайном у ${fmt(days.length)} різних днів · наведіть на стовпчик`;
-}
-
-function renderOverdue(overdue){
-  OVERDUE_CACHE=overdue;
-  const warn=document.getElementById('overdue-warn');
-  const buckets=document.getElementById('overdue-buckets');
-  const byMgrEl=document.getElementById('overdue-by-manager');
-  const table=document.getElementById('overdue-table');
-
-  if(overdue.error){
-    document.getElementById('overdue-days-wrap').style.display='none';
-    warn.innerHTML = `<div class="warn-box">⚠ Не вдалося отримати задачі — схоже, вебхуку не вистачає доступу "Задачі" (task), або запит не підтримується порталом. Додай/перевір scope "task" у вхідному вебхуку Bitrix24.</div>`;
-    buckets.innerHTML=''; byMgrEl.innerHTML=''; table.innerHTML='';
-    return;
-  }
-  warn.innerHTML='';
-  const items=overdue.items||[];
-  if(!items.length){
-    document.getElementById('overdue-days-wrap').style.display='none';
-    buckets.innerHTML=`<span class="bucket-tag">Прострочених задач немає 🎉</span>`;
-    byMgrEl.innerHTML=''; table.innerHTML='';
-    return;
-  }
-
-  const b13=items.filter(t=>t.days_overdue<=3).length;
-  const b47=items.filter(t=>t.days_overdue>=4&&t.days_overdue<=7).length;
-  const b814=items.filter(t=>t.days_overdue>=8&&t.days_overdue<=14).length;
-  const b15=items.filter(t=>t.days_overdue>=15).length;
-  buckets.innerHTML = `
-    <span class="bucket-tag">Всього: <b>${fmt(items.length)}</b></span>
-    <span class="bucket-tag">1–3 дні: <b>${fmt(b13)}</b></span>
-    <span class="bucket-tag warn">4–7 днів: <b>${fmt(b47)}</b></span>
-    <span class="bucket-tag warn">8–14 днів: <b>${fmt(b814)}</b></span>
-    <span class="bucket-tag crit">15+ днів: <b>${fmt(b15)}</b></span>`;
-
-  const byMgr={};
-  items.forEach(t=>{
-    const key=t.responsible_id||'';
-    if(!byMgr[key]) byMgr[key]={id:key,name:t.responsible_name||'(не призначено)',count:0,maxDays:0};
-    byMgr[key].count++;
-    byMgr[key].maxDays=Math.max(byMgr[key].maxDays,t.days_overdue);
-  });
-  const mgrRows=Object.values(byMgr).sort((a,b)=>b.count-a.count);
-
-  // Чіпи-фільтри: клік по відповідальному лишає в графіку тільки його задачі,
-  // повторний клік знімає фільтр.
-  document.getElementById('overdue-days-wrap').style.display='';
-  document.getElementById('overdue-mgr-chips').innerHTML =
-    `<span class="bucket-tag${OVERDUE_MGR?'':' crit'}" style="cursor:pointer"
-       onclick="setOverdueMgr('')">Усі: <b>${fmt(items.length)}</b></span>` +
-    mgrRows.map(m=>`<span class="bucket-tag${OVERDUE_MGR===m.id?' crit':''}" style="cursor:pointer"
-       onclick="setOverdueMgr('${m.id}')">${escapeHtml(m.name)}: <b>${fmt(m.count)}</b></span>`).join('');
-  renderOverdueDays(items);
-  const maxC=Math.max(1,...mgrRows.map(m=>m.count));
-  byMgrEl.innerHTML = mgrRows.map(m=>`<div class="bd-row"><div class="bd-name" title="${m.name}">${m.name}</div>
-    <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,m.count/maxC*100)}%"></div></div>
-    <div class="bd-count">${fmt(m.count)}</div></div>`).join('');
-
-  // Список слухає обидва фільтри — дату дедлайну і відповідального, — щоб
-  // на конкретне число було видно саме ті задачі й саме тих людей.
-  let list = items;
-  if(OVERDUE_MGR) list = list.filter(t=>(t.responsible_id||'')===OVERDUE_MGR);
-  if(OVERDUE_DATE) list = list.filter(t=>t.deadline===OVERDUE_DATE);
-
-  const title = document.getElementById('overdue-table-title');
-  const who = OVERDUE_MGR ? ` · ${managerNameOverdue(items, OVERDUE_MGR)}` : '';
-  title.textContent = OVERDUE_DATE
-    ? `Дедлайн ${fmtDate(OVERDUE_DATE)} — ${fmt(list.length)} задач${who}`
-    : `Найстаріші прострочення${who}`;
-
-  if(!list.length){
-    table.innerHTML='';
-    table.insertAdjacentHTML('beforebegin','');
-    table.innerHTML = `<tbody><tr><td colspan="4" class="empty-note" style="text-align:left">
-      ${OVERDUE_DATE ? 'На цю дату прострочених задач немає.' : 'Немає задач.'}</td></tr></tbody>`;
-    return;
-  }
-
-  const portal = (META.portal_url||'').replace(/\/$/,'');
-  table.innerHTML = `<tbody><tr><td style="padding:0">${list.slice(0,120).map(t=>{
-    const who = escapeHtml(t.responsible_name||'—');
-    const whoLink = portal && t.responsible_id
-      ? `<a href="${portal}/company/personal/user/${encodeURIComponent(t.responsible_id)}/"
-           target="_blank" rel="noopener">${who}</a>` : who;
-    const title = escapeHtml(t.title||('Задача #'+t.id));
-    const titleLink = portal && t.responsible_id && t.id
-      ? `<a class="task-title" target="_blank" rel="noopener"
-           href="${portal}/company/personal/user/${encodeURIComponent(t.responsible_id)}/tasks/task/view/${encodeURIComponent(t.id)}/">${title}</a>`
-      : `<span class="task-title">${title}</span>`;
-    return `<div class="task-card">
-      <div class="task-due"><span class="dt">${fmtDateTime(t.deadline_at||t.deadline)}</span><span class="ago">прострочено ${t.days_overdue} дн.</span></div>
-      ${titleLink}
-      <div class="task-for">для ${whoLink}</div>
-    </div>`;
-  }).join('')}</td></tr></tbody>`;
-}
-
-function managerNameOverdue(items, id){
-  const t = items.find(x=>(x.responsible_id||'')===id);
-  return t ? (t.responsible_name||id) : id;
 }
 
 // Аксесуари — повноцінна категорія, а не виноска: подушки, ковдри й
