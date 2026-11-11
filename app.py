@@ -660,11 +660,16 @@ def ringostat_status():
 # Що НЕ повертаємо: номери телефонів і повні адреси сторінок (у них
 # прилітають рекламні мітки). Тільки імена полів, короткі значення
 # та домени.
+# Підтверджені перебором: pool_name, referrer, n_alias, utm_campaign,
+# utm_content, utm_term. Решта — чергові кандидати на «сторінку дзвінка»,
+# якої в API поки не знайшлося. Свій список можна передати параметром
+# ?f=ім'я,ім'я — щоб шукати далі без нового деплою.
 RINGOSTAT_FIELD_CANDIDATES = [
-    "n_alias", "pool_name", "pool", "alias", "number_alias", "n_name",
-    "page", "page_url", "url", "landing_page", "entrance_page", "first_page",
-    "start_page", "entry_page", "referrer", "site", "site_name", "domain",
-    "project", "project_name", "utm_campaign", "utm_content", "utm_term",
+    "pool_name", "referrer", "n_alias",
+    "call_page", "page_title", "landing", "landing_url", "location",
+    "uri", "request_uri", "href", "web_page", "site_url", "source_page",
+    "visit_page", "first_visit_page", "entrance", "entry", "recording",
+    "connected_with", "duration", "tags", "comment",
 ]
 
 
@@ -682,6 +687,10 @@ def ringostat_probe():
     now = time.time()
     frm = time.strftime("%Y-%m-%d 00:00:00", time.localtime(now - 86400))
     to = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now))
+
+    # ?f=ім'я,ім'я — перевірити свій список замість типового.
+    asked = [n.strip() for n in (request.args.get("f") or "").split(",") if n.strip()]
+    candidates = asked[:40] or RINGOSTAT_FIELD_CANDIDATES
 
     def ask(fields):
         """Повертає (рядки, текст помилки). Помилка — це і не-JSON теж."""
@@ -741,7 +750,7 @@ def ringostat_probe():
             base[key]["значення"] = short(vals)
 
     found, missing = {}, []
-    for name in RINGOSTAT_FIELD_CANDIDATES:
+    for name in candidates:
         rows, err = ask("calldate," + name)
         if err:
             missing.append({name: err})

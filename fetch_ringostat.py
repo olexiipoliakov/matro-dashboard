@@ -163,13 +163,19 @@ def fetch_staff():
 # дзвінка до менеджера (а не caller/dst, які є номером клієнта й лінії
 # відстеження). CALL_FIELDS_FALLBACK — про всяк випадок, якщо якийсь дуже
 # старий проєкт Ringostat їх ще не підтримує.
-# pool_name і page — звідки зрозуміло, З ЯКОГО САЙТУ дзвінок. Сайтів у
+# pool_name і referrer — звідси зрозуміло, З ЯКОГО САЙТУ дзвінок. Сайтів у
 # проєкті Ringostat кілька (matroluxe.ua, matroluxe.com, simplershop), і без
-# цих двох полів усі дзвінки виглядають однаково. Одного pool_name мало:
-# заявки на зворотний дзвінок лягають у спільний пул «Callback», і сайт у
-# них видно тільки в адресі сторінки.
+# цих полів усі дзвінки виглядають однаково.
+#
+# Чому не page. У вигрузці звіту є стовпець «Сторінка дзвінка» (page), і
+# саме в ньому сайт видно завжди. Але в API такого поля немає: запит із
+# ним повертає "You may have entered an incorrect field name" — причому
+# НА ВЕСЬ запит, разом із правильними полями поруч. Через це збір мовчки
+# відкочувався на бідніший набір, і сайт був порожній у кожного дзвінка.
+# Тому тут лишаються тільки ті імена, існування яких перевірено
+# маршрутом /api/ringostat/probe.
 CALL_FIELDS = ("calldate,caller,dst,disposition,billsec,utm_source,utm_medium,"
-               "call_type,employee_number,employee_fio,pool_name,page")
+               "call_type,employee_number,employee_fio,pool_name,referrer")
 CALL_FIELDS_MID = ("calldate,caller,dst,disposition,billsec,utm_source,utm_medium,"
                    "call_type,employee_number,employee_fio")
 CALL_FIELDS_FALLBACK = "calldate,caller,dst,disposition,billsec,utm_source,utm_medium"
@@ -185,12 +191,29 @@ SITE_RULES = (
 )
 
 
-def call_site(r):
-    hay = f"{r.get('pool_name') or ''} {r.get('page') or ''}".lower()
+def _match_site(text):
     for needle, name in SITE_RULES:
-        if needle in hay:
+        if needle in text:
             return name
     return ""
+
+
+def call_site(r):
+    """Сайт дзвінка: спершу пул номера, потім реферер.
+
+    Пул — ознака надійна: номер належить конкретному сайту. Але заявки на
+    зворотний дзвінок з усіх сайтів лягають у спільний пул «Callback», і
+    там пул не каже нічого. Для них лишається реферер — сторінка, з якої
+    людина прийшла. Він буває зовнішнім (facebook.com, google.com), тоді
+    сайт так і лишається невідомим; зате коли людина переходила всередині
+    сайту, домен у реферері — саме той, що потрібен.
+
+    Порядок має значення: пул завжди переважає над реферером, інакше
+    перехід із simplershop на matroluxe зарахувався б не тому сайту."""
+    by_pool = _match_site(str(r.get("pool_name") or "").lower())
+    if by_pool:
+        return by_pool
+    return _match_site(str(r.get("referrer") or "").lower())
 
 CALL_TYPE_DIRECTION = {
     "in": "incoming",
@@ -293,9 +316,9 @@ def slim_calls(rows, known_staff_names):
             # 2–3 рази) і шукається угода того самого клієнта.
             "ts": calldate,
             "caller_key": phone_key(r.get("caller")),
-            # Сам номер і адресу сторінки не зберігаємо — тільки назву сайту:
-            # у page прилітають рекламні мітки й ідентифікатори переходу,
-            # яким у файлі даних робити нічого.
+            # Сам номер, реферер і пул не зберігаємо — тільки назву сайту:
+            # у реферері прилітають рекламні мітки й ідентифікатори
+            # переходу, яким у файлі даних робити нічого.
             "site": call_site(r),
             "direction": direction,
             "status": call_status(disposition),
