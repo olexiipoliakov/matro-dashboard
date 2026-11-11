@@ -122,6 +122,12 @@
   table.shop tr.sum td{border-top:1px solid var(--border-strong);font-weight:700;
     background:rgba(255,255,255,.03)}
   table.shop td.zero{color:var(--ink-dim)}
+  .shop-head .acc-switch{margin:0}
+  .shop-more{display:block;width:100%;margin-top:8px;padding:9px;font-family:inherit;
+    font-size:12px;font-weight:600;color:var(--ink-dim);background:rgba(255,255,255,.03);
+    border:1px solid var(--border);border-radius:12px;cursor:pointer;
+    transition:color 160ms ease, background 160ms ease}
+  .shop-more:hover{color:var(--ink);background:rgba(255,255,255,.06)}
 
   /* ── grid карточек ── */
   .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
@@ -396,9 +402,12 @@
   <div class="kpi-note" id="kpi-note">Останні 90 днів</div>
 
   <div class="shop-sec">
-    <div class="shop-head"><h2>Simpler Shop · замовлення по днях</h2><span class="ln"></span></div>
+    <div class="shop-head"><h2>Simpler Shop · замовлення по днях</h2>
+      <div class="acc-switch" id="shop-months"></div><span class="ln"></span></div>
     <div class="shop-sub" id="shop-note">—</div>
     <div class="shop-wrap"><table class="shop" id="shop-table"></table></div>
+    <button type="button" class="shop-more" id="shop-more" style="display:none"
+            onclick="shopToggle()"></button>
   </div>
 
   <div class="grid2">
@@ -779,8 +788,16 @@ const SHOP = {
   bot:  ['FNB_SIMPLER'],
   cart: ['UC_8AMYMZ'],
   site: 'simplershop',
-  days: 14,
+  collapsed: 5,   // скільки днів видно, поки не натиснули «+»
 };
+
+const MONTHS_UA = ['січень','лютий','березень','квітень','травень','червень',
+                   'липень','серпень','вересень','жовтень','листопад','грудень'];
+// Назва місяця у родовому відмінку: «усі дні листопада», а не «листопад».
+const MONTHS_UA_GEN = ['січня','лютого','березня','квітня','травня','червня',
+                       'липня','серпня','вересня','жовтня','листопада','грудня'];
+let shopMonth = null;    // 'РРРР-ММ'; null — поточний
+let shopOpen  = false;   // чи розгорнули на весь місяць
 
 function shopRows(crm, ring){
   const turn = {};
@@ -815,40 +832,89 @@ function shopRows(crm, ring){
   return {rows, siteKnown};
 }
 
+// Місяці, за які взагалі є угоди, від найновішого. Більше за півроку не
+// показуємо: збір тягне обмежене вікно, старіші місяці все одно порожні.
+function shopMonthList(crm){
+  const ms = new Set((crm.deals||[]).map(d=>(d.date||'').slice(0,7)).filter(Boolean));
+  return [...ms].sort().reverse().slice(0, 6);
+}
+
+// Дні вибраного місяця. Для поточного — тільки до сьогодні: порожні клітинки
+// на майбутні числа виглядали б як провал, якого ще не було.
+function shopDays(ym){
+  const [y, m] = ym.split('-').map(Number);
+  const today = new Date();
+  const last = (y === today.getFullYear() && m === today.getMonth()+1)
+      ? today.getDate() : new Date(y, m, 0).getDate();
+  const out = [];
+  for(let d=1; d<=last; d++) out.push(`${ym}-${String(d).padStart(2,'0')}`);
+  return out;
+}
+
+function shopSetMonth(ym){
+  shopMonth = ym; shopOpen = false; renderShop();
+}
+
+function shopToggle(){
+  shopOpen = !shopOpen; renderShop();
+}
+
 function renderShop(){
   const host = document.getElementById('shop-table');
   const note = document.getElementById('shop-note');
+  const more = document.getElementById('shop-more');
+  const tabs = document.getElementById('shop-months');
   if(!CRM_RAW){ host.innerHTML=''; note.textContent='Завантаження…'; return; }
 
+  // ── місяці ──
+  const months = shopMonthList(CRM_RAW);
+  const now = new Date();
+  const cur = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  if(!months.includes(cur)) months.unshift(cur);
+  if(!shopMonth || !months.includes(shopMonth)) shopMonth = months[0];
+  tabs.innerHTML = months.map(ym=>{
+    const m = Number(ym.slice(5,7)) - 1;
+    return `<button type="button" class="${ym===shopMonth?'on':''}" data-ym="${ym}">${MONTHS_UA[m]}</button>`;
+  }).join('');
+
   const {rows, siteKnown} = shopRows(CRM_RAW, RING_RAW);
-  // Останні N днів за календарем, а не за наявністю угод: порожній день —
-  // теж відповідь, і пропускати його означало б ховати провал.
-  const days = [];
-  const d0 = new Date();
-  for(let i=SHOP.days-1; i>=0; i--){
-    const x = new Date(d0); x.setDate(x.getDate()-i);
-    days.push(`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`);
-  }
+  const days = shopDays(shopMonth);
+  const shown = shopOpen ? days : days.slice(-SHOP.collapsed);
+
   const cell = v => v[0]
     ? `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} ₴</span>`
     : '<span class="zero">—</span>';
-  const tot = {bot:[0,0], call:[0,0], cart:[0,0]};
-  const body = days.map(d=>{
-    const r = rows[d] || {bot:[0,0], call:[0,0], cart:[0,0]};
-    ['bot','call','cart'].forEach(k=>{ tot[k][0]+=r[k][0]; tot[k][1]+=r[k][1]; });
+  const empty = () => ({bot:[0,0], call:[0,0], cart:[0,0]});
+
+  const body = shown.map(d=>{
+    const r = rows[d] || empty();
     const all = [r.bot[0]+r.call[0]+r.cart[0], r.bot[1]+r.call[1]+r.cart[1]];
     const [y,m,dd] = d.split('-');
     return `<tr><td>${dd}.${m}</td><td>${cell(r.bot)}</td><td>${cell(r.call)}</td>`
          + `<td>${cell(r.cart)}</td><td>${cell(all)}</td></tr>`;
   }).join('');
+
+  // Підсумок завжди за весь місяць, навіть коли видно п'ять днів: інакше
+  // згорнутий вигляд показував би суму, яку ні з чим не звірити.
+  const tot = empty();
+  days.forEach(d=>{
+    const r = rows[d] || empty();
+    ['bot','call','cart'].forEach(k=>{ tot[k][0]+=r[k][0]; tot[k][1]+=r[k][1]; });
+  });
   const allTot = [tot.bot[0]+tot.call[0]+tot.cart[0], tot.bot[1]+tot.call[1]+tot.cart[1]];
+  const mName = MONTHS_UA[Number(shopMonth.slice(5,7))-1];
   host.innerHTML = `<thead><tr><th>День</th><th>Чатбот</th><th>Дзвінки</th><th>Кошик</th><th>Разом</th></tr></thead>`
-    + `<tbody>${body}<tr class="sum"><td>Разом</td><td>${cell(tot.bot)}</td>`
+    + `<tbody>${body}<tr class="sum"><td>Разом за ${mName}</td><td>${cell(tot.bot)}</td>`
     + `<td>${cell(tot.call)}</td><td>${cell(tot.cart)}</td><td>${cell(allTot)}</td></tr></tbody>`;
 
-  // Якщо Ringostat не віддав сайт дзвінка, колонка «Дзвінки» буде порожньою
-  // не тому, що дзвінків не було, а тому що ми не знаємо, звідки вони.
-  const base = `Сума — товарні рядки, без накладеного платежу й доставки · ${SHOP.days} днів`;
+  // Кнопка потрібна лише тоді, коли є що ховати.
+  const mGen = MONTHS_UA_GEN[Number(shopMonth.slice(5,7))-1];
+  more.style.display = days.length > SHOP.collapsed ? '' : 'none';
+  more.textContent = shopOpen
+    ? `− Згорнути до ${SHOP.collapsed} днів`
+    : `+ Усі дні ${mGen} (${days.length})`;
+
+  const base = 'Сума — товарні рядки, без накладеного платежу й доставки';
   if(!RING_RAW)             note.textContent = base + ' · дзвінки завантажуються…';
   else if(RING_RAW.failed)  note.innerHTML = base +
       ' · <span style="color:var(--warning)">дзвінки не завантажились</span>';
@@ -856,6 +922,11 @@ function renderShop(){
       ' · <span style="color:var(--warning)">Ringostat не віддав сайт дзвінка — колонка «Дзвінки» поки порожня</span>';
   else                      note.textContent = base;
 }
+
+document.getElementById('shop-months').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-ym]');
+  if(b) shopSetMonth(b.dataset.ym);
+});
 
 // ── ключові показники з перемикачем періоду ──────────────────────────────
 // Головна відкривається на сьогоднішньому дні, а не на всьому періоді.
