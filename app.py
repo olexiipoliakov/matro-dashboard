@@ -645,6 +645,87 @@ def ringostat_status():
     except Exception as e:
         return jsonify({"error": str(e)}), 502
 
+# ── Діагностика полів Ringostat ────────────────────────────────────────
+# Навіщо це потрібно. Колонка «Дзвінки» в таблиці магазину будується з
+# того, З ЯКОГО САЙТУ прийшов дзвінок. У вигрузці звіту ця ознака є —
+# стовпці pool_name і page, — але API може віддавати її під іншими
+# іменами або мовчки ігнорувати невідомі поля, не повідомляючи помилкою.
+# Тоді збір відпрацьовує «успішно», а сайт у кожного дзвінка порожній,
+# і зрозуміти причину з логів неможливо. Цей маршрут показує, що саме
+# приходить від API: імена ключів і чи є в них значення.
+#
+# Що НЕ повертаємо: номери телефонів і повні адреси сторінок (у page
+# прилітають рекламні мітки й ідентифікатори переходу). Тільки імена
+# ключів, назви пулів і домени сторінок.
+@app.route("/api/ringostat/probe")
+@requires_auth
+def ringostat_probe():
+    if not RINGOSTAT_AUTH_KEY:
+        return jsonify({"error": "RINGOSTAT_AUTH_KEY не задано на сервері"}), 500
+
+    project_id = os.environ.get("RINGOSTAT_PROJECT_ID", "")
+    headers = {
+        "Auth-key": RINGOSTAT_AUTH_KEY,
+        "User-Agent": "Mozilla/5.0 (compatible; MatroDashboardBot/1.0)",
+    }
+    now = time.time()
+    frm = time.strftime("%Y-%m-%d 00:00:00", time.localtime(now - 2 * 86400))
+    to = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now))
+
+    def probe(label, fields):
+        params = {"token": RINGOSTAT_AUTH_KEY, "project_id": project_id,
+                  "export_type": "json", "from": frm, "to": to}
+        if fields:
+            params["fields"] = fields
+        out = {"набір": label}
+        try:
+            r = requests.get("https://api.ringostat.net/calls/list",
+                             params=params, headers=headers, timeout=45)
+            out["http"] = r.status_code
+            data = r.json()
+            if isinstance(data, dict):
+                if "error" in data:
+                    out["помилка_api"] = str(data["error"])[:300]
+                rows = next((data[k] for k in ("result", "calls", "data", "items")
+                             if isinstance(data.get(k), list)), [])
+            else:
+                rows = data if isinstance(data, list) else []
+            out["рядків"] = len(rows)
+            keys = set()
+            for row in rows[:200]:
+                if isinstance(row, dict):
+                    keys.update(row.keys())
+            out["ключі"] = sorted(keys)
+            # Чи є взагалі значення в тому, що нас цікавить.
+            for name in ("pool_name", "page"):
+                vals = [str(row.get(name) or "") for row in rows if isinstance(row, dict)]
+                filled = [v for v in vals if v]
+                out[name] = {"заповнено": len(filled), "з": len(vals)}
+                if name == "pool_name":
+                    out[name]["приклади"] = sorted(set(filled))[:10]
+                else:
+                    hosts = set()
+                    for v in filled:
+                        try:
+                            hosts.add(urllib.parse.urlparse(
+                                v if "//" in v else "//" + v).hostname or v.split("/")[0])
+                        except Exception:
+                            pass
+                    out[name]["домени"] = sorted(hosts)[:10]
+        except Exception as e:
+            out["виняток"] = str(e)[:300]
+        return out
+
+    # Запит без fields показує, що API віддає за замовчуванням, — саме там
+    # видно справжні імена стовпців.
+    return jsonify({"період": [frm, to], "спроби": [
+        probe("без параметра fields", None),
+        probe("повний набір", "calldate,caller,dst,disposition,billsec,utm_source,"
+              "utm_medium,call_type,employee_number,employee_fio,pool_name,page"),
+        probe("тільки pool_name і page", "calldate,pool_name,page"),
+    ]})
+
+
 # ── Аудит сайту: сканування карток товарів matroluxe.ua ─────────────────
 # Скан обходить ~360 сторінок і триває кілька хвилин, тому по кнопці ми
 # лише СТАРТУЄМО його у фоні й одразу відповідаємо. Сторінка потім сама
