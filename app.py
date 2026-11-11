@@ -648,15 +648,26 @@ def ringostat_status():
 # ── Діагностика полів Ringostat ────────────────────────────────────────
 # Навіщо це потрібно. Колонка «Дзвінки» в таблиці магазину будується з
 # того, З ЯКОГО САЙТУ прийшов дзвінок. У вигрузці звіту ця ознака є —
-# стовпці pool_name і page, — але API може віддавати її під іншими
-# іменами або мовчки ігнорувати невідомі поля, не повідомляючи помилкою.
-# Тоді збір відпрацьовує «успішно», а сайт у кожного дзвінка порожній,
-# і зрозуміти причину з логів неможливо. Цей маршрут показує, що саме
-# приходить від API: імена ключів і чи є в них значення.
+# стовпці pool_name і page, — але в API вони звуться інакше: запит із
+# ними повертає не JSON, а порожню відповідь, і збір мовчки відкочується
+# на бідніший набір полів.
 #
-# Що НЕ повертаємо: номери телефонів і повні адреси сторінок (у page
-# прилітають рекламні мітки й ідентифікатори переходу). Тільки імена
-# ключів, назви пулів і домени сторінок.
+# Тому маршрут перебирає кандидатів по одному: на кожне ім'я йде окремий
+# запит «calldate + кандидат». Якщо API віддав JSON — ім'я існує, і видно,
+# чи є в ньому значення. Якщо ні — такого поля немає. Так за один захід
+# стає ясно, як насправді називається сайт дзвінка.
+#
+# Що НЕ повертаємо: номери телефонів і повні адреси сторінок (у них
+# прилітають рекламні мітки). Тільки імена полів, короткі значення
+# та домени.
+RINGOSTAT_FIELD_CANDIDATES = [
+    "n_alias", "pool_name", "pool", "alias", "number_alias", "n_name",
+    "page", "page_url", "url", "landing_page", "entrance_page", "first_page",
+    "start_page", "entry_page", "referrer", "site", "site_name", "domain",
+    "project", "project_name", "utm_campaign", "utm_content", "utm_term",
+]
+
+
 @app.route("/api/ringostat/probe")
 @requires_auth
 def ringostat_probe():
@@ -669,61 +680,82 @@ def ringostat_probe():
         "User-Agent": "Mozilla/5.0 (compatible; MatroDashboardBot/1.0)",
     }
     now = time.time()
-    frm = time.strftime("%Y-%m-%d 00:00:00", time.localtime(now - 2 * 86400))
+    frm = time.strftime("%Y-%m-%d 00:00:00", time.localtime(now - 86400))
     to = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now))
 
-    def probe(label, fields):
+    def ask(fields):
+        """Повертає (рядки, текст помилки). Помилка — це і не-JSON теж."""
         params = {"token": RINGOSTAT_AUTH_KEY, "project_id": project_id,
                   "export_type": "json", "from": frm, "to": to}
         if fields:
             params["fields"] = fields
-        out = {"набір": label}
         try:
             r = requests.get("https://api.ringostat.net/calls/list",
                              params=params, headers=headers, timeout=45)
-            out["http"] = r.status_code
-            data = r.json()
+            body = (r.text or "").strip()
+            if not body:
+                return [], f"порожня відповідь (HTTP {r.status_code})"
+            try:
+                data = r.json()
+            except Exception:
+                return [], f"не JSON (HTTP {r.status_code}): {body[:120]}"
             if isinstance(data, dict):
                 if "error" in data:
-                    out["помилка_api"] = str(data["error"])[:300]
+                    return [], str(data["error"])[:200]
                 rows = next((data[k] for k in ("result", "calls", "data", "items")
                              if isinstance(data.get(k), list)), [])
             else:
                 rows = data if isinstance(data, list) else []
-            out["рядків"] = len(rows)
-            keys = set()
-            for row in rows[:200]:
-                if isinstance(row, dict):
-                    keys.update(row.keys())
-            out["ключі"] = sorted(keys)
-            # Чи є взагалі значення в тому, що нас цікавить.
-            for name in ("pool_name", "page"):
-                vals = [str(row.get(name) or "") for row in rows if isinstance(row, dict)]
-                filled = [v for v in vals if v]
-                out[name] = {"заповнено": len(filled), "з": len(vals)}
-                if name == "pool_name":
-                    out[name]["приклади"] = sorted(set(filled))[:10]
-                else:
-                    hosts = set()
-                    for v in filled:
-                        try:
-                            hosts.add(urllib.parse.urlparse(
-                                v if "//" in v else "//" + v).hostname or v.split("/")[0])
-                        except Exception:
-                            pass
-                    out[name]["домени"] = sorted(hosts)[:10]
+            return [r for r in rows if isinstance(r, dict)], None
         except Exception as e:
-            out["виняток"] = str(e)[:300]
-        return out
+            return [], str(e)[:200]
 
-    # Запит без fields показує, що API віддає за замовчуванням, — саме там
-    # видно справжні імена стовпців.
-    return jsonify({"період": [frm, to], "спроби": [
-        probe("без параметра fields", None),
-        probe("повний набір", "calldate,caller,dst,disposition,billsec,utm_source,"
-              "utm_medium,call_type,employee_number,employee_fio,pool_name,page"),
-        probe("тільки pool_name і page", "calldate,pool_name,page"),
-    ]})
+    def short(values):
+        """Короткі значення — як є; схоже на адресу — лише домен; схоже на
+        номер телефону — нічого. Діагностика не привід світити номери."""
+        out = set()
+        for v in values:
+            v = str(v)
+            digits = sum(c.isdigit() for c in v)
+            if digits >= 7 and digits >= len(v) - 3:
+                out.add("…")
+            elif "/" in v or v.count(".") >= 2:
+                try:
+                    out.add(urllib.parse.urlparse(
+                        v if "//" in v else "//" + v).hostname or v.split("/")[0])
+                except Exception:
+                    out.add(v.split("/")[0])
+            else:
+                out.add(v[:40])
+        return sorted(out)[:12]
+
+    base_rows, base_err = ask(None)
+    base = {"рядків": len(base_rows), "помилка": base_err,
+            "ключі": sorted({k for r in base_rows[:200] for k in r})}
+    # Поля з номером клієнта показуємо лише лічильником.
+    PHONE_KEYS = {"caller", "dst", "phone", "client_phone", "contact_phone", "num"}
+    for key in base["ключі"]:
+        vals = [r.get(key) for r in base_rows if r.get(key)]
+        base[key] = {"заповнено": len(vals)}
+        if key not in PHONE_KEYS:
+            base[key]["значення"] = short(vals)
+
+    found, missing = {}, []
+    for name in RINGOSTAT_FIELD_CANDIDATES:
+        rows, err = ask("calldate," + name)
+        if err:
+            missing.append({name: err})
+            continue
+        vals = [r.get(name) for r in rows if r.get(name)]
+        found[name] = {"рядків": len(rows), "заповнено": len(vals),
+                       "значення": short(vals)}
+        if name in PHONE_KEYS:
+            found[name].pop("значення")
+
+    return jsonify({"період": [frm, to],
+                    "без_параметра_fields": base,
+                    "поля_які_існують": found,
+                    "поля_яких_немає": missing})
 
 
 # ── Аудит сайту: сканування карток товарів matroluxe.ua ─────────────────
