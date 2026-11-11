@@ -8,3 +8,9 @@ audit_progress.json
 
 # разові скрипти-латки
 apply_ringostat_*.py
+.DS_Store
+venv/
+probe_*.py
+check_*.py
+*.xls
+*.xlsx
