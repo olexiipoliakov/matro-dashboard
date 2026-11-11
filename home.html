@@ -101,6 +101,28 @@
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
   .pill.on{color:var(--success)}.pill.off{color:var(--danger)}
 
+  /* ── щоденна таблиця інтернет-магазину ── */
+  .shop-sec{margin:26px 0 20px}
+  .shop-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .shop-head h2{font-size:17px;font-weight:600;letter-spacing:-.2px}
+  .shop-head .ln{flex:1;height:1px;background:var(--border);min-width:20px}
+  .shop-sub{font-size:12px;color:var(--ink-dim);margin:-6px 0 14px}
+  .shop-wrap{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);
+    border:1px solid var(--border);border-radius:18px;padding:6px 4px;overflow-x:auto}
+  table.shop{width:100%;border-collapse:collapse;font-size:12.5px;min-width:560px}
+  table.shop th{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-dim);
+    font-weight:600;padding:10px 12px;text-align:right;white-space:nowrap}
+  table.shop th:first-child{text-align:left}
+  table.shop td{padding:9px 12px;text-align:right;font-variant-numeric:tabular-nums;
+    border-top:1px solid rgba(255,255,255,.04);white-space:nowrap}
+  table.shop td:first-child{text-align:left;color:var(--ink-soft)}
+  table.shop tr:hover td{background:rgba(255,255,255,.025)}
+  table.shop .n{font-weight:700}
+  table.shop .s{color:var(--ink-dim);font-size:11.5px;margin-left:6px}
+  table.shop tr.sum td{border-top:1px solid var(--border-strong);font-weight:700;
+    background:rgba(255,255,255,.03)}
+  table.shop td.zero{color:var(--ink-dim)}
+
   /* ── grid карточек ── */
   .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
   @media(max-width:900px){.grid2{grid-template-columns:1fr}}
@@ -372,6 +394,12 @@
       <div class="l">Конверсія відділу</div><div class="v" id="kpi-conv">—</div></div>
   </div>
   <div class="kpi-note" id="kpi-note">Останні 90 днів</div>
+
+  <div class="shop-sec">
+    <div class="shop-head"><h2>Simpler Shop · замовлення по днях</h2><span class="ln"></span></div>
+    <div class="shop-sub" id="shop-note">—</div>
+    <div class="shop-wrap"><table class="shop" id="shop-table"></table></div>
+  </div>
 
   <div class="grid2">
     <a href="ringostat.html" class="glass calls" style="text-decoration:none;color:inherit;display:block">
@@ -734,6 +762,101 @@ document.getElementById('seo-acc').addEventListener('click', e=>{
   renderSEO(i);
 });
 
+// ── щоденна таблиця інтернет-магазину ───────────────────────────────────
+// Рахується прямо тут, із двох файлів, які сторінка й так завантажує:
+// угоди з Bitrix і дзвінки з Ringostat. Окремий збирач і третій файл даних
+// для цього не потрібні.
+//
+// Три канали замовлень і те, чим вони розрізняються:
+//   Чатбот  — джерело угоди «Simpler» (FNB_SIMPLER)
+//   Кошик   — джерело угоди «Заявка симплер» (UC_8AMYMZ)
+//   Дзвінки — угода, чий телефон клієнта збігся з дзвінком ІЗ ЦЬОГО САЙТУ
+//             того ж дня. Джерело угоди при цьому будь-яке: у Bitrix немає
+//             поля «з якого сайту дзвінок», воно є тільки в Ringostat.
+// Телефони ніде не зберігаються — звіряються хеші (див. phone_key.py).
+const SHOP = {
+  name: 'Simpler Shop',
+  bot:  ['FNB_SIMPLER'],
+  cart: ['UC_8AMYMZ'],
+  site: 'simplershop',
+  days: 14,
+};
+
+function shopRows(crm, ring){
+  const turn = {};
+  (crm.deal_categories||[]).forEach(c=>{ turn[c.deal_id] = c.turnover || 0; });
+
+  // Номери, що дзвонили з сайту, по днях.
+  const byDay = {};
+  let siteKnown = 0;
+  (ring && ring.calls || []).forEach(c=>{
+    if(c.site) siteKnown++;
+    if(c.site !== SHOP.site || !c.date || !c.caller_key) return;
+    (byDay[c.date] = byDay[c.date] || new Set()).add(c.caller_key);
+  });
+
+  const rows = {};
+  const row = d => rows[d] = rows[d] || {bot:[0,0], call:[0,0], cart:[0,0]};
+  (crm.deals||[]).forEach(d=>{
+    if(!d.date) return;
+    const src = d.source_id || '';
+    const sum = turn[d.id] || 0;
+    let cell = null;
+    if(SHOP.bot.includes(src))       cell = 'bot';
+    else if(SHOP.cart.includes(src)) cell = 'cart';
+    else {
+      const nums = byDay[d.date];
+      if(nums && (d.phone_keys||[]).some(k=>nums.has(k))) cell = 'call';
+    }
+    if(!cell) return;
+    const r = row(d.date);
+    r[cell][0] += 1; r[cell][1] += sum;
+  });
+  return {rows, siteKnown};
+}
+
+function renderShop(){
+  const host = document.getElementById('shop-table');
+  const note = document.getElementById('shop-note');
+  if(!CRM_RAW){ host.innerHTML=''; note.textContent='Завантаження…'; return; }
+
+  const {rows, siteKnown} = shopRows(CRM_RAW, RING_RAW);
+  // Останні N днів за календарем, а не за наявністю угод: порожній день —
+  // теж відповідь, і пропускати його означало б ховати провал.
+  const days = [];
+  const d0 = new Date();
+  for(let i=SHOP.days-1; i>=0; i--){
+    const x = new Date(d0); x.setDate(x.getDate()-i);
+    days.push(`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`);
+  }
+  const cell = v => v[0]
+    ? `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} ₴</span>`
+    : '<span class="zero">—</span>';
+  const tot = {bot:[0,0], call:[0,0], cart:[0,0]};
+  const body = days.map(d=>{
+    const r = rows[d] || {bot:[0,0], call:[0,0], cart:[0,0]};
+    ['bot','call','cart'].forEach(k=>{ tot[k][0]+=r[k][0]; tot[k][1]+=r[k][1]; });
+    const all = [r.bot[0]+r.call[0]+r.cart[0], r.bot[1]+r.call[1]+r.cart[1]];
+    const [y,m,dd] = d.split('-');
+    return `<tr><td>${dd}.${m}</td><td>${cell(r.bot)}</td><td>${cell(r.call)}</td>`
+         + `<td>${cell(r.cart)}</td><td>${cell(all)}</td></tr>`;
+  }).join('');
+  const allTot = [tot.bot[0]+tot.call[0]+tot.cart[0], tot.bot[1]+tot.call[1]+tot.cart[1]];
+  host.innerHTML = `<thead><tr><th>День</th><th>Чатбот</th><th>Дзвінки</th><th>Кошик</th><th>Разом</th></tr></thead>`
+    + `<tbody>${body}<tr class="sum"><td>Разом</td><td>${cell(tot.bot)}</td>`
+    + `<td>${cell(tot.call)}</td><td>${cell(tot.cart)}</td><td>${cell(allTot)}</td></tr></tbody>`;
+
+  // Якщо Ringostat не віддав сайт дзвінка, колонка «Дзвінки» буде порожньою
+  // не тому, що дзвінків не було, а тому що ми не знаємо, звідки вони.
+  const base = `Сума — товарні рядки, без накладеного платежу й доставки · ${SHOP.days} днів`;
+  if(!RING_RAW)             note.textContent = base + ' · дзвінки завантажуються…';
+  else if(RING_RAW.failed)  note.innerHTML = base +
+      ' · <span style="color:var(--warning)">дзвінки не завантажились</span>';
+  else if(!siteKnown)       note.innerHTML = base +
+      ' · <span style="color:var(--warning)">Ringostat не віддав сайт дзвінка — колонка «Дзвінки» поки порожня</span>';
+  else                      note.textContent = base;
+}
+
 // ── ключові показники з перемикачем періоду ──────────────────────────────
 // Головна відкривається на сьогоднішньому дні, а не на всьому періоді.
 // Керівник заходить сюди з питанням «як ми йдемо сьогодні», і сума за три
@@ -743,6 +866,7 @@ const KPI_START = (() => {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 })();
 let CRM_RAW=null, KPI_FROM=KPI_START, KPI_TO=KPI_START;
+let RING_RAW=null;   // дзвінки потрібні таблиці магазину (колонка «Дзвінки»)
 
 // Методика та сама, що на сторінці CRM: відмови, помилкові й рекламації
 // прибираються ЦІЛОЮ угодою, оборот береться за товарними рядками.
@@ -945,6 +1069,7 @@ async function loadCRM(){
     // звернення до сервера.
     CRM_RAW = data;
     renderKpi();
+    renderShop();
     syncRefreshBtn(data.generated_at);
 
     const byDate={};
@@ -995,6 +1120,8 @@ async function loadCalls(){
     const data=await res.json();
     if(!Array.isArray(data.calls)) throw new Error('формат даних застарів');
     setSys('sys-ringostat', true);
+    RING_RAW = data;
+    renderShop();
 
     const byDate={};
     data.calls.forEach(c=>{
@@ -1030,6 +1157,8 @@ async function loadCalls(){
     document.getElementById('calls-updated').textContent = data.generated_at ? 'Оновлено '+data.generated_at : '';
   }catch(e){
     setSys('sys-ringostat', false);
+    RING_RAW = {calls: [], failed: true};
+    renderShop();
     document.getElementById('calls-tag').textContent='Немає даних';
     document.getElementById('calls-trend').classList.remove('show');
     document.getElementById('calls-in').textContent='—';

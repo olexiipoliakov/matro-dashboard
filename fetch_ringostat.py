@@ -163,8 +163,34 @@ def fetch_staff():
 # дзвінка до менеджера (а не caller/dst, які є номером клієнта й лінії
 # відстеження). CALL_FIELDS_FALLBACK — про всяк випадок, якщо якийсь дуже
 # старий проєкт Ringostat їх ще не підтримує.
-CALL_FIELDS = "calldate,caller,dst,disposition,billsec,utm_source,utm_medium,call_type,employee_number,employee_fio"
+# pool_name і page — звідки зрозуміло, З ЯКОГО САЙТУ дзвінок. Сайтів у
+# проєкті Ringostat кілька (matroluxe.ua, matroluxe.com, simplershop), і без
+# цих двох полів усі дзвінки виглядають однаково. Одного pool_name мало:
+# заявки на зворотний дзвінок лягають у спільний пул «Callback», і сайт у
+# них видно тільки в адресі сторінки.
+CALL_FIELDS = ("calldate,caller,dst,disposition,billsec,utm_source,utm_medium,"
+               "call_type,employee_number,employee_fio,pool_name,page")
+CALL_FIELDS_MID = ("calldate,caller,dst,disposition,billsec,utm_source,utm_medium,"
+                   "call_type,employee_number,employee_fio")
 CALL_FIELDS_FALLBACK = "calldate,caller,dst,disposition,billsec,utm_source,utm_medium"
+
+# Назва сайту за пулом або адресою сторінки. Порядок має значення: «.com»
+# перевіряємо раніше за «.ua», інакше matroluxe.com впіймається як matroluxe.ua
+# на адресах, де є обидва рядки.
+SITE_RULES = (
+    ("simplershop",   "simplershop"),
+    ("matroluxe.com", "matroluxe.com"),
+    ("matro-roll",    "matro-roll.ua"),
+    ("matroluxe.ua",  "matroluxe.ua"),
+)
+
+
+def call_site(r):
+    hay = f"{r.get('pool_name') or ''} {r.get('page') or ''}".lower()
+    for needle, name in SITE_RULES:
+        if needle in hay:
+            return name
+    return ""
 
 CALL_TYPE_DIRECTION = {
     "in": "incoming",
@@ -204,11 +230,19 @@ def _fetch_calls_window_with_fields(dt_from, dt_to, fields, tries=3):
     raise RuntimeError(f"Ringostat calls/list {dt_from.date()}—{dt_to.date()}: {last_err}")
 
 def fetch_calls_window(dt_from, dt_to):
-    try:
-        return _fetch_calls_window_with_fields(dt_from, dt_to, CALL_FIELDS)
-    except Exception as e:
-        print(f"  ⚠ розширений набір полів не спрацював ({e}), пробую без employee_number/call_type")
-        return _fetch_calls_window_with_fields(dt_from, dt_to, CALL_FIELDS_FALLBACK)
+    # Три спроби, від найповнішого набору до найбіднішого: якщо проєкт не
+    # знає pool_name/page — втрачаємо лише прив'язку до сайту, а не весь збір.
+    attempts = ((CALL_FIELDS, "без pool_name/page (сайт дзвінка буде невідомий)"),
+                (CALL_FIELDS_MID, "без employee_number/call_type"),
+                (CALL_FIELDS_FALLBACK, None))
+    for fields, nxt in attempts:
+        try:
+            return _fetch_calls_window_with_fields(dt_from, dt_to, fields)
+        except Exception as e:
+            last = e
+            print(f"  ⚠ набір полів не спрацював ({e})"
+                  + (f", пробую {nxt}" if nxt else ""))
+    raise last
 
 def fetch_all_calls(days_back):
     today = datetime.now()
@@ -259,6 +293,10 @@ def slim_calls(rows, known_staff_names):
             # 2–3 рази) і шукається угода того самого клієнта.
             "ts": calldate,
             "caller_key": phone_key(r.get("caller")),
+            # Сам номер і адресу сторінки не зберігаємо — тільки назву сайту:
+            # у page прилітають рекламні мітки й ідентифікатори переходу,
+            # яким у файлі даних робити нічого.
+            "site": call_site(r),
             "direction": direction,
             "status": call_status(disposition),
             "manager_id": staff_id,
