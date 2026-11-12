@@ -123,6 +123,9 @@
     background:rgba(255,255,255,.03)}
   table.shop td.zero{color:var(--ink-dim)}
   .shop-head .acc-switch{margin:0}
+  /* Магазин і місяць — два різні питання, тож і кольори різні: інакше око
+     не бачить, який із двох рядів кнопок воно щойно натиснуло. */
+  .shop-head .acc-switch.shops button.on{background:rgba(50,216,255,.16)}
   .shop-more{display:block;width:100%;margin-top:8px;padding:9px;font-family:inherit;
     font-size:12px;font-weight:600;color:var(--ink-dim);background:rgba(255,255,255,.03);
     border:1px solid var(--border);border-radius:12px;cursor:pointer;
@@ -402,7 +405,8 @@
   <div class="kpi-note" id="kpi-note">Останні 90 днів</div>
 
   <div class="shop-sec">
-    <div class="shop-head"><h2>Simpler Shop · замовлення по днях</h2>
+    <div class="shop-head"><h2>Замовлення по днях</h2>
+      <div class="acc-switch shops" id="shop-tabs"></div>
       <div class="acc-switch" id="shop-months"></div><span class="ln"></span></div>
     <div class="shop-sub" id="shop-note">—</div>
     <div class="shop-wrap"><table class="shop" id="shop-table"></table></div>
@@ -783,13 +787,33 @@ document.getElementById('seo-acc').addEventListener('click', e=>{
 //             того ж дня. Джерело угоди при цьому будь-яке: у Bitrix немає
 //             поля «з якого сайту дзвінок», воно є тільки в Ringostat.
 // Телефони ніде не зберігаються — звіряються хеші (див. phone_key.py).
-const SHOP = {
-  name: 'Simpler Shop',
-  bot:  ['FNB_SIMPLER'],
-  cart: ['UC_8AMYMZ'],
-  site: 'simplershop',
-  collapsed: 5,   // скільки днів видно, поки не натиснули «+»
-};
+// Магазини й те, чим у CRM відрізняється замовлення кожного з них.
+//
+// sources — джерело угоди (поле «Джерело» в Bitrix).
+// site    — мітка сайту з поля «Додатково про джерело»: у matroluxe.com і
+//           matroluxe.ua джерело однакове («WEB»), воронка одна, і єдине,
+//           що їх розрізняє, — ця мітка. Її розбирає fetch_bitrix.py.
+//
+// callSite — назва сайту в дзвінках (її пише fetch_ringostat.py за пулом
+//           номера). Назви тут і там мають збігатись, бо таблиця зводить
+//           угоди з дзвінками саме за нею.
+const SHOPS = [
+  {
+    key: 'simpler', name: 'Simpler',
+    bot:  {sources: ['FNB_SIMPLER']},     // «Simpler» — чат-бот сайту
+    cart: {sources: ['UC_8AMYMZ']},       // «Заявка симплер» — кошик
+    callSite: 'simplershop',
+  },
+  {
+    key: 'com', name: 'Matroluxe COM',
+    bot:  {sources: ['FNB_MCOM']},        // «M.COM» — заявки з чату
+    cart: {site: 'matroluxe.com'},
+    callSite: 'matroluxe.com',
+  },
+];
+const SHOP_KEY = 'shop-tab';
+const SHOP_COLLAPSED = 5;   // скільки днів видно, поки не натиснули «+»
+let shopIdx = 0;
 
 const MONTHS_UA = ['січень','лютий','березень','квітень','травень','червень',
                    'липень','серпень','вересень','жовтень','листопад','грудень'];
@@ -799,7 +823,14 @@ const MONTHS_UA_GEN = ['січня','лютого','березня','квітн�
 let shopMonth = null;    // 'РРРР-ММ'; null — поточний
 let shopOpen  = false;   // чи розгорнули на весь місяць
 
-function shopRows(crm, ring){
+function shopMatch(rule, d){
+  if(!rule) return false;
+  if(rule.sources && rule.sources.indexOf(d.source_id || '') >= 0) return true;
+  if(rule.site && (d.site || '') === rule.site) return true;
+  return false;
+}
+
+function shopRows(shop, crm, ring){
   const turn = {};
   (crm.deal_categories||[]).forEach(c=>{ turn[c.deal_id] = c.turnover || 0; });
 
@@ -808,25 +839,26 @@ function shopRows(crm, ring){
   let siteKnown = 0;
   (ring && ring.calls || []).forEach(c=>{
     if(c.site) siteKnown++;
-    if(c.site !== SHOP.site || !c.date || !c.caller_key) return;
+    if(c.site !== shop.callSite || !c.date || !c.caller_key) return;
     (byDay[c.date] = byDay[c.date] || new Set()).add(c.caller_key);
   });
 
   const rows = {};
-  const row = d => rows[d] = rows[d] || {bot:[0,0], call:[0,0], cart:[0,0]};
   (crm.deals||[]).forEach(d=>{
     if(!d.date) return;
-    const src = d.source_id || '';
     const sum = turn[d.id] || 0;
     let cell = null;
-    if(SHOP.bot.includes(src))       cell = 'bot';
-    else if(SHOP.cart.includes(src)) cell = 'cart';
+    if(shopMatch(shop.bot, d))       cell = 'bot';
+    else if(shopMatch(shop.cart, d)) cell = 'cart';
     else {
+      // Дзвінок: телефон клієнта збігся з дзвінком ІЗ ЦЬОГО САЙТУ того ж
+      // дня. Джерело угоди тут будь-яке — у Bitrix немає поля «з якого
+      // сайту дзвінок», воно є тільки в Ringostat.
       const nums = byDay[d.date];
       if(nums && (d.phone_keys||[]).some(k=>nums.has(k))) cell = 'call';
     }
     if(!cell) return;
-    const r = row(d.date);
+    const r = rows[d.date] = rows[d.date] || {bot:[0,0], call:[0,0], cart:[0,0]};
     r[cell][0] += 1; r[cell][1] += sum;
   });
   return {rows, siteKnown};
@@ -851,12 +883,13 @@ function shopDays(ym){
   return out;
 }
 
-function shopSetMonth(ym){
-  shopMonth = ym; shopOpen = false; renderShop();
-}
+function shopSetMonth(ym){ shopMonth = ym; shopOpen = false; renderShop(); }
+function shopToggle(){ shopOpen = !shopOpen; renderShop(); }
 
-function shopToggle(){
-  shopOpen = !shopOpen; renderShop();
+function shopSetTab(i){
+  shopIdx = i; shopOpen = false;
+  try{ localStorage.setItem(SHOP_KEY, SHOPS[i].key); }catch(e){}
+  renderShop();
 }
 
 function renderShop(){
@@ -864,7 +897,12 @@ function renderShop(){
   const note = document.getElementById('shop-note');
   const more = document.getElementById('shop-more');
   const tabs = document.getElementById('shop-months');
+  const stabs = document.getElementById('shop-tabs');
   if(!CRM_RAW){ host.innerHTML=''; note.textContent='Завантаження…'; return; }
+
+  const shop = SHOPS[shopIdx] || SHOPS[0];
+  stabs.innerHTML = SHOPS.map((s,i)=>
+    `<button type="button" class="${i===shopIdx?'on':''}" data-i="${i}">${s.name}</button>`).join('');
 
   // ── місяці ──
   const months = shopMonthList(CRM_RAW);
@@ -877,21 +915,28 @@ function renderShop(){
     return `<button type="button" class="${ym===shopMonth?'on':''}" data-ym="${ym}">${MONTHS_UA[m]}</button>`;
   }).join('');
 
-  const {rows, siteKnown} = shopRows(CRM_RAW, RING_RAW);
+  const {rows, siteKnown} = shopRows(shop, CRM_RAW, RING_RAW);
   const days = shopDays(shopMonth);
-  const shown = shopOpen ? days : days.slice(-SHOP.collapsed);
+  const shown = shopOpen ? days : days.slice(-SHOP_COLLAPSED);
+
+  // Колонки залежать від магазину: де чат-бота немає, порожня колонка лише
+  // збивала б з пантелику — «нуль замовлень» і «каналу не існує» різні речі.
+  const cols = [];
+  if(shop.bot) cols.push(['bot', 'Чатбот']);
+  cols.push(['call', 'Дзвінки'], ['cart', 'Кошик']);
 
   const cell = v => v[0]
     ? `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} ₴</span>`
     : '<span class="zero">—</span>';
   const empty = () => ({bot:[0,0], call:[0,0], cart:[0,0]});
+  const sumOf = r => cols.reduce((a,[k])=>[a[0]+r[k][0], a[1]+r[k][1]], [0,0]);
 
   const body = shown.map(d=>{
     const r = rows[d] || empty();
-    const all = [r.bot[0]+r.call[0]+r.cart[0], r.bot[1]+r.call[1]+r.cart[1]];
     const [y,m,dd] = d.split('-');
-    return `<tr><td>${dd}.${m}</td><td>${cell(r.bot)}</td><td>${cell(r.call)}</td>`
-         + `<td>${cell(r.cart)}</td><td>${cell(all)}</td></tr>`;
+    return `<tr><td>${dd}.${m}</td>`
+         + cols.map(([k])=>`<td>${cell(r[k])}</td>`).join('')
+         + `<td>${cell(sumOf(r))}</td></tr>`;
   }).join('');
 
   // Підсумок завжди за весь місяць, навіть коли видно п'ять днів: інакше
@@ -901,17 +946,19 @@ function renderShop(){
     const r = rows[d] || empty();
     ['bot','call','cart'].forEach(k=>{ tot[k][0]+=r[k][0]; tot[k][1]+=r[k][1]; });
   });
-  const allTot = [tot.bot[0]+tot.call[0]+tot.cart[0], tot.bot[1]+tot.call[1]+tot.cart[1]];
   const mName = MONTHS_UA[Number(shopMonth.slice(5,7))-1];
-  host.innerHTML = `<thead><tr><th>День</th><th>Чатбот</th><th>Дзвінки</th><th>Кошик</th><th>Разом</th></tr></thead>`
-    + `<tbody>${body}<tr class="sum"><td>Разом за ${mName}</td><td>${cell(tot.bot)}</td>`
-    + `<td>${cell(tot.call)}</td><td>${cell(tot.cart)}</td><td>${cell(allTot)}</td></tr></tbody>`;
+  host.innerHTML = `<thead><tr><th>День</th>`
+    + cols.map(([,label])=>`<th>${label}</th>`).join('')
+    + `<th>Разом</th></tr></thead><tbody>${body}`
+    + `<tr class="sum"><td>Разом за ${mName}</td>`
+    + cols.map(([k])=>`<td>${cell(tot[k])}</td>`).join('')
+    + `<td>${cell(sumOf(tot))}</td></tr></tbody>`;
 
   // Кнопка потрібна лише тоді, коли є що ховати.
   const mGen = MONTHS_UA_GEN[Number(shopMonth.slice(5,7))-1];
-  more.style.display = days.length > SHOP.collapsed ? '' : 'none';
+  more.style.display = days.length > SHOP_COLLAPSED ? '' : 'none';
   more.textContent = shopOpen
-    ? `− Згорнути до ${SHOP.collapsed} днів`
+    ? `− Згорнути до ${SHOP_COLLAPSED} днів`
     : `+ Усі дні ${mGen} (${days.length})`;
 
   const base = 'Сума — товарні рядки, без накладеного платежу й доставки';
@@ -927,6 +974,15 @@ document.getElementById('shop-months').addEventListener('click', e=>{
   const b = e.target.closest('button[data-ym]');
   if(b) shopSetMonth(b.dataset.ym);
 });
+document.getElementById('shop-tabs').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-i]');
+  if(b) shopSetTab(Number(b.dataset.i));
+});
+try{
+  const saved = localStorage.getItem(SHOP_KEY);
+  const i = SHOPS.findIndex(s=>s.key === saved);
+  if(i >= 0) shopIdx = i;
+}catch(e){}
 
 // ── ключові показники з перемикачем періоду ──────────────────────────────
 // Головна відкривається на сьогоднішньому дні, а не на всьому періоді.

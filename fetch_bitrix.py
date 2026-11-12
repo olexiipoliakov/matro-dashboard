@@ -118,7 +118,34 @@ DEAL_FIELDS = ["ID", "TITLE", "STAGE_ID", "CATEGORY_ID", "OPPORTUNITY", "CURRENC
                # Потрібен, щоб дотягнути телефон клієнта й зіставити угоду з
                # вхідним дзвінком у Ringostat (модуль балів менеджерів).
                "CONTACT_ID",
+               # «Додатково про джерело» — єдине місце, де видно, З ЯКОГО САЙТУ
+               # замовлення. Джерело в усіх них однакове («WEB»), воронка одна,
+               # поле «Матролюкс/cімплер» порожнє — відрізнити інакше нічим.
+               "SOURCE_DESCRIPTION",
                "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM"]
+
+# Мітки сайтів у полі «Додатково про джерело». Зліва — те, що шукаємо в
+# тексті (у нижньому регістрі), справа — та сама назва сайту, що її пише
+# fetch_ringostat.py у дзвінках. Назви мають збігатись: таблиця магазинів
+# зводить угоди й дзвінки саме за нею.
+SITE_MARKERS = (
+    ("matroluxecom", "matroluxe.com"),
+    ("matroluxeua",  "matroluxe.ua"),
+    ("simplershop",  "simplershop"),
+)
+
+
+def deal_site(d):
+    """Сайт замовлення або '' — коли мітки немає.
+
+    Самого тексту поля нікуди не зберігаємо: воно вільне, туди потрапляє
+    що завгодно, аж до прізвищ, а файл даних лежить у публічному репозиторії.
+    Назва сайту — рівно стільки, скільки потрібно таблиці."""
+    hay = str(d.get("SOURCE_DESCRIPTION") or "").lower().replace(" ", "")
+    for needle, name in SITE_MARKERS:
+        if needle in hay:
+            return name
+    return ""
 
 def fetch_deals(start_date):
     return call("crm.deal.list", {
@@ -374,6 +401,7 @@ def build_deal_categories(deals_raw, product_rows_by_id, stage_names):
             "deal_id": deal_id,
             "date": to_date(d.get("DATE_CREATE")),
             "source_id": d.get("SOURCE_ID", ""),
+            "site": deal_site(d),
             "turnover": round(turnover, 2),
             "turnover_excl_wholesale": round(turnover - wholesale_amount, 2),
             "categories": {k: round(v, 2) for k, v in cat_sums.items()},
@@ -519,6 +547,7 @@ def slim_deals(deals):
             # без нього фронтенд не міг показати "джерело" для конкретної угоди
             # (тільки UTM, який на більшості угод порожній).
             "source_id": (d.get("SOURCE_ID") or "").strip(),
+            "site": deal_site(d),
             "utm_source": (d.get("UTM_SOURCE") or "").strip(),
             "utm_campaign": (d.get("UTM_CAMPAIGN") or "").strip(),
             "utm_medium": (d.get("UTM_MEDIUM") or "").strip(),
