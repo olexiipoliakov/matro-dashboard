@@ -787,34 +787,69 @@ document.getElementById('seo-acc').addEventListener('click', e=>{
 //             того ж дня. Джерело угоди при цьому будь-яке: у Bitrix немає
 //             поля «з якого сайту дзвінок», воно є тільки в Ringostat.
 // Телефони ніде не зберігаються — звіряються хеші (див. phone_key.py).
-// Магазини й те, чим у CRM відрізняється замовлення кожного з них.
+// Вкладки таблиці. У кожної свій набір колонок, бо питання різні: на
+// «Усіх магазинах» цікаво, ЯКИМ КАНАЛОМ прийшло замовлення, а на вкладці
+// магазину — скільки цей магазин дав.
 //
-// sources — джерело угоди (поле «Джерело» в Bitrix).
-// site    — мітка сайту з поля «Додатково про джерело»: у matroluxe.com і
-//           matroluxe.ua джерело однакове («WEB»), воронка одна, і єдине,
-//           що їх розрізняє, — ця мітка. Її розбирає fetch_bitrix.py.
+// Як колонка ловить угоду:
+//   sources  — джерело угоди (поле «Джерело» в Bitrix);
+//   site     — мітка сайту з поля «Додатково про джерело» (у matroluxe.com
+//              і matroluxe.ua джерело однакове, «WEB», і відрізняє їх лише
+//              вона; розбирає її fetch_bitrix.py);
+//   callSite — телефон клієнта збігся з дзвінком ІЗ ЦЬОГО САЙТУ того ж дня.
+//              Потрібно тому, що в Bitrix немає поля «з якого сайту дзвінок»,
+//              воно є тільки в Ringostat. Такі колонки перевіряються
+//              ОСТАННІМИ, інакше вони крали б угоди в кошика.
 //
-// callSite — назва сайту в дзвінках (її пише fetch_ringostat.py за пулом
-//           номера). Назви тут і там мають збігатись, бо таблиця зводить
-//           угоди з дзвінками саме за нею.
+// Старі канали злиті з новими, які їх замінили: Jivosite — це ручні угоди
+// з чату до появи ШІ-чатів, Instagram і Facebook — ручні угоди до Meta.
+// Інакше історія рвалася б надвоє на даті переходу.
+const CH_BOT   = ['FNB_SIMPLER', 'FNB_MUA', 'FNB_MCOM', 'WEBFORM'];
+const CH_CART  = ['UC_5B6PJK', 'UC_8AMYMZ', '7'];
+const CH_FORM  = ['CALLBACK', 'WEB - Зворотний дзвінок', 'RC_GENERATOR',
+                  'UC_HYAP6C', 'OTHER', ''];
+const CH_ROZET = ['UC_S1T3W0', 'UC_9LCW2A'];
+const CH_META  = ['FNB_META', '1', 'STORE'];
+
 const SHOPS = [
   {
+    key: 'all', name: 'Усі магазини',
+    // Непізнане джерело не губимо, а показуємо окремою колонкою «Інше»:
+    // мовчки з'їдений канал зробив би підсумок неправдивим, а новий
+    // источник у Bitrix інакше ніхто б і не помітив.
+    rest: true,
+    cols: [
+      {k: 'bot',   label: 'Чатбот',  sources: CH_BOT},
+      {k: 'call',  label: 'Дзвінки', sources: ['CALL']},
+      {k: 'cart',  label: 'Кошик',   sources: CH_CART},
+      {k: 'form',  label: 'Форма',   sources: CH_FORM},
+      {k: 'rozet', label: 'Розетка', sources: CH_ROZET},
+      {k: 'meta',  label: 'Meta',    sources: CH_META},
+    ],
+  },
+  {
     key: 'simpler', name: 'Simpler',
-    bot:  {sources: ['FNB_SIMPLER']},     // «Simpler» — чат-бот сайту
-    cart: {sources: ['UC_8AMYMZ']},       // «Заявка симплер» — кошик
-    callSite: 'simplershop',
+    cols: [
+      {k: 'bot',  label: 'Чатбот',  sources: ['FNB_SIMPLER']},
+      {k: 'call', label: 'Дзвінки', callSite: 'simplershop'},
+      {k: 'cart', label: 'Кошик',   sources: ['UC_8AMYMZ']},
+    ],
   },
   {
     key: 'com', name: 'Matroluxe COM',
-    bot:  {sources: ['FNB_MCOM']},        // «M.COM» — заявки з чату
-    cart: {site: 'matroluxe.com'},
-    callSite: 'matroluxe.com',
+    cols: [
+      {k: 'bot',  label: 'Чатбот',  sources: ['FNB_MCOM']},
+      {k: 'call', label: 'Дзвінки', callSite: 'matroluxe.com'},
+      {k: 'cart', label: 'Кошик',   site: 'matroluxe.com'},
+    ],
   },
   {
     key: 'ua', name: 'Matroluxe UA',
-    bot:  {sources: ['FNB_MUA']},         // «M.UA» — заявки з чату
-    cart: {site: 'matroluxe.ua'},
-    callSite: 'matroluxe.ua',
+    cols: [
+      {k: 'bot',  label: 'Чатбот',  sources: ['FNB_MUA']},
+      {k: 'call', label: 'Дзвінки', callSite: 'matroluxe.ua'},
+      {k: 'cart', label: 'Кошик',   site: 'matroluxe.ua'},
+    ],
   },
 ];
 const SHOP_KEY = 'shop-tab';
@@ -829,45 +864,55 @@ const MONTHS_UA_GEN = ['січня','лютого','березня','квітн�
 let shopMonth = null;    // 'РРРР-ММ'; null — поточний
 let shopOpen  = false;   // чи розгорнули на весь місяць
 
-function shopMatch(rule, d){
-  if(!rule) return false;
-  if(rule.sources && rule.sources.indexOf(d.source_id || '') >= 0) return true;
-  if(rule.site && (d.site || '') === rule.site) return true;
+function shopMatch(col, d){
+  if(col.sources && col.sources.indexOf(d.source_id || '') >= 0) return true;
+  if(col.site && (d.site || '') === col.site) return true;
   return false;
 }
+
+const REST_KEY = '__rest';
 
 function shopRows(shop, crm, ring){
   const turn = {};
   (crm.deal_categories||[]).forEach(c=>{ turn[c.deal_id] = c.turnover || 0; });
 
-  // Номери, що дзвонили з сайту, по днях.
-  const byDay = {};
+  // Колонки за джерелом перевіряємо першими, за дзвінком — останніми.
+  const direct = shop.cols.filter(c=>!c.callSite);
+  const byCall = shop.cols.filter(c=>c.callSite);
+
+  // Номери, що дзвонили з потрібного сайту, по днях.
+  const callDays = {};
   let siteKnown = 0;
-  (ring && ring.calls || []).forEach(c=>{
-    if(c.site) siteKnown++;
-    if(c.site !== shop.callSite || !c.date || !c.caller_key) return;
-    (byDay[c.date] = byDay[c.date] || new Set()).add(c.caller_key);
-  });
+  if(byCall.length){
+    (ring && ring.calls || []).forEach(c=>{
+      if(c.site) siteKnown++;
+      if(!c.date || !c.caller_key) return;
+      byCall.forEach(col=>{
+        if(c.site !== col.callSite) return;
+        const m = callDays[col.k] = callDays[col.k] || {};
+        (m[c.date] = m[c.date] || new Set()).add(c.caller_key);
+      });
+    });
+  }
 
   const rows = {};
   (crm.deals||[]).forEach(d=>{
     if(!d.date) return;
-    const sum = turn[d.id] || 0;
-    let cell = null;
-    if(shopMatch(shop.bot, d))       cell = 'bot';
-    else if(shopMatch(shop.cart, d)) cell = 'cart';
-    else {
-      // Дзвінок: телефон клієнта збігся з дзвінком ІЗ ЦЬОГО САЙТУ того ж
-      // дня. Джерело угоди тут будь-яке — у Bitrix немає поля «з якого
-      // сайту дзвінок», воно є тільки в Ringostat.
-      const nums = byDay[d.date];
-      if(nums && (d.phone_keys||[]).some(k=>nums.has(k))) cell = 'call';
+    let key = null;
+    for(const col of direct){ if(shopMatch(col, d)){ key = col.k; break; } }
+    if(!key){
+      for(const col of byCall){
+        const nums = (callDays[col.k] || {})[d.date];
+        if(nums && (d.phone_keys||[]).some(k=>nums.has(k))){ key = col.k; break; }
+      }
     }
-    if(!cell) return;
-    const r = rows[d.date] = rows[d.date] || {bot:[0,0], call:[0,0], cart:[0,0]};
-    r[cell][0] += 1; r[cell][1] += sum;
+    if(!key && shop.rest) key = REST_KEY;
+    if(!key) return;
+    const r = rows[d.date] = rows[d.date] || {};
+    const cur = r[key] = r[key] || [0, 0];
+    cur[0] += 1; cur[1] += turn[d.id] || 0;
   });
-  return {rows, siteKnown};
+  return {rows, siteKnown, hasCall: byCall.length > 0};
 }
 
 // Місяці, за які взагалі є угоди, від найновішого. Більше за півроку не
@@ -921,44 +966,44 @@ function renderShop(){
     return `<button type="button" class="${ym===shopMonth?'on':''}" data-ym="${ym}">${MONTHS_UA[m]}</button>`;
   }).join('');
 
-  const {rows, siteKnown} = shopRows(shop, CRM_RAW, RING_RAW);
+  const {rows, siteKnown, hasCall} = shopRows(shop, CRM_RAW, RING_RAW);
   const days = shopDays(shopMonth);
   const shown = shopOpen ? days : days.slice(-SHOP_COLLAPSED);
 
-  // Колонки залежать від магазину: де чат-бота немає, порожня колонка лише
-  // збивала б з пантелику — «нуль замовлень» і «каналу не існує» різні речі.
-  const cols = [];
-  if(shop.bot) cols.push(['bot', 'Чатбот']);
-  cols.push(['call', 'Дзвінки'], ['cart', 'Кошик']);
+  const get = (d, k) => (rows[d] && rows[d][k]) || [0, 0];
+  const monthSum = k => days.reduce((a,d)=>{
+    const v = get(d, k); return [a[0]+v[0], a[1]+v[1]];
+  }, [0,0]);
+
+  // «Інше» показуємо тільки коли в цьому місяці туди щось справді впало.
+  const cols = shop.cols.slice();
+  if(shop.rest && monthSum(REST_KEY)[0]) cols.push({k: REST_KEY, label: 'Інше'});
 
   const cell = v => v[0]
     ? `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} ₴</span>`
     : '<span class="zero">—</span>';
-  const empty = () => ({bot:[0,0], call:[0,0], cart:[0,0]});
-  const sumOf = r => cols.reduce((a,[k])=>[a[0]+r[k][0], a[1]+r[k][1]], [0,0]);
+  const rowSum = d => cols.reduce((a,c)=>{
+    const v = get(d, c.k); return [a[0]+v[0], a[1]+v[1]];
+  }, [0,0]);
 
   const body = shown.map(d=>{
-    const r = rows[d] || empty();
     const [y,m,dd] = d.split('-');
     return `<tr><td>${dd}.${m}</td>`
-         + cols.map(([k])=>`<td>${cell(r[k])}</td>`).join('')
-         + `<td>${cell(sumOf(r))}</td></tr>`;
+         + cols.map(c=>`<td>${cell(get(d, c.k))}</td>`).join('')
+         + `<td>${cell(rowSum(d))}</td></tr>`;
   }).join('');
 
   // Підсумок завжди за весь місяць, навіть коли видно п'ять днів: інакше
   // згорнутий вигляд показував би суму, яку ні з чим не звірити.
-  const tot = empty();
-  days.forEach(d=>{
-    const r = rows[d] || empty();
-    ['bot','call','cart'].forEach(k=>{ tot[k][0]+=r[k][0]; tot[k][1]+=r[k][1]; });
-  });
+  const tots = cols.map(c=>monthSum(c.k));
+  const all = tots.reduce((a,v)=>[a[0]+v[0], a[1]+v[1]], [0,0]);
   const mName = MONTHS_UA[Number(shopMonth.slice(5,7))-1];
   host.innerHTML = `<thead><tr><th>День</th>`
-    + cols.map(([,label])=>`<th>${label}</th>`).join('')
+    + cols.map(c=>`<th>${c.label}</th>`).join('')
     + `<th>Разом</th></tr></thead><tbody>${body}`
     + `<tr class="sum"><td>Разом за ${mName}</td>`
-    + cols.map(([k])=>`<td>${cell(tot[k])}</td>`).join('')
-    + `<td>${cell(sumOf(tot))}</td></tr></tbody>`;
+    + tots.map(v=>`<td>${cell(v)}</td>`).join('')
+    + `<td>${cell(all)}</td></tr></tbody>`;
 
   // Кнопка потрібна лише тоді, коли є що ховати.
   const mGen = MONTHS_UA_GEN[Number(shopMonth.slice(5,7))-1];
@@ -968,7 +1013,8 @@ function renderShop(){
     : `+ Усі дні ${mGen} (${days.length})`;
 
   const base = 'Сума — товарні рядки, без накладеного платежу й доставки';
-  if(!RING_RAW)             note.textContent = base + ' · дзвінки завантажуються…';
+  if(!hasCall)              note.textContent = base;
+  else if(!RING_RAW)        note.textContent = base + ' · дзвінки завантажуються…';
   else if(RING_RAW.failed)  note.innerHTML = base +
       ' · <span style="color:var(--warning)">дзвінки не завантажились</span>';
   else if(!siteKnown)       note.innerHTML = base +
