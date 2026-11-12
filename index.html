@@ -583,6 +583,11 @@ let currentDataFile = 'data.json';
 // від самої Meta: двом вкладкам він збігатись не може.
 const SEEN_ACC = {};
 let ACC_SUB_NAME = '';
+// Перший кабінет — той, що в data.json. Якщо два файли показують на один
+// кабінет, винен завжди META_ACCOUNT_ID_2: саме він у такому разі вказує
+// не туди. Тому ховаємо цифри ЛИШЕ на вкладці другого кабінета — дані
+// першого при цьому справжні, і глушити їх немає за що.
+const PRIMARY_FILE = 'data.json';
 
 // Підзаголовок завжди пишемо тут, одним місцем: і назва вкладки, і
 // ідентифікатор кабінету, коли він у файлі є.
@@ -604,12 +609,14 @@ function checkAccount(name, file){
     showAccountId(id);
     const twin = Object.keys(SEEN_ACC).find(f => f !== file && SEEN_ACC[f] === id);
     if(twin){
+      const bad = file === PRIMARY_FILE ? twin : file;
       box.innerHTML = `<div class="err">У файлах <b>${file}</b> і <b>${twin}</b> лежить
         ОДИН І ТОЙ САМИЙ кабінет <code>${id}</code>. Тобто вкладки показують одні й ті
         ж цифри під різними назвами. Треба виправити <code>META_ACCOUNT_ID_2</code>
         на сервері — зараз він вказує на той самий кабінет, що й
-        <code>META_ACCOUNT_ID</code> — і перезапустити збір Meta.</div>`;
-      return false;
+        <code>META_ACCOUNT_ID</code> — і перезапустити збір Meta.
+        Поки що цифри ховаємо тільки у <b>${bad}</b>.</div>`;
+      return file === PRIMARY_FILE;
     }
   }
   if(got && name && got !== name){
