@@ -556,11 +556,19 @@ let DATA=null, CAMPS=[];
 // самого кабінету й кладе її у файл; тут ми лише показуємо те, що прийшло.
 let CUR = 'грн';
 function applyCurrency(){
-  CUR = (DATA && DATA.currency) || 'грн';
+  // Валюту пише сам збір, прочитавши її в кабінету Meta. Якщо у файлі її
+  // немає (зібрано старою версією), гривню НЕ домислюємо: кабінет Matro
+  // веде облік у доларах, і підпис «грн» під доларовими сумами гірший за
+  // відсутність підпису — на нього дивляться й вірять.
+  CUR = (DATA && DATA.currency) || '';
   document.querySelectorAll('.cur').forEach(e=>{ e.textContent = CUR; });
   document.querySelectorAll('[data-curlabel]').forEach(e=>{
-    e.textContent = e.dataset.curlabel + ', ' + CUR;
+    e.textContent = CUR ? e.dataset.curlabel + ', ' + CUR : e.dataset.curlabel;
   });
+  const sub = document.querySelector('.sub');
+  if(!CUR && sub && sub.textContent.indexOf('валюта') < 0){
+    sub.textContent += ' · валюта невідома, файл зібрано старою версією';
+  }
 }
 
 // ── переключение аккаунтов ──
