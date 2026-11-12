@@ -126,6 +126,7 @@
   /* Магазин і місяць — два різні питання, тож і кольори різні: інакше око
      не бачить, який із двох рядів кнопок воно щойно натиснуло. */
   .shop-head .acc-switch.shops button.on{background:rgba(50,216,255,.16)}
+  .shop-head .acc-switch.views button.on{background:rgba(39,227,122,.16)}
   .shop-more{display:block;width:100%;margin-top:8px;padding:9px;font-family:inherit;
     font-size:12px;font-weight:600;color:var(--ink-dim);background:rgba(255,255,255,.03);
     border:1px solid var(--border);border-radius:12px;cursor:pointer;
@@ -407,6 +408,7 @@
   <div class="shop-sec">
     <div class="shop-head"><h2>Замовлення по днях</h2>
       <div class="acc-switch shops" id="shop-tabs"></div>
+      <div class="acc-switch views" id="shop-views"></div>
       <div class="acc-switch" id="shop-months"></div><span class="ln"></span></div>
     <div class="shop-sub" id="shop-note">—</div>
     <div class="shop-wrap"><table class="shop" id="shop-table"></table></div>
@@ -852,7 +854,20 @@ const SHOPS = [
     ],
   },
 ];
+// Товарні категорії. Назви ключів — ті самі, що пише fetch_bitrix.py у
+// deal_categories. Аксесуари лежать окремим полем, а не всередині
+// categories, тому в списку позначені прапорцем.
+const CATS = [
+  {k: 'mattresses',     label: 'Матраци'},
+  {k: 'soft_furniture', label: 'М\'які меблі'},
+  {k: 'case_furniture', label: 'Корпусні меблі'},
+  {k: 'wardrobes',      label: 'Шафи'},
+  {k: 'accessories',    label: 'Аксесуари', own: true},
+];
+
 const SHOP_KEY = 'shop-tab';
+const VIEW_KEY = 'shop-view';
+let shopView = 'channels';   // 'channels' або 'cats'
 const SHOP_COLLAPSED = 5;   // скільки днів видно, поки не натиснули «+»
 let shopIdx = 0;
 
@@ -896,6 +911,7 @@ function shopRows(shop, crm, ring){
   }
 
   const rows = {};
+  const members = {};   // день → Set(id угод цієї вкладки)
   (crm.deals||[]).forEach(d=>{
     if(!d.date) return;
     let key = null;
@@ -911,8 +927,37 @@ function shopRows(shop, crm, ring){
     const r = rows[d.date] = rows[d.date] || {};
     const cur = r[key] = r[key] || [0, 0];
     cur[0] += 1; cur[1] += turn[d.id] || 0;
+    (members[d.date] = members[d.date] || new Set()).add(String(d.id));
   });
-  return {rows, siteKnown, hasCall: byCall.length > 0};
+  return {rows, members, turn, siteKnown, hasCall: byCall.length > 0};
+}
+
+// Той самий набір угод, але розкладений по товарних категоріях.
+//
+// Чому підсумок рахується не як сума колонок: угода з матрацом і диваном
+// потрапляє в обидві, тож кількості по колонках додаються з накладкою.
+// А от «Разом» — це ті самі угоди й ті самі гроші, що й у розрізі каналів:
+// turnover = сума категорій плюс аксесуари, копійка в копійку.
+function shopCatRows(crm, members, turn){
+  const rows = {};
+  (crm.deal_categories||[]).forEach(c=>{
+    const mine = members[c.date];
+    if(!mine || !mine.has(String(c.deal_id))) return;
+    const r = rows[c.date] = rows[c.date] || {};
+    CATS.forEach(cat=>{
+      const v = cat.own ? (c[cat.k] || 0) : ((c.categories || {})[cat.k] || 0);
+      if(!v) return;
+      const cur = r[cat.k] = r[cat.k] || [0, 0];
+      cur[0] += 1; cur[1] += v;
+    });
+  });
+  // Разом за день — усі угоди вкладки, а не лише ті, що мають категорії.
+  Object.keys(members).forEach(date=>{
+    let n = 0, sum = 0;
+    members[date].forEach(id=>{ n += 1; sum += turn[id] || 0; });
+    (rows[date] = rows[date] || {})['__all'] = [n, sum];
+  });
+  return rows;
 }
 
 // Місяці, за які взагалі є угоди, від найновішого. Більше за півроку не
@@ -966,7 +1011,13 @@ function renderShop(){
     return `<button type="button" class="${ym===shopMonth?'on':''}" data-ym="${ym}">${MONTHS_UA[m]}</button>`;
   }).join('');
 
-  const {rows, siteKnown, hasCall} = shopRows(shop, CRM_RAW, RING_RAW);
+  const base_ = shopRows(shop, CRM_RAW, RING_RAW);
+  const {members, turn, siteKnown, hasCall} = base_;
+  const cats = shopView === 'cats';
+  const rows = cats ? shopCatRows(CRM_RAW, members, turn) : base_.rows;
+  document.getElementById('shop-views').innerHTML =
+    [['channels','Канали'], ['cats','Категорії']].map(([v,label])=>
+      `<button type="button" class="${v===shopView?'on':''}" data-v="${v}">${label}</button>`).join('');
   const days = shopDays(shopMonth);
   const shown = shopOpen ? days : days.slice(-SHOP_COLLAPSED);
 
@@ -976,15 +1027,22 @@ function renderShop(){
   }, [0,0]);
 
   // «Інше» показуємо тільки коли в цьому місяці туди щось справді впало.
-  const cols = shop.cols.slice();
-  if(shop.rest && monthSum(REST_KEY)[0]) cols.push({k: REST_KEY, label: 'Інше'});
+  let cols;
+  if(cats){
+    cols = CATS.filter(c=>monthSum(c.k)[0]);
+  }else{
+    cols = shop.cols.slice();
+    if(shop.rest && monthSum(REST_KEY)[0]) cols.push({k: REST_KEY, label: 'Інше'});
+  }
 
   const cell = v => v[0]
     ? `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} ₴</span>`
     : '<span class="zero">—</span>';
-  const rowSum = d => cols.reduce((a,c)=>{
-    const v = get(d, c.k); return [a[0]+v[0], a[1]+v[1]];
-  }, [0,0]);
+  // У розрізі категорій підсумок беремо готовий: складати колонки не можна,
+  // бо одна угода може лежати в кількох.
+  const rowSum = cats
+    ? (d => get(d, '__all'))
+    : (d => cols.reduce((a,c)=>{ const v = get(d, c.k); return [a[0]+v[0], a[1]+v[1]]; }, [0,0]));
 
   const body = shown.map(d=>{
     const [y,m,dd] = d.split('-');
@@ -996,7 +1054,8 @@ function renderShop(){
   // Підсумок завжди за весь місяць, навіть коли видно п'ять днів: інакше
   // згорнутий вигляд показував би суму, яку ні з чим не звірити.
   const tots = cols.map(c=>monthSum(c.k));
-  const all = tots.reduce((a,v)=>[a[0]+v[0], a[1]+v[1]], [0,0]);
+  const all = cats ? monthSum('__all')
+                   : tots.reduce((a,v)=>[a[0]+v[0], a[1]+v[1]], [0,0]);
   const mName = MONTHS_UA[Number(shopMonth.slice(5,7))-1];
   host.innerHTML = `<thead><tr><th>День</th>`
     + cols.map(c=>`<th>${c.label}</th>`).join('')
@@ -1012,8 +1071,9 @@ function renderShop(){
     ? `− Згорнути до ${SHOP_COLLAPSED} днів`
     : `+ Усі дні ${mGen} (${days.length})`;
 
-  const base = 'Сума — товарні рядки, без накладеного платежу й доставки';
-  if(!hasCall)              note.textContent = base;
+  let base = 'Сума — товарні рядки, без накладеного платежу й доставки';
+  if(cats) base += ' · угода з матрацом і диваном рахується в обох колонках';
+  if(cats || !hasCall)      note.textContent = base;
   else if(!RING_RAW)        note.textContent = base + ' · дзвінки завантажуються…';
   else if(RING_RAW.failed)  note.innerHTML = base +
       ' · <span style="color:var(--warning)">дзвінки не завантажились</span>';
@@ -1030,10 +1090,18 @@ document.getElementById('shop-tabs').addEventListener('click', e=>{
   const b = e.target.closest('button[data-i]');
   if(b) shopSetTab(Number(b.dataset.i));
 });
+document.getElementById('shop-views').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-v]');
+  if(!b || b.dataset.v === shopView) return;
+  shopView = b.dataset.v;
+  try{ localStorage.setItem(VIEW_KEY, shopView); }catch(e){}
+  renderShop();
+});
 try{
   const saved = localStorage.getItem(SHOP_KEY);
   const i = SHOPS.findIndex(s=>s.key === saved);
   if(i >= 0) shopIdx = i;
+  if(localStorage.getItem(VIEW_KEY) === 'cats') shopView = 'cats';
 }catch(e){}
 
 // ── ключові показники з перемикачем періоду ──────────────────────────────
