@@ -362,7 +362,6 @@
 
   <div class="period-bar">
     <div class="period-btns">
-      <button class="pbtn" onclick="setPeriodDays(0,this)">Сегодня</button>
       <button class="pbtn" onclick="setPeriodDays(1,this)">Вчера</button>
       <button class="pbtn" data-days="7" onclick="setPeriod(7,this)">7 дней</button>
       <button class="pbtn active" data-days="14" onclick="setPeriod(14,this)">14 дней</button>
@@ -576,9 +575,43 @@ let currentDataFile = 'data.json';
 // Тепер fetch_meta.py підписує файл полем account, а тут ми цей підпис
 // перевіряємо: чужий кабінет — показуємо помилку замість чужих чисел,
 // файл без підпису (зібраний старою версією) — просимо перезібрати.
+// Який кабінет лежить у якому файлі. Потрібно, бо підпис «account» у файл
+// пише сам збір — він каже, за яку вкладку файл ВВАЖАЄТЬСЯ, а не чий
+// кабінет насправді викачано. Якщо META_ACCOUNT_ID_2 на сервері показує на
+// той самий кабінет, що й META_ACCOUNT_ID, обидва файли будуть підписані
+// правильно, а цифри в них — однакові. Єдине, що це ловить, — account_id
+// від самої Meta: двом вкладкам він збігатись не може.
+const SEEN_ACC = {};
+let ACC_SUB_NAME = '';
+
+// Підзаголовок завжди пишемо тут, одним місцем: і назва вкладки, і
+// ідентифікатор кабінету, коли він у файлі є.
+function showAccountId(id){
+  const sub = document.querySelector('.sub');
+  if(!sub) return;
+  let s = 'Meta Ads · ефективність кампаній';
+  if(ACC_SUB_NAME) s += ' · ' + ACC_SUB_NAME;
+  if(id) s += ' · ' + id;
+  sub.textContent = s;
+}
+
 function checkAccount(name, file){
   const box = document.getElementById('error-box');
   const got = DATA && DATA.account;
+  const id = DATA && DATA.account_id;
+  if(id){
+    SEEN_ACC[file] = id;
+    showAccountId(id);
+    const twin = Object.keys(SEEN_ACC).find(f => f !== file && SEEN_ACC[f] === id);
+    if(twin){
+      box.innerHTML = `<div class="err">У файлах <b>${file}</b> і <b>${twin}</b> лежить
+        ОДИН І ТОЙ САМИЙ кабінет <code>${id}</code>. Тобто вкладки показують одні й ті
+        ж цифри під різними назвами. Треба виправити <code>META_ACCOUNT_ID_2</code>
+        на сервері — зараз він вказує на той самий кабінет, що й
+        <code>META_ACCOUNT_ID</code> — і перезапустити збір Meta.</div>`;
+      return false;
+    }
+  }
   if(got && name && got !== name){
     box.innerHTML = `<div class="err">У файлі <b>${file}</b> лежать дані кабінету
       <b>${got}</b>, а не <b>${name}</b>. Цифри цієї вкладки показувати не можна —
@@ -624,8 +657,8 @@ async function switchAccount(file, name, btn){
   // «Matro» підсвічувалась, а дані лишались від Plume: саме так виглядало
   // «Matro показує не ті цифри». Тому ще й перевірка на null: зникне колись
   // і '.sub' — сторінка покаже не ті дані, а просто старий підпис.
-  const sub = document.querySelector('.sub');
-  if(sub) sub.textContent = `Meta Ads · ефективність кампаній · ${name}`;
+  ACC_SUB_NAME = name;
+  showAccountId(null);
   // загружаем новые данные
   const my = ++loadSeq;
   try{
@@ -657,6 +690,7 @@ async function load(){
   // картці SMM, кабінет теж перемикається, і без цього перехід «Відкрити
   // дашборд» мовчки повертав би на Plume.
   const wanted = String(location.hash||'').toLowerCase() === '#matro' ? 'Matro' : 'Plume';
+  ACC_SUB_NAME = wanted;
   if(wanted === 'Matro'){
     currentDataFile = 'data2.json';
     document.querySelectorAll('.acc-tab').forEach(b=>{
@@ -672,11 +706,10 @@ async function load(){
     DATA = got;
     lastLoadOk = true;
     // Та сама перевірка підпису кабінету, що й при перемиканні вкладок.
-    if(!checkAccount(wanted, currentDataFile)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
     // Кабінет у підзаголовку з самого початку, а не лише після перемикання:
     // інакше незрозуміло, чиї цифри на екрані при відкритті сторінки.
-    const sub0 = document.querySelector('.sub');
-    if(sub0) sub0.textContent = 'Meta Ads · ефективність кампаній · ' + wanted;
+    if(!checkAccount(wanted, currentDataFile)) DATA={daily:[],banners:[],period:'—',generated_at:'—'};
+    showAccountId(got && got.account_id);
   }
   catch(e){
     if(my !== loadSeq) return;
