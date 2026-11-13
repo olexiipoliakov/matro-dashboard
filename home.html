@@ -146,6 +146,22 @@
   .shop-stats .s{font-size:11px;color:var(--ink-dim);margin-top:2px}
   .shop-stats .st.fc .v{color:var(--accent-2, #9B8CFF)}
   @media (max-width:860px){ .shop-stats{grid-template-columns:repeat(2,1fr)} }
+  .shop-reasons{margin-top:10px;background:rgba(16,21,34,.82);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px}
+  .shop-reasons:empty{display:none}
+  .shop-reasons h3{font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--ink-dim);font-weight:600;margin-bottom:10px}
+  .shop-reasons ul{list-style:none;display:grid;gap:7px}
+  .shop-reasons li{display:grid;grid-template-columns:1fr auto auto;gap:10px;
+    align-items:center;font-size:12.5px}
+  .shop-reasons .bar{grid-column:1/-1;height:3px;border-radius:2px;
+    background:rgba(255,255,255,.06);overflow:hidden}
+  .shop-reasons .bar i{display:block;height:100%;background:var(--ink-dim);border-radius:2px}
+  .shop-reasons .n{font-weight:700;font-variant-numeric:tabular-nums}
+  .shop-reasons .d{font-size:11px;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+  .shop-reasons .up{color:var(--danger)}
+  .shop-reasons .down{color:var(--success)}
+  .shop-reasons .flat{color:var(--ink-dim)}
 
   /* ── grid карточек ── */
   .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
@@ -430,6 +446,7 @@
     <button type="button" class="shop-more" id="shop-more" style="display:none"
             onclick="shopToggle()"></button>
     <div class="shop-stats" id="shop-stats"></div>
+    <div class="shop-reasons" id="shop-reasons"></div>
   </div>
 
   <div class="grid2">
@@ -881,9 +898,13 @@ const CATS = [
   {k: 'accessories',    label: 'Аксесуари', own: true},
 ];
 
+// Колонки для лідів — ті самі канали, що й у «Усіх магазинах»: ліди
+// приходять тими ж шляхами, що й замовлення.
+const LEAD_COLS = SHOPS[0].cols;
+
 const SHOP_KEY = 'shop-tab';
 const VIEW_KEY = 'shop-view';
-let shopView = 'channels';   // 'channels' або 'cats'
+let shopView = 'channels';   // 'channels' | 'cats' | 'leads'
 const SHOP_COLLAPSED = 5;   // скільки днів видно, поки не натиснули «+»
 let shopIdx = 0;
 
@@ -946,6 +967,51 @@ function shopRows(shop, crm, ring){
     (members[d.date] = members[d.date] || new Set()).add(String(d.id));
   });
   return {rows, members, turn, siteKnown, hasCall: byCall.length > 0};
+}
+
+// Ліди по тих самих каналах, що й угоди.
+//
+// Чому окремо від угод: у ліда немає ні товарних рядків, ні суми (в Bitrix
+// вона нульова), зате є статус — «Якісний лід», «Некваліфікований»,
+// «Дублікат». Тому клітинка показує не гроші, а скільки лідів і скільки з
+// них визнали якісними.
+//
+// Дублікати рахуються в «лідів», але виключені зі знаменника конверсії:
+// один і той самий клієнт, що подзвонив двічі, не робить канал гіршим.
+const LEAD_DUP = '1';          // статус «Дублікат»
+const LEAD_GOOD = 'CONVERTED'; // статус «Якісний лід»
+
+function shopLeadRows(shop, crm){
+  const rows = {};
+  (crm.leads||[]).forEach(l=>{
+    if(!l.date) return;
+    // На вкладці магазину лишаємо лише його ліди: або за міткою сайту, або
+    // за джерелом, якщо магазин має власні (чат-бот, «Заявка симплер»).
+    if(!shop.rest && !shop.cols.some(c=>shopMatch(c, l))) return;
+    let key = REST_KEY;
+    for(const c of LEAD_COLS){ if(shopMatch(c, l)){ key = c.k; break; } }
+    const r = rows[l.date] = rows[l.date] || {};
+    const cur = r[key] = r[key] || [0, 0, 0];   // лідів, якісних, дублів
+    cur[0] += 1;
+    if(l.status_id === LEAD_GOOD) cur[1] += 1;
+    if(l.status_id === LEAD_DUP)  cur[2] += 1;
+  });
+  return rows;
+}
+
+// Причини, з яких ліди бракують. Найцінніше в усій таблиці лідів:
+// «немає в наявності» — це втрати на залишках, «нет связи» — на обробці,
+// і лікуються вони різним.
+function leadReasons(shop, crm, ym){
+  const out = {};
+  (crm.leads||[]).forEach(l=>{
+    if(!(l.date || '').startsWith(ym)) return;
+    if(!shop.rest && !shop.cols.some(c=>shopMatch(c, l))) return;
+    const name = (l.reject_reason_name || '').trim();
+    if(!name) return;
+    out[name] = (out[name] || 0) + 1;
+  });
+  return out;
 }
 
 // Той самий набір угод, але розкладений по товарних категоріях.
@@ -1030,35 +1096,42 @@ function renderShop(){
   const base_ = shopRows(shop, CRM_RAW, RING_RAW);
   const {members, turn, siteKnown, hasCall} = base_;
   const cats = shopView === 'cats';
-  const rows = cats ? shopCatRows(CRM_RAW, members, turn) : base_.rows;
+  const leads = shopView === 'leads';
+  const rows = leads ? shopLeadRows(shop, CRM_RAW)
+             : cats  ? shopCatRows(CRM_RAW, members, turn)
+             : base_.rows;
   document.getElementById('shop-views').innerHTML =
-    [['channels','Канали'], ['cats','Категорії']].map(([v,label])=>
+    [['channels','Канали'], ['cats','Категорії'], ['leads','Ліди']].map(([v,label])=>
       `<button type="button" class="${v===shopView?'on':''}" data-v="${v}">${label}</button>`).join('');
   const days = shopDays(shopMonth);
   const shown = shopOpen ? days : days.slice(-SHOP_COLLAPSED);
 
-  const get = (d, k) => (rows[d] && rows[d][k]) || [0, 0];
-  const monthSum = k => days.reduce((a,d)=>{
-    const v = get(d, k); return [a[0]+v[0], a[1]+v[1]];
-  }, [0,0]);
+  const WIDTH = leads ? 3 : 2;      // ліди несуть ще й лічильник дублів
+  const zero = () => new Array(WIDTH).fill(0);
+  const add = (a, b) => a.map((v, i) => v + (b[i] || 0));
+  const get = (d, k) => (rows[d] && rows[d][k]) || zero();
+  const monthSum = k => days.reduce((a, d) => add(a, get(d, k)), zero());
 
   // «Інше» показуємо тільки коли в цьому місяці туди щось справді впало.
   let cols;
-  if(cats){
+  if(leads){
+    cols = LEAD_COLS.filter(c=>monthSum(c.k)[0]);
+    if(monthSum(REST_KEY)[0]) cols.push({k: REST_KEY, label: 'Інше'});
+  }else if(cats){
     cols = CATS.filter(c=>monthSum(c.k)[0]);
   }else{
     cols = shop.cols.slice();
     if(shop.rest && monthSum(REST_KEY)[0]) cols.push({k: REST_KEY, label: 'Інше'});
   }
 
-  const cell = v => v[0]
-    ? `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} ₴</span>`
-    : '<span class="zero">—</span>';
+  const cell = v => !v[0] ? '<span class="zero">—</span>'
+    : leads ? `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} якісн.</span>`
+            : `<span class="n">${fmt(v[0])}</span><span class="s">${fmt(v[1])} ₴</span>`;
   // У розрізі категорій підсумок беремо готовий: складати колонки не можна,
   // бо одна угода може лежати в кількох.
   const rowSum = cats
     ? (d => get(d, '__all'))
-    : (d => cols.reduce((a,c)=>{ const v = get(d, c.k); return [a[0]+v[0], a[1]+v[1]]; }, [0,0]));
+    : (d => cols.reduce((a, c) => add(a, get(d, c.k)), zero()));
 
   const body = shown.map(d=>{
     const [y,m,dd] = d.split('-');
@@ -1070,8 +1143,7 @@ function renderShop(){
   // Підсумок завжди за весь місяць, навіть коли видно п'ять днів: інакше
   // згорнутий вигляд показував би суму, яку ні з чим не звірити.
   const tots = cols.map(c=>monthSum(c.k));
-  const all = cats ? monthSum('__all')
-                   : tots.reduce((a,v)=>[a[0]+v[0], a[1]+v[1]], [0,0]);
+  const all = cats ? monthSum('__all') : tots.reduce(add, zero());
   const mName = MONTHS_UA[Number(shopMonth.slice(5,7))-1];
   host.innerHTML = `<thead><tr><th>День</th>`
     + cols.map(c=>`<th>${c.label}</th>`).join('')
@@ -1123,7 +1195,49 @@ function renderShop(){
   }, [0,0]);
   const st = sumOver(statDays);
   const statsEl = document.getElementById('shop-stats');
-  if(!statDays.length){
+  const reasonsEl = document.getElementById('shop-reasons');
+  reasonsEl.innerHTML = '';
+  if(leads){
+    // Для лідів гроші ні до чого: у Bitrix сума ліда нульова. Рахуємо
+    // кількість і якість — і конверсію без дублікатів у знаменнику.
+    const n = all[0], good = all[1], dup = all[2];
+    const base2 = n - dup;
+    const tile = (label, value, sub) =>
+      `<div class="st"><div class="l">${label}</div>` +
+      `<div class="v">${value}</div><div class="s">${sub}</div></div>`;
+    statsEl.innerHTML =
+      tile('Лідів за місяць', fmt(n), `${fmt1(n / Math.max(1, statDays.length || days.length))} на день`) +
+      tile('Якісних', fmt(good), `${fmt(n - good - dup)} некваліфікованих`) +
+      tile('Конверсія', base2 ? Math.round(good / base2 * 100) + '%' : '—', 'без дублікатів') +
+      tile('Дублікати', fmt(dup), n ? Math.round(dup / n * 100) + '% усіх лідів' : '—');
+
+    // Причини браку: цього місяця проти попереднього.
+    const prevYm = (() => {
+      const [y, m] = shopMonth.split('-').map(Number);
+      const d0 = new Date(y, m - 2, 1);
+      return `${d0.getFullYear()}-${String(d0.getMonth()+1).padStart(2,'0')}`;
+    })();
+    const cur = leadReasons(shop, CRM_RAW, shopMonth);
+    const prev = leadReasons(shop, CRM_RAW, prevYm);
+    const list = Object.keys(cur).sort((a,b)=>cur[b]-cur[a]).slice(0, 8);
+    if(list.length){
+      const total = Object.values(cur).reduce((a,b)=>a+b, 0);
+      const top = cur[list[0]] || 1;
+      reasonsEl.innerHTML = `<h3>Чому бракують ліди · ${MONTHS_UA[Number(shopMonth.slice(5,7))-1]}</h3><ul>` +
+        list.map(name=>{
+          const was = prev[name] || 0, now = cur[name];
+          const diff = was ? Math.round((now - was) / was * 100) : null;
+          const cls = diff === null ? 'flat' : diff > 10 ? 'up' : diff < -10 ? 'down' : 'flat';
+          const sign = diff === null ? 'новe' : (diff > 0 ? '+' : '') + diff + '%';
+          return `<li><span>${escapeHtml(name)}</span>` +
+                 `<span class="n">${fmt(now)}</span>` +
+                 `<span class="d ${cls}" title="проти ${fmt(was)} минулого місяця">${sign}</span>` +
+                 `<span class="bar"><i style="width:${Math.round(now/top*100)}%"></i></span></li>`;
+        }).join('') +
+        `</ul><div class="s" style="font-size:11px;color:var(--ink-dim);margin-top:10px">` +
+        `${fmt(total)} бракованих лідів · відсоток — зміна проти попереднього місяця</div>`;
+    }
+  }else if(!statDays.length){
     statsEl.innerHTML = '<div class="st"><div class="l">Середні</div>' +
       '<div class="s">місяць тільки почався — рахувати нема по чому</div></div>';
   }else{
@@ -1151,8 +1265,9 @@ function renderShop(){
   }
 
   let base = 'Сума — товарні рядки, без накладеного платежу й доставки';
-  if(cats) base += ' · угода з матрацом і диваном рахується в обох колонках';
-  if(cats || !hasCall)      note.textContent = base;
+  if(leads) base = 'У клітинці — скільки лідів і скільки з них визнали якісними';
+  else if(cats) base += ' · угода з матрацом і диваном рахується в обох колонках';
+  if(leads || cats || !hasCall) note.textContent = base;
   else if(!RING_RAW)        note.textContent = base + ' · дзвінки завантажуються…';
   else if(RING_RAW.failed)  note.innerHTML = base +
       ' · <span style="color:var(--warning)">дзвінки не завантажились</span>';

@@ -421,6 +421,11 @@ LEAD_REJECT_REASON_TEXT_FIELD = "UF_CRM_1612946419988"   # тип string (зас
 
 LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CREATE",
                "STATUS_SEMANTIC_ID", "ASSIGNED_BY_ID",
+               # Та сама мітка сайту, що й в угодах. Зʼявиться лише у лідів,
+               # створених після цієї зміни: заднім числом Bitrix її не
+               # проставить, тож перші тижні вкладки магазинів по лідах
+               # будуть неповними.
+               "SOURCE_DESCRIPTION",
                "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM",
                # Користувацькі поля crm.lead.list віддає ТІЛЬКИ по масці "UF_*".
                # Перелічені поштучно коди (UF_CRM_1720011123359 тощо) він мовчки
@@ -575,6 +580,7 @@ def slim_leads(leads):
             "date": to_date(l.get("DATE_CREATE")),
             "status_id": l.get("STATUS_ID", ""),
             "source_id": l.get("SOURCE_ID", ""),
+            "site": deal_site(l),
             "semantic": l.get("STATUS_SEMANTIC_ID", ""),
             "amount": float(l.get("OPPORTUNITY") or 0),
             "manager_id": str(l.get("ASSIGNED_BY_ID") or ""),
