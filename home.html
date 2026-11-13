@@ -136,6 +136,16 @@
     font-variant-numeric:tabular-nums}
   .shop-age b{font-weight:600;color:var(--ink-soft)}
   .shop-age .old{color:var(--warning)}
+  .shop-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+  .shop-stats .st{background:rgba(16,21,34,.82);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px}
+  .shop-stats .l{font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--ink-dim);font-weight:600}
+  .shop-stats .v{font-size:19px;font-weight:700;margin-top:4px;
+    font-variant-numeric:tabular-nums}
+  .shop-stats .s{font-size:11px;color:var(--ink-dim);margin-top:2px}
+  .shop-stats .st.fc .v{color:var(--accent-2, #9B8CFF)}
+  @media (max-width:860px){ .shop-stats{grid-template-columns:repeat(2,1fr)} }
 
   /* ── grid карточек ── */
   .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
@@ -419,6 +429,7 @@
     <div class="shop-wrap"><table class="shop" id="shop-table"></table></div>
     <button type="button" class="shop-more" id="shop-more" style="display:none"
             onclick="shopToggle()"></button>
+    <div class="shop-stats" id="shop-stats"></div>
   </div>
 
   <div class="grid2">
@@ -1091,6 +1102,53 @@ function renderShop(){
   ageEl.innerHTML = [part('CRM', CRM_RAW.generated_at, true),
                      part('дзвінки', RING_RAW && RING_RAW.generated_at, hasCall)]
                     .filter(Boolean).join(' · ');
+
+  // 1 день / 2 дні / 5 днів — інакше в підписах стоїть «31 днів».
+  const plural = (n, one, few, many) => {
+    const a = Math.abs(Math.round(n)) % 100, b = a % 10;
+    if(a > 10 && a < 20) return many;
+    if(b > 1 && b < 5) return few;
+    return b === 1 ? one : many;
+  };
+
+  // ── середнє й прогноз ──
+  // Рахуємо по ЗАКРИТИХ днях: сьогоднішній день ще набирається, і якщо
+  // поділити на нього о десятій ранку, середнє піде вниз, а прогноз — за
+  // ним. Для минулих місяців закриті всі дні.
+  const todayIso = kpiIso(new Date());
+  const statDays = days.filter(d => d < todayIso);
+  const inMonth = new Date(Number(shopMonth.slice(0,4)), Number(shopMonth.slice(5,7)), 0).getDate();
+  const sumOver = list => list.reduce((a,d)=>{
+    const v = rowSum(d); return [a[0]+v[0], a[1]+v[1]];
+  }, [0,0]);
+  const st = sumOver(statDays);
+  const statsEl = document.getElementById('shop-stats');
+  if(!statDays.length){
+    statsEl.innerHTML = '<div class="st"><div class="l">Середні</div>' +
+      '<div class="s">місяць тільки почався — рахувати нема по чому</div></div>';
+  }else{
+    const n = statDays.length;
+    const perDay   = st[1] / n;
+    const check    = st[0] ? st[1] / st[0] : 0;
+    const ordDay   = st[0] / n;
+    const done     = n >= inMonth;            // місяць закритий — це вже факт
+    const forecast = done ? all[1] : perDay * inMonth;
+    const fcOrders = done ? all[0] : ordDay * inMonth;
+    const tile = (label, value, sub, cls) =>
+      `<div class="st${cls||''}"><div class="l">${label}</div>` +
+      `<div class="v">${value}</div><div class="s">${sub}</div></div>`;
+    statsEl.innerHTML =
+      tile('Середній добовий оборот', fmt(perDay) + ' ₴',
+           `за ${n} ${plural(n,'день','дні','днів')}` + (done ? '' : ', без сьогодні')) +
+      tile('Середній чек', fmt(check) + ' ₴',
+           `${fmt(st[0])} ${plural(st[0],'замовлення','замовлення','замовлень')}`) +
+      tile('Замовлень на день', fmt1(ordDay),
+           `${inMonth} ${plural(inMonth,'день','дні','днів')} у місяці`) +
+      tile(done ? 'Оборот за місяць' : 'Прогноз на місяць', fmt(forecast) + ' ₴',
+           done ? 'факт'
+                : `очікуємо ${fmt(fcOrders)} ${plural(fcOrders,'замовлення','замовлення','замовлень')}`,
+           done ? '' : ' fc');
+  }
 
   let base = 'Сума — товарні рядки, без накладеного платежу й доставки';
   if(cats) base += ' · угода з матрацом і диваном рахується в обох колонках';
