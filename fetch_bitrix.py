@@ -622,6 +622,34 @@ SECTION_IS_GOOD = {
 }
 
 
+# Швидкий збір: тягнемо лише останні дні й підмішуємо їх до вже зібраного.
+# Навіщо. Повний прогін — це 90 днів, кілька тисяч угод, товарні рядки й
+# телефони контактів; на 0.5 CPU це хвилини. А коли людині треба побачити
+# замовлення, оформлене десять хвилин тому, перезбирати серпень немає сенсу.
+QUICK_DAYS = 0
+for _i, _a in enumerate(sys.argv):
+    if _a == "--days" and _i + 1 < len(sys.argv):
+        try: QUICK_DAYS = max(1, int(sys.argv[_i + 1]))
+        except ValueError: QUICK_DAYS = 0
+
+# Що склеюємо по датах. Решта розділів (довідники, прострочені задачі)
+# збирається цілком — вони дешеві й не мають дат.
+MERGE_BY_DATE = ("deals", "leads", "deal_categories")
+
+
+def merge_window(result, prev, window_start):
+    """Старі записи до вікна лишаємо, всередині вікна — беремо нові."""
+    for key in MERGE_BY_DATE:
+        fresh = result.get(key) or []
+        old = [r for r in (prev.get(key) or [])
+               if (r.get("date") or "") and r["date"] < window_start]
+        result[key] = old + fresh
+        print(f"     {key}: {len(old)} старих + {len(fresh)} свіжих")
+    # Горизонт лишається попереднім: ми не звужували звіт, лише оновили хвіст.
+    if prev.get("period_from"):
+        result["period_from"] = prev["period_from"]
+
+
 def save_result(result):
     """Зберігаємо результат, переносячи вцілілі розділи з попереднього файлу.
 
@@ -667,7 +695,24 @@ if __name__ == "__main__":
         print("⚠  Задайте BITRIX_WEBHOOK_URL (GitHub Secret).")
         sys.exit(1)
 
-    start_date = date.today() - timedelta(days=DAYS_BACK)
+    # Швидкий режим має сенс лише тоді, коли є що доповнювати. Після
+    # деплою диск Render чистий, і «оновити лише сьогодні» лишило б звіт
+    # з одним днем замість трьох місяців — тому в такому разі мовчки
+    # збираємо все.
+    quick = QUICK_DAYS
+    prev_data = {}
+    if quick and OUT.exists():
+        try:
+            prev_data = json.loads(OUT.read_text(encoding="utf-8"))
+        except Exception:
+            prev_data = {}
+    if quick and not (prev_data.get("deals") and prev_data.get("deal_categories")):
+        print("  ⚠ попередніх даних немає — швидкий збір пропущено, беру весь період")
+        quick = 0
+
+    start_date = date.today() - timedelta(days=(quick - 1) if quick else DAYS_BACK)
+    if quick:
+        print(f"  ⚡ швидкий збір: лише з {start_date}")
     ok = True
     # Час, а не лише дата. Без нього шапка дашборда писала «Оновлено:
     # 2026-09-30» — і це виглядало як «дані за сьогодні повні», хоча насправді
@@ -787,6 +832,8 @@ if __name__ == "__main__":
         print(f"  ⚠ не вдалося отримати задачі (можливо, вебхуку не вистачає доступу 'task'): {e}")
         result["overdue_tasks"] = {"count": None, "items": [], "error": str(e)}
 
+    if quick:
+        merge_window(result, prev_data, str(start_date))
     save_result(result)
     if "deals" in result and "leads" in result:
         print(f"\n✓ bitrix_data.json сохранён: {len(result['deals'])} угод, {len(result['leads'])} лідів")

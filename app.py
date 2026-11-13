@@ -140,11 +140,13 @@ def requires_auth(f):
 LAST_RUN = {}
 
 
-def run_script(name, timeout=1200):
-    print(f"[scheduler] запускаю {name}…", flush=True)
+def run_script(name, timeout=1200, args=()):
+    label = name + (" " + " ".join(args) if args else "")
+    print(f"[scheduler] запускаю {label}…", flush=True)
     started = time.time()
     try:
-        result = subprocess.run([sys.executable, str(BASE_DIR / name)], check=False, timeout=timeout)
+        result = subprocess.run([sys.executable, str(BASE_DIR / name), *args],
+                                check=False, timeout=timeout)
         # Раніше тут писали "завершено" незалежно від коду завершення —
         # якщо скрипт падав з необробленим винятком (traceback), лог все
         # одно виглядав так, ніби все пройшло успішно, і це маскувало
@@ -153,9 +155,9 @@ def run_script(name, timeout=1200):
                           "finished_at": time.time(), "seconds": round(time.time() - started),
                           "note": ""}
         if result.returncode == 0:
-            print(f"[scheduler] {name} завершено", flush=True)
+            print(f"[scheduler] {label} завершено", flush=True)
         else:
-            print(f"[scheduler] ✗ {name} ЗАВЕРШИВСЯ З ПОМИЛКОЮ (код {result.returncode}) — дивись traceback вище", flush=True)
+            print(f"[scheduler] ✗ {label} ЗАВЕРШИВСЯ З ПОМИЛКОЮ (код {result.returncode}) — дивись traceback вище", flush=True)
     except Exception as e:
         LAST_RUN[name] = {"ok": False, "code": None, "finished_at": time.time(),
                           "seconds": round(time.time() - started), "note": str(e)[:300]}
@@ -200,30 +202,35 @@ _bitrix_running = False
 _bitrix_run_lock = threading.Lock()
 
 
-def _bitrix_worker():
+def _bitrix_worker(args=()):
     global _bitrix_running
     try:
-        run_script("fetch_bitrix.py", timeout=1800)
+        run_script("fetch_bitrix.py", timeout=1800, args=args)
     finally:
         with _bitrix_run_lock:
             _bitrix_running = False
 
 
-def start_bitrix_refresh():
-    """True — запустили, False — вже виконується."""
+def start_bitrix_refresh(days=0):
+    """True — запустили, False — вже виконується.
+
+    days>0 — швидкий збір: тягнемо лише останні дні й підмішуємо їх до
+    вже зібраного. Саме це робить кнопка на сторінці: перезбирати три
+    місяці заради замовлення, оформленого десять хвилин тому, безглуздо."""
     global _bitrix_running
     with _bitrix_run_lock:
         if _bitrix_running:
             return False
         _bitrix_running = True
-    threading.Thread(target=_bitrix_worker, daemon=True).start()
+    args = ("--days", str(days)) if days else ()
+    threading.Thread(target=_bitrix_worker, args=(args,), daemon=True).start()
     return True
 
 
 @app.route("/api/bitrix/refresh", methods=["POST"])
 @requires_auth
 def bitrix_refresh():
-    if not start_bitrix_refresh():
+    if not start_bitrix_refresh(_asked_days()):
         return jsonify({"status": "already_running"}), 409
     return jsonify({"status": "started"}), 202
 
@@ -242,6 +249,69 @@ def bitrix_refresh_status():
             stamp = ""
     with _bitrix_run_lock:
         running = _bitrix_running
+    return jsonify({"running": running, "generated_at": stamp})
+
+
+# ── Ручне оновлення журналу дзвінків ───────────────────────────────────
+# Та сама пара «запустити / спитати стан», що й у Bitrix. Потрібна тому, що
+# таблиця магазинів зводить угоди з дзвінками: оновити лише CRM — означає
+# побачити нові замовлення, але стару колонку «Дзвінки», і не зрозуміти,
+# чому вони не сходяться.
+_ring_running = False
+_ring_run_lock = threading.Lock()
+
+
+def _ring_worker(args=()):
+    global _ring_running
+    try:
+        run_script("fetch_ringostat.py", timeout=1800, args=args)
+    finally:
+        with _ring_run_lock:
+            _ring_running = False
+
+
+def start_ring_refresh(days=0):
+    """True — запустили, False — вже виконується."""
+    global _ring_running
+    with _ring_run_lock:
+        if _ring_running:
+            return False
+        _ring_running = True
+    args = ("--days", str(days)) if days else ()
+    threading.Thread(target=_ring_worker, args=(args,), daemon=True).start()
+    return True
+
+
+def _asked_days():
+    """?days=2 — скільки останніх днів перезібрати. 0 або відсутній — усе.
+    Обмежуємо згори, щоб випадковий ?days=9999 не перетворив «швидко» на
+    повний прогін без попередження."""
+    try:
+        return max(0, min(14, int(request.args.get("days") or 0)))
+    except ValueError:
+        return 0
+
+
+@app.route("/api/ringostat/refresh", methods=["POST"])
+@requires_auth
+def ringostat_refresh():
+    if not start_ring_refresh(_asked_days()):
+        return jsonify({"status": "already_running"}), 409
+    return jsonify({"status": "started"}), 202
+
+
+@app.route("/api/ringostat/refresh/status")
+@requires_auth
+def ringostat_refresh_status():
+    stamp = ""
+    f = BASE_DIR / "ringostat_data.json"
+    if f.exists():
+        try:
+            stamp = json.loads(f.read_text(encoding="utf-8")).get("generated_at", "")
+        except Exception:
+            stamp = ""
+    with _ring_run_lock:
+        running = _ring_running
     return jsonify({"running": running, "generated_at": stamp})
 
 

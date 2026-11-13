@@ -342,6 +342,16 @@ def slim_calls(rows, known_staff_names):
         print(f"     дублів у журналі відкинуто: {dropped} з {len(out)}")
     return deduped, extra_names, no_employee
 
+# Швидкий збір: лише останні дні, решта журналу береться з попереднього
+# файлу. 90 днів тягнуться тижневими вікнами — це тринадцять запитів і
+# хвилини очікування, а щоб побачити сьогоднішній дзвінок, досить одного.
+QUICK_DAYS = 0
+for _i, _a in enumerate(sys.argv):
+    if _a == "--days" and _i + 1 < len(sys.argv):
+        try: QUICK_DAYS = max(1, int(sys.argv[_i + 1]))
+        except ValueError: QUICK_DAYS = 0
+
+
 # ── Main ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("=== Ringostat Calls Fetch ===")
@@ -349,7 +359,27 @@ if __name__ == "__main__":
         print("⚠  Задайте RINGOSTAT_AUTH_KEY (Render Environment).")
         sys.exit(1)
 
-    result = {"generated_at": str(date.today()), "period_from": str(date.today() - timedelta(days=DAYS_BACK))}
+    # З часом, а не лише з датою: сторінка показує вік даних, і «сьогодні»
+    # без годин не дає зрозуміти, збиралось це десять хвилин чи десять
+    # годин тому.
+    result = {"generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+              "period_from": str(date.today() - timedelta(days=DAYS_BACK))}
+    # Доповнювати нема чого, якщо файлу ще немає (після деплою диск чистий):
+    # тоді «оновити лише сьогодні» лишило б журнал з одним днем.
+    quick = QUICK_DAYS
+    prev_calls = []
+    if quick:
+        try:
+            prev = json.loads(OUT.read_text(encoding="utf-8"))
+            prev_calls = prev.get("calls") or []
+            result["period_from"] = prev.get("period_from") or result["period_from"]
+        except Exception:
+            prev_calls = []
+        if not prev_calls:
+            print("  ⚠ попереднього журналу немає — швидкий збір пропущено, беру весь період")
+            quick = 0
+
+    days_back = (quick - 1) if quick else DAYS_BACK
     ok = True
     staff_names, directions_exact, directions_phone = {}, {}, {}
     try:
@@ -361,10 +391,16 @@ if __name__ == "__main__":
         ok = False
 
     try:
-        print(f"  → Дзвінки за останні {DAYS_BACK} днів")
-        raw_calls = fetch_all_calls(DAYS_BACK)
+        print(f"  → Дзвінки за останні {days_back} днів" + (" (швидкий збір)" if quick else ""))
+        raw_calls = fetch_all_calls(days_back)
         print(f"     знайдено: {len(raw_calls)}")
         calls, extra_names, no_employee = slim_calls(raw_calls, staff_names)
+        if quick:
+            # Старі дзвінки лишаємо, всередині вікна беремо свіжі.
+            start = str(date.today() - timedelta(days=days_back))
+            old = [c for c in prev_calls if (c.get("date") or "") < start]
+            print(f"     склеюю: {len(old)} старих + {len(calls)} свіжих")
+            calls = old + calls
         result["calls"] = calls
         if extra_names:
             staff_names.update(extra_names)

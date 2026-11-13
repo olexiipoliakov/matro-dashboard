@@ -132,6 +132,10 @@
     border:1px solid var(--border);border-radius:12px;cursor:pointer;
     transition:color 160ms ease, background 160ms ease}
   .shop-more:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+  .shop-age{font-size:11px;color:var(--ink-dim);white-space:nowrap;
+    font-variant-numeric:tabular-nums}
+  .shop-age b{font-weight:600;color:var(--ink-soft)}
+  .shop-age .old{color:var(--warning)}
 
   /* ── grid карточек ── */
   .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
@@ -409,7 +413,8 @@
     <div class="shop-head"><h2>Замовлення по днях</h2>
       <div class="acc-switch shops" id="shop-tabs"></div>
       <div class="acc-switch views" id="shop-views"></div>
-      <div class="acc-switch" id="shop-months"></div><span class="ln"></span></div>
+      <div class="acc-switch" id="shop-months"></div><span class="ln"></span>
+      <span class="shop-age" id="shop-age"></span></div>
     <div class="shop-sub" id="shop-note">—</div>
     <div class="shop-wrap"><table class="shop" id="shop-table"></table></div>
     <button type="button" class="shop-more" id="shop-more" style="display:none"
@@ -1071,6 +1076,22 @@ function renderShop(){
     ? `− Згорнути до ${SHOP_COLLAPSED} днів`
     : `+ Усі дні ${mGen} (${days.length})`;
 
+  // Вік обох джерел прямо в шапці: таблиця зводить угоди з дзвінками, і
+  // «свіжа CRM плюс учорашні дзвінки» дає цифри, яким не можна вірити, —
+  // але на вигляд вони такі самі, як правильні.
+  const ageEl = document.getElementById('shop-age');
+  const part = (label, stamp, need) => {
+    if(!need) return '';
+    // ageMin віддає Infinity, коли мітки немає або вона нечитана.
+    const m = ageMin(stamp);
+    if(!isFinite(m)) return `${label} <b class="old">невідомо</b>`;
+    const cls = m > 45 ? ' class="old"' : '';
+    return `${label} <b${cls}>${fmtAge(m)}</b>`;
+  };
+  ageEl.innerHTML = [part('CRM', CRM_RAW.generated_at, true),
+                     part('дзвінки', RING_RAW && RING_RAW.generated_at, hasCall)]
+                    .filter(Boolean).join(' · ');
+
   let base = 'Сума — товарні рядки, без накладеного платежу й доставки';
   if(cats) base += ' · угода з матрацом і диваном рахується в обох колонках';
   if(cats || !hasCall)      note.textContent = base;
@@ -1264,35 +1285,65 @@ function syncRefreshBtn(stamp){
   if(lab) lab.textContent = stamp ? fmtAge(age) : '—';
 }
 
+// Кнопка «Оновити» піднімає обидва збори — і CRM, і дзвінки. Оновити саму
+// лише CRM означало б побачити нові замовлення поруч зі вчорашньою колонкою
+// «Дзвінки» й гадати, чому вони не сходяться.
+const REFRESH_DAYS = 2;
+
 async function refreshCRM(){
   const b=document.getElementById('crm-refresh');
   if(!b || b.disabled) return;
-  const was=(CRM_RAW && CRM_RAW.generated_at) || '';
+  const wasCrm=(CRM_RAW && CRM_RAW.generated_at) || '';
+  const wasRing=(RING_RAW && RING_RAW.generated_at) || '';
   b.disabled=true; b.classList.add('busy');
   const lab=document.getElementById('crm-refresh-age');
   if(lab) lab.textContent='оновлюю…';
-  try{
-    const r=await fetch('/api/bitrix/refresh', {method:'POST'});
-    if(!r.ok && r.status!==409) throw new Error('HTTP '+r.status);
-  }catch(e){
+
+  // 409 означає «вже виконується» — це не помилка, просто чекаємо далі.
+  const kick = async url => {
+    try{
+      const r = await fetch(url, {method:'POST'});
+      return r.ok || r.status === 409;
+    }catch(e){ return false; }
+  };
+  // Просимо перезібрати лише сьогодні й учора, а не всі 90 днів: вчорашні
+  // угоди ще змінюються (оператор проводить замовлення наступного дня), а
+  // серпень уже ні. Повний прогін лишається на розкладі.
+  const okCrm  = await kick('/api/bitrix/refresh?days=' + REFRESH_DAYS);
+  const okRing = await kick('/api/ringostat/refresh?days=' + REFRESH_DAYS);
+  if(!okCrm && !okRing){
     b.disabled=false; b.classList.remove('busy');
     if(lab) lab.textContent='не вдалося';
     return;
   }
-  let tries=0;
+
+  let crmDone = !okCrm, ringDone = !okRing, changed = false;
+  const ask = async url => {
+    try{ return await (await fetch(url+'?_='+Date.now())).json(); }
+    catch(e){ return null; }
+  };
   clearInterval(kpiPoll);
   kpiPoll=setInterval(async()=>{
-    tries++;
-    let st;
-    try{ st=await (await fetch('/api/bitrix/refresh/status?_='+Date.now())).json(); }
-    catch(e){ return; }
-    if(st.running) return;
+    if(!crmDone){
+      const st = await ask('/api/bitrix/refresh/status');
+      if(st && !st.running){
+        crmDone = true;
+        // Перечитуємо файл, тільки якщо зріз справді змінився: інакше збір
+        // закінчився помилкою, і писати «оновлено» було б неправдою.
+        if(st.generated_at && st.generated_at !== wasCrm){ changed = true; loadCRM(); }
+      }
+    }
+    if(!ringDone){
+      const st = await ask('/api/ringostat/refresh/status');
+      if(st && !st.running){
+        ringDone = true;
+        if(st.generated_at && st.generated_at !== wasRing){ changed = true; loadCalls(); }
+      }
+    }
+    if(!crmDone || !ringDone) return;
     clearInterval(kpiPoll); kpiPoll=null;
     b.disabled=false; b.classList.remove('busy');
-    // Перечитуємо файл, тільки якщо зріз справді змінився: інакше збір
-    // закінчився помилкою, і писати «оновлено» було б неправдою.
-    if(st.generated_at && st.generated_at!==was) loadCRM();
-    else if(lab) lab.textContent='без змін';
+    if(!changed && lab) lab.textContent='без змін';
   }, 4000);
   setTimeout(()=>{ if(kpiPoll){ clearInterval(kpiPoll); kpiPoll=null;
     b.disabled=false; b.classList.remove('busy'); } }, 600000);
