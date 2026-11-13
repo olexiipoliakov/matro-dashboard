@@ -121,6 +121,11 @@
   table.shop .s{color:var(--ink-dim);font-size:11.5px;margin-left:6px}
   table.shop tr.sum td{border-top:1px solid var(--border-strong);font-weight:700;
     background:rgba(255,255,255,.03)}
+  table.shop tr.conv td{border-top:0;background:rgba(255,255,255,.03);
+    font-weight:700;color:var(--ink-soft);padding-top:0}
+  table.shop tr.conv td:first-child{font-weight:600;color:var(--ink-dim);font-size:11px}
+  table.shop tr.conv .w{color:var(--warning)}
+  table.shop tr.conv .g{color:var(--success)}
   table.shop td.zero{color:var(--ink-dim)}
   .shop-head .acc-switch{margin:0}
   /* Магазин і місяць — два різні питання, тож і кольори різні: інакше око
@@ -1144,13 +1149,29 @@ function renderShop(){
   // згорнутий вигляд показував би суму, яку ні з чим не звірити.
   const tots = cols.map(c=>monthSum(c.k));
   const all = cats ? monthSum('__all') : tots.reduce(add, zero());
+  // Конверсія каналу окремим рядком під підсумком. У клітинку її не
+  // запхати: там уже два числа, а третє перетворило б таблицю на кашу.
+  // Знаменник — ліди без дублікатів: той самий клієнт, що звернувся двічі,
+  // не робить канал гіршим.
+  const convCell = v => {
+    const base2 = v[0] - (v[2] || 0);
+    if(!base2) return '<span class="zero">—</span>';
+    const pc = Math.round(v[1] / base2 * 100);
+    const cls = pc >= 50 ? ' class="g"' : pc < 25 ? ' class="w"' : '';
+    return `<span${cls}>${pc}%</span>`;
+  };
+  const convRow = !leads ? '' :
+    `<tr class="conv"><td>Конверсія в якісні</td>`
+    + tots.map(v=>`<td>${convCell(v)}</td>`).join('')
+    + `<td>${convCell(all)}</td></tr>`;
+
   const mName = MONTHS_UA[Number(shopMonth.slice(5,7))-1];
   host.innerHTML = `<thead><tr><th>День</th>`
     + cols.map(c=>`<th>${c.label}</th>`).join('')
     + `<th>Разом</th></tr></thead><tbody>${body}`
     + `<tr class="sum"><td>Разом за ${mName}</td>`
     + tots.map(v=>`<td>${cell(v)}</td>`).join('')
-    + `<td>${cell(all)}</td></tr></tbody>`;
+    + `<td>${cell(all)}</td></tr>${convRow}</tbody>`;
 
   // Кнопка потрібна лише тоді, коли є що ховати.
   const mGen = MONTHS_UA_GEN[Number(shopMonth.slice(5,7))-1];
