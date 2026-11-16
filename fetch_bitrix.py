@@ -426,6 +426,11 @@ LEAD_FIELDS = ["ID", "TITLE", "STATUS_ID", "SOURCE_ID", "OPPORTUNITY", "DATE_CRE
                # проставить, тож перші тижні вкладки магазинів по лідах
                # будуть неповними.
                "SOURCE_DESCRIPTION",
+               # Телефон ліда — лише щоб порахувати хеш і зіставити лід із
+               # дзвінком у Ringostat: у Bitrix не записано, з якого сайту
+               # прийшов дзвінок, а в Ringostat це єдине місце, де видно.
+               # Сам номер у файл даних не потрапляє (див. phone_key).
+               "PHONE",
                "UTM_SOURCE", "UTM_MEDIUM", "UTM_CAMPAIGN", "UTM_CONTENT", "UTM_TERM",
                # Користувацькі поля crm.lead.list віддає ТІЛЬКИ по масці "UF_*".
                # Перелічені поштучно коди (UF_CRM_1720011123359 тощо) він мовчки
@@ -569,6 +574,17 @@ def _one(v):
     return str(v).strip()
 
 
+def lead_phone_keys(l):
+    """Хеші телефонів ліда. У ліда їх може бути кілька (мобільний, робочий),
+    тож повертаємо список — дзвінок міг прийти з будь-якого."""
+    keys = []
+    for ph in (l.get("PHONE") or []):
+        k = phone_key(ph.get("VALUE") if isinstance(ph, dict) else ph)
+        if k and k not in keys:
+            keys.append(k)
+    return keys
+
+
 def slim_leads(leads):
     out = []
     for l in leads:
@@ -581,6 +597,7 @@ def slim_leads(leads):
             "status_id": l.get("STATUS_ID", ""),
             "source_id": l.get("SOURCE_ID", ""),
             "site": deal_site(l),
+            "phone_keys": lead_phone_keys(l),
             "semantic": l.get("STATUS_SEMANTIC_ID", ""),
             "amount": float(l.get("OPPORTUNITY") or 0),
             "manager_id": str(l.get("ASSIGNED_BY_ID") or ""),

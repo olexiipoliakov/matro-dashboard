@@ -151,6 +151,22 @@
   .shop-stats .s{font-size:11px;color:var(--ink-dim);margin-top:2px}
   .shop-stats .st.fc .v{color:var(--accent-2, #9B8CFF)}
   @media (max-width:860px){ .shop-stats{grid-template-columns:repeat(2,1fr)} }
+  .shop-shares{margin-top:10px;background:rgba(16,21,34,.82);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px}
+  .shop-shares:empty{display:none}
+  .shop-shares h3{font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--ink-dim);font-weight:600;margin-bottom:10px}
+  .shop-shares .track{display:flex;height:10px;border-radius:5px;overflow:hidden;
+    background:rgba(255,255,255,.05);margin-bottom:12px}
+  .shop-shares .track i{display:block;height:100%}
+  .shop-shares .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .shop-shares .it{display:flex;align-items:baseline;gap:8px;font-size:12.5px}
+  .shop-shares .dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto;
+    align-self:center}
+  .shop-shares .nm{color:var(--ink-soft)}
+  .shop-shares .it.cur .nm{color:var(--ink);font-weight:600}
+  .shop-shares .pc{font-weight:700;font-variant-numeric:tabular-nums;margin-left:auto}
+  .shop-shares .sm{font-size:11px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
   .shop-reasons{margin-top:10px;background:rgba(16,21,34,.82);border:1px solid var(--border);
     border-radius:14px;padding:12px 14px}
   .shop-reasons:empty{display:none}
@@ -451,6 +467,7 @@
     <button type="button" class="shop-more" id="shop-more" style="display:none"
             onclick="shopToggle()"></button>
     <div class="shop-stats" id="shop-stats"></div>
+    <div class="shop-shares" id="shop-shares"></div>
     <div class="shop-reasons" id="shop-reasons"></div>
   </div>
 
@@ -986,13 +1003,83 @@ function shopRows(shop, crm, ring){
 const LEAD_DUP = '1';          // статус «Дублікат»
 const LEAD_GOOD = 'CONVERTED'; // статус «Якісний лід»
 
-function shopLeadRows(shop, crm){
+// Частка кожного магазину в загальному обороті.
+//
+// Одна угода рахується рівно в одному магазині: перший збіг виграє. Інакше
+// клієнт, який того самого дня дзвонив на два сайти, потрапив би в обидва,
+// і сума часток перевалила б за сто відсотків — а такій таблиці вже не
+// вірять. Усе, що не впізнали, чесно лежить в «Інше»: мовчки викинути
+// угоду означало б показати неправдиву частку решти.
+const SHARE_COLORS = ['#32D8FF', '#FF8C42', '#9B8CFF', '#27E37A', '#95A0BF'];
+
+function shopShares(crm, ring, ym, mode){
+  const list = SHOPS.filter(s=>!s.rest);
+  const turn = {};
+  (crm.deal_categories||[]).forEach(c=>{ turn[c.deal_id] = c.turnover || 0; });
+
+  // Для кожного магазину — хто дзвонив з його сайту, по днях.
+  const callDays = list.map(shop=>{
+    const m = {};
+    const cols = shop.cols.filter(c=>c.callSite);
+    (ring && ring.calls || []).forEach(c=>{
+      if(!c.date || !c.caller_key) return;
+      if(!cols.some(col=>col.callSite === c.site)) return;
+      (m[c.date] = m[c.date] || new Set()).add(c.caller_key);
+    });
+    return m;
+  });
+  const owner = rec => {
+    for(let i = 0; i < list.length; i++){
+      if(list[i].cols.some(c=>shopMatch(c, rec))) return i;
+    }
+    for(let i = 0; i < list.length; i++){
+      const nums = callDays[i][rec.date];
+      if(nums && (rec.phone_keys || []).some(k=>nums.has(k))) return i;
+    }
+    return -1;
+  };
+
+  const out = list.map(s=>({name: s.name, key: s.key, n: 0, v: 0}));
+  const rest = {name: 'Інше', key: '__rest', n: 0, v: 0};
+  const src = mode === 'leads' ? (crm.leads || []) : (crm.deals || []);
+  src.forEach(rec=>{
+    if(!(rec.date || '').startsWith(ym)) return;
+    const i = owner(rec);
+    const bucket = i < 0 ? rest : out[i];
+    bucket.n += 1;
+    bucket.v += mode === 'leads' ? 1 : (turn[rec.id] || 0);
+  });
+  if(rest.n) out.push(rest);
+  return out;
+}
+
+// Чи належить лід цій вкладці. Три шляхи: мітка сайту, власне джерело
+// магазину (чат-бот, «Заявка симплер») або дзвінок із його сайту — у
+// Bitrix не записано, з якого сайту дзвінок, тому телефон ліда звіряємо
+// з дзвінками Ringostat за той самий день. Хеші, не номери.
+function leadFilter(shop, crm, ring){
+  if(shop.rest) return () => true;
+  const callDays = {};
+  const callCols = shop.cols.filter(c=>c.callSite);
+  if(callCols.length){
+    (ring && ring.calls || []).forEach(c=>{
+      if(!c.date || !c.caller_key) return;
+      if(!callCols.some(col=>col.callSite === c.site)) return;
+      (callDays[c.date] = callDays[c.date] || new Set()).add(c.caller_key);
+    });
+  }
+  return l => {
+    if(shop.cols.some(c=>shopMatch(c, l))) return true;
+    const nums = callDays[l.date];
+    return !!nums && (l.phone_keys || []).some(k=>nums.has(k));
+  };
+}
+
+function shopLeadRows(shop, crm, ring){
+  const mine = leadFilter(shop, crm, ring);
   const rows = {};
   (crm.leads||[]).forEach(l=>{
-    if(!l.date) return;
-    // На вкладці магазину лишаємо лише його ліди: або за міткою сайту, або
-    // за джерелом, якщо магазин має власні (чат-бот, «Заявка симплер»).
-    if(!shop.rest && !shop.cols.some(c=>shopMatch(c, l))) return;
+    if(!l.date || !mine(l)) return;
     let key = REST_KEY;
     for(const c of LEAD_COLS){ if(shopMatch(c, l)){ key = c.k; break; } }
     const r = rows[l.date] = rows[l.date] || {};
@@ -1007,11 +1094,11 @@ function shopLeadRows(shop, crm){
 // Причини, з яких ліди бракують. Найцінніше в усій таблиці лідів:
 // «немає в наявності» — це втрати на залишках, «нет связи» — на обробці,
 // і лікуються вони різним.
-function leadReasons(shop, crm, ym){
+function leadReasons(shop, crm, ring, ym){
+  const mine = leadFilter(shop, crm, ring);
   const out = {};
   (crm.leads||[]).forEach(l=>{
-    if(!(l.date || '').startsWith(ym)) return;
-    if(!shop.rest && !shop.cols.some(c=>shopMatch(c, l))) return;
+    if(!(l.date || '').startsWith(ym) || !mine(l)) return;
     const name = (l.reject_reason_name || '').trim();
     if(!name) return;
     out[name] = (out[name] || 0) + 1;
@@ -1102,7 +1189,7 @@ function renderShop(){
   const {members, turn, siteKnown, hasCall} = base_;
   const cats = shopView === 'cats';
   const leads = shopView === 'leads';
-  const rows = leads ? shopLeadRows(shop, CRM_RAW)
+  const rows = leads ? shopLeadRows(shop, CRM_RAW, RING_RAW)
              : cats  ? shopCatRows(CRM_RAW, members, turn)
              : base_.rows;
   document.getElementById('shop-views').innerHTML =
@@ -1218,6 +1305,33 @@ function renderShop(){
   const statsEl = document.getElementById('shop-stats');
   const reasonsEl = document.getElementById('shop-reasons');
   reasonsEl.innerHTML = '';
+
+  // ── частки магазинів ──
+  const sharesEl = document.getElementById('shop-shares');
+  const shares = shopShares(CRM_RAW, RING_RAW, shopMonth, leads ? 'leads' : 'money');
+  const shTotal = shares.reduce((a,s)=>a+s.v, 0);
+  if(shTotal > 0){
+    const pcOf = s => s.v / shTotal * 100;
+    sharesEl.innerHTML =
+      `<h3>Частка магазинів ${leads ? 'у лідах' : 'у обороті'} · ` +
+      `${MONTHS_UA[Number(shopMonth.slice(5,7))-1]}</h3>` +
+      `<div class="track">` + shares.map((s,i)=>
+        `<i style="width:${pcOf(s).toFixed(2)}%;background:${SHARE_COLORS[i % SHARE_COLORS.length]}"></i>`
+      ).join('') + `</div><div class="legend">` +
+      shares.map((s,i)=>{
+        const cur = s.key === shop.key ? ' cur' : '';
+        const val = leads ? `${fmt(s.v)} ${plural(s.v,'лід','ліди','лідів')}`
+                          : `${fmt(s.v)} ₴`;
+        const sub = leads ? '' : ` · ${fmt(s.n)} ${plural(s.n,'угода','угоди','угод')}`;
+        return `<div class="it${cur}">` +
+          `<span class="dot" style="background:${SHARE_COLORS[i % SHARE_COLORS.length]}"></span>` +
+          `<span class="nm">${escapeHtml(s.name)}</span>` +
+          `<span class="pc">${pcOf(s).toFixed(pcOf(s) < 10 ? 1 : 0)}%</span>` +
+          `<span class="sm">${val}${sub}</span></div>`;
+      }).join('') + `</div>`;
+  }else{
+    sharesEl.innerHTML = '';
+  }
   if(leads){
     // Для лідів гроші ні до чого: у Bitrix сума ліда нульова. Рахуємо
     // кількість і якість — і конверсію без дублікатів у знаменнику.
@@ -1238,8 +1352,8 @@ function renderShop(){
       const d0 = new Date(y, m - 2, 1);
       return `${d0.getFullYear()}-${String(d0.getMonth()+1).padStart(2,'0')}`;
     })();
-    const cur = leadReasons(shop, CRM_RAW, shopMonth);
-    const prev = leadReasons(shop, CRM_RAW, prevYm);
+    const cur = leadReasons(shop, CRM_RAW, RING_RAW, shopMonth);
+    const prev = leadReasons(shop, CRM_RAW, RING_RAW, prevYm);
     const list = Object.keys(cur).sort((a,b)=>cur[b]-cur[a]).slice(0, 8);
     if(list.length){
       const total = Object.values(cur).reduce((a,b)=>a+b, 0);
