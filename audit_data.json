@@ -1,8 +1,8 @@
 {
   "demo": false,
-  "generated_at": "15.11.2026 13:36",
-  "duration_sec": 486.6,
-  "total_checked": 1056,
+  "generated_at": "16.11.2026 14:44",
+  "duration_sec": 456.8,
+  "total_checked": 1057,
   "total_products": 699,
   "total_errors": 0,
   "issue_types": [
@@ -10,7 +10,7 @@
       "key": "no_meta_desc",
       "label": "Без meta description",
       "color": "danger",
-      "count": 42
+      "count": 43
     },
     {
       "key": "dup_title",
@@ -34,7 +34,7 @@
       "key": "title_short",
       "label": "Title закороткий",
       "color": "info",
-      "count": 45
+      "count": 46
     },
     {
       "key": "desc_long",
@@ -3108,6 +3108,20 @@
       "detail": ""
     },
     {
+      "name": "Black Week м'яка",
+      "url": "https://matroluxe.ua/ua/black-friday-myagkaya-mebel",
+      "category": "—",
+      "issue": "title_short",
+      "detail": "16 символів"
+    },
+    {
+      "name": "Black Week м'яка",
+      "url": "https://matroluxe.ua/ua/black-friday-myagkaya-mebel",
+      "category": "—",
+      "issue": "no_meta_desc",
+      "detail": ""
+    },
+    {
       "name": "Black Week",
       "url": "https://matroluxe.ua/ua/black-week",
       "category": "—",
@@ -5077,7 +5091,7 @@
     {
       "name": "Крісло Cloud/Клоуд",
       "url": "https://matroluxe.ua/ua/kreslo-cloud",
-      "category": "—",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "89 символів — обріжеться у видачі"
     },
@@ -5098,7 +5112,7 @@
     {
       "name": "Крісло Madrid/Мадрид",
       "url": "https://matroluxe.ua/ua/kreslo-madrid",
-      "category": "—",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "92 символів — обріжеться у видачі"
     },
@@ -5140,7 +5154,7 @@
     {
       "name": "Ліжко Junior/Джуніор",
       "url": "https://matroluxe.ua/ua/krovat-junior",
-      "category": "Ліжка",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "92 символів — обріжеться у видачі"
     },
@@ -5686,7 +5700,7 @@
     {
       "name": "Ліжко-топчан Junior/Джуніор",
       "url": "https://matroluxe.ua/ua/krovat-topchan-junior",
-      "category": "Ліжка",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "98 символів — обріжеться у видачі"
     },
@@ -7660,21 +7674,21 @@
     {
       "name": "Передпокій Space/Спейс №1",
       "url": "https://matroluxe.ua/ua/prikhozhaya-space",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "97 символів — обріжеться у видачі"
     },
     {
       "name": "Передпокій Space/Спейс №1 (висота 2300)",
       "url": "https://matroluxe.ua/ua/prikhozhaya-space-1-2300",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "111 символів — обріжеться у видачі"
     },
     {
       "name": "Передпокій Space/Спейс №2",
       "url": "https://matroluxe.ua/ua/prikhozhaya-space-2",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "97 символів — обріжеться у видачі"
     },
@@ -8150,7 +8164,7 @@
     {
       "name": "Шафа Junior (Джуніор)",
       "url": "https://matroluxe.ua/ua/shkaf-junior",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "92 символів — обріжеться у видачі"
     },
@@ -8654,7 +8668,7 @@
     {
       "name": "Шафа розпашна Space/Спейс",
       "url": "https://matroluxe.ua/ua/shkaf-raspashnoj-space",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "97 символів — обріжеться у видачі"
     },
@@ -8864,42 +8878,42 @@
     {
       "name": "Стіл Junior (Джуніор) з 4 шухлядками",
       "url": "https://matroluxe.ua/ua/stol-junior",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "107 символів — обріжеться у видачі"
     },
     {
       "name": "Стіл Junior (Джуніор)",
       "url": "https://matroluxe.ua/ua/stol-junior-1",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "92 символів — обріжеться у видачі"
     },
     {
       "name": "Стіл Junior (Джуніор з кришкою 32 мм)",
       "url": "https://matroluxe.ua/ua/stol-junior-1-32",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "108 символів — обріжеться у видачі"
     },
     {
       "name": "Стіл Junior (Джуніор) з 2 шухлядками",
       "url": "https://matroluxe.ua/ua/stol-junior-2",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "107 символів — обріжеться у видачі"
     },
     {
       "name": "Стіл Junior (Джуніор) з 2 шухлядками та кришкою 32 мм",
       "url": "https://matroluxe.ua/ua/stol-junior-2-32",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "124 символів — обріжеться у видачі"
     },
     {
       "name": "Стіл Junior (Джуніор) з 4 шухлядками та кришкою 32 мм",
       "url": "https://matroluxe.ua/ua/stol-junior-32",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "124 символів — обріжеться у видачі"
     },
@@ -9396,7 +9410,7 @@
     {
       "name": "Тумба приліжкова Junior (Джуніор)",
       "url": "https://matroluxe.ua/ua/tumba-junior",
-      "category": "Корпусні меблі",
+      "category": "HoReCa",
       "issue": "title_long",
       "detail": "104 символів — обріжеться у видачі"
     },
