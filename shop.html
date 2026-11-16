@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Замовлення по днях · Matroluxe</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shop-table.css?v=1">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#070B14; --card:#101522; --card-hover:#151B2B;
+    --border:rgba(255,255,255,.06); --border-strong:rgba(255,255,255,.14);
+    --ink:#F7F8FB; --ink-soft:#95A0BF; --ink-dim:#5A6A8A;
+    --accent:#FF8C42; --accent-2:#FF6A2B;
+    --seo:#32D8FF; --seo-2:#5B8DEE;
+    --crm:#9B7FE8; --crm-2:#7D5FD6;
+    --audit:#5EE7B0; --audit-2:#30D0A0;
+    --success:#27E37A; --warning:#FFC84D; --danger:#FF5E6C;
+  }
+  body{
+    font-family:'Inter',-apple-system,system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);min-height:100vh;
+    padding:24px 16px 48px;
+  }
+  .wrap{max-width:1320px;margin:0 auto}
+  .ttl{font-size:13px;color:var(--ink-dim);margin-bottom:18px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ttl b{color:var(--ink);font-size:15px;font-weight:700}
+  .err{background:rgba(255,94,108,.1);border:1px solid rgba(255,94,108,.3);
+    border-radius:12px;padding:14px;color:#FFB3BA;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ttl"><b>Matroluxe</b> · інтернет-магазини</div>
+  <div id="err"></div>
+  <div class="shop-sec">
+    <div class="shop-head"><h2>Замовлення по днях</h2>
+      <div class="acc-switch shops" id="shop-tabs"></div>
+      <div class="acc-switch views" id="shop-views"></div>
+      <div class="acc-switch" id="shop-months"></div><span class="ln"></span>
+      <span class="shop-age" id="shop-age"></span></div>
+    <div class="shop-sub" id="shop-note">—</div>
+    <div class="shop-wrap"><table class="shop" id="shop-table"></table></div>
+    <button type="button" class="shop-more" id="shop-more" style="display:none"
+            onclick="shopToggle()"></button>
+    <div class="shop-stats" id="shop-stats"></div>
+    <div class="shop-shares" id="shop-shares"></div>
+    <div class="shop-reasons" id="shop-reasons"></div>
+  </div>
+</div>
+
+<script src="shop-table.js?v=1"></script>
+<script>
+// Сторінка за посиланням бачить рівно один файл — зведення для цієї
+// таблиці. Решта дашборда їй недоступна: ані сторінок, ані інших даних.
+// Тому тут немає ні навігації, ні посилань кудись далі.
+(async function(){
+  try{
+    const d = await (await fetch('data.json?_=' + Date.now())).json();
+    CRM_RAW  = {deals: d.deals || [], leads: d.leads || [],
+                deal_categories: d.deal_categories || [],
+                generated_at: d.generated_at || ''};
+    RING_RAW = {calls: d.calls || [], generated_at: d.calls_generated_at || ''};
+    renderShop();
+  }catch(e){
+    document.getElementById('err').innerHTML =
+      '<div class="err">Не вдалося завантажити дані. Спробуйте оновити сторінку.</div>';
+  }
+})();
+</script>
+</body>
+</html>

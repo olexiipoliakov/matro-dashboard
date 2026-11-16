@@ -1,0 +1,95 @@
+/* Таблиця «Замовлення по днях».
+   Лежить окремим файлом, бо тим самим кодом живуть дві сторінки: головна
+   і публічне посилання /shop/<ключ>. Правити треба в одному місці, інакше
+   вони почнуть розходитись — а розходження в цифрах помічають не одразу. */
+  .acc-switch{display:inline-flex;gap:4px;padding:3px;margin:0 0 16px;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px}
+  .acc-switch button{font-family:inherit;font-size:11.5px;font-weight:600;color:var(--ink-dim);
+    background:none;border:0;border-radius:8px;padding:5px 12px;cursor:pointer;
+    transition:color 160ms ease, background 160ms ease}
+  .acc-switch button:hover{color:var(--ink)}
+  .acc-switch button.on{color:var(--ink);background:rgba(255,140,66,.16)}
+  /* У кожної картки свій колір розділу — помаранчевий у SMM, бірюзовий у SEO. */
+  .seo .acc-switch button.on{background:rgba(50,216,255,.16)}
+  /* ── щоденна таблиця інтернет-магазину ── */
+  .shop-sec{margin:26px 0 20px}
+  .shop-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .shop-head h2{font-size:17px;font-weight:600;letter-spacing:-.2px}
+  .shop-head .ln{flex:1;height:1px;background:var(--border);min-width:20px}
+  .shop-sub{font-size:12px;color:var(--ink-dim);margin:-6px 0 14px}
+  .shop-wrap{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);
+    border:1px solid var(--border);border-radius:18px;padding:6px 4px;overflow-x:auto}
+  table.shop{width:100%;border-collapse:collapse;font-size:12.5px;min-width:560px}
+  table.shop th{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-dim);
+    font-weight:600;padding:10px 12px;text-align:right;white-space:nowrap}
+  table.shop th:first-child{text-align:left}
+  table.shop td{padding:9px 12px;text-align:right;font-variant-numeric:tabular-nums;
+    border-top:1px solid rgba(255,255,255,.04);white-space:nowrap}
+  table.shop td:first-child{text-align:left;color:var(--ink-soft)}
+  table.shop tr:hover td{background:rgba(255,255,255,.025)}
+  table.shop .n{font-weight:700}
+  table.shop .s{color:var(--ink-dim);font-size:11.5px;margin-left:6px}
+  table.shop tr.sum td{border-top:1px solid var(--border-strong);font-weight:700;
+    background:rgba(255,255,255,.03)}
+  table.shop tr.conv td{border-top:0;background:rgba(255,255,255,.03);
+    font-weight:700;color:var(--ink-soft);padding-top:0}
+  table.shop tr.conv td:first-child{font-weight:600;color:var(--ink-dim);font-size:11px}
+  table.shop tr.conv .w{color:var(--warning)}
+  table.shop tr.conv .g{color:var(--success)}
+  table.shop td.zero{color:var(--ink-dim)}
+  .shop-head .acc-switch{margin:0}
+  /* Магазин і місяць — два різні питання, тож і кольори різні: інакше око
+     не бачить, який із двох рядів кнопок воно щойно натиснуло. */
+  .shop-head .acc-switch.shops button.on{background:rgba(50,216,255,.16)}
+  .shop-head .acc-switch.views button.on{background:rgba(39,227,122,.16)}
+  .shop-more{display:block;width:100%;margin-top:8px;padding:9px;font-family:inherit;
+    font-size:12px;font-weight:600;color:var(--ink-dim);background:rgba(255,255,255,.03);
+    border:1px solid var(--border);border-radius:12px;cursor:pointer;
+    transition:color 160ms ease, background 160ms ease}
+  .shop-more:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+  .shop-age{font-size:11px;color:var(--ink-dim);white-space:nowrap;
+    font-variant-numeric:tabular-nums}
+  .shop-age b{font-weight:600;color:var(--ink-soft)}
+  .shop-age .old{color:var(--warning)}
+  .shop-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+  .shop-stats .st{background:rgba(16,21,34,.82);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px}
+  .shop-stats .l{font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--ink-dim);font-weight:600}
+  .shop-stats .v{font-size:19px;font-weight:700;margin-top:4px;
+    font-variant-numeric:tabular-nums}
+  .shop-stats .s{font-size:11px;color:var(--ink-dim);margin-top:2px}
+  .shop-stats .st.fc .v{color:var(--accent-2, #9B8CFF)}
+  @media (max-width:860px){ .shop-stats{grid-template-columns:repeat(2,1fr)} }
+  .shop-shares{margin-top:10px;background:rgba(16,21,34,.82);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px}
+  .shop-shares:empty{display:none}
+  .shop-shares h3{font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--ink-dim);font-weight:600;margin-bottom:10px}
+  .shop-shares .track{display:flex;height:10px;border-radius:5px;overflow:hidden;
+    background:rgba(255,255,255,.05);margin-bottom:12px}
+  .shop-shares .track i{display:block;height:100%}
+  .shop-shares .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .shop-shares .it{display:flex;align-items:baseline;gap:8px;font-size:12.5px}
+  .shop-shares .dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto;
+    align-self:center}
+  .shop-shares .nm{color:var(--ink-soft)}
+  .shop-shares .it.cur .nm{color:var(--ink);font-weight:600}
+  .shop-shares .pc{font-weight:700;font-variant-numeric:tabular-nums;margin-left:auto}
+  .shop-shares .sm{font-size:11px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+  .shop-reasons{margin-top:10px;background:rgba(16,21,34,.82);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px}
+  .shop-reasons:empty{display:none}
+  .shop-reasons h3{font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--ink-dim);font-weight:600;margin-bottom:10px}
+  .shop-reasons ul{list-style:none;display:grid;gap:7px}
+  .shop-reasons li{display:grid;grid-template-columns:1fr auto auto;gap:10px;
+    align-items:center;font-size:12.5px}
+  .shop-reasons .bar{grid-column:1/-1;height:3px;border-radius:2px;
+    background:rgba(255,255,255,.06);overflow:hidden}
+  .shop-reasons .bar i{display:block;height:100%;background:var(--ink-dim);border-radius:2px}
+  .shop-reasons .n{font-weight:700;font-variant-numeric:tabular-nums}
+  .shop-reasons .d{font-size:11px;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+  .shop-reasons .up{color:var(--danger)}
+  .shop-reasons .down{color:var(--success)}
+  .shop-reasons .flat{color:var(--ink-dim)}

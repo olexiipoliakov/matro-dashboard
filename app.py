@@ -573,6 +573,83 @@ def voice_public(key, filename):
     return resp
 
 
+# ── Публічне посилання на таблицю замовлень ────────────────────────────
+# Віддає рівно одну сторінку й рівно один файл даних. Ані інших сторінок
+# дашборда, ані сирих bitrix_data.json/ringostat_data.json за цим ключем
+# не видно: усе, що не в списку нижче, отримує 404.
+SHOP_KEY = (os.environ.get("SHOP_PUBLIC_KEY") or "").strip()
+SHOP_FILES = {"shop.html", "shop-table.js", "shop-table.css", "favicon.ico"}
+# Ключ коротший за це можна підібрати перебором, а за посиланням видно
+# обіг компанії. Короткий ключ краще не вмикати взагалі.
+SHOP_KEY_MIN = 24
+
+
+def _shop_key_ok(key):
+    return (SHOP_KEY and len(SHOP_KEY) >= SHOP_KEY_MIN
+            and hmac.compare_digest(str(key), SHOP_KEY))
+
+
+def _shop_public_data():
+    """Зведення для таблиці — тільки те, що вона малює.
+
+    Що сюди НЕ потрапляє: назви лідів (це імена клієнтів), контакти,
+    менеджери, UTM, товарні назви. Посилання бачать сторонні люди, і
+    віддавати їм повний bitrix_data.json не можна."""
+    crm = {}
+    f = BASE_DIR / "bitrix_data.json"
+    if f.exists():
+        crm = json.loads(f.read_text(encoding="utf-8"))
+    ring = {}
+    fr = BASE_DIR / "ringostat_data.json"
+    if fr.exists():
+        ring = json.loads(fr.read_text(encoding="utf-8"))
+
+    deals = [{"id": d.get("id"), "date": d.get("date"),
+              "source_id": d.get("source_id", ""), "site": d.get("site", ""),
+              "phone_keys": d.get("phone_keys") or []}
+             for d in (crm.get("deals") or [])]
+    leads = [{"date": l.get("date"), "status_id": l.get("status_id", ""),
+              "source_id": l.get("source_id", ""), "site": l.get("site", ""),
+              "phone_keys": l.get("phone_keys") or [],
+              "reject_reason_name": l.get("reject_reason_name", "")}
+             for l in (crm.get("leads") or [])]
+    cats = [{"deal_id": c.get("deal_id"), "date": c.get("date"),
+             "turnover": c.get("turnover") or 0,
+             "categories": c.get("categories") or {},
+             "accessories": c.get("accessories") or 0}
+            for c in (crm.get("deal_categories") or [])]
+    calls = [{"date": c.get("date"), "caller_key": c.get("caller_key", ""),
+              "site": c.get("site", "")}
+             for c in (ring.get("calls") or [])]
+    return {"generated_at": crm.get("generated_at", ""),
+            "calls_generated_at": ring.get("generated_at", ""),
+            "deals": deals, "leads": leads, "deal_categories": cats, "calls": calls}
+
+
+@app.route("/shop/<key>")
+def shop_redirect(key):
+    # Без кінцевого слеша відносні шляхи сторінки ('data.json',
+    # 'shop-table.js') розв'язувались би від /shop/, а не від /shop/<key>/.
+    return redirect(f"/shop/{key}/", code=302)
+
+
+@app.route("/shop/<key>/", defaults={"filename": "shop.html"})
+@app.route("/shop/<key>/<path:filename>")
+def shop_public(key, filename):
+    if not _shop_key_ok(key):
+        return "not found", 404
+    if filename == "data.json":
+        resp = jsonify(_shop_public_data())
+    elif filename in SHOP_FILES:
+        resp = send_from_directory(BASE_DIR, filename)
+    else:
+        return "not found", 404
+    # Щоб посилання не спливло в пошуку, якщо його кудись вставлять.
+    resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
 @app.route("/<path:filename>")
 @requires_auth
 def static_route(filename):
