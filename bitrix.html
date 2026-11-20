@@ -246,6 +246,16 @@
   /* Під відсотком — самі числа. Без них 50% у менеджера з двома лідами
      виглядає так само вагомо, як 50% у менеджера з двомастами. */
   .conv-sub{font-size:10.5px;color:var(--ink-dim);font-weight:500;margin-top:3px;white-space:nowrap}
+  /* Угоди й ліди — різними кольорами. У клітинці «17 з 32» без цього не
+     видно, де результат, а де вхідний обсяг. Ті самі два кольори тримаємо
+     і в колонках «Угод»/«Лідів», і в легенді над таблицею, щоб їх не треба
+     було розгадувати. */
+  .cs-d{color:var(--good)}
+  .cs-l{color:var(--seo)}
+  .cs-x{color:var(--ink-dim);font-weight:500}
+  .conv-sub .cs-d,.conv-sub .cs-l{font-weight:700}
+  .lg{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-soft)}
+  .lg i{width:8px;height:8px;border-radius:50%;display:inline-block;font-style:normal;flex:none}
 
   .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .table-scroll-v{max-height:420px;overflow-y:auto}
@@ -1131,7 +1141,9 @@ function renderMgrSites(){
   const note = RING_READY
     ? 'Апрув = угоди каналу / ліди того самого каналу. Сайт дзвінка — з Рінгостата, за номером'
     : 'Апрув = угоди каналу / ліди того самого каналу. Дзвінки поки без сайту: ringostat_data.json не завантажився';
-  el.innerHTML = btns + `<span class="hint">${note}</span>`;
+  const legend = `<span class="lg"><i style="background:var(--good)"></i>угоди</span>`
+               + `<span class="lg"><i style="background:var(--seo)"></i>ліди</span>`;
+  el.innerHTML = btns + legend + `<span class="hint">${note}</span>`;
 }
 
 function setMgrSite(k){
@@ -1154,7 +1166,7 @@ function renderManagers(byManager){
   // теж показуємо — у корзині замовлення часто приходить без окремого ліда.
   const cell=(d,l)=>{
     if(!l) return d
-      ? `<span style="color:var(--ink-dim)">—</span><div class="conv-sub">${fmt(d)} угод без лідів</div>`
+      ? `<span style="color:var(--ink-dim)">—</span><div class="conv-sub"><span class="cs-d">${fmt(d)}</span><span class="cs-x"> угод без лідів</span></div>`
       : '<span style="color:var(--ink-dim)">—</span>';
     const r=round1(d/l*100);
     // Понад 100% — не збій: частина угод заводиться без ліда, а лід міг
@@ -1163,24 +1175,28 @@ function renderManagers(byManager){
     const mark = r>100
       ? ' style="color:var(--ink-soft)" title="Угод більше, ніж лідів: частина угод заведена без ліда або лід створено до початку періоду"'
       : '';
-    return `<b${mark}>${fmt1(r)}%</b><div class="conv-sub">${fmt(d)} з ${fmt(l)}</div>`;
+    return `<b${mark}>${fmt1(r)}%</b><div class="conv-sub"><span class="cs-d">${fmt(d)}</span>`
+         + `<span class="cs-x"> з </span><span class="cs-l">${fmt(l)}</span></div>`;
   };
 
-  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th>
+  const head=`<thead><tr><th>Менеджер</th><th class="cs-d">Угод</th><th>Сума угод</th><th class="cs-l">Лідів</th>
     <th>Забраковано лідів</th>`
     + cols.map(c=>`<th title="Апрув каналу «${escapeHtml(c.label)}»: угоди з джерел цього каналу поділені на ліди з тих самих джерел">${escapeHtml(c.label)}</th>`).join('')
     + `<th title="Усі угоди менеджера поділені на всі його ліди, незалежно від каналу">Усього</th></tr></thead>`;
 
-  const row=(m,cls,click)=>`<tr ${cls}${click}>
-    <td>${escapeHtml(m.name)}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
-    <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>`
+  // Підказку вішаємо на саме ім'я, а не на весь рядок: інакше спливаюче
+  // вікно накриває цифри тієї ж колонки, над якою стоїть курсор.
+  const row=(m,cls,click,tip)=>`<tr ${cls}${click}>
+    <td${tip||''}>${escapeHtml(m.name)}</td><td class="cs-d"><b>${fmt(m.deals)}</b></td><td>${fmt(m.dealsSum)} грн</td>
+    <td class="cs-l"><b>${fmt(m.leads)}</b></td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>`
     + cols.map(c=>`<td>${cell(m.ch[c.k].d, m.ch[c.k].l)}</td>`).join('')
     + `<td><b>${m.leads?fmt1(round1(m.deals/m.leads*100)):'—'}${m.leads?'%':''}</b></td></tr>`;
 
   const body=rows.map(m=>{
     const cls = SELECTED_MANAGER===m.manager_id
       ? 'style="background:rgba(155,127,232,.12);cursor:pointer" ' : 'style="cursor:pointer" ';
-    return row(m, cls, `onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити угоди та ліди"`);
+    return row(m, cls, `onclick="selectManager('${m.manager_id}')"`,
+                        ' title="Натисніть, щоб побачити угоди та ліди"');
   }).join('');
 
   // Підсумок по відділу в тому ж розрізі — щоб було з чим порівнювати рядок
