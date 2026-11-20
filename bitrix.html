@@ -109,6 +109,18 @@
     border-radius:11px;transition:all 180ms ease;white-space:nowrap}
   .pbtn:hover{color:var(--ink);border-color:var(--border-strong)}
   .pbtn.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent}
+  /* Перемикач магазину для таблиці менеджерів. Свій клас, а не .pbtn:
+     кнопки періоду роблять querySelectorAll('.pbtn') і знімають .active з
+     усіх — вибраний магазин гаснув би разом з ними. */
+  .sbtn{padding:7px 13px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;
+    border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--ink-soft);
+    border-radius:9px;transition:all 180ms ease;white-space:nowrap}
+  .sbtn:hover{color:var(--ink);border-color:var(--border-strong)}
+  .sbtn.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent}
+  .mgr-switch{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:-2px 0 12px}
+  .mgr-switch .hint{font-size:11.5px;color:var(--ink-dim)}
+  tr.mgr-total td{border-top:1px solid var(--border-strong);font-weight:700;
+    background:rgba(255,255,255,.025)}
   .period-cal{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-dim)}
   .period-cal input[type=date]{font-family:inherit;font-size:12.5px;color:var(--ink);padding:8px 10px;
     border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.03);max-width:160px;
@@ -376,6 +388,7 @@
 
   <div class="sec-head"><span class="n">1</span><h2>Менеджери</h2><span class="ln"></span></div>
   <div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 14px">Угоди та ліди за вибраний період у розрізі відповідального · <a href="managers.html" style="color:var(--accent);font-weight:600">окрема сторінка для команди &rarr;</a></div>
+  <div class="mgr-switch" id="mgr-sites"></div>
   <div class="panel">
     <div class="table-scroll"><table class="data-table" id="manager-table"></table></div>
     <div id="manager-detail" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"></div>
@@ -456,6 +469,7 @@ async function load(){
       return;
     }
     META = RAW.meta || META;
+    loadRingSites();   // без await: таблиця не повинна чекати на дзвінки
     document.getElementById('updated').textContent = RAW.generated_at || '—';
     document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
     // Відкриваємося на сьогоднішньому дні, як головна: керівник заходить
@@ -680,6 +694,73 @@ const SRC_CART = ['UC_5B6PJK'];   // «WEB» — замовлення з сай�
 
 const srcGroup = id => SRC_CALL.includes(id) ? 'call'
                      : SRC_CART.includes(id) ? 'cart' : null;
+
+/* ── Канали й магазини для таблиці менеджерів ─────────────────────────────
+   Списки навмисно повторюють shop-table.js з головної: одна й та сама угода
+   має потрапляти в той самий канал на обох сторінках, інакше дашборд сам
+   собі суперечить. Додаєш джерело — прав обидва файли. */
+const MCH = [
+  {k:'bot',   label:'Чатбот',  src:['FNB_SIMPLER','FNB_MUA','FNB_MCOM','WEBFORM']},
+  {k:'call',  label:'Дзвінки', src:['CALL']},
+  {k:'cart',  label:'Кошик',   src:['UC_5B6PJK','UC_8AMYMZ','7']},
+  {k:'form',  label:'Форма',   src:['CALLBACK','WEB - Зворотний дзвінок','Обратный звонок',
+                                    'RC_GENERATOR','UC_HYAP6C','OTHER','']},
+  {k:'rozet', label:'Розетка', src:['UC_S1T3W0','UC_9LCW2A']},
+  {k:'meta',  label:'Meta',    src:['FNB_META','1','STORE']},
+  {k:'other', label:'Інше',    src:null},   // усе, чого немає в списках вище
+];
+const MCH_BY_SRC = (function(){ const m={}; MCH.forEach(c=>(c.src||[]).forEach(s=>m[s]=c.k)); return m; })();
+const chanOf = id => MCH_BY_SRC[id==null?'':id] || 'other';
+
+// Джерело, яке саме називає магазин. Найнадійніший шлях: не залежить ні від
+// заповненості SOURCE_DESCRIPTION, ні від Рінгостата.
+const SRC_SITE = {FNB_SIMPLER:'simplershop', UC_8AMYMZ:'simplershop',
+                  FNB_MUA:'matroluxe.ua',    FNB_MCOM:'matroluxe.com'};
+
+const MSITES = [
+  {k:'all',           name:'Усі магазини'},
+  {k:'simplershop',   name:'Simpler'},
+  {k:'matroluxe.ua',  name:'Matroluxe UA'},
+  {k:'matroluxe.com', name:'Matroluxe COM'},
+  {k:'none',          name:'Без сайту'},
+];
+let MGR_SITE='all';
+
+// caller_key → сайт, з Рінгостата. У Бітріксі дзвінок не знає свого сайту
+// взагалі, а дзвінки — найбільший канал: без цієї мапи розріз по магазинах
+// втрачав би більше половини лідів. Збіг по хешу номера, без дати: лід часто
+// заводять наступного дня після дзвінка.
+let RING_SITE={}, RING_READY=false;
+
+function rowSite(r){
+  const s = SRC_SITE[r.source_id];
+  if(s) return s;
+  if(r.site) return r.site;
+  if(chanOf(r.source_id)==='call'){
+    const keys = r.phone_keys || [];
+    for(let i=0;i<keys.length;i++){ if(RING_SITE[keys[i]]) return RING_SITE[keys[i]]; }
+  }
+  return '';
+}
+function siteMatch(r){
+  if(MGR_SITE==='all') return true;
+  const s=rowSite(r);
+  return MGR_SITE==='none' ? !s : s===MGR_SITE;
+}
+
+async function loadRingSites(){
+  try{
+    const r=await fetch('ringostat_data.json?_='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const map={};
+    (data.calls||[]).forEach(c=>{ if(c.caller_key && c.site && !map[c.caller_key]) map[c.caller_key]=c.site; });
+    RING_SITE=map; RING_READY=true;
+  }catch(e){ RING_SITE={}; RING_READY=false; }
+  // Файл приходить пізніше за bitrix_data.json — перемальовуємо таблицю,
+  // щоб дзвінки стали на свої магазини без перезавантаження сторінки.
+  if(CURRENT_DEALS_RAW.length || CURRENT_LEADS_RAW.length) renderManagers();
+}
 
 function isDropped(stage_id){
   const n = (stageMeta(stage_id).name || '').trim().toLowerCase();
@@ -1010,39 +1091,108 @@ function renderFunnel(stages){
   }).join('');
 }
 
+// Рахуємо матрицю «менеджер × канал» прямо з сирих угод і лідів, а не з
+// готового byManager: той знає лише дзвінки й корзину і нічого не знає про
+// магазини. Аргумент лишаємо у підписі — його передають старі виклики.
+function mgrMatrix(){
+  const by={};
+  const blank=id=>{
+    const o={manager_id:id,name:managerName(id),deals:0,dealsSum:0,leads:0,leadsRejected:0,ch:{}};
+    MCH.forEach(c=>o.ch[c.k]={d:0,l:0});
+    return o;
+  };
+  const get=id=>{ if(!by[id]) by[id]=blank(id); return by[id]; };
+  CURRENT_DEALS_RAW.forEach(d=>{
+    if(!siteMatch(d)) return;
+    const m=get(d.manager_id||''); m.deals++; m.dealsSum+=d.amount; m.ch[chanOf(d.source_id)].d++;
+  });
+  CURRENT_LEADS_RAW.forEach(l=>{
+    if(!siteMatch(l)) return;
+    const m=get(l.manager_id||''); m.leads++;
+    if(l.semantic==='F') m.leadsRejected++;
+    m.ch[chanOf(l.source_id)].l++;
+  });
+  return Object.values(by);
+}
+
+function renderMgrSites(){
+  const el=document.getElementById('mgr-sites');
+  if(!el) return;
+  // Гасимо кнопки магазинів, по яких за цей період взагалі нічого немає —
+  // щоб не клікати в порожнечу й одразу бачити, де є дані.
+  const seen={};
+  CURRENT_DEALS_RAW.forEach(r=>seen[rowSite(r)||'none']=1);
+  CURRENT_LEADS_RAW.forEach(r=>seen[rowSite(r)||'none']=1);
+  const btns=MSITES.map(s=>{
+    const empty = s.k!=='all' && !seen[s.k];
+    return `<button class="sbtn${MGR_SITE===s.k?' active':''}"${empty?' style="opacity:.4"':''}`
+         + ` onclick="setMgrSite('${s.k}')">${s.name}</button>`;
+  }).join('');
+  const note = RING_READY
+    ? 'Апрув = угоди каналу / ліди того самого каналу. Сайт дзвінка — з Рінгостата, за номером'
+    : 'Апрув = угоди каналу / ліди того самого каналу. Дзвінки поки без сайту: ringostat_data.json не завантажився';
+  el.innerHTML = btns + `<span class="hint">${note}</span>`;
+}
+
+function setMgrSite(k){
+  MGR_SITE=k;
+  renderManagers();
+  if(SELECTED_MANAGER) selectManager(SELECTED_MANAGER, true);
+}
+
 function renderManagers(byManager){
   const table=document.getElementById('manager-table');
-  const rows=Object.values(byManager).sort((a,b)=>b.dealsSum-a.dealsSum);
-  if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період.</td></tr>`; return; }
-  const callNames = SRC_CALL.map(id=>sourceName(id)||id).join(', ');
-  const cartNames = SRC_CART.map(id=>sourceName(id)||id).join(', ');
-  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th>
-    <th>Забраковано лідів</th>
-    <th title="Конверсія дзвінок→угода. Угоди з джерел «${escapeHtml(callNames)}» поділені на ліди з тих самих джерел">Дзвінок→угода</th>
-    <th title="Конверсія корзина→угода. Угоди з джерел «${escapeHtml(cartNames)}» поділені на ліди з тих самих джерел">Корзина→угода</th>
-    <th title="Усі угоди менеджера поділені на всі його ліди, незалежно від джерела">Усього</th></tr></thead>`;
-  const body=rows.map(m=>{
-    // Конверсія = частка лідів менеджера, що в підсумку стали угодами.
-    // Офіційний прапор Bitrix "лід конвертовано" (semantic 'C') на цьому
-    // порталі не проставляється майже ніколи (той самий тип проблеми, що й
-    // з порожнім SEMANTICS у стадій угод) — тому рахуємо практично, через
-    // співвідношення кількості угод до кількості лідів менеджера.
-    const rate = m.leads ? round1(m.deals/m.leads*100) : 0;
-    // Прочерк, а не нуль: нуль читається як «працював і нічого не продав»,
-    // хоча насправді лідів цього типу в нього просто не було.
-    const cell = (deals, leads) => leads
-      ? `<b>${fmt1(round1(deals/leads*100))}%</b><div class="conv-sub">${fmt(deals)} з ${fmt(leads)}</div>`
+  renderMgrSites();
+  const rows=mgrMatrix().sort((a,b)=>b.dealsSum-a.dealsSum);
+  if(!rows.length){ table.innerHTML=`<tr><td class="empty-note">Немає даних за цей період у цьому магазині.</td></tr>`; return; }
+  // Колонку каналу показуємо тільки якщо в ньому щось є: інакше таблиця
+  // розповзається на тринадцять стовпців, половина з них порожня.
+  const cols=MCH.filter(c=>rows.some(m=>m.ch[c.k].d || m.ch[c.k].l));
+
+  // Прочерк, а не нуль: нуль читається як «працював і нічого не продав»,
+  // хоча насправді лідів цього типу в нього просто не було. Угоди без лідів
+  // теж показуємо — у корзині замовлення часто приходить без окремого ліда.
+  const cell=(d,l)=>{
+    if(!l) return d
+      ? `<span style="color:var(--ink-dim)">—</span><div class="conv-sub">${fmt(d)} угод без лідів</div>`
       : '<span style="color:var(--ink-dim)">—</span>';
-    const active = SELECTED_MANAGER===m.manager_id ? 'style="background:rgba(155,127,232,.12);cursor:pointer" ' : 'style="cursor:pointer" ';
-    return `<tr ${active}onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити угоди та ліди">
-    <td>${m.name}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
-    <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>
-    <td>${cell(m.dealsCall, m.leadsCall)}</td>
-    <td>${cell(m.dealsCart, m.leadsCart)}</td>
-    <td><b>${fmt1(rate)}%</b></td>
-  </tr>`;
+    const r=round1(d/l*100);
+    // Понад 100% — не збій: частина угод заводиться без ліда, а лід міг
+    // з'явитись ще до початку періоду. Притлумлюємо колір і пояснюємо в
+    // підказці, щоб цифра не читалась як помилка в даних.
+    const mark = r>100
+      ? ' style="color:var(--ink-soft)" title="Угод більше, ніж лідів: частина угод заведена без ліда або лід створено до початку періоду"'
+      : '';
+    return `<b${mark}>${fmt1(r)}%</b><div class="conv-sub">${fmt(d)} з ${fmt(l)}</div>`;
+  };
+
+  const head=`<thead><tr><th>Менеджер</th><th>Угод</th><th>Сума угод</th><th>Лідів</th>
+    <th>Забраковано лідів</th>`
+    + cols.map(c=>`<th title="Апрув каналу «${escapeHtml(c.label)}»: угоди з джерел цього каналу поділені на ліди з тих самих джерел">${escapeHtml(c.label)}</th>`).join('')
+    + `<th title="Усі угоди менеджера поділені на всі його ліди, незалежно від каналу">Усього</th></tr></thead>`;
+
+  const row=(m,cls,click)=>`<tr ${cls}${click}>
+    <td>${escapeHtml(m.name)}</td><td>${fmt(m.deals)}</td><td>${fmt(m.dealsSum)} грн</td>
+    <td>${fmt(m.leads)}</td><td style="color:var(--bad)">${fmt(m.leadsRejected)}</td>`
+    + cols.map(c=>`<td>${cell(m.ch[c.k].d, m.ch[c.k].l)}</td>`).join('')
+    + `<td><b>${m.leads?fmt1(round1(m.deals/m.leads*100)):'—'}${m.leads?'%':''}</b></td></tr>`;
+
+  const body=rows.map(m=>{
+    const cls = SELECTED_MANAGER===m.manager_id
+      ? 'style="background:rgba(155,127,232,.12);cursor:pointer" ' : 'style="cursor:pointer" ';
+    return row(m, cls, `onclick="selectManager('${m.manager_id}')" title="Натисніть, щоб побачити угоди та ліди"`);
   }).join('');
-  table.innerHTML=head+`<tbody>${body}</tbody>`;
+
+  // Підсумок по відділу в тому ж розрізі — щоб було з чим порівнювати рядок
+  // менеджера, не рахуючи в голові.
+  const tot=rows.reduce((a,m)=>{
+    a.deals+=m.deals; a.dealsSum+=m.dealsSum; a.leads+=m.leads; a.leadsRejected+=m.leadsRejected;
+    MCH.forEach(c=>{ a.ch[c.k].d+=m.ch[c.k].d; a.ch[c.k].l+=m.ch[c.k].l; });
+    return a;
+  }, (function(){ const o={name:'Разом',deals:0,dealsSum:0,leads:0,leadsRejected:0,ch:{}};
+                  MCH.forEach(c=>o.ch[c.k]={d:0,l:0}); return o; })());
+
+  table.innerHTML=head+`<tbody>${body}${row(tot,'class="mgr-total" ','')}</tbody>`;
 }
 
 // Списки в картці менеджера показуємо порціями: одразу 10, далі по кнопці.
@@ -1058,8 +1208,10 @@ function showMoreDetail(kind){
 
 function selectManager(mgrId, silent){
   SELECTED_MANAGER = mgrId;
-  const leads = CURRENT_LEADS_RAW.filter(l=>(l.manager_id||'')===mgrId);
-  const deals = CURRENT_DEALS_RAW.filter(d=>(d.manager_id||'')===mgrId).sort((a,b)=>b.amount-a.amount);
+  // Картка — продовження рядка таблиці, тому слухає той самий перемикач
+  // магазину. Інакше клік по рядку Simpler відкривав би всі угоди підряд.
+  const leads = CURRENT_LEADS_RAW.filter(l=>(l.manager_id||'')===mgrId && siteMatch(l));
+  const deals = CURRENT_DEALS_RAW.filter(d=>(d.manager_id||'')===mgrId && siteMatch(d)).sort((a,b)=>b.amount-a.amount);
   const detail = document.getElementById('manager-detail');
   const name = managerName(mgrId);
 
