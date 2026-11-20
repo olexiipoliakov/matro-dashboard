@@ -278,6 +278,63 @@ def fetch_batch(commands, tries=3):
         raise RuntimeError(f"Bitrix batch error: {data.get('error_description', data['error'])}")
     return data.get("result", {}).get("result", {}) or {}
 
+def fetch_lead_tasks(lead_ids, chunk_size=25):
+    """Незавершені задачі лідів: {lead_id: {task_id, title, deadline, overdue}}.
+
+    Привʼязка задачі до CRM у Bitrix — поле UF_CRM_TASK зі значеннями виду
+    "L_<id>" для ліда й "D_<id>" для угоди. Окремого методу «задачі цього
+    ліда» немає, тому питаємо по одному ліду, але пачками через batch —
+    так само, як товарні рядки угод.
+
+    Беремо лише тих лідів, що зараз у роботі: задач на порталі майже 17
+    тисяч, з дедлайнами ще з 2023 року, і тягнути все заради 500 лідів
+    немає сенсу. Якщо задач у ліда кілька — лишаємо найтермінову.
+    """
+    out = {}
+    ids = [str(i) for i in lead_ids if i]
+    today = date.today()
+    for i in range(0, len(ids), chunk_size):
+        chunk = ids[i:i + chunk_size]
+        cmds = {}
+        for j, lid in enumerate(chunk):
+            # select саме списком з індексами: без дужок портал відповідає
+            # HTTP 400 (той самий урок, що й у fetch_overdue_tasks).
+            q = urllib.parse.urlencode({
+                "filter[UF_CRM_TASK][0]": f"L_{lid}",
+                "filter[!STATUS]": 5,                 # 5 = Завершена
+                "select[0]": "ID", "select[1]": "TITLE", "select[2]": "DEADLINE",
+                "select[3]": "STATUS", "select[4]": "RESPONSIBLE_ID",
+            })
+            cmds[f"t{j}"] = f"tasks.task.list?{q}"
+        res = fetch_batch(cmds)
+        for j, lid in enumerate(chunk):
+            r = res.get(f"t{j}")
+            rows = r.get("tasks", []) if isinstance(r, dict) else (r or [])
+            best = None
+            for t in rows or []:
+                if str(_tv(t, "status", "STATUS") or "") == "5":
+                    continue
+                dl = _tv(t, "deadline", "DEADLINE")
+                day = None
+                if dl:
+                    try:
+                        day = date.fromisoformat(str(dl)[:10])
+                    except ValueError:
+                        day = None
+                item = {
+                    "task_id": str(_tv(t, "id", "ID") or ""),
+                    "task_title": _tv(t, "title", "TITLE") or "(без назви)",
+                    "task_deadline": day.isoformat() if day else "",
+                    "task_overdue_days": (today - day).days if day else 0,
+                }
+                # Найтерміновіша: спершу та, що з дедлайном, і з ранішим.
+                if best is None: best = item
+                elif item["task_deadline"] and (not best["task_deadline"]
+                     or item["task_deadline"] < best["task_deadline"]): best = item
+            if best:
+                out[lid] = best
+    return out
+
 def fetch_lead_reasons(lead_ids, chunk_size=50):
     """Причини забракування для списку лідів, батчами через crm.lead.get.
 
@@ -810,6 +867,28 @@ if __name__ == "__main__":
         ok = False
         deals = []
         stage_names = {}
+
+    # Задачі лідів, що в роботі. Саме вони — «відкладений попит»: відмови
+    # не було, угоди теж, і єдине, що показує, живий цей лід чи забутий, —
+    # дата наступного контакту.
+    try:
+        work_ids = [l["id"] for l in result.get("leads", []) if l.get("semantic") == "P"]
+        print(f"  → Задачі по лідах у роботі ({len(work_ids)} лідів)")
+        lead_tasks = fetch_lead_tasks(work_ids)
+        for l in result.get("leads", []):
+            t = lead_tasks.get(str(l.get("id")))
+            if t:
+                l.update(t)
+        overdue_now = sum(1 for l in result.get("leads", [])
+                          if (l.get("task_overdue_days") or 0) > 0)
+        print(f"     із задачею: {len(lead_tasks)}, з них прострочених: {overdue_now}")
+        result["lead_tasks_error"] = ""
+    except Exception as e:
+        # Не валимо збір: ліди без дати наступного контакту корисні й самі
+        # по собі. Але причину кладемо у файл — сторінка її покаже, і не
+        # доведеться вгадувати, чому в усіх лідів «задачі немає».
+        print(f"  ⚠ не вдалося отримати задачі лідів: {e}")
+        result["lead_tasks_error"] = str(e)
 
     # Товари з попереднього файлу. Крок нижче — найважчий у всьому зборі
     # (окремий batch-запит на кожні 25 угод), і саме він падає першим на
