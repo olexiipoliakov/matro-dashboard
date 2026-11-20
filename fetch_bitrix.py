@@ -724,7 +724,9 @@ if __name__ == "__main__":
     # збираємо все.
     quick = QUICK_DAYS
     prev_data = {}
-    if quick and OUT.exists():
+    # Читаємо попередній файл ЗАВЖДИ, а не тільки у швидкому режимі: він
+    # потрібен як підстраховка, якщо крок із товарними позиціями впаде.
+    if OUT.exists():
         try:
             prev_data = json.loads(OUT.read_text(encoding="utf-8"))
         except Exception:
@@ -809,6 +811,12 @@ if __name__ == "__main__":
         deals = []
         stage_names = {}
 
+    # Товари з попереднього файлу. Крок нижче — найважчий у всьому зборі
+    # (окремий batch-запит на кожні 25 угод), і саме він падає першим на
+    # слабкому інстансі. Тримаємо вчорашні назви напохваті.
+    prev_products = {d.get("id"): (d.get("product") or "")
+                     for d in (prev_data.get("deals") or [])}
+
     try:
         eligible_ids = [d.get("ID") for d in deals
                         if stage_names.get(d.get("STAGE_ID", ""), {}).get("name", "").strip().lower() not in EXCLUDED_STAGE_NAMES]
@@ -820,9 +828,12 @@ if __name__ == "__main__":
 
         # Причепляємо людське резюме товару до вже готового result["deals"] —
         # потрібно для списку "Угоди" в деталях менеджера на bitrix.html.
+        # Якщо для угоди товарів не прийшло — лишаємо те, що було в
+        # попередньому файлі, а не затираємо порожнім рядком.
         product_summary_by_id = {did: summarize_deal_products(rows) for did, rows in product_rows.items()}
         for d in result.get("deals", []):
-            d["product"] = product_summary_by_id.get(d["id"], "")
+            d["product"] = (product_summary_by_id.get(d["id"]) or "") \
+                           or prev_products.get(d["id"], "")
 
         # Телефони контактів — лише хеші (див. phone_key). Потрібні модулю
         # балів, щоб зіставити угоду з вхідним дзвінком.
@@ -839,9 +850,26 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"  ⚠ не вдалося отримати телефони контактів: {e}")
     except Exception as e:
+        # Раніше тут лишався порожній список категорій, а в кожної угоди —
+        # порожнє поле product. Один невдалий прогін стирав товари з файлу,
+        # і на сторінці скрізь зʼявлялось «(товар не вказано)» — доки
+        # наступний вдалий збір не поверне їх назад. Звідси й виглядало,
+        # ніби товари видно через раз.
+        #
+        # Необовʼязковий крок, що впав, не повинен псувати дані, які вже
+        # зібрані. Повертаємо все з попереднього файлу й голосно кажемо, що
+        # дані застарілі — помилка їде в сам файл і видно її на сторінці.
         print(f"  ⚠ не вдалося категоризувати товарообіг: {e}")
-        result["deal_categories"] = []
+        result["deal_categories"] = prev_data.get("deal_categories") or []
         result["deal_categories_error"] = str(e)
+        kept = 0
+        for d in result.get("deals", []):
+            old = prev_products.get(d["id"], "")
+            if old:
+                d["product"] = old
+                kept += 1
+        print(f"     товари з попереднього файлу збережено для {kept} угод"
+              f", категорій збережено: {len(result['deal_categories'])}")
 
     try:
         print("  → Прострочені задачі")

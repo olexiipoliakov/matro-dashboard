@@ -489,6 +489,7 @@ async function load(){
       return;
     }
     META = RAW.meta || META;
+    showProductWarn();
     loadRingSites();   // без await: таблиця не повинна чекати на дзвінки
     document.getElementById('updated').textContent = RAW.generated_at || '—';
     document.getElementById('period-from').textContent = RAW.period_from ? fmtDate(RAW.period_from) : '—';
@@ -581,6 +582,22 @@ async function refreshData(){
 }
 
 function showError(msg){ document.getElementById('error-box').innerHTML=`<div class="err">${msg}</div>`; }
+
+// Збір товарних позицій — найважчий крок у fetch_bitrix.py, і він може
+// впасти окремо від усього решти. Раніше це проявлялось мовчки: у списку
+// угод замість назв зʼявлялось «(товар не вказано)», і зрозуміти, це CRM
+// така чи збір зламався, було неможливо без логів Render. Тепер причина
+// лежить у самому файлі даних, і ми її показуємо.
+function showProductWarn(){
+  const box=document.getElementById('error-box');
+  const err=RAW && RAW.deal_categories_error;
+  if(!err) return;
+  box.innerHTML += `<div class="err" style="border-color:rgba(255,200,77,.35);
+      background:rgba(255,200,77,.08);color:var(--mid)">
+      Останній збір не зміг отримати товарні позиції угод: ${escapeHtml(String(err))}.
+      Назви товарів і розбивка по категоріях показані з попереднього вдалого збору.
+    </div>`;
+}
 
 function allDates(){
   const deals=(RAW&&RAW.deals)||[], leads=(RAW&&RAW.leads)||[];
