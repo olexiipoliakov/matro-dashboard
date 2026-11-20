@@ -246,6 +246,16 @@
   /* Під відсотком — самі числа. Без них 50% у менеджера з двома лідами
      виглядає так само вагомо, як 50% у менеджера з двомастами. */
   .conv-sub{font-size:10.5px;color:var(--ink-dim);font-weight:500;margin-top:3px;white-space:nowrap}
+  /* Картка менеджера: секції на всю ширину одна під одною. */
+  .det-sec{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+  .det-sub{margin-top:12px}
+  .det-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+  .det-tag{font-size:11.5px;color:var(--ink-soft);background:rgba(255,255,255,.03);
+    border:1px solid var(--border);border-radius:8px;padding:5px 10px;white-space:nowrap}
+  .det-tag b{color:var(--ink);font-size:12.5px}
+  .det-tag.good b{color:var(--good)} .det-tag.bad b{color:var(--bad)} .det-tag.work b{color:var(--mid)}
+  .lead-extra{font-size:11.5px;color:var(--ink-soft);text-align:right;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   /* Угоди й ліди — різними кольорами. У клітинці «17 з 32» без цього не
      видно, де результат, а де вхідний обсяг. Ті самі два кольори тримаємо
      і в колонках «Угод»/«Лідів», і в легенді над таблицею, щоб їх не треба
@@ -705,6 +715,14 @@ const SRC_CART = ['UC_5B6PJK'];   // «WEB» — замовлення з сай�
 const srcGroup = id => SRC_CALL.includes(id) ? 'call'
                      : SRC_CART.includes(id) ? 'cart' : null;
 
+// «Лід оформлений» — це semantic 'S' («Качественный лид»), а не 'C'.
+//
+// Раніше скрізь стояло === 'C', і картка менеджера чесно писала
+// «конвертовано 0» навіть там, де половина лідів були якісні: цей портал
+// проставляє 'S', а 'C' не ставить ніколи. 'C' лишаємо в умові — щоб
+// нічого не зламалось, якщо на іншому порталі він усе-таки є.
+const isGoodLead = l => l.semantic==='S' || l.semantic==='C';
+
 /* ── Канали й магазини для таблиці менеджерів ─────────────────────────────
    Списки навмисно повторюють shop-table.js з головної: одна й та сама угода
    має потрапляти в той самий канал на обох сторінках, інакше дашборд сам
@@ -935,7 +953,7 @@ function aggregateLeads(leads, byManagerFromDeals){
     if(!bySource[l.source_id]) bySource[l.source_id]={source_id:l.source_id,name:sourceName(l.source_id),count:0};
     bySource[l.source_id].count++;
 
-    if(l.semantic==='C') converted++;
+    if(isGoodLead(l)) converted++;
     else if(l.semantic==='F'){
       rejected++;
       // "Забраковано" — це ціла ГРУПА стадій у Bitrix (кожна зі своєю конкретною
@@ -950,7 +968,7 @@ function aggregateLeads(leads, byManagerFromDeals){
     const lg=srcGroup(l.source_id);
     if(lg==='call') byManager[mgr].leadsCall++;
     else if(lg==='cart') byManager[mgr].leadsCart++;
-    if(l.semantic==='C') byManager[mgr].leadsConverted++;
+    if(isGoodLead(l)) byManager[mgr].leadsConverted++;
     else if(l.semantic==='F') byManager[mgr].leadsRejected++;
 
     const src=normalizeUtmSource(l.utm_source)||'(не вказано)', medium=l.utm_medium||'(не вказано)';
@@ -1215,7 +1233,8 @@ function renderManagers(byManager){
 // Інакше в одного менеджера розгортається кілька сотень рядків і сторінка
 // стає нечитабельною (у Рудінкова, наприклад, 215 угод).
 const DETAIL_CHUNK=10;
-let DETAIL_SHOW={deals:DETAIL_CHUNK, junk:DETAIL_CHUNK, reasons:DETAIL_CHUNK};
+let DETAIL_SHOW={deals:DETAIL_CHUNK, good:DETAIL_CHUNK, bad:DETAIL_CHUNK,
+                 work:DETAIL_CHUNK, reasons:DETAIL_CHUNK};
 
 function showMoreDetail(kind){
   DETAIL_SHOW[kind]+=DETAIL_CHUNK;
@@ -1233,7 +1252,8 @@ function selectManager(mgrId, silent){
 
   if(!silent){
     // новий менеджер — списки згортаються назад до перших 10
-    DETAIL_SHOW={deals:DETAIL_CHUNK, junk:DETAIL_CHUNK, reasons:DETAIL_CHUNK};
+    DETAIL_SHOW={deals:DETAIL_CHUNK, good:DETAIL_CHUNK, bad:DETAIL_CHUNK,
+                 work:DETAIL_CHUNK, reasons:DETAIL_CHUNK};
     // перемальовуємо таблицю, щоб підсвітити вибраний рядок (використовуємо
     // вже об'єднані з лідами дані, а не перерахунок лише по угодах)
     renderManagers(CURRENT_BY_MANAGER);
@@ -1247,11 +1267,20 @@ function selectManager(mgrId, silent){
     return;
   }
 
+  // Три стани ліда, як їх веде Бітрікс. Дивимось на semantic, а не на назву
+  // статусу: назви в порталі періодично перейменовують, semantic — ні.
+  //   S — «Качественный лид»: клієнт оформив
+  //   F — «Некачественный лид» і «Дубликат»: забраковано
+  //   P — «В работе» і «Не обработан»: лід ще висить у менеджера. Це і є
+  //       відкладений попит — людина зверталась, відмови не було, угоди теж.
+  const goodLeads = leads.filter(isGoodLead);
+  const badLeads  = leads.filter(l=>l.semantic==='F');
+  const workLeads = leads.filter(l=>l.semantic==='P');
+  const converted = goodLeads.length;
+
   const byReason={};
-  let converted=0, noReason=0;
-  leads.forEach(l=>{
-    if(l.semantic==='C'){ converted++; return; }
-    if(l.semantic!=='F') return;
+  let noReason=0;
+  badLeads.forEach(l=>{
     const n=reasonName(l);
     if(!n){ noReason++; return; }
     if(!byReason[n]) byReason[n]={name:n,count:0};
@@ -1260,60 +1289,88 @@ function selectManager(mgrId, silent){
   const reasonRows=Object.values(byReason).sort((a,b)=>b.count-a.count);
   if(noReason) reasonRows.push({name:'Причину не вказано',count:noReason,muted:true});
   const maxR=Math.max(1,...reasonRows.map(x=>x.count));
-  const reasonsShown=reasonRows.slice(0, DETAIL_SHOW.reasons);
 
-  // "Неякісні ліди" — конкретні ліди з причиною JUNK ("Некачественный лід"),
-  // не просто агрегована цифра як у "Причини забракування" праворуч.
-  const junkLeads = leads.filter(l=>l.status_id==='JUNK');
+  // Один рядок ліда. extra — друга колонка (причина браку або статус),
+  // щоб не плодити три майже однакові шаблони.
+  const leadRow = (l, extra) => {
+    const src=leadSourceLabel(l);
+    const label = (l.title ? l.title : `Лід №${l.id}`) + ' · ' + fmtDate(l.date);
+    const cols = extra
+      ? '1fr minmax(120px,200px) minmax(84px,108px)'
+      : '1fr minmax(84px,108px)';
+    return `<div class="deal-row" style="grid-template-columns:${cols}">
+      <div class="deal-name" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
+      ${extra?`<div class="lead-extra" title="${escapeHtml(extra)}">${escapeHtml(extra)}</div>`:''}
+      <div class="deal-src ${src.known?'known':'unknown'}" title="${escapeHtml(src.label)}">${escapeHtml(src.label)}</div>
+    </div>`;
+  };
 
-  const dealsShown = deals.slice(0, DETAIL_SHOW.deals);
-  const dealsMoreNote = deals.length>DETAIL_SHOW.deals
-    ? `<button class="more-btn" onclick="showMoreDetail('deals')">Показати ще ${fmt(Math.min(DETAIL_CHUNK, deals.length-DETAIL_SHOW.deals))} з ${fmt(deals.length-DETAIL_SHOW.deals)}</button>` : '';
+  // Секції йдуть одна під одною на всю ширину, а не у дві колонки: у двох
+  // колонках список угод і список лідів ніколи не збігаються по висоті, і
+  // половина картки — порожнеча, через яку треба скролити.
+  const section = (title, color, hint, items, key, render, emptyNote) => {
+    const shown = items.slice(0, DETAIL_SHOW[key]);
+    const rest  = items.length - shown.length;
+    return `<div class="det-sec">
+      <h2 class="mini"${color?` style="color:${color}"`:''}>${title} (${fmt(items.length)})</h2>
+      ${hint?`<div class="sub-hint">${hint}</div>`:''}
+      ${shown.map(render).join('') || `<div class="empty-note">${emptyNote||'Порожньо.'}</div>`}
+      ${rest>0?`<button class="more-btn" onclick="showMoreDetail('${key}')">Показати ще ${fmt(Math.min(DETAIL_CHUNK,rest))} з ${fmt(rest)}</button>`:''}
+    </div>`;
+  };
+
+  const dealRender = d => {
+    const src=dealSourceLabel(d);
+    const productLabel = d.product || '(товар не вказано)';
+    return `<div class="deal-row">
+      <div class="deal-name" title="${escapeHtml(productLabel)}">${escapeHtml(productLabel)}</div>
+      <div class="deal-sum">${fmt(d.amount)} грн</div>
+      <div class="deal-src ${src.known?'known':'unknown'}" title="${escapeHtml(src.label)}">${escapeHtml(src.label)}</div>
+    </div>`;
+  };
+
+  const dealsSum = deals.reduce((s,d)=>s+(d.amount||0),0);
 
   detail.style.display='block';
   detail.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="font-size:14px;font-weight:700">${name} — угоди та ліди (${fmt(leads.length)} лідів, конвертовано ${fmt(converted)})</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:700">${escapeHtml(name)}</div>
       <span class="qcat-close" style="cursor:pointer;font-size:12px;color:var(--ink-soft)" onclick="closeManagerDetail()">Закрити ×</span>
     </div>
-    <div class="cols2">
-      <div>
-        <h2 class="mini">Угоди (${fmt(deals.length)})</h2>
-        <div class="sub-hint">Товар · сума · джерело (якщо визначилось)</div>
-        ${dealsShown.map(d=>{
-          const src=dealSourceLabel(d);
-          const productLabel = d.product || '(товар не вказано)';
-          return `<div class="deal-row">
-            <div class="deal-name" title="${escapeHtml(productLabel)}">${escapeHtml(productLabel)}</div>
-            <div class="deal-sum">${fmt(d.amount)} грн</div>
-            <div class="deal-src ${src.known?'known':'unknown'}" title="${escapeHtml(src.label)}">${escapeHtml(src.label)}</div>
-          </div>`;
-        }).join('') || '<div class="empty-note">Угод немає.</div>'}
-        ${dealsMoreNote}
-      </div>
-      <div>
-        <h2 class="mini" style="color:var(--bad)">Причини забракування</h2>
-        ${reasonsShown.map(x=>`<div class="bd-row"><div class="bd-name" title="${escapeHtml(x.name)}"${x.muted?' style="color:var(--ink-dim)"':''}>${escapeHtml(x.name)}</div>
-          <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxR*100)}%;background:${x.muted?'rgba(255,255,255,.18)':'linear-gradient(90deg,var(--bad),#C0392F)'}"></div></div>
-          <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Забракованих лідів немає 🎉</div>'}
-        ${reasonRows.length>DETAIL_SHOW.reasons
-          ? `<button class="more-btn" onclick="showMoreDetail('reasons')">Показати ще ${fmt(reasonRows.length-DETAIL_SHOW.reasons)}</button>` : ''}
-      </div>
+    <div class="det-tags">
+      <span class="det-tag">Лідів усього <b>${fmt(leads.length)}</b></span>
+      <span class="det-tag good">Оформив <b>${fmt(goodLeads.length)}</b></span>
+      <span class="det-tag bad">Забракував <b>${fmt(badLeads.length)}</b></span>
+      <span class="det-tag work">У роботі <b>${fmt(workLeads.length)}</b></span>
+      <span class="det-tag">Угод <b>${fmt(deals.length)}</b> · ${fmt(dealsSum)} грн</span>
     </div>
-    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
-      <h2 class="mini" style="color:var(--bad)">Неякісні ліди (${fmt(junkLeads.length)})</h2>
-      <div class="sub-hint">Ліди з причиною «${escapeHtml(statusName('JUNK'))}» · джерело, якщо визначилось</div>
-      ${junkLeads.slice(0, DETAIL_SHOW.junk).map(l=>{
-        const src=leadSourceLabel(l);
-        const leadLabel = (l.title ? l.title : `Лід №${l.id}`) + ' · ' + fmtDate(l.date);
-        return `<div class="deal-row" style="grid-template-columns:1fr minmax(84px,108px)">
-          <div class="deal-name" title="${escapeHtml(leadLabel)}">${escapeHtml(leadLabel)}</div>
-          <div class="deal-src ${src.known?'known':'unknown'}" title="${escapeHtml(src.label)}">${escapeHtml(src.label)}</div>
-        </div>`;
-      }).join('') || '<div class="empty-note">Неякісних лідів немає 🎉</div>'}
-      ${junkLeads.length>DETAIL_SHOW.junk
-        ? `<button class="more-btn" onclick="showMoreDetail('junk')">Показати ще ${fmt(Math.min(DETAIL_CHUNK, junkLeads.length-DETAIL_SHOW.junk))} з ${fmt(junkLeads.length-DETAIL_SHOW.junk)}</button>` : ''}
-    </div>`;
+
+    ${section('Угоди', '', 'Товар · сума · джерело (якщо визначилось)',
+              deals, 'deals', dealRender, 'Угод немає.')}
+
+    ${section('Оформлені ліди', 'var(--good)',
+              `Статус «${escapeHtml(statusName('CONVERTED'))}» — клієнт оформив замовлення`,
+              goodLeads, 'good', l=>leadRow(l, ''), 'Оформлених лідів немає.')}
+
+    <div class="det-sec">
+      <h2 class="mini" style="color:var(--bad)">Забраковані ліди (${fmt(badLeads.length)})</h2>
+      <div class="sub-hint">Спершу причини одним списком, далі самі ліди</div>
+      ${reasonRows.slice(0, DETAIL_SHOW.reasons).map(x=>`<div class="bd-row"><div class="bd-name" title="${escapeHtml(x.name)}"${x.muted?' style="color:var(--ink-dim)"':''}>${escapeHtml(x.name)}</div>
+        <div class="bd-track"><div class="bd-fill" style="width:${Math.max(2,x.count/maxR*100)}%;background:${x.muted?'rgba(255,255,255,.18)':'linear-gradient(90deg,var(--bad),#C0392F)'}"></div></div>
+        <div class="bd-count">${fmt(x.count)}</div></div>`).join('') || '<div class="empty-note">Забракованих лідів немає 🎉</div>'}
+      ${reasonRows.length>DETAIL_SHOW.reasons
+        ? `<button class="more-btn" onclick="showMoreDetail('reasons')">Показати ще ${fmt(reasonRows.length-DETAIL_SHOW.reasons)} причин</button>` : ''}
+      ${badLeads.length ? `<div class="det-sub">
+        ${badLeads.slice(0, DETAIL_SHOW.bad).map(l=>leadRow(l, reasonName(l) || statusName(l.status_id) || 'причину не вказано')).join('')}
+        ${badLeads.length>DETAIL_SHOW.bad
+          ? `<button class="more-btn" onclick="showMoreDetail('bad')">Показати ще ${fmt(Math.min(DETAIL_CHUNK, badLeads.length-DETAIL_SHOW.bad))} з ${fmt(badLeads.length-DETAIL_SHOW.bad)}</button>` : ''}
+      </div>` : ''}
+    </div>
+
+    ${section('У роботі — відкладений попит', 'var(--mid)',
+              'Ні угоди, ні відмови: клієнт звертався і досі висить у менеджера',
+              workLeads, 'work', l=>leadRow(l, statusName(l.status_id)),
+              'Зависань немає — усі ліди доведені до рішення 🎉')}`;
 }
 
 function closeManagerDetail(){
