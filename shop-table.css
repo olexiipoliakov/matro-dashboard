@@ -51,6 +51,7 @@
     font-variant-numeric:tabular-nums}
   .shop-age b{font-weight:600;color:var(--ink-soft)}
   .shop-age .old{color:var(--warning)}
+  .shop-warn{color:var(--warning);font-weight:600}
   /* Таблиці за джерелом трафіку */
   table.shop.utm td.med{color:var(--ink-soft)}
   table.shop.utm td.num,table.shop.utm th.num{text-align:right;white-space:nowrap}

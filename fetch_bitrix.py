@@ -276,7 +276,23 @@ def fetch_batch(commands, tries=3):
                 raise RuntimeError(f"Bitrix batch failed: {e}")
     if "error" in data:
         raise RuntimeError(f"Bitrix batch error: {data.get('error_description', data['error'])}")
-    return data.get("result", {}).get("result", {}) or {}
+    # Bitrix у batch віддає помилки ОКРЕМО по кожній команді, у result_error,
+    # і загального "error" при цьому немає. Раніше ми це поле не дивились —
+    # тому пачка, яка цілком упала по ліміту чи таймауту, виглядала як
+    # «товарів немає». Виключення не було, except нижче не спрацьовував,
+    # підстраховка не вмикалась, і у файл лягали порожні категорії та нулі
+    # в обороті. Саме так оборот і зникав зі сторінки.
+    res = data.get("result", {}) or {}
+    out = res.get("result", {}) or {}
+    errs = res.get("result_error", {}) or {}
+    if errs and not out:
+        first = list(errs.values())[0]
+        if isinstance(first, dict):
+            first = first.get("error_description") or first.get("error") or first
+        raise RuntimeError(f"Bitrix batch: усі {len(errs)} команд повернули помилку: {first}")
+    if errs:
+        print(f"     ⚠ у пачці {len(errs)} команд з помилкою, решта {len(out)} — ок")
+    return out
 
 def fetch_lead_tasks(lead_ids, chunk_size=25):
     """Незавершені задачі лідів: {lead_id: {task_id, title, deadline, overdue}}.
@@ -964,6 +980,29 @@ if __name__ == "__main__":
 
     if quick:
         merge_window(result, prev_data, str(start_date))
+
+    # Остання лінія оборони перед записом.
+    #
+    # Крок із товарами може не впасти з виключенням, а просто нічого не
+    # повернути (див. result_error у fetch_batch). Тоді у файл пішли б угоди
+    # без категорій — а це нулі в обороті на всіх сторінках. Якщо угоди є,
+    # а категорій нема, хоча в попередньому файлі вони були, — лишаємо
+    # попередні й кажемо про це вголос. Застарілий оборот чесніший за нуль.
+    prev_cats = prev_data.get("deal_categories") or []
+    if result.get("deals") and not result.get("deal_categories") and prev_cats:
+        result["deal_categories"] = prev_cats
+        if not result.get("deal_categories_error"):
+            result["deal_categories_error"] = ("товарні позиції не повернулись (порожня "
+                                               "відповідь) — категорії з попереднього збору")
+        kept = 0
+        for d in result.get("deals", []):
+            old = prev_products.get(d["id"], "")
+            if old and not (d.get("product") or ""):
+                d["product"] = old
+                kept += 1
+        print(f"  ⚠ категорій не зібрано — лишаю {len(prev_cats)} з попереднього файлу"
+              f" (товарів відновлено: {kept})")
+
     save_result(result)
     if "deals" in result and "leads" in result:
         print(f"\n✓ bitrix_data.json сохранён: {len(result['deals'])} угод, {len(result['leads'])} лідів")

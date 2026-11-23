@@ -436,6 +436,19 @@ function renderUtm(){
     note + ' · у ліда суми немає, тому тільки кількість';
 }
 
+// Якщо категорій немає, усі суми на сторінці стануть нулями. Мовчазний
+// нуль — найгірший варіант: його читають як «не продавали». Кажемо прямо.
+function shopMoneyWarn(){
+  if(!CRM_RAW) return '';
+  const hasDeals = (CRM_RAW.deals || []).length > 0;
+  const hasCats  = (CRM_RAW.deal_categories || []).length > 0;
+  if(hasDeals && !hasCats){
+    return '<span class="shop-warn">Суми тимчасово недоступні: останній збір не отримав '
+         + 'товарні позиції. Кількість замовлень вірна, оборот показано нулем.</span> ';
+  }
+  return '';
+}
+
 function renderShop(){
   const host = document.getElementById('shop-table');
   const note = document.getElementById('shop-note');
@@ -676,13 +689,15 @@ function renderShop(){
   let base = 'Сума — товарні рядки, без накладеного платежу й доставки';
   if(leads) base = 'У клітинці — скільки лідів і скільки з них визнали якісними';
   else if(cats) base += ' · угода з матрацом і диваном рахується в обох колонках';
-  if(leads || cats || !hasCall) note.textContent = base;
-  else if(!RING_RAW)        note.textContent = base + ' · дзвінки завантажуються…';
-  else if(RING_RAW.failed)  note.innerHTML = base +
+  // У вкладці лідів сум немає, тому попередження про них ні до чого.
+  const warn = leads ? '' : shopMoneyWarn();
+  if(leads || cats || !hasCall) note.innerHTML = warn + base;
+  else if(!RING_RAW)        note.innerHTML = warn + base + ' · дзвінки завантажуються…';
+  else if(RING_RAW.failed)  note.innerHTML = warn + base +
       ' · <span style="color:var(--warning)">дзвінки не завантажились</span>';
-  else if(!siteKnown)       note.innerHTML = base +
+  else if(!siteKnown)       note.innerHTML = warn + base +
       ' · <span style="color:var(--warning)">Ringostat не віддав сайт дзвінка — колонка «Дзвінки» поки порожня</span>';
-  else                      note.textContent = base;
+  else                      note.innerHTML = warn + base;
 }
 
 // Блоки за джерелом трафіку живуть тим самим місяцем і магазином, що й
