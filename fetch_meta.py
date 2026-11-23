@@ -45,6 +45,12 @@ ACCESS_TOKEN  = env("META_ACCESS_TOKEN", "PASTE_YOUR_TOKEN_HERE")
 ACCESS_TOKEN_2 = env("META_ACCESS_TOKEN_MATRO")
 ACCOUNT_ID    = env("META_ACCOUNT_ID",   "act_XXXXXXXXXX")
 ACCOUNT_ID_2  = env("META_ACCOUNT_ID_2", "act_248358219946238")  # Matro
+# Третій кабінет — ще один усередині Plume. Окрема вкладка, окремий файл:
+# зводити два кабінети в одну цифру не можна, бо тоді не видно, який із них
+# скільки з'їв, а однакові назви кампаній у двох кабінетах злиплися б в одну.
+ACCOUNT_ID_3   = env("META_ACCOUNT_ID_3", "act_2264640017711817")  # Plume 2
+ACCESS_TOKEN_3 = env("META_ACCESS_TOKEN_3")   # якщо порожньо — беремо основний
+ACCOUNT_NAME_3 = env("META_ACCOUNT_NAME_3", "Plume 2")
 API_VERSION   = "v21.0"
 DATE_PRESET   = "last_90d"    # тянем широкий период; фильтр по датам — в дашборде
 # Валюта за замовчуванням — якщо кабінет раптом не відповів. Справжню
@@ -161,6 +167,37 @@ def fetch_account_currency():
     if not code:
         return CURRENCY, ""
     return CURRENCY_SIGNS.get(code, code), code
+
+
+def token_info():
+    """Що Meta знає про наш токен: тип і коли він помре.
+
+    Навіщо. Токен типу User живе 60 днів і вмирає мовчки: збір просто
+    перестає оновлювати файл, а на сторінці лишається стара дата, яку легко
+    не помітити — саме так кабінет Matro простояв пʼять тижнів. Кладемо
+    строк життя прямо в дані, щоб сторінка попередила ЗАЗДАЛЕГІДЬ.
+
+    Нічого не ламаємо, якщо не вийшло: це довідка, а не частина звіту.
+    У токена системного користувача expires_at = 0 — це «не спливає
+    ніколи», і саме так ми його й показуємо.
+    """
+    try:
+        r = requests.get(f"{BASE}/debug_token",
+                         params={"input_token": ACCESS_TOKEN,
+                                 "access_token": ACCESS_TOKEN}, timeout=30)
+        if r.status_code != 200:
+            return {}
+        d = (r.json() or {}).get("data") or {}
+        exp = int(d.get("expires_at") or 0)
+        return {
+            "token_type": d.get("type") or "",
+            # 0 у Meta означає «безстроковий», а не «вже протух»
+            "token_expires_at": (dt.datetime.fromtimestamp(exp).strftime("%Y-%m-%d")
+                                 if exp else "never"),
+        }
+    except Exception as e:
+        print(f"     ⚠ не вдалося перевірити строк дії токена: {e}")
+        return {}
 
 
 def fetch_campaign_goals():
@@ -479,6 +516,7 @@ def build(account_id=None, out_path=None, account_name="", access_token=None):
         # сторінка не має жодного способу відрізнити цифри Plume від Matro.
         "account": account_name,
         "account_id": ACCOUNT_ID,
+        **token_info(),
         "period": period,
         "currency": cur_sign,
         "currency_code": cur_code,
@@ -577,6 +615,37 @@ if __name__ == "__main__":
                 hint = (" (схоже, токен Plume не має доступу до кабінету Matro — "
                         "потрібен окремий META_ACCESS_TOKEN_MATRO)") if using_fallback else ""
                 print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}{hint}")
+                ok = False
+
+        # ── Аккаунт 3 — другий кабінет Plume (вкладка "Plume 2") ──────────
+        # Ті самі граблі, що й з Matro, тому та сама перевірка: хибний
+        # ідентифікатор не повинен тихо записати чужий кабінет у data3.json.
+        if not ACCOUNT_ID_3.startswith("act_") or "XXXX" in ACCOUNT_ID_3:
+            print(f"\n✗ META_ACCOUNT_ID_3 має вигляд '{ACCOUNT_ID_3}' — це не "
+                  f"ідентифікатор кабінету (очікується act_…). {ACCOUNT_NAME_3} "
+                  f"пропущено, data3.json не перезаписано.")
+            ok = False
+        elif ACCOUNT_ID_3 in (ACCOUNT_ID, ACCOUNT_ID_2):
+            print(f"\n✗ META_ACCOUNT_ID_3 ({ACCOUNT_ID_3}) збігається з іншим "
+                  f"кабінетом. {ACCOUNT_NAME_3} пропущено, data3.json не "
+                  f"перезаписано.")
+            ok = False
+        else:
+            pause_s = 45
+            print(f"\n⏸  Пауза {pause_s}с перед {ACCOUNT_NAME_3} (ліміт запитів Meta)…")
+            time.sleep(pause_s)
+            print("\n" + "=" * 50)
+            print(f"АККАУНТ 3: {ACCOUNT_NAME_3}")
+            print("=" * 50)
+            try:
+                build(
+                    account_id=ACCOUNT_ID_3,
+                    out_path=Path(__file__).parent / "data3.json",
+                    account_name=ACCOUNT_NAME_3,
+                    access_token=ACCESS_TOKEN_3 or ACCESS_TOKEN,
+                )
+            except Exception as e:
+                print(f"  ✗ АККАУНТ 3 ({ACCOUNT_NAME_3}): ошибка — {e}")
                 ok = False
 
         # Явний код завершення — щоб run_script() в app.py міг чесно
