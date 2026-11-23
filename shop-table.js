@@ -207,11 +207,14 @@ const LEAD_GOOD = 'CONVERTED'; // статус «Якісний лід»
 // угоду означало б показати неправдиву частку решти.
 const SHARE_COLORS = ['#32D8FF', '#FF8C42', '#9B8CFF', '#27E37A', '#95A0BF'];
 
-function shopShares(crm, ring, ym, mode){
+// Чий це запис: індекс магазину в SHOPS без «усіх», або -1.
+//
+// Та сама логіка потрібна і часткам магазинів, і блокам за джерелом
+// трафіку. Тримаємо її в одному місці: якщо правила розійдуться, та сама
+// угода опиниться в різних магазинах у сусідніх блоках однієї сторінки,
+// і довіри до жодного з них уже не буде.
+function shopOwnerFn(crm, ring){
   const list = SHOPS.filter(s=>!s.rest);
-  const turn = {};
-  (crm.deal_categories||[]).forEach(c=>{ turn[c.deal_id] = c.turnover || 0; });
-
   // Для кожного магазину — хто дзвонив з його сайту, по днях.
   const callDays = list.map(shop=>{
     const m = {};
@@ -223,7 +226,7 @@ function shopShares(crm, ring, ym, mode){
     });
     return m;
   });
-  const owner = rec => {
+  return rec => {
     for(let i = 0; i < list.length; i++){
       if(list[i].cols.some(c=>shopMatch(c, rec))) return i;
     }
@@ -233,6 +236,13 @@ function shopShares(crm, ring, ym, mode){
     }
     return -1;
   };
+}
+
+function shopShares(crm, ring, ym, mode){
+  const list = SHOPS.filter(s=>!s.rest);
+  const turn = {};
+  (crm.deal_categories||[]).forEach(c=>{ turn[c.deal_id] = c.turnover || 0; });
+  const owner = shopOwnerFn(crm, ring);
 
   const out = list.map(s=>({name: s.name, key: s.key, n: 0, v: 0}));
   const rest = {name: 'Інше', key: '__rest', n: 0, v: 0};
@@ -355,6 +365,75 @@ function shopSetTab(i){
   shopIdx = i; shopOpen = false;
   try{ localStorage.setItem(SHOP_KEY, SHOPS[i].key); }catch(e){}
   renderShop();
+}
+
+// ── Джерела трафіку ──────────────────────────────────────────────────────
+// «google» і «google.com» — те саме джерело; без зведення вони стоять
+// двома рядками і діляться статистикою навпіл.
+const utmNorm = s => (String(s||'').trim().replace(/[._]com$/i, '') || '').trim();
+
+function utmRows(crm, ring, ym, shopKey, mode){
+  const turn = {};
+  (crm.deal_categories||[]).forEach(c=>{ turn[c.deal_id] = c.turnover || 0; });
+  const list = SHOPS.filter(s=>!s.rest);
+  const want = list.findIndex(s=>s.key === shopKey);   // -1 = усі магазини
+  const owner = want >= 0 ? shopOwnerFn(crm, ring) : null;
+
+  const src = mode === 'leads' ? (crm.leads || []) : (crm.deals || []);
+  const by = {};
+  src.forEach(rec=>{
+    if(!(rec.date || '').startsWith(ym)) return;
+    if(owner && owner(rec) !== want) return;
+    const s = utmNorm(rec.utm_source) || '(не вказано)';
+    const m = utmNorm(rec.utm_medium) || '(не вказано)';
+    const k = s + '||' + m;
+    if(!by[k]) by[k] = {source:s, medium:m, n:0, v:0};
+    by[k].n += 1;
+    by[k].v += mode === 'leads' ? 0 : (turn[rec.id] || 0);
+  });
+  const rows = Object.values(by);
+  rows.sort((a,b)=> mode === 'leads' ? (b.n - a.n) : (b.v - a.v || b.n - a.n));
+  return rows;
+}
+
+function renderUtm(){
+  // Блоки є тільки на сторінці за посиланням. На головній елементів немає —
+  // тихо виходимо, щоб один і той самий файл працював на обох.
+  const dealsEl = document.getElementById('utm-deals');
+  const leadsEl = document.getElementById('utm-leads');
+  if(!dealsEl || !leadsEl || !CRM_RAW || !shopMonth) return;
+
+  const shop = SHOPS[shopIdx] || SHOPS[0];
+  const mName = MONTHS_UA[Number(shopMonth.slice(5,7)) - 1];
+  const scope = shop.rest ? 'усі магазини' : shop.name;
+
+  const draw = (el, rows, withSum) => {
+    if(!rows.length){
+      el.innerHTML = `<tbody><tr><td class="utm-empty">За цей місяць даних немає.</td></tr></tbody>`;
+      return;
+    }
+    const totN = rows.reduce((a,r)=>a+r.n, 0);
+    const totV = rows.reduce((a,r)=>a+r.v, 0);
+    const head = `<thead><tr><th>Джерело</th><th>Канал</th><th class="num">К-сть</th>` +
+                 (withSum ? `<th class="num">Сума</th>` : '') + `</tr></thead>`;
+    const body = rows.map(r=>
+      `<tr><td>${escapeHtml(r.source)}</td><td class="med">${escapeHtml(r.medium)}</td>` +
+      `<td class="num"><b>${fmt(r.n)}</b></td>` +
+      (withSum ? `<td class="num">${fmt(r.v)} ₴</td>` : '') + `</tr>`).join('');
+    const foot = `<tr class="utm-total"><td>Разом</td><td></td>` +
+      `<td class="num"><b>${fmt(totN)}</b></td>` +
+      (withSum ? `<td class="num"><b>${fmt(totV)} ₴</b></td>` : '') + `</tr>`;
+    el.innerHTML = head + `<tbody>${body}${foot}</tbody>`;
+  };
+
+  draw(dealsEl, utmRows(CRM_RAW, RING_RAW, shopMonth, shop.key, 'deals'), true);
+  draw(leadsEl, utmRows(CRM_RAW, RING_RAW, shopMonth, shop.key, 'leads'), false);
+
+  const note = `${mName} · ${scope} · джерело і канал із UTM-міток`;
+  document.getElementById('utm-deals-note').textContent =
+    note + ' · сума за товарними рядками, без доставки й накладеного платежу';
+  document.getElementById('utm-leads-note').textContent =
+    note + ' · у ліда суми немає, тому тільки кількість';
 }
 
 function renderShop(){
@@ -605,6 +684,11 @@ function renderShop(){
       ' · <span style="color:var(--warning)">Ringostat не віддав сайт дзвінка — колонка «Дзвінки» поки порожня</span>';
   else                      note.textContent = base;
 }
+
+// Блоки за джерелом трафіку живуть тим самим місяцем і магазином, що й
+// таблиця вище, тому перемальовуються разом із нею.
+const _renderShopBase = renderShop;
+renderShop = function(){ _renderShopBase.apply(this, arguments); try{ renderUtm(); }catch(e){} };
 
 document.getElementById('shop-months').addEventListener('click', e=>{
   const b = e.target.closest('button[data-ym]');

@@ -593,8 +593,14 @@ def _shop_public_data():
     """Зведення для таблиці — тільки те, що вона малює.
 
     Що сюди НЕ потрапляє: назви лідів (це імена клієнтів), контакти,
-    менеджери, UTM, товарні назви. Посилання бачать сторонні люди, і
-    віддавати їм повний bitrix_data.json не можна."""
+    менеджери, utm_campaign, товарні назви. Посилання бачать сторонні
+    люди, і віддавати їм повний bitrix_data.json не можна.
+
+    utm_source і utm_medium — виняток, доданий свідомо: таблицю дивляться
+    підрядники по трафіку, і джерело з каналом це рівно та їхня ж робота,
+    без якої блок «за джерелом трафіку» не має сенсу. Це мітки трафіку, не
+    персональні дані. utm_campaign лишається закритим: у назвах кампаній
+    бувають внутрішні позначення й ідентифікатори."""
     crm = {}
     f = BASE_DIR / "bitrix_data.json"
     if f.exists():
@@ -606,10 +612,14 @@ def _shop_public_data():
 
     deals = [{"id": d.get("id"), "date": d.get("date"),
               "source_id": d.get("source_id", ""), "site": d.get("site", ""),
+              "utm_source": d.get("utm_source", ""),
+              "utm_medium": d.get("utm_medium", ""),
               "phone_keys": d.get("phone_keys") or []}
              for d in (crm.get("deals") or [])]
     leads = [{"date": l.get("date"), "status_id": l.get("status_id", ""),
               "source_id": l.get("source_id", ""), "site": l.get("site", ""),
+              "utm_source": l.get("utm_source", ""),
+              "utm_medium": l.get("utm_medium", ""),
               "phone_keys": l.get("phone_keys") or [],
               "reject_reason_name": l.get("reject_reason_name", "")}
              for l in (crm.get("leads") or [])]

@@ -1460,7 +1460,8 @@ function renderUtmTable(elId, items, withSum){
     : `<thead><tr><th>Джерело</th><th>Канал</th><th>К-сть</th></tr></thead>`;
   const rows=items.map(x=>{
     const sumCell = withSum ? `<td>${fmt(x.sum)} грн</td>` : '';
-    return `<tr><td>${x.source}</td><td>${x.medium}</td><td>${fmt(x.count)}</td>${sumCell}</tr>`;
+    return `<tr><td>${escapeHtml(x.source)}</td><td>${escapeHtml(x.medium)}</td>`
+         + `<td>${fmt(x.count)}</td>${sumCell}</tr>`;
   }).join('');
   table.innerHTML=head+`<tbody>${rows}</tbody>`;
 }
