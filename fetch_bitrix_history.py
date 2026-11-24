@@ -54,13 +54,19 @@ HIST_LEAD_FIELDS = ["ID", "STATUS_ID", "STATUS_SEMANTIC_ID", "SOURCE_ID",
 
 
 def months_between(first, last):
-    """Перелік місяців як ('2024-03', дата_початку, дата_кінця_включно)."""
+    """Перелік місяців як ('2024-03', початок, кінець_включно, повний?).
+
+    Четверте поле — чи вліз місяць цілком. Без нього місяць, обрізаний
+    межею збору, однаково потрапляв у months_done і більше ніколи не
+    добирався: саме так у архіві назавжди застрягла половина липня
+    й три дні серпня 2026, а між архівом і живим вікном зяяла діра на 35 днів.
+    """
     y, m = first.year, first.month
     out = []
     while (y, m) <= (last.year, last.month):
         start = date(y, m, 1)
         end = date(y, m, monthrange(y, m)[1])
-        out.append((f"{y}-{m:02d}", start, min(end, last)))
+        out.append((f"{y}-{m:02d}", start, min(end, last), end <= last))
         y, m = (y + 1, 1) if m == 12 else (y, m + 1)
     return out
 
@@ -181,7 +187,13 @@ def main():
     stage_names = fb.fetch_deal_stages()
     users = fb.fetch_users()
 
-    last = date.today() - timedelta(days=LIVE_DAYS + 1)   # архів до початку живого вікна
+    # Збираємо до вчора, а не до початку живого вікна.
+    #
+    # Раніше архів зупинявся там, де починається живе вікно. Але вікно
+    # їде вперед щодня, а архів збирається раз на місяць — між ними
+    # щодня росла діра, до 30 днів перед черговим запуском. Тепер архів
+    # і живі дані перекриваються, і дірки не буває взагалі.
+    last = date.today() - timedelta(days=1)
     first = first_deal_date()
     print(f"=== Архів CRM: {first} … {last} ===")
     if first > last:
@@ -198,7 +210,7 @@ def main():
     print(f"  місяців до збору: {len(todo)} (вже у файлі: {len(months_done)})")
 
     started = datetime.now()
-    for i, (label, start, end) in enumerate(todo, 1):
+    for i, (label, start, end, full) in enumerate(todo, 1):
         try:
             cells = aggregate_month(start, end, stage_names)
         except Exception as e:
@@ -209,9 +221,13 @@ def main():
             break
         for (day, mid), c in cells.items():
             rows[f"{day}|{mid}"] = dict(c, date=day, manager_id=mid)
-        months_done.add(label)
+        # Тільки повний місяць вважаємо зробленим. Поточний (і будь-який
+        # обрізаний) лишається в черзі й перезбереться наступного разу —
+        # інакше він застрягне напівпорожнім назавжди.
+        if full:
+            months_done.add(label)
         print(f"  [{i}/{len(todo)}] {label}: днів {len({d for d, _ in cells})}, "
-              f"рядків {len(cells)}")
+              f"рядків {len(cells)}{'' if full else '  (місяць ще не закрито — зберемо ще раз)'}")
 
         # Зберігаємо після кожного місяця: збір усієї історії може тривати
         # десятки хвилин, і впасти на середині — нормальна подія.
