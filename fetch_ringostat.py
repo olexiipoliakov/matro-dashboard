@@ -36,9 +36,10 @@ caller/dst проти довідника напрямків співробітн
 зараз" (звірка SIP-логінів з /api/ringostat/status), для самих дзвінків
 він більше не використовується.
 """
-import json, os, re, sys
+import csv, io, json, os, re, sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 # Один спосіб рахувати ключ телефону для обох збирачів — див. phone_key.py
 from phone_key import phone_key
@@ -46,6 +47,12 @@ import requests
 
 AUTH_KEY = os.environ.get("RINGOSTAT_AUTH_KEY", "")
 PROJECT_ID = os.environ.get("RINGOSTAT_PROJECT_ID", "")
+
+# Посилання на вигрузку Ringostat у Google Sheets (export?format=csv).
+# ТІЛЬКИ через оточення: у таблиці лежать номери клієнтів у відкритому
+# вигляді, а репозиторій публічний — посилання в коді означало б, що їх
+# може завантажити будь-хто.
+SHEET_CSV_URL = os.environ.get("RINGOSTAT_SHEET_CSV", "")
 
 API_BASE = "https://api.ringostat.net"
 HTTP_HEADERS = {
@@ -215,6 +222,106 @@ def call_site(r):
         return by_pool
     return _match_site(str(r.get("referrer") or "").lower())
 
+
+def _host(url):
+    """Домен адреси. Порівнюємо саме його, а не весь рядок: у query-параметрах
+    трапляються чужі домени (gad_source, utm_content із назвою сайту), і
+    пошук підрядка по всій адресі віддавав би не той магазин."""
+    u = str(url or "").strip()
+    if not u or u == "/":
+        return ""
+    if "://" not in u:
+        u = "http://" + u
+    try:
+        return (urlparse(u).hostname or "").lower()
+    except Exception:
+        return ""
+
+
+# ── Сайт дзвінка з вигрузки Ringostat у Google Sheets ──────────────────────
+#
+# Навіщо це взагалі. Сайт дзвінка ми досі брали з пулу номера, і це
+# виявилось просто неправильно. Звірка з вигрузкою за 26.06—25.11.2026
+# (16 078 дзвінків) показала: із 332 дзвінків із пулом «simplershop» на
+# simplershop реально прийшли 74, ще 175 — на matroluxe.ua і 68 — на
+# matroluxe.com. А 2 122 справжніх дзвінки з simplershop пулу не мали
+# зовсім. Тобто пул і недобирає, і приписує чужі дзвінки не тому магазину.
+#
+# У вигрузці є стовпець «Сторінка дзвінка» — адреса, з якої дзвонили, і
+# вона є майже завжди. В API такого поля немає: запит із ним повертає
+# "You may have entered an incorrect field name" НА ВЕСЬ запит (див.
+# коментар біля CALL_FIELDS). Тому єдиний шлях до нього — та сама
+# вигрузка, яку Ringostat сам щодня дописує в Google Sheets.
+#
+# Телефони з таблиці нікуди не зберігаються: одразу перетворюються на той
+# самий хеш, що й у решті проєкту (phone_key.py).
+SHEET_COLS = ("calldate", "caller", "page", "pool_name")
+
+
+def load_sheet_sites(since=""):
+    """{(день, хеш номера): сайт} з CSV-вигрузки. Порожньо, якщо не задано.
+
+    since — не старші за цю дату рядки. Ringostat дописує вигрузку щодня й
+    нічого з неї не видаляє, тож із часом це десятки тисяч рядків, тоді як
+    дашборду потрібні лише останні DAYS_BACK днів. Без відсікання збір
+    щоразу перемелював би всю історію заради того самого вікна."""
+    if not SHEET_CSV_URL:
+        return {}, {"used": False}
+
+    r = requests.get(SHEET_CSV_URL, timeout=120, allow_redirects=True)
+    r.raise_for_status()
+    text = r.content.decode("utf-8-sig", errors="replace")
+    # Google на закритий файл віддає сторінку входу, причому зі статусом 200.
+    # Без цієї перевірки csv мовчки розбере HTML і поверне нуль рядків.
+    if text.lstrip()[:1] == "<":
+        raise RuntimeError("замість CSV прийшов HTML — у файлу вимкнено доступ "
+                           "за посиланням або посилання не на export?format=csv")
+
+    rows = list(csv.reader(io.StringIO(text)))
+    head = next((i for i, row in enumerate(rows)
+                 if "calldate" in [c.strip() for c in row]), -1)
+    if head < 0:
+        raise RuntimeError("у вигрузці немає рядка заголовків зі стовпцем calldate")
+    names = [c.strip() for c in rows[head]]
+    idx = {}
+    for col in SHEET_COLS:
+        if col not in names:
+            raise RuntimeError(f"у вигрузці немає стовпця «{col}»")
+        idx[col] = names.index(col)
+
+    out = {}
+    stat = {"used": True, "total": len(rows) - head - 1, "since": since,
+            "rows": 0, "by_page": 0, "by_pool": 0, "no_site": 0}
+    for row in rows[head + 1:]:
+        if len(row) <= max(idx.values()):
+            continue
+        calldate = row[idx["calldate"]].strip()
+        # Другий рядок шапки — ті самі стовпці українською; у нього в
+        # calldate текст, а не дата, тому він відсіюється сам.
+        if len(calldate) < 10 or not calldate[:4].isdigit():
+            continue
+        if since and calldate[:10] < since:
+            continue
+        key = phone_key(row[idx["caller"]])
+        if not key:
+            continue
+        stat["rows"] += 1
+        site = _match_site(_host(row[idx["page"]]))
+        if site:
+            stat["by_page"] += 1
+        else:
+            site = _match_site(row[idx["pool_name"]].strip().lower())
+            if site:
+                stat["by_pool"] += 1
+            else:
+                stat["no_site"] += 1
+                continue
+        # Один номер за день може дзвонити з двох сайтів. Беремо перший
+        # дзвінок дня: він показує, звідки людина прийшла, а наступні — це
+        # вже повтори по тому самому зверненню.
+        out.setdefault((calldate[:10], key), site)
+    return out, stat
+
 CALL_TYPE_DIRECTION = {
     "in": "incoming",
     "transitin": "incoming",
@@ -283,14 +390,20 @@ def fetch_all_calls(days_back):
     return out
 
 # ── Перетворення в компактні "сирі" рядки для фронтенду ─────────────────────
-def slim_calls(rows, known_staff_names):
+def slim_calls(rows, known_staff_names, sheet_sites=None):
     """known_staff_names — {staff_id: fio} з fetch_staff(), лише щоб
     визначити, чи employee_number вже відомий, чи це "новий" співробітник,
     якого немає в getProjectStaffListAndDirections (тоді беремо ім'я прямо
-    з employee_fio дзвінка)."""
+    з employee_fio дзвінка).
+
+    sheet_sites — {(день, хеш номера): сайт} з вигрузки. Має пріоритет над
+    пулом: у вигрузці сайт узятий з адреси сторінки, а пул показує не той
+    магазин у трьох випадках із чотирьох."""
+    sheet_sites = sheet_sites or {}
     out = []
     extra_names = {}
     no_employee = 0
+    src = {"sheet": 0, "api": 0, "none": 0}
     for r in rows:
         if not isinstance(r, dict):
             continue
@@ -309,17 +422,25 @@ def slim_calls(rows, known_staff_names):
         call_type = (r.get("call_type") or "").strip().lower()
         direction = CALL_TYPE_DIRECTION.get(call_type, "unknown")
 
+        caller_key = phone_key(r.get("caller"))
+        site = sheet_sites.get((d, caller_key), "")
+        if site:
+            src["sheet"] += 1
+        else:
+            site = call_site(r)
+            src["api" if site else "none"] += 1
+
         out.append({
             "date": d,
             # Точний час і ключ номера потрібні модулю балів: за ними
             # відкидаються дублі (той самий дзвінок приходить у журналі
             # 2–3 рази) і шукається угода того самого клієнта.
             "ts": calldate,
-            "caller_key": phone_key(r.get("caller")),
+            "caller_key": caller_key,
             # Сам номер, реферер і пул не зберігаємо — тільки назву сайту:
             # у реферері прилітають рекламні мітки й ідентифікатори
             # переходу, яким у файлі даних робити нічого.
-            "site": call_site(r),
+            "site": site,
             "direction": direction,
             "status": call_status(disposition),
             "manager_id": staff_id,
@@ -340,7 +461,7 @@ def slim_calls(rows, known_staff_names):
     dropped = len(out) - len(deduped)
     if dropped:
         print(f"     дублів у журналі відкинуто: {dropped} з {len(out)}")
-    return deduped, extra_names, no_employee
+    return deduped, extra_names, no_employee, src
 
 # Швидкий збір: лише останні дні, решта журналу береться з попереднього
 # файлу. 90 днів тягнуться тижневими вікнами — це тринадцять запитів і
@@ -390,11 +511,30 @@ if __name__ == "__main__":
         print(f"  ✗ ошибка (staff): {e}")
         ok = False
 
+    # Вигрузку тягнемо до дзвінків: без неї сайт доведеться брати з пулу,
+    # і про це треба сказати в логу одразу, а не після збору.
+    sheet_sites, sheet_stat = {}, {"used": False}
+    try:
+        sheet_sites, sheet_stat = load_sheet_sites(result["period_from"])
+        if sheet_stat.get("used"):
+            print(f"  → Вигрузка Ringostat (сайт дзвінка): {sheet_stat['rows']} рядків "
+                  f"з {sheet_stat['total']} (з {sheet_stat['since']}), "
+                  f"сайт зі сторінки {sheet_stat['by_page']}, з пулу {sheet_stat['by_pool']}, "
+                  f"без сайту {sheet_stat['no_site']}")
+        else:
+            print("  → RINGOSTAT_SHEET_CSV не задано — сайт дзвінка беремо з пулу "
+                  "(сильно занижує «Дзвінки» в таблиці магазинів)")
+    except Exception as e:
+        print(f"  ⚠ вигрузка не завантажилась ({e}) — сайт дзвінка беремо з пулу")
+        sheet_stat = {"used": False, "error": str(e)[:200]}
+
     try:
         print(f"  → Дзвінки за останні {days_back} днів" + (" (швидкий збір)" if quick else ""))
         raw_calls = fetch_all_calls(days_back)
         print(f"     знайдено: {len(raw_calls)}")
-        calls, extra_names, no_employee = slim_calls(raw_calls, staff_names)
+        calls, extra_names, no_employee, site_src = slim_calls(raw_calls, staff_names, sheet_sites)
+        print(f"     сайт дзвінка: з вигрузки {site_src['sheet']}, "
+              f"з пулу/реферера {site_src['api']}, невідомий {site_src['none']}")
         if quick:
             # Старі дзвінки лишаємо, всередині вікна беремо свіжі.
             start = str(date.today() - timedelta(days=days_back))
@@ -411,11 +551,16 @@ if __name__ == "__main__":
         print(f"  ✗ ошибка (calls): {e}")
         ok = False
         result["calls"] = []
+        site_src = {"sheet": 0, "api": 0, "none": 0}
 
     # directions_exact віддаємо у meta — ringostat.html/home.html зіставляють
     # ними SIP-логіни з /api/ringostat/status (живий "хто зараз на лінії") з
     # конкретним менеджером, без повторного звернення до Ringostat.
-    result["meta"] = {"staff": staff_names, "directions": directions_exact}
+    result["meta"] = {"staff": staff_names, "directions": directions_exact,
+                      # Звідки взявся сайт дзвінка. Потрібно, щоб мовчазний
+                      # відкат на пул було видно: цифри в «Дзвінках» при
+                      # цьому не зникають, вони просто стають утричі меншими.
+                      "site_source": site_src, "sheet": sheet_stat}
 
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2))
     if result.get("calls"):
