@@ -15,6 +15,7 @@
 // сторінці немає — скрипт мовчки нічого не робить.
 
 const HIST_FROM = '2025-01';   // 2023-11 — міграційний дамп, 2024 не потрібен
+const HIST_SHOW = 6;           // скільки останніх місяців видно до натискання кнопки
 
 (function () {
   const host = document.getElementById('hist-months');
@@ -39,6 +40,11 @@ const HIST_FROM = '2025-01';   // 2023-11 — міграційний дамп, 2
     .hm-part{color:var(--warning,#FFC84D);font-size:11px;font-weight:600}
     .hm-year td{border-top:1px solid var(--border-strong);font-weight:700;
       background:rgba(255,255,255,.025)}
+    .hm-more{display:block;width:100%;margin-top:8px;padding:9px;font-family:inherit;
+      font-size:12px;font-weight:600;color:var(--ink-dim);background:rgba(255,255,255,.03);
+      border:1px solid var(--border);border-radius:12px;cursor:pointer;
+      transition:color 160ms ease, background 160ms ease}
+    .hm-more:hover{color:var(--ink);background:rgba(255,255,255,.06)}
     .hm-note{font-size:11.5px;color:var(--ink-dim);margin-top:10px;line-height:1.5}
   `;
   document.head.appendChild(style);
@@ -49,6 +55,16 @@ const HIST_FROM = '2025-01';   // 2023-11 — міграційний дамп, 2
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
     c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // «1 місяць», «2 місяці», «5 місяців» — у кнопці видно обидва числа,
+  // тому неправильна форма одразу впадає в око.
+  function plur(n, one, few, many) {
+    const a = n % 10, b = n % 100;
+    if (a === 1 && b !== 11) return one;
+    if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return few;
+    return many;
+  }
+  const mon = n => plur(n, 'місяць', 'місяці', 'місяців');
 
   function daysInMonth(ym) {
     const y = +ym.slice(0, 4), m = +ym.slice(5, 7);
@@ -87,59 +103,85 @@ const HIST_FROM = '2025-01';   // 2023-11 — міграційний дамп, 2
     }
     const maxSum = Math.max(1, ...months.map(m => by[m].sum));
 
-    const rows = [];
-    let curYear = null, acc = null;
+    // Каркас малюємо один раз, далі перемальовуємо тільки tbody — інакше
+    // довелося б щоразу наново вішати обробник на кнопку.
+    host.innerHTML = `<div class="hm-wrap"><table class="hm">
+      <thead><tr><th>Місяць</th><th>Угоди</th><th>Оборот</th><th>Чек</th>
+      <th>Ліди</th><th>Брак</th><th>Конверсія</th><th>Оборот до торік</th></tr></thead>
+      <tbody></tbody></table></div>
+      <button type="button" class="hm-more" style="display:none"></button>
+      <div class="hm-note">Сума — <b>валова</b> (поле «Сума» угоди), а не за товарними
+      рядками: архів зберігає тільки її, тому з таблицею «Замовлення по днях» ці
+      цифри не зійдуться, і це нормально. Розрізу по каналах, сайтах і категоріях
+      в архіві немає. Дані з ${esc(hist.from || '—')} по ${esc(hist.to || '—')},
+      зібрано ${esc(hist.generated_at || '—')}.</div>`;
+
+    const body = host.querySelector('tbody');
+    const btn = host.querySelector('.hm-more');
+    let openAll = false;
+
     const yearRow = (y, a) => `<tr class="hm-year"><td>${y} — разом</td>
       <td>${nf(a.deals)}</td><td>${nf(a.sum)} ₴</td>
       <td>${nf(a.sum / Math.max(1, a.deals))} ₴</td>
       <td>${nf(a.leads)}</td><td>${nf(a.lost)}</td>
       <td>${a.leads ? (a.deals / a.leads * 100).toFixed(1) : '—'}%</td><td></td></tr>`;
 
-    months.forEach(ym => {
-      const y = ym.slice(0, 4);
-      if (curYear !== null && y !== curYear) { rows.push(yearRow(curYear, acc)); acc = null; }
-      if (!acc) { curYear = y; acc = {deals: 0, sum: 0, leads: 0, lost: 0}; }
-      const v = by[ym];
-      acc.deals += v.deals; acc.sum += v.sum; acc.leads += v.leads; acc.lost += v.lost;
+    function draw() {
+      // Згорнутий вигляд — тільки останні місяці й без річних підсумків:
+      // рядок «2026 — разом» поруч із шістьма місяцями виглядав би як
+      // сума видимого, а він рахується по всьому року.
+      const shown = openAll ? months : months.slice(-HIST_SHOW);
+      const rows = [];
+      let curYear = null, acc = null;
 
-      const prev = by[`${+y - 1}-${ym.slice(5, 7)}`];
-      let yoy = '<span style="color:var(--ink-dim)">—</span>';
-      if (prev && prev.sum > 0) {
-        const d = (v.sum / prev.sum - 1) * 100;
-        yoy = `<span class="${d >= 0 ? 'hm-up' : 'hm-down'}">${d >= 0 ? '+' : ''}${d.toFixed(0)}%</span>`;
-      }
+      shown.forEach(ym => {
+        const y = ym.slice(0, 4);
+        if (openAll) {
+          if (curYear !== null && y !== curYear) { rows.push(yearRow(curYear, acc)); acc = null; }
+          if (!acc) { curYear = y; acc = {deals: 0, sum: 0, leads: 0, lost: 0}; }
+          const v0 = by[ym];
+          acc.deals += v0.deals; acc.sum += v0.sum; acc.leads += v0.leads; acc.lost += v0.lost;
+        }
+        const v = by[ym];
 
-      // Місяць неповний, якщо днів у архіві менше, ніж могло бути. Саме так
-      // видно липень–серпень 2026, де між архівом і живим вікном діра.
-      const exp = expectedDays(ym);
-      const have = v.days.size;
-      const partial = exp > 0 && have < exp - 1;
-      const mark = partial
-        ? ` <span class="hm-part" title="В архіві лише ${have} днів із ${exp}">неповний</span>`
-        : (!done.has(ym) ? ' <span class="hm-part" title="Місяць ще не закрито">триває</span>' : '');
+        const prev = by[`${+y - 1}-${ym.slice(5, 7)}`];
+        let yoy = '<span style="color:var(--ink-dim)">—</span>';
+        if (prev && prev.sum > 0) {
+          const d = (v.sum / prev.sum - 1) * 100;
+          yoy = `<span class="${d >= 0 ? 'hm-up' : 'hm-down'}">${d >= 0 ? '+' : ''}${d.toFixed(0)}%</span>`;
+        }
 
-      rows.push(`<tr>
-        <td>${MON[+ym.slice(5, 7) - 1]} ${y}${mark}</td>
-        <td>${nf(v.deals)}</td>
-        <td class="hm-bar">${nf(v.sum)} ₴<i><b style="width:${(v.sum / maxSum * 100).toFixed(1)}%"></b></i></td>
-        <td>${nf(v.sum / Math.max(1, v.deals))} ₴</td>
-        <td>${nf(v.leads)}</td>
-        <td>${nf(v.lost)}</td>
-        <td>${v.leads ? (v.deals / v.leads * 100).toFixed(1) : '—'}%</td>
-        <td>${yoy}</td>
-      </tr>`);
-    });
-    if (acc) rows.push(yearRow(curYear, acc));
+        // Місяць неповний, якщо днів у архіві менше, ніж могло бути. Саме так
+        // видно липень–серпень 2026, де між архівом і живим вікном діра.
+        const exp = expectedDays(ym);
+        const have = v.days.size;
+        const partial = exp > 0 && have < exp - 1;
+        const mark = partial
+          ? ` <span class="hm-part" title="В архіві лише ${have} днів із ${exp}">неповний</span>`
+          : (!done.has(ym) ? ' <span class="hm-part" title="Місяць ще не закрито">триває</span>' : '');
 
-    host.innerHTML = `<div class="hm-wrap"><table class="hm">
-      <thead><tr><th>Місяць</th><th>Угоди</th><th>Оборот</th><th>Чек</th>
-      <th>Ліди</th><th>Брак</th><th>Конверсія</th><th>Оборот до торік</th></tr></thead>
-      <tbody>${rows.join('')}</tbody></table></div>
-      <div class="hm-note">Сума — <b>валова</b> (поле «Сума» угоди), а не за товарними
-      рядками: архів зберігає тільки її, тому з таблицею «Замовлення по днях» ці
-      цифри не зійдуться, і це нормально. Розрізу по каналах, сайтах і категоріях
-      в архіві немає. Дані з ${esc(hist.from || '—')} по ${esc(hist.to || '—')},
-      зібрано ${esc(hist.generated_at || '—')}.</div>`;
+        rows.push(`<tr>
+          <td>${MON[+ym.slice(5, 7) - 1]} ${y}${mark}</td>
+          <td>${nf(v.deals)}</td>
+          <td class="hm-bar">${nf(v.sum)} ₴<i><b style="width:${(v.sum / maxSum * 100).toFixed(1)}%"></b></i></td>
+          <td>${nf(v.sum / Math.max(1, v.deals))} ₴</td>
+          <td>${nf(v.leads)}</td>
+          <td>${nf(v.lost)}</td>
+          <td>${v.leads ? (v.deals / v.leads * 100).toFixed(1) : '—'}%</td>
+          <td>${yoy}</td>
+        </tr>`);
+      });
+      if (openAll && acc) rows.push(yearRow(curYear, acc));
+
+      body.innerHTML = rows.join('');
+      btn.style.display = months.length > HIST_SHOW ? '' : 'none';
+      btn.textContent = openAll
+        ? `− Згорнути до ${HIST_SHOW} ${mon(HIST_SHOW)}`
+        : `+ Показати всі ${months.length} ${mon(months.length)} і підсумки по роках`;
+    }
+
+    btn.addEventListener('click', () => { openAll = !openAll; draw(); });
+    draw();
   }
 
   fetch('bitrix_history.json?_=' + Date.now())
