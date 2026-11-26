@@ -116,6 +116,25 @@
   .kpi-card{background:rgba(16,21,34,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
     border:1px solid var(--border);border-radius:16px;padding:20px 22px;min-width:0;
     transition:border-color 300ms cubic-bezier(.2,.8,.2,1)}
+  /* Статус дня в кутку картки обороту — у тому самому рядку, що й підпис.
+     Абсолютне позиціювання тут не годиться: у сітці з чотирьох колонок
+     картка буває вужчою за 180px, і «(непоганий день)» налазив на
+     «Загальний оборот». Флекс-рядок замість цього звужує підпис, а між
+     900 і 1100px переносить статус під нього. */
+  .kpi-card.has-flag .l{display:flex;align-items:baseline;gap:6px;
+    justify-content:space-between}
+  .kpi-card.has-flag .l .nm{min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .kpi-flag{font-size:11.5px;font-weight:600;white-space:nowrap;
+    letter-spacing:.2px;flex:0 0 auto}
+  .kpi-flag.fire{color:var(--success)}
+  .kpi-flag.ok{color:var(--warning)}
+  .kpi-flag.bad{color:var(--danger)}
+  .kpi-flag.run{color:var(--ink-dim);font-weight:500}
+  @media(max-width:1200px) and (min-width:561px){
+    .kpi-card.has-flag .l{display:block}
+    .kpi-flag:not(:empty){display:block;margin-top:5px}
+  }
   .kpi-card:hover{border-color:var(--border-strong)}
   .kpi-card .l{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px}
   .kpi-card .v{font-size:clamp(21px,2.3vw,28px);font-weight:700;color:var(--ink);
@@ -356,8 +375,9 @@
   </div>
 
   <div class="kpi-row">
-    <div class="kpi-card" title="Сума товарних рядків: без доставки, накладеного платежу, заносу й збірки; угоди з відмовою та помилкові не рахуються">
-      <div class="l">Загальний оборот</div><div class="v" id="kpi-turnover">—</div></div>
+    <div class="kpi-card has-flag" title="Сума товарних рядків: без доставки, накладеного платежу, заносу й збірки; угоди з відмовою та помилкові не рахуються">
+      <div class="l"><span class="nm">Загальний оборот</span><span class="kpi-flag" id="kpi-flag"></span></div>
+      <div class="v" id="kpi-turnover">—</div></div>
     <div class="kpi-card" title="Угоди без відмов і помилкових">
       <div class="l">Угоди</div><div class="v" id="kpi-deals">—</div></div>
     <div class="kpi-card">
@@ -792,6 +812,7 @@ function renderKpi(){
   const nLeads=(CRM_RAW.leads||[]).filter(inRange).length;
 
   document.getElementById('kpi-turnover').innerHTML = fmt(turnover)+'<span class="cur">₴</span>';
+  renderDayFlag(turnover);
   document.getElementById('kpi-deals').textContent    = fmt(nDeals);
   document.getElementById('kpi-leads').textContent    = fmt(nLeads);
 
@@ -825,6 +846,57 @@ function renderKpi(){
   note.style.color = stale ? 'var(--warning)' : '';
 
   kpiSyncStepper();
+}
+
+// ── статус дня біля обороту ───────────────────────────────────────────────
+// Пороги за день: понад 250 тис. — «вогонь», 200–250 — «непоганий день»,
+// нижче 200 — «поганий день».
+//
+// Чому тільки на одному дні. Поріг денний, а картка вміє показувати і
+// тиждень, і весь період. 210 тис. за день — непоганий день, за тиждень —
+// провал; один і той самий значок означав би протилежні речі. Тому на
+// діапазоні він просто зникає, а не бреше.
+//
+// Чому сьогодні окремо. До кінця дня вироку ще немає: о дев'ятій ранку
+// будь-який день «поганий», і писати це щоранку — просто демотивувати.
+// Тому поки день іде, нижче 200 тис. показуємо нейтральне «день ще триває»,
+// а «вогонь» і «непоганий» — одразу, щойно їх заробили.
+const DAY_FIRE = 250000;
+const DAY_OK   = 200000;
+
+function renderDayFlag(turnover){
+  const el = document.getElementById('kpi-flag');
+  if(!el) return;
+  const oneDay = KPI_FROM && KPI_TO && KPI_FROM === KPI_TO;
+  if(!oneDay){
+    el.textContent = '';
+    el.className = 'kpi-flag';
+    el.removeAttribute('title');
+    return;
+  }
+  const live = KPI_FROM === kpiToday();
+  let text, cls, hint;
+  // Слова короткі навмисно: картка завжди 217px всередині, а підпис
+  // «Загальний оборот» займає 111 із них. «(непоганий день)» — це 104px,
+  // тобто рівно на вісім більше, ніж лишається, і підпис обрізало б до
+  // «Загальний обор…». Повне формулювання живе в підказці.
+  if(turnover > DAY_FIRE){
+    text = 'вогонь'; cls = 'fire';
+    hint = `Понад ${fmt(DAY_FIRE)} ₴ за день — вогонь`;
+  } else if(turnover >= DAY_OK){
+    text = 'непогано'; cls = 'ok';
+    hint = `Від ${fmt(DAY_OK)} до ${fmt(DAY_FIRE)} ₴ — непоганий день`;
+  } else if(live){
+    text = 'ще триває'; cls = 'run';
+    hint = `День ще не скінчився: поки ${fmt(DAY_OK - turnover)} ₴ `
+         + `до непоганого дня, ${fmt(DAY_FIRE - turnover)} ₴ до вогню`;
+  } else {
+    text = 'погано'; cls = 'bad';
+    hint = `Менше ${fmt(DAY_OK)} ₴ за день — поганий день`;
+  }
+  el.textContent = `(${text})`;
+  el.className = 'kpi-flag ' + cls;
+  el.title = hint;
 }
 
 function fmtKpiDate(iso){
