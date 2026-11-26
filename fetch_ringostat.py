@@ -182,9 +182,9 @@ def fetch_staff():
 # Тому тут лишаються тільки ті імена, існування яких перевірено
 # маршрутом /api/ringostat/probe.
 CALL_FIELDS = ("calldate,caller,dst,disposition,billsec,utm_source,utm_medium,"
-               "call_type,employee_number,employee_fio,pool_name,referrer")
+               "call_type,employee_number,employee_fio,pool_name,referrer,landing")
 CALL_FIELDS_MID = ("calldate,caller,dst,disposition,billsec,utm_source,utm_medium,"
-                   "call_type,employee_number,employee_fio")
+                   "call_type,employee_number,employee_fio,landing")
 CALL_FIELDS_FALLBACK = "calldate,caller,dst,disposition,billsec,utm_source,utm_medium"
 
 # Назва сайту за пулом або адресою сторінки. Порядок має значення: «.com»
@@ -206,7 +206,17 @@ def _match_site(text):
 
 
 def call_site(r):
-    """Сайт дзвінка: спершу пул номера, потім реферер.
+    """Сайт дзвінка: спершу landing, потім пул номера, потім реферер.
+
+    landing — домен, на який людина зайшла перед дзвінком. Поле існує в
+    API (перевірено маршрутом /api/ringostat/probe: значення саме
+    «matroluxe.com», «matroluxe.ua», «simplershop.com.ua»), і саме його
+    бракувало. Раніше першим був пул, і це давало неправильний магазин:
+    звірка з вигрузкою Ringostat за 26.06—25.11.2026 (16 078 дзвінків)
+    показала, що з 332 дзвінків із пулом «simplershop» на simplershop
+    реально прийшли 74, ще 175 — на matroluxe.ua і 68 — на matroluxe.com,
+    а 2 122 справжніх дзвінки з simplershop пулу не мали зовсім.
+    Тому пул лишається, але вже третім — тільки там, де landing порожній.
 
     Пул — ознака надійна: номер належить конкретному сайту. Але заявки на
     зворотний дзвінок з усіх сайтів лягають у спільний пул «Callback», і
@@ -215,12 +225,19 @@ def call_site(r):
     сайт так і лишається невідомим; зате коли людина переходила всередині
     сайту, домен у реферері — саме той, що потрібен.
 
-    Порядок має значення: пул завжди переважає над реферером, інакше
-    перехід із simplershop на matroluxe зарахувався б не тому сайту."""
+    Порядок має значення: пул переважає над реферером, інакше перехід із
+    simplershop на matroluxe зарахувався б не тому сайту.
+
+    Повертає (сайт, звідки). Друге значення йде в лічильники: без нього
+    мовчазний відкат на пул виглядав би просто як «менше дзвінків»."""
+    by_landing = _match_site(_host(r.get("landing")) or str(r.get("landing") or "").lower())
+    if by_landing:
+        return by_landing, "landing"
     by_pool = _match_site(str(r.get("pool_name") or "").lower())
     if by_pool:
-        return by_pool
-    return _match_site(str(r.get("referrer") or "").lower())
+        return by_pool, "pool"
+    by_ref = _match_site(_host(r.get("referrer")) or str(r.get("referrer") or "").lower())
+    return (by_ref, "referrer") if by_ref else ("", "none")
 
 
 def _host(url):
@@ -403,7 +420,7 @@ def slim_calls(rows, known_staff_names, sheet_sites=None):
     out = []
     extra_names = {}
     no_employee = 0
-    src = {"sheet": 0, "api": 0, "none": 0}
+    src = {"sheet": 0, "landing": 0, "pool": 0, "referrer": 0, "none": 0}
     for r in rows:
         if not isinstance(r, dict):
             continue
@@ -427,8 +444,8 @@ def slim_calls(rows, known_staff_names, sheet_sites=None):
         if site:
             src["sheet"] += 1
         else:
-            site = call_site(r)
-            src["api" if site else "none"] += 1
+            site, how = call_site(r)
+            src[how] += 1
 
         out.append({
             "date": d,
@@ -533,8 +550,9 @@ if __name__ == "__main__":
         raw_calls = fetch_all_calls(days_back)
         print(f"     знайдено: {len(raw_calls)}")
         calls, extra_names, no_employee, site_src = slim_calls(raw_calls, staff_names, sheet_sites)
-        print(f"     сайт дзвінка: з вигрузки {site_src['sheet']}, "
-              f"з пулу/реферера {site_src['api']}, невідомий {site_src['none']}")
+        print(f"     сайт дзвінка: landing {site_src['landing']}, пул {site_src['pool']}, "
+              f"реферер {site_src['referrer']}, вигрузка {site_src['sheet']}, "
+              f"невідомий {site_src['none']}")
         if quick:
             # Старі дзвінки лишаємо, всередині вікна беремо свіжі.
             start = str(date.today() - timedelta(days=days_back))
@@ -551,7 +569,7 @@ if __name__ == "__main__":
         print(f"  ✗ ошибка (calls): {e}")
         ok = False
         result["calls"] = []
-        site_src = {"sheet": 0, "api": 0, "none": 0}
+        site_src = {"sheet": 0, "landing": 0, "pool": 0, "referrer": 0, "none": 0}
 
     # directions_exact віддаємо у meta — ringostat.html/home.html зіставляють
     # ними SIP-логіни з /api/ringostat/status (живий "хто зараз на лінії") з
