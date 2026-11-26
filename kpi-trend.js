@@ -70,6 +70,28 @@
     }
   };
 
+  // ── канали звернень ────────────────────────────────────────────────────
+  // Список навмисно повторює MCH з bitrix.html і набори з shop-table.js:
+  // той самий лід мусить потрапити в той самий канал на всіх трьох
+  // сторінках, інакше дві таблиці поруч почнуть сперечатися між собою.
+  // Якщо додається нове джерело — правити треба в усіх трьох місцях.
+  var MCH = [
+    {k:'bot',   label:'Чатбот',  src:['FNB_SIMPLER','FNB_MUA','FNB_MCOM','WEBFORM']},
+    {k:'call',  label:'Дзвінки', src:['CALL']},
+    {k:'cart',  label:'Кошик',   src:['UC_5B6PJK','UC_8AMYMZ','7']},
+    {k:'form',  label:'Форма',   src:['CALLBACK','WEB - Зворотний дзвінок','Обратный звонок',
+                                      'RC_GENERATOR','UC_HYAP6C','OTHER','']},
+    {k:'rozet', label:'Розетка', src:['UC_S1T3W0','UC_9LCW2A']},
+    {k:'meta',  label:'Meta',    src:['FNB_META','1','STORE']},
+    {k:'other', label:'Інше',    src:null}
+  ];
+  var MCH_BY_SRC = (function () {
+    var m = {};
+    MCH.forEach(function (c) { (c.src || []).forEach(function (s) { m[s] = c.k; }); });
+    return m;
+  })();
+  function chanOf(id) { return MCH_BY_SRC[id == null ? '' : id] || 'other'; }
+
   // ── адаптер 2: головна (CRM) ───────────────────────────────────────────
   var HOME = {
     cards: {
@@ -135,7 +157,145 @@
       var tail = all.filter(function (d) { return d <= end; }).slice(-30);
       return {dates: tail, note: ' · последние 30 дней'};
     },
-    note: function () { return ''; }
+    note: function () { return ''; },
+
+    // ── розбивка по каналах під графіком ─────────────────────────────────
+    //
+    // Період тут — РІВНО той, що вибраний картками, а не вікно графіка.
+    // Для одного дня графік показує 30 днів (з однієї точки лінії не
+    // буває), і якби таблиця жила тим самим вікном, вона б не сходилася з
+    // числом на картці прямо над собою. Тому в заголовку таблиці свій
+    // період, і він підписаний.
+    breakdown: function (key) {
+      if (typeof CRM_RAW === 'undefined' || !CRM_RAW) return null;
+      if (key !== 'leads' && key !== 'deals' && key !== 'conv') return null;
+
+      var from = (typeof KPI_FROM !== 'undefined') ? KPI_FROM : null;
+      var to = (typeof KPI_TO !== 'undefined') ? KPI_TO : null;
+      var inRange = function (x) {
+        return x.date && (!from || x.date >= from) && (!to || x.date <= to);
+      };
+      var stages = (CRM_RAW.meta && CRM_RAW.meta.stages) || {};
+      var dropNames = (typeof KPI_DROP_NAMES !== 'undefined') ? KPI_DROP_NAMES : [];
+      var dropped = function (d) {
+        return dropNames.indexOf(String((stages[d.stage_id] || {}).name || '')
+          .trim().toLowerCase()) >= 0;
+      };
+      var turnoverById = {};
+      (CRM_RAW.deal_categories || []).forEach(function (c) {
+        turnoverById[c.deal_id] = c.turnover || 0;
+      });
+
+      var acc = {};
+      MCH.forEach(function (c) {
+        acc[c.k] = {label: c.label, leads: 0, good: 0, bad: 0, dup: 0, work: 0,
+                    deals: 0, sum: 0, lost: 0};
+      });
+      // Дублікат — це технічний статус, а не відмова клієнта. Рахуємо
+      // окремо й виключаємо зі знаменника якості: той самий клієнт, що
+      // звернувся двічі, не робить канал гіршим.
+      (CRM_RAW.leads || []).forEach(function (l) {
+        if (!inRange(l)) return;
+        var a = acc[chanOf(l.source_id)];
+        a.leads += 1;
+        if (String(l.status_id) === '1') a.dup += 1;
+        else if (l.semantic === 'S') a.good += 1;
+        else if (l.semantic === 'F') a.bad += 1;
+        else a.work += 1;
+      });
+      (CRM_RAW.deals || []).forEach(function (d) {
+        if (!inRange(d)) return;
+        var a = acc[chanOf(d.source_id)];
+        if (dropped(d)) { a.lost += 1; return; }
+        a.deals += 1;
+        a.sum += turnoverById[d.id] || 0;
+      });
+
+      // Порожні канали ховаємо, і кожна таблиця вирішує це сама: канал із
+      // лідами, але без жодної угоди, у таблиці угод — просто рядок нулів.
+      var keep = key === 'deals' ? function (a) { return a.deals || a.lost; }
+               : key === 'leads' ? function (a) { return a.leads; }
+               : function (a) { return a.leads || a.deals; };
+      var rows = MCH.map(function (c) { return acc[c.k]; }).filter(keep);
+
+      var tot = {label: 'Разом', leads: 0, good: 0, bad: 0, dup: 0, work: 0,
+                 deals: 0, sum: 0, lost: 0};
+      rows.forEach(function (a) {
+        ['leads','good','bad','dup','work','deals','sum','lost'].forEach(function (f) {
+          tot[f] += a[f];
+        });
+      });
+
+      // Дату форматуємо самі: на bitrix.html, яка користується цим самим
+      // адаптером, функції fmtKpiDate немає, і виклик звідси ламав би
+      // таблицю на цілій сторінці.
+      var dmy = function (iso) {
+        return iso ? iso.slice(8) + '.' + iso.slice(5, 7) + '.' + iso.slice(0, 4) : '—';
+      };
+      var period = (from && to && from === to) ? dmy(from)
+        : (from || to) ? (dmy(from) + ' — ' + dmy(to))
+        : 'весь період';
+      var TITLES = {leads: 'Ліди за каналами', deals: 'Угоди за каналами',
+                    conv: 'Конверсія за каналами'};
+      // Порожньо — теж відповідь. Мовчки сховати таблицю означало б
+      // лишити читача гадати, чи вона зламалась, чи звернень не було.
+      if (!rows.length) {
+        return {title: TITLES[key], period: period,
+                empty: 'За цей період тут порожньо.'};
+      }
+
+      var pct = function (n, d) { return d ? (n / d * 100).toFixed(1) + '%' : '—'; };
+      var cash = function (v) { return money(v) + ' ₴'; };
+      var spec;
+      if (key === 'leads') {
+        rows.sort(function (a, b) { return b.leads - a.leads; });
+        spec = {
+          title: TITLES[key],
+          head: ['Канал', 'Ліди', 'Якісні', 'Брак', 'Дублікати', 'У роботі', 'Якісних'],
+          // Якість каналу — якісні від лідів без дублікатів.
+          row: function (a) {
+            return [a.label, money(a.leads),
+                    {v: money(a.good), cls: a.good ? 'good' : ''},
+                    {v: money(a.bad), cls: a.bad ? 'bad' : ''},
+                    money(a.dup), money(a.work),
+                    pct(a.good, a.leads - a.dup)];
+          },
+          note: 'Якісних — частка лідів зі статусом «Якісний лід». '
+              + 'Дублікати виключені зі знаменника: той самий клієнт, '
+              + 'що звернувся двічі, не робить канал гіршим.'
+        };
+      } else if (key === 'deals') {
+        rows.sort(function (a, b) { return b.sum - a.sum; });
+        spec = {
+          title: TITLES[key],
+          head: ['Канал', 'Угоди', 'Оборот', 'Чек', 'Відмови'],
+          row: function (a) {
+            return [a.label, money(a.deals), cash(a.sum),
+                    cash(a.deals ? a.sum / a.deals : 0),
+                    {v: money(a.lost), cls: a.lost ? 'bad' : ''}];
+          },
+          note: 'Відмови — угоди зі стадіями «Відмова клієнта», «Помилковий», '
+              + '«Рекламація». У картку обороту вони не входять, тому колонка '
+              + '«Угоди» їх не рахує.'
+        };
+      } else {
+        rows.sort(function (a, b) { return b.leads - a.leads; });
+        spec = {
+          title: TITLES[key],
+          head: ['Канал', 'Ліди', 'Угоди', 'Конверсія'],
+          row: function (a) {
+            return [a.label, money(a.leads), money(a.deals), pct(a.deals, a.leads)];
+          },
+          note: 'Та сама методика, що в картці: угоди каналу поділені на ліди '
+              + 'того самого каналу за той самий період. Орієнтир, а не точна '
+              + 'конверсія ліда в угоду — частина угод заводиться без ліда.'
+        };
+      }
+      spec.rows = rows.map(spec.row);
+      spec.total = spec.row(tot);
+      spec.period = period;
+      return spec;
+    }
   };
 
   var CSS = ''
@@ -168,7 +328,27 @@
     + 'box-shadow:0 10px 24px rgba(0,0,0,.45);transform:translate(-50%,-115%)}'
     + '.ln-tip.on{opacity:1}.ln-tip .d{color:var(--ink-dim);font-size:11px;margin-bottom:2px}'
     + '.ln-tip .v{font-weight:700;font-variant-numeric:tabular-nums}'
-    + '.kpi-trend .empty-note{padding:28px 4px;text-align:center;color:var(--ink-dim);font-size:13px}';
+    + '.kpi-trend .empty-note{padding:28px 4px;text-align:center;color:var(--ink-dim);font-size:13px}'
+    // Розбивка по каналах під графіком.
+    + '.kt-break{margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}'
+    + '.kt-break .bh{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap}'
+    + '.kt-break .bh h4{font-size:13px;font-weight:600;letter-spacing:-.1px}'
+    + '.kt-break .bh .p{font-size:11.5px;color:var(--ink-dim)}'
+    + '.kt-break .wrap{overflow-x:auto}'
+    + 'table.kt-tb{width:100%;border-collapse:collapse;font-size:12.5px}'
+    + 'table.kt-tb th{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;'
+    + 'font-weight:600;color:var(--ink-dim);text-align:right;padding:0 10px 9px;white-space:nowrap}'
+    + 'table.kt-tb th:first-child{text-align:left}'
+    + 'table.kt-tb td{padding:8px 10px;border-top:1px solid var(--border);text-align:right;'
+    + 'white-space:nowrap;font-variant-numeric:tabular-nums}'
+    + 'table.kt-tb td:first-child{text-align:left;color:var(--ink);font-variant-numeric:normal}'
+    + 'table.kt-tb tr:hover td{background:rgba(255,255,255,.02)}'
+    + 'table.kt-tb td.good{color:var(--success,#27E37A)}'
+    + 'table.kt-tb td.bad{color:var(--danger,#FF5E6C)}'
+    + 'table.kt-tb tr.sum td{border-top:1px solid var(--border-strong);font-weight:700;'
+    + 'background:rgba(255,255,255,.025)}'
+    + 'table.kt-tb tr.sum td.good,table.kt-tb tr.sum td.bad{color:inherit}'
+    + '.kt-break .bn{font-size:11.5px;color:var(--ink-dim);margin-top:10px;line-height:1.5}';
 
   var HTML = ''
     + '<div class="kt-panel">'
@@ -179,6 +359,7 @@
     + '  <div class="ln-wrap" id="kt-chart"></div>'
     + '  <div class="ln-xaxis" id="kt-xaxis"></div>'
     + '  <div class="ln-foot" id="kt-legend"></div>'
+    + '  <div class="kt-break" id="kt-break" style="display:none"></div>'
     + '</div>';
 
   function money(v) {
@@ -225,6 +406,44 @@
     return parseInt(iso.slice(8, 10), 10) + ' ' + (MONTHS[parseInt(iso.slice(5, 7), 10) - 1] || '');
   }
 
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function cell(c, tag) {
+    var v = (c && typeof c === 'object') ? c.v : c;
+    var cls = (c && typeof c === 'object' && c.cls) ? ' class="' + c.cls + '"' : '';
+    return '<' + tag + cls + '>' + esc(v) + '</' + tag + '>';
+  }
+
+  function renderBreak(key) {
+    var box = document.getElementById('kt-break');
+    if (!box) return;
+    var spec = (A && A.breakdown) ? A.breakdown(key) : null;
+    if (!spec) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    box.style.display = '';
+    if (spec.empty) {
+      box.innerHTML = '<div class="bh"><h4>' + esc(spec.title) + '</h4>'
+        + '<span class="p">' + esc(spec.period) + '</span></div>'
+        + '<div class="bn">' + esc(spec.empty) + '</div>';
+      return;
+    }
+    var head = spec.head.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('');
+    var body = spec.rows.map(function (r) {
+      return '<tr>' + r.map(function (c) { return cell(c, 'td'); }).join('') + '</tr>';
+    }).join('');
+    var sum = '<tr class="sum">'
+      + spec.total.map(function (c) { return cell(c, 'td'); }).join('') + '</tr>';
+    box.innerHTML = ''
+      + '<div class="bh"><h4>' + esc(spec.title) + '</h4>'
+      + '<span class="p">' + esc(spec.period) + '</span></div>'
+      + '<div class="wrap"><table class="kt-tb"><thead><tr>' + head + '</tr></thead>'
+      + '<tbody>' + body + sum + '</tbody></table></div>'
+      + (spec.note ? '<div class="bn">' + esc(spec.note) + '</div>' : '');
+  }
+
   function toggle(metric) {
     current = (current === metric) ? null : metric;
     render();
@@ -245,6 +464,9 @@
     var m = A.metrics[current];
     box.classList.add('open');
     document.getElementById('kt-title').textContent = m.title;
+    // Таблиця рахується незалежно від графіка — зокрема й тоді, коли точок
+    // на графік не набралось.
+    try { renderBreak(current); } catch (err) { console.warn('[kpi-trend]', err); }
 
     var bydate = A.byDate(m) || {};
     var win = A.window ? A.window(bydate) : {dates: Object.keys(bydate).sort(), note: ''};
