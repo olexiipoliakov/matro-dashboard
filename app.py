@@ -985,61 +985,96 @@ META_DISABLE = {
 @app.route("/api/meta/probe")
 @requires_auth
 def meta_probe():
+    """?acc=2 — який кабінет перевіряти (1 Plume, 2 Matro, 3 Plume 2).
+
+    Перша версія питала ще й поле business. Воно вимагає окремого дозволу
+    business_management, і через нього падав увесь запит стану — для всіх
+    трьох кабінетів одразу. Прибрано.
+
+    Головне тут — сходи варіантів запиту статистики. Перший пробіг показав,
+    що токен читає Matro нормально (акаунт за 7 днів — ok), тобто ламається
+    не доступ, а форма запиту: рівень кампаній, розбивка по днях, поле
+    actions, 90 днів. Перебираємо ці параметри по одному, щоб побачити, на
+    якому саме Meta починає відповідати 1504044."""
     tok_main = os.environ.get("META_ACCESS_TOKEN", "")
     if not tok_main:
         return jsonify({"error": "META_ACCESS_TOKEN не задано на сервері"}), 500
 
-    accounts = [
-        ("Plume", os.environ.get("META_ACCOUNT_ID", ""), tok_main),
-        ("Matro", os.environ.get("META_ACCOUNT_ID_2", ""),
-         os.environ.get("META_ACCESS_TOKEN_MATRO", "") or tok_main),
-        ("Plume 2", os.environ.get("META_ACCOUNT_ID_3", "") or "act_2264640017711817",
-         os.environ.get("META_ACCESS_TOKEN_3", "") or tok_main),
-    ]
-    out = []
-    for name, acc, tok in accounts:
-        row = {"кабінет": name, "id": acc or "(не задано)"}
-        if not acc:
-            row["стан"] = "ідентифікатор не заданий"
-            out.append(row)
-            continue
-        try:
-            r = requests.get(
-                f"https://graph.facebook.com/v21.0/{acc}",
-                params={"access_token": tok,
-                        "fields": "name,account_status,disable_reason,currency,"
-                                  "amount_spent,created_time,business"},
-                timeout=30)
-            d = r.json()
-            if "error" in d:
-                row["стан"] = "помилка: " + str(d["error"].get("message"))[:160]
-            else:
-                st = d.get("account_status")
-                dr = d.get("disable_reason")
-                row["назва"] = d.get("name")
-                row["стан"] = META_STATUS.get(st, f"код {st}")
-                row["причина_відключення"] = META_DISABLE.get(dr, dr)
-                row["валюта"] = d.get("currency")
-                row["витрачено_всього"] = d.get("amount_spent")
-                row["портфель"] = (d.get("business") or {}).get("name")
-        except Exception as e:
-            row["стан"] = "запит не вдався: " + str(e)[:160]
+    accounts = {
+        "1": ("Plume", os.environ.get("META_ACCOUNT_ID", ""), tok_main),
+        "2": ("Matro", os.environ.get("META_ACCOUNT_ID_2", ""),
+              os.environ.get("META_ACCESS_TOKEN_MATRO", "") or tok_main),
+        "3": ("Plume 2", os.environ.get("META_ACCOUNT_ID_3", "") or "act_2264640017711817",
+              os.environ.get("META_ACCESS_TOKEN_3", "") or tok_main),
+    }
+    which = request.args.get("acc", "2")
+    name, acc, tok = accounts.get(which, accounts["2"])
+    if not acc:
+        return jsonify({"error": f"ідентифікатор кабінету {name} не заданий"}), 500
 
-        # Окремо — найкоротший можливий запит статистики: саме він падає.
+    out = {"кабінет": name, "id": acc}
+    try:
+        r = requests.get(f"https://graph.facebook.com/v21.0/{acc}",
+                         params={"access_token": tok,
+                                 "fields": "name,account_status,disable_reason,"
+                                           "currency,amount_spent,created_time"},
+                         timeout=30)
+        d = r.json()
+        if "error" in d:
+            out["стан"] = "помилка: " + str(d["error"].get("message"))[:200]
+        else:
+            out["назва"] = d.get("name")
+            out["стан"] = META_STATUS.get(d.get("account_status"),
+                                          f"код {d.get('account_status')}")
+            out["причина_відключення"] = META_DISABLE.get(d.get("disable_reason"),
+                                                          d.get("disable_reason"))
+            out["валюта"] = d.get("currency")
+            out["витрачено_всього"] = d.get("amount_spent")
+    except Exception as e:
+        out["стан"] = "запит не вдався: " + str(e)[:200]
+
+    FULL = "campaign_id,campaign_name,spend,actions,date_start"
+    ladder = [
+        ("A. акаунт · 7 днів · spend",
+         {"level": "account", "fields": "spend", "date_preset": "last_7d"}),
+        ("B. кампанії · 7 днів · spend",
+         {"level": "campaign", "fields": "spend", "date_preset": "last_7d"}),
+        ("C. кампанії · 7 днів · spend · по днях",
+         {"level": "campaign", "fields": "spend", "date_preset": "last_7d",
+          "time_increment": 1}),
+        ("D. кампанії · 7 днів · spend+actions",
+         {"level": "campaign", "fields": "spend,actions", "date_preset": "last_7d"}),
+        ("E. кампанії · 7 днів · повний набір · по днях",
+         {"level": "campaign", "fields": FULL, "date_preset": "last_7d",
+          "time_increment": 1}),
+        ("F. кампанії · 30 днів · повний набір · по днях",
+         {"level": "campaign", "fields": FULL, "date_preset": "last_30d",
+          "time_increment": 1}),
+        ("G. як у збирачі: 90 днів · повний набір · по днях",
+         {"level": "campaign", "fields": FULL, "date_preset": "last_90d",
+          "time_increment": 1, "limit": 300}),
+    ]
+    steps = []
+    for label, extra in ladder:
+        prm = {"access_token": tok}
+        prm.update(extra)
         try:
-            r2 = requests.get(
-                f"https://graph.facebook.com/v21.0/{acc}/insights",
-                params={"access_token": tok, "level": "account",
-                        "fields": "spend", "date_preset": "last_7d"},
-                timeout=45)
-            d2 = r2.json()
-            row["статистика_7_днів"] = ("помилка: " + str(d2["error"].get("message"))[:160]
-                                        if "error" in d2
-                                        else f"ok, рядків {len(d2.get('data') or [])}")
-        except Exception as e:
-            row["статистика_7_днів"] = "запит не вдався: " + str(e)[:160]
-        out.append(row)
-    return jsonify({"кабінети": out})
+            rr = requests.get(f"https://graph.facebook.com/v21.0/{acc}/insights",
+                              params=prm, timeout=90)
+            dd = rr.json()
+            if "error" in dd:
+                e = dd["error"]
+                steps.append({"крок": label,
+                              "результат": f"X code {e.get('code')}/"
+                                           f"{e.get('error_subcode')}: "
+                                           f"{str(e.get('message'))[:120]}"})
+            else:
+                steps.append({"крок": label,
+                              "результат": f"OK рядків {len(dd.get('data') or [])}"})
+        except Exception as ex:
+            steps.append({"крок": label, "результат": "X " + str(ex)[:120]})
+    out["сходи"] = steps
+    return jsonify(out)
 
 
 @app.route("/api/ringostat/probe")
