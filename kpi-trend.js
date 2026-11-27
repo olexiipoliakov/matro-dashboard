@@ -92,6 +92,18 @@
   })();
   function chanOf(id) { return MCH_BY_SRC[id == null ? '' : id] || 'other'; }
 
+  // Назва каналу знадобилась і гонгу на головній. Віддаємо назовні, щоб
+  // не заводити четверту копію того самого списку джерел.
+  var MCH_LABEL = (function () {
+    var m = {};
+    MCH.forEach(function (c) { m[c.k] = c.label; });
+    return m;
+  })();
+  window.MATRO_CHAN = {
+    of: chanOf,
+    label: function (src) { return MCH_LABEL[chanOf(src)] || ''; }
+  };
+
   // ── адаптер 2: головна (CRM) ───────────────────────────────────────────
   var HOME = {
     cards: {

@@ -13,7 +13,7 @@ GitHub Pages. Робить три речі:
    просто тепер планувальник крутиться прямо тут, у самому сервері.
 """
 import os, sys, time, json, hmac, hashlib, re, threading, subprocess, urllib.parse
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from functools import wraps
 
@@ -182,17 +182,26 @@ WEBHOOK_SECRET = os.environ.get("BITRIX_INCOMING_WEBHOOK_SECRET", "")
 _last_bitrix_trigger = 0.0
 _bitrix_lock = threading.Lock()
 
+WEBHOOK_DAYS = 2   # скільки днів перезбирати на подію з Bitrix
+
+
 def trigger_bitrix_refresh():
     """Дебаунс на 60с — якщо в Bitrix одразу змінили кілька угод підряд
     (типова ситуація для масового імпорту), не запускаємо fetch_bitrix.py
-    на кожну подію окремо, а лише раз на хвилину максимум."""
+    на кожну подію окремо, а лише раз на хвилину максимум.
+
+    Збираємо лише два останні дні, а не всі 90. Повний прогін — це хвилини,
+    і вебхук, який мав давати «майже одразу», давав «колись». Два дні — те
+    саме, що робить кнопка «Оновити» на сторінці: сьогоднішні угоди ще
+    змінюються, вчорашні теж, а серпень уже ні. Повний збір лишається на
+    розкладі."""
     global _last_bitrix_trigger
     with _bitrix_lock:
         now = time.time()
         if now - _last_bitrix_trigger < 60:
             return
         _last_bitrix_trigger = now
-    threading.Thread(target=lambda: run_script("fetch_bitrix.py"), daemon=True).start()
+    start_bitrix_refresh(WEBHOOK_DAYS)
 
 # Ручне оновлення CRM кнопкою «Оновити дані» на сторінці Bitrix. Дані
 # збираються раз на добу, а менеджеру часом треба побачити угоду, оформлену
@@ -250,6 +259,83 @@ def bitrix_refresh_status():
     with _bitrix_run_lock:
         running = _bitrix_running
     return jsonify({"running": running, "generated_at": stamp})
+
+
+# ── Пульс: що нового в CRM ─────────────────────────────────────────────
+#
+# Для гонга на головній. Сторінка не може опитувати bitrix_data.json — це
+# три з половиною мегабайти, і качати їх раз на хвилину заради двох нових
+# id безглуздо. Тут те саме, але обрізане до останніх днів і до трьох
+# полів: кілька кілобайт.
+#
+# «Нове» вирішує сторінка, а не сервер: вона тримає список уже побачених
+# id. Так гонг не задзвонить повторно після перезапуску сервера й не
+# залежить від того, як на сервері налаштована часова зона.
+PULSE_DAYS = 3
+PULSE_DROP = ("отказ клиента", "ошибочный", "рекламация")
+_pulse_cache = {"mtime": 0.0, "data": None}
+_pulse_lock = threading.Lock()
+
+
+def _pulse_build():
+    f = BASE_DIR / "bitrix_data.json"
+    if not f.exists():
+        return {"ok": False, "reason": "bitrix_data.json ще не зібрано"}
+    raw = json.loads(f.read_text(encoding="utf-8"))
+    deals = raw.get("deals") or []
+    leads = raw.get("leads") or []
+    stages = (raw.get("meta") or {}).get("stages") or {}
+
+    # Вікно рахуємо від найсвіжішої дати в самому файлі, а не від дати
+    # сервера: так опівночі за Києвом нічого не ламається, навіть якщо
+    # Render живе в UTC.
+    dates = [d.get("date") for d in deals if d.get("date")]
+    if not dates:
+        return {"ok": True, "generated_at": raw.get("generated_at", ""), "deals": [], "leads": []}
+    last = max(dates)
+    y, m, dd = (int(x) for x in last.split("-"))
+    since = (datetime(y, m, dd) - timedelta(days=PULSE_DAYS - 1)).strftime("%Y-%m-%d")
+
+    turn = {c.get("deal_id"): (c.get("turnover") or 0)
+            for c in (raw.get("deal_categories") or [])}
+
+    def alive(d):
+        name = str((stages.get(d.get("stage_id")) or {}).get("name") or "").strip().lower()
+        return name not in PULSE_DROP
+
+    out_deals = []
+    for d in deals:
+        if not d.get("date") or d["date"] < since or not alive(d):
+            continue
+        # Товарні рядки з'являються окремим кроком збору й на щойно
+        # створеній угоді ще порожні. Щоб у плашці не світився нуль,
+        # підстраховуємось валовою сумою угоди.
+        s = turn.get(d.get("id")) or d.get("amount") or 0
+        out_deals.append([str(d.get("id")), round(s), d.get("source_id") or "", d["date"]])
+
+    out_leads = [str(l.get("id")) for l in leads
+                 if l.get("date") and l["date"] >= since]
+
+    return {"ok": True, "generated_at": raw.get("generated_at", ""),
+            "since": since, "deals": out_deals, "leads": out_leads}
+
+
+@app.route("/api/bitrix/pulse")
+@requires_auth
+def bitrix_pulse():
+    f = BASE_DIR / "bitrix_data.json"
+    mtime = f.stat().st_mtime if f.exists() else 0.0
+    with _pulse_lock:
+        if _pulse_cache["data"] is not None and _pulse_cache["mtime"] == mtime:
+            return jsonify(_pulse_cache["data"])
+    try:
+        data = _pulse_build()
+    except Exception as e:
+        return jsonify({"ok": False, "reason": str(e)[:200]}), 200
+    with _pulse_lock:
+        _pulse_cache["mtime"] = mtime
+        _pulse_cache["data"] = data
+    return jsonify(data)
 
 
 # ── Ручне оновлення журналу дзвінків ───────────────────────────────────
