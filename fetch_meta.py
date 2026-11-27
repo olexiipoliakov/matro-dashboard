@@ -122,10 +122,12 @@ BASE = f"https://graph.facebook.com/{API_VERSION}"
 
 
 def _get(url, params, tries=4):
+    last = ""
     for i in range(tries):
         r = requests.get(url, params=params, timeout=60)
         if r.status_code == 200:
             return r.json()
+        last = r.text
         text_low = r.text.lower()
         # "rate" ловить типові rate-limit тексти; "limit" — окремо, бо
         # повідомлення Meta про ліміт додатку ("Application request limit
@@ -145,7 +147,11 @@ def _get(url, params, tries=4):
             print(f"     ⏳ Meta API ліміт/тимчасова помилка, чекаю {wait}с і пробую ще раз ({i+1}/{tries})…")
             time.sleep(wait); continue
         raise RuntimeError(f"Meta API {r.status_code}: {r.text[:300]}")
-    raise RuntimeError("Meta API: rate limit, попыток не осталось")
+    # Текст останньої відповіді ОБОВ'ЯЗКОВО лишаємо у винятку. Раніше тут
+    # був голий «rate limit, попыток не осталось», і код вище, який уміє
+    # перепитати період вікнами, не впізнавав у цьому ту саму важку
+    # помилку — тобто запасний шлях не вмикався жодного разу.
+    raise RuntimeError(f"Meta API: вичерпано {tries} спроби. Остання відповідь: {last[:300]}")
 
 
 def paged(url, params):
@@ -317,9 +323,15 @@ def insights(level, fields, extra=None):
         # запити замість одного важкого, а на виході рівно ті самі рядки:
         # вікна не перетинаються. Краще втричі більше запитів, ніж
         # порожня вкладка.
+        # Пробуємо вікна майже завжди. Виняток — помилки доступу: якщо
+        # токен недійсний або немає прав на кабінет, три менші запити
+        # дадуть рівно ту саму відмову, тільки втричі довше. Раніше тут
+        # був перелік ознак «важкої» помилки, і будь-яке несподіване
+        # формулювання Meta повз нього проходило.
         msg = str(e)
-        if '"code":2' not in msg and "1504044" not in msg \
-           and "temporarily unavailable" not in msg.lower():
+        auth = ('"code":190' in msg or '"code":10,' in msg
+                or "permission" in msg.lower() or "access token" in msg.lower())
+        if auth:
             raise
         days = _preset_days(DATE_PRESET)
         wins = _windows(days)
