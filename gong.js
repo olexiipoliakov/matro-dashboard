@@ -29,6 +29,8 @@
   var POLL_MS = 30000;
   var FILES = {order: 'sounds/order.mp3', lead: 'sounds/lead.mp3'};
   var VOL = {order: 0.85, lead: 0.5};
+  var WIN_MS = 9000;        // скільки триває свято
+  var TITLE_MS = 20000;     // скільки блимає заголовок вкладки
 
   // ── палітра ────────────────────────────────────────────────────────────
   var C = {
@@ -64,6 +66,7 @@
     scroll: 0,         // зсув землі
     mode: 'run',       // run | finish | win
     modeT: 0,
+    winUntil: 0,       // до якої миті триває свято (годинник, не кадри)
     finishX: 0,        // позиція фінішної стрічки
     runnerX: 64,
     confetti: [],
@@ -396,6 +399,7 @@
       if (scene.finishX <= scene.runnerX) {
         scene.mode = 'win';
         scene.modeT = 0;
+        scene.winUntil = Date.now() + WIN_MS;
         for (var i = 0; i < 54; i++) {
           scene.confetti.push({
             x: 10 + Math.random() * (W - 20), y: -4 - Math.random() * 46,
@@ -412,7 +416,10 @@
       if (scene.finishX > scene.runnerX - 34) scene.finishX -= 1.1;
       scene.confetti.forEach(function (p) { p.y += p.vy; p.x += p.vx; });
       scene.confetti = scene.confetti.filter(function (p) { return p.y < H + 4; });
-      if (scene.modeT > 9 * 60) {                 // ~9 секунд свята
+      // За годинником, бо requestAnimationFrame у фоновій вкладці не
+      // викликається взагалі: лічильник кадрів там завмирає, і свято,
+      // яке почалось у фоні, висіло б вічно до повернення на вкладку.
+      if (Date.now() > scene.winUntil) {
         scene.mode = 'run';
         scene.confetti = [];
         setMsg('');
@@ -445,9 +452,52 @@
     return (api && api.label) ? api.label(src) : '';
   }
 
+  // Сповіщення системи. Звук у фоні чути, але якщо браузер згорнутий,
+  // незрозуміло, на що саме він прозвучав. Дозвіл питаємо в момент
+  // натискання кнопки звуку — браузер приймає запит тільки з жесту.
+  var titleWas = null, titleTimer = null;
+
+  function notify(title, body) {
+    try {
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+      var n = new Notification(title, {body: body, tag: 'matro-order', renotify: true});
+      n.onclick = function () { window.focus(); n.close(); };
+      setTimeout(function () { try { n.close(); } catch (e) {} }, 12000);
+    } catch (e) { /* деякі браузери забороняють конструктор — не біда */ }
+  }
+
+  function flashTitle(text) {
+    if (!document.hidden) return;          // на видимій вкладці це зайве
+    if (titleWas === null) titleWas = document.title;
+    clearInterval(titleTimer);
+    var on = true;
+    titleTimer = setInterval(function () {
+      document.title = on ? text : titleWas;
+      on = !on;
+    }, 1200);
+    setTimeout(restoreTitle, TITLE_MS);
+  }
+
+  function restoreTitle() {
+    clearInterval(titleTimer);
+    titleTimer = null;
+    if (titleWas !== null) { document.title = titleWas; titleWas = null; }
+  }
+
   function onOrder(n, sum, src) {
-    scene.mode = 'finish';
-    scene.finishX = W + 12;
+    // Якщо вкладка у фоні, анімації все одно ніхто не побачить, а
+    // requestAnimationFrame там не викликається — тому ставимо сцену
+    // одразу в фінал. Повернеться людина за ці дев'ять секунд — застане
+    // переможця з кубком, пізніше — звичайний біг.
+    if (document.hidden) {
+      scene.mode = 'win';
+      scene.modeT = 0;
+      scene.winUntil = Date.now() + WIN_MS;
+      scene.finishX = scene.runnerX - 34;
+    } else {
+      scene.mode = 'finish';
+      scene.finishX = W + 12;
+    }
     scene.confetti = [];
     var word = (n === 1) ? 'НОВЕ ЗАМОВЛЕННЯ'
              : (n >= 2 && n <= 4) ? n + ' НОВІ ЗАМОВЛЕННЯ'
@@ -457,6 +507,9 @@
     if (ch) parts.push(ch.toUpperCase());
     setMsg(parts.join('  ·  '), 'win');
     play('order');
+    var sub = money(sum) + ' ₴' + (ch ? ' · ' + ch : '');
+    notify(word.charAt(0) + word.slice(1).toLowerCase(), sub);
+    flashTitle('🔔 ' + word);
   }
 
   function onLead(n) {
@@ -584,7 +637,9 @@
     document.addEventListener('keydown', unlock, true);
 
     document.addEventListener('visibilitychange', function () {
-      if (!document.hidden) tick();
+      if (document.hidden) return;
+      restoreTitle();
+      tick();
     });
 
     var saved = '0';
@@ -594,7 +649,13 @@
     draw();
     loop();
     tick();
-    timer = setInterval(function () { if (!document.hidden) tick(); }, POLL_MS);
+    // Опитуємо і у фоні. Раніше тут стояла перевірка document.hidden, і
+    // в згорнутому браузері гонг мовчав — тобто рівно тоді, коли він
+    // найпотрібніший. Браузер у фоні сповільнює таймери приблизно до
+    // одного разу на хвилину, і це єдина плата: затримка виростає з
+    // 30 секунд до ~60. Звук із розблокованого AudioContext у фоні
+    // відтворюється нормально.
+    timer = setInterval(tick, POLL_MS);
   }
 
   function setSound(v, byUser) {
@@ -614,6 +675,11 @@
         // програти звук. Заразом даємо почути, що він увімкнувся.
         loadFile('order'); loadFile('lead');
         setTimeout(function () { play('lead'); }, 120);
+        try {
+          if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+            Notification.requestPermission();
+          }
+        } catch (e) {}
       }
     }
   }
