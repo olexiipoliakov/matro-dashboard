@@ -443,6 +443,12 @@ def build_deal_categories(deals_raw, product_rows_by_id, stage_names):
         turnover = 0.0
         wholesale_amount = 0.0
         flags = {"wholesale": False, "sluzhbovka": False, "empty_product": False}
+        # Товарні рядки окремо — для топу товарів на головній. Раніше вони
+        # рахувались у категорії й викидались, і топ доводилось би будувати
+        # з короткого підпису «Матрац LEO + ще 2 поз.»: уся сума угоди
+        # приписувалась би першій позиції. За листопад це 131 угода з 596 і
+        # третина обороту не на тих товарах.
+        prods = {}
 
         for r in rows:
             name = r.get("PRODUCT_NAME", "") or ""
@@ -462,6 +468,14 @@ def build_deal_categories(deals_raw, product_rows_by_id, stage_names):
                 wholesale_amount += amount
 
             cat = classify_product_category(name)
+            # Однакові назви в одній угоді складаємо: інакше той самий
+            # матрац двома рядками дав би два записи в топі.
+            key = name.strip()
+            e = prods.get(key)
+            if e is None:
+                e = prods[key] = [0.0, 0.0]
+            e[0] += qty
+            e[1] += amount
             turnover += amount
             if cat == "accessories":
                 accessories += amount
@@ -480,6 +494,10 @@ def build_deal_categories(deals_raw, product_rows_by_id, stage_names):
             "categories": {k: round(v, 2) for k, v in cat_sums.items()},
             "accessories": round(accessories, 2),
             "unrecognized": round(unrecognized, 2),
+            # [назва, кількість, сума]. Відсортовано за сумою — якщо колись
+            # доведеться різати довгі угоди, першими лишаться головні позиції.
+            "products": [[k, round(v[0], 2), round(v[1], 2)]
+                         for k, v in sorted(prods.items(), key=lambda kv: -kv[1][1])],
             "flags": flags,
         })
     return out

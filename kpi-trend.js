@@ -180,7 +180,7 @@
     // період, і він підписаний.
     breakdown: function (key) {
       if (typeof CRM_RAW === 'undefined' || !CRM_RAW) return null;
-      if (key !== 'leads' && key !== 'deals' && key !== 'conv') return null;
+      if (['leads', 'deals', 'conv', 'turnover'].indexOf(key) < 0) return null;
 
       var from = (typeof KPI_FROM !== 'undefined') ? KPI_FROM : null;
       var to = (typeof KPI_TO !== 'undefined') ? KPI_TO : null;
@@ -197,6 +197,78 @@
       (CRM_RAW.deal_categories || []).forEach(function (c) {
         turnoverById[c.deal_id] = c.turnover || 0;
       });
+
+      var dmy0 = function (iso) {
+        return iso ? iso.slice(8) + '.' + iso.slice(5, 7) + '.' + iso.slice(0, 4) : '—';
+      };
+      var period0 = (from && to && from === to) ? dmy0(from)
+        : (from || to) ? (dmy0(from) + ' — ' + dmy0(to)) : 'весь період';
+
+      // ── топ товарів ────────────────────────────────────────────────────
+      // Рахуємо по товарних рядках угод, а не по короткому підпису угоди:
+      // підпис називає лише першу позицію, і вся сума багатотоварного
+      // замовлення приписалась би їй. Відмови й помилкові сюди не
+      // потрапляють — deal_categories їх не містить узагалі, тому підсумок
+      // збігається з карткою обороту.
+      if (key === 'turnover') {
+        var byName = {}, total = 0, noLines = 0, haveField = false;
+        (CRM_RAW.deal_categories || []).forEach(function (c) {
+          if (!inRange(c)) return;
+          total += c.turnover || 0;
+          var lines = c.products;
+          if (lines) haveField = true;
+          if (!lines || !lines.length) { noLines += c.turnover || 0; return; }
+          lines.forEach(function (pr) {
+            var nm = pr[0] || '—';
+            var e = byName[nm] || (byName[nm] = {name: nm, qty: 0, sum: 0});
+            e.qty += pr[1] || 0;
+            e.sum += pr[2] || 0;
+          });
+        });
+        if (!haveField) {
+          return {title: 'Топ товарів', period: period0,
+                  empty: 'Товарні позиції зʼявляться після наступного збору '
+                       + 'даних: раніше збирач рахував із них категорії й '
+                       + 'не зберігав самі рядки.'};
+        }
+        var plist = Object.keys(byName).map(function (k) { return byName[k]; })
+          .sort(function (a, b) { return b.sum - a.sum; });
+        if (!plist.length) {
+          return {title: 'Топ товарів', period: period0,
+                  empty: 'За цей період товарних позицій немає.'};
+        }
+        var TOP = 15;
+        var ptop = plist.slice(0, TOP), ptail = plist.slice(TOP);
+        var pc = function (v) { return total ? (v / total * 100).toFixed(1) + '%' : '—'; };
+        var qty = function (v) {
+          return (Math.abs(v - Math.round(v)) < 0.01) ? money(v) : v.toFixed(2);
+        };
+        var prows = ptop.map(function (e) {
+          return [e.name, qty(e.qty), money(e.sum) + ' ₴', pc(e.sum)];
+        });
+        if (ptail.length) {
+          var ts = ptail.reduce(function (a, e) { return a + e.sum; }, 0);
+          var tq = ptail.reduce(function (a, e) { return a + e.qty; }, 0);
+          prows.push([{v: 'решта ' + ptail.length + ' позицій', cls: 'dim'},
+                      qty(tq), money(ts) + ' ₴', pc(ts)]);
+        }
+        if (noLines > 1) {
+          // Крок із товарними рядками — найважчий у зборі й падає першим.
+          // Ховати ці гроші не можна: без рядка підсумок таблиці не
+          // зійшовся б із карткою, і це виглядало б як помилка рахунку.
+          prows.push([{v: 'угоди без товарних рядків', cls: 'dim'}, '—',
+                      money(noLines) + ' ₴', pc(noLines)]);
+        }
+        return {
+          title: 'Топ товарів', period: period0,
+          head: ['Товар', 'Шт', 'Оборот', 'Частка'],
+          rows: prows,
+          total: ['Разом', '', money(total) + ' ₴', '100%'],
+          note: 'Сума — товарні рядки угод, без доставки, накладеного платежу, '
+              + 'заносу й збірки. Подарунки видно по нульовій сумі: у штуках '
+              + 'вони є, у грошах — ні.'
+        };
+      }
 
       var acc = {};
       MCH.forEach(function (c) {
@@ -357,6 +429,9 @@
     + 'table.kt-tb tr:hover td{background:rgba(255,255,255,.02)}'
     + 'table.kt-tb td.good{color:var(--success,#27E37A)}'
     + 'table.kt-tb td.bad{color:var(--danger,#FF5E6C)}'
+    + 'table.kt-tb td.dim{color:var(--ink-dim);font-style:italic}'
+    // Назва товару буває дуже довгою — хай тисне колонку, а не рве таблицю.
+    + 'table.kt-tb td:first-child{max-width:420px;overflow:hidden;text-overflow:ellipsis}'
     + 'table.kt-tb tr.sum td{border-top:1px solid var(--border-strong);font-weight:700;'
     + 'background:rgba(255,255,255,.025)}'
     + 'table.kt-tb tr.sum td.good,table.kt-tb tr.sum td.bad{color:inherit}'
