@@ -143,7 +143,10 @@ def _get(url, params, tries=4):
         heavy = ('"code":2' in r.text or "error_subcode\":1504044" in r.text
                  or "temporarily unavailable" in text_low)
         if r.status_code in (429, 500, 503) or "rate" in text_low or "limit" in text_low or heavy:
-            wait = 20 * (i + 1)
+            # Було 20/40/60/80 — на ліміт додатку після великого кабінета
+            # цього мало. Тепер 30/90/180/300: сумарно десять хвилин, і це
+            # дешевше, ніж порожня вкладка до наступної доби.
+            wait = [30, 90, 180, 300][i] if i < 4 else 300
             print(f"     ⏳ Meta API ліміт/тимчасова помилка, чекаю {wait}с і пробую ще раз ({i+1}/{tries})…")
             time.sleep(wait); continue
         raise RuntimeError(f"Meta API {r.status_code}: {r.text[:300]}")
@@ -605,6 +608,26 @@ def build(account_id=None, out_path=None, account_name="", access_token=None):
         print(f"   - {name}  →  {GOAL_LABEL.get(g, g or '(авто)')}")
 
 
+# Кабінети, які впали з першого разу. Наприкінці прогону пробуємо ще раз:
+# до того моменту мине 10–20 хвилин, і ліміт запитів Meta точно відпустить.
+# Саме цього бракувало — Matro падав рівно тому, що стартував одразу після
+# найважчого кабінета, а другої спроби ніхто не робив до наступної доби.
+FAILED = []
+
+
+def run_account(label, **kw):
+    print("\n" + "=" * 50)
+    print(label)
+    print("=" * 50)
+    try:
+        build(**kw)
+        return True
+    except Exception as e:
+        print(f"  ✗ {label}: ошибка — {e}")
+        FAILED.append((label, kw))
+        return False
+
+
 if __name__ == "__main__":
     if "PASTE_YOUR_TOKEN" in ACCESS_TOKEN or "XXXX" in ACCOUNT_ID:
         print("⚠  Укажите META_ACCESS_TOKEN и META_ACCOUNT_ID.")
@@ -615,19 +638,10 @@ if __name__ == "__main__":
         # аккаунт Matro нижче взагалі ніколи не запускався, навіть якщо з
         # ним самим усе було гаразд. Тепер падіння одного акаунта більше не
         # блокує другий.
-        print("=" * 50)
-        print("АККАУНТ 1: Plume")
-        print("=" * 50)
-        ok = True
-        try:
-            build(
-                account_id=ACCOUNT_ID,
-                out_path=Path(__file__).parent / "data.json",
-                account_name="Plume"
-            )
-        except Exception as e:
-            print(f"  ✗ АККАУНТ 1 (Plume): ошибка — {e}")
-            ok = False
+        ok = run_account("АККАУНТ 1: Plume",
+                         account_id=ACCOUNT_ID,
+                         out_path=Path(__file__).parent / "data.json",
+                         account_name="Plume")
 
         # Аккаунт 2 — Matro (вкладка "Matro" в index.html, switchAccount('data2.json','Matro'))
         #
@@ -663,25 +677,26 @@ if __name__ == "__main__":
             # Пауза перед другим акаунтом — лимит запитів у Meta діє на рівні
             # ДОДАТКУ (не токена), тож одразу після великого Plume-акаунта
             # другий акаунт легко впирається в "Application request limit reached".
-            pause_s = 45
-            print(f"\n⏸  Пауза {pause_s}с перед Matro (щоб не впертися в ліміт запитів Meta після Plume)…")
+            # 45 секунд після Plume не вистачало. Plume — це 1640 рядків і
+            # близько тисячі запитів превʼю, а ліміт Meta рахується НА
+            # ДОДАТОК, не на токен. Matro стартував у не відпущений ліміт і
+            # отримував не чесне «rate limit», а code 2 «Service temporarily
+            # unavailable» — через що півтора місяця виглядало як поламаний
+            # кабінет. Діагностика з Render (/api/meta/probe) показала, що
+            # той самий запит проходить без проблем, коли перед ним нічого
+            # важкого не було.
+            pause_s = 240
+            print(f"\n⏸  Пауза {pause_s}с перед Matro (ліміт запитів Meta рахується на додаток, "
+                  f"а Plume перед цим зробив їх тисячі)…")
             time.sleep(pause_s)
-            print("\n" + "=" * 50)
-            print("АККАУНТ 2: Matro")
-            print("=" * 50)
-            try:
-                build(
-                    account_id=ACCOUNT_ID_2,
-                    out_path=Path(__file__).parent / "data2.json",
-                    account_name="Matro",
-                    access_token=token_for_matro,
-                )
-            except Exception as e:
-                # Один впавший акаунт не повинен ламати весь скрипт — Plume вже
-                # збережено вище, і крок workflow все одно піде далі (continue-on-error).
-                hint = (" (схоже, токен Plume не має доступу до кабінету Matro — "
-                        "потрібен окремий META_ACCESS_TOKEN_MATRO)") if using_fallback else ""
-                print(f"  ✗ АККАУНТ 2 (Matro): ошибка — {e}{hint}")
+            if not run_account("АККАУНТ 2: Matro",
+                               account_id=ACCOUNT_ID_2,
+                               out_path=Path(__file__).parent / "data2.json",
+                               account_name="Matro",
+                               access_token=token_for_matro):
+                if using_fallback:
+                    print("     (можливо, токен Plume не має доступу до кабінету "
+                          "Matro — тоді потрібен окремий META_ACCESS_TOKEN_MATRO)")
                 ok = False
 
         # ── Аккаунт 3 — другий кабінет Plume (вкладка "Plume 2") ──────────
@@ -698,22 +713,35 @@ if __name__ == "__main__":
                   f"перезаписано.")
             ok = False
         else:
-            pause_s = 45
+            pause_s = 120
             print(f"\n⏸  Пауза {pause_s}с перед {ACCOUNT_NAME_3} (ліміт запитів Meta)…")
             time.sleep(pause_s)
-            print("\n" + "=" * 50)
-            print(f"АККАУНТ 3: {ACCOUNT_NAME_3}")
-            print("=" * 50)
-            try:
-                build(
-                    account_id=ACCOUNT_ID_3,
-                    out_path=Path(__file__).parent / "data3.json",
-                    account_name=ACCOUNT_NAME_3,
-                    access_token=ACCESS_TOKEN_3 or ACCESS_TOKEN,
-                )
-            except Exception as e:
-                print(f"  ✗ АККАУНТ 3 ({ACCOUNT_NAME_3}): ошибка — {e}")
+            if not run_account(f"АККАУНТ 3: {ACCOUNT_NAME_3}",
+                               account_id=ACCOUNT_ID_3,
+                               out_path=Path(__file__).parent / "data3.json",
+                               account_name=ACCOUNT_NAME_3,
+                               access_token=ACCESS_TOKEN_3 or ACCESS_TOKEN):
                 ok = False
+
+        # Друга спроба для впалих кабінетів — у самому кінці, коли всі
+        # інші вже зібрані й ліміт Meta відпустив. Перший пробіг показав,
+        # що Matro падає не сам по собі: той самий запит із Render
+        # проходить без єдиної помилки, варто лише не стріляти ним одразу
+        # після тисячі запитів Plume.
+        if FAILED:
+            retry = list(FAILED)
+            FAILED.clear()
+            cool = 420
+            print(f"\n⏸  Не зібралось кабінетів: {len(retry)}. Чекаю {cool}с і "
+                  f"пробую ще раз — ліміт запитів Meta до того часу відпустить…")
+            time.sleep(cool)
+            again = 0
+            for label, kw in retry:
+                if run_account(label + " (друга спроба)", **kw):
+                    again += 1
+            if again:
+                print(f"\n✓ з другої спроби зібрано: {again} з {len(retry)}")
+            ok = not FAILED
 
         # Явний код завершення — щоб run_script() в app.py міг чесно
         # написати в лог "ЗАВЕРШИВСЯ З ПОМИЛКОЮ", а не мовчки "завершено",
