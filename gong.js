@@ -439,8 +439,17 @@
     var el = document.getElementById('run-msg');
     if (!el) return;
     el.textContent = text || '';
-    el.className = 'run-msg' + (text ? ' show' : '') + (cls ? ' ' + cls : '');
+    // Базові класи беремо з самого елемента: у компактному режимі плашка
+    // позиціонується фіксовано, і просте перезаписування className щоразу
+    // зривало б їй верстку.
+    el.className = (el.dataset.base || 'run-msg')
+                 + (text ? ' show' : '') + (cls ? ' ' + cls : '');
   }
+
+  var BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
+    + ' stroke-linecap="round" stroke-linejoin="round">'
+    + '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>'
+    + '<path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
 
   function money(v) {
     return (typeof fmt === 'function') ? fmt(v)
@@ -597,16 +606,23 @@
     + '.run-msg.win{border-color:rgba(255,210,74,.6);color:#ffd24a;'
     + 'box-shadow:0 0 26px rgba(255,210,74,.22)}'
     + '.run-msg.lead{border-color:rgba(50,216,255,.5);color:#32D8FF}'
-    + '@media(max-width:560px){.run-msg{font-size:9px;letter-spacing:1px;padding:5px 9px}}';
+    + '@media(max-width:560px){.run-msg{font-size:9px;letter-spacing:1px;padding:5px 9px}}'
+    // Компактний режим — сторінки без бігуна (SEO, SMM, дзвінки, аудит).
+    // Там немає ні рядка періодів, ні канваса, тому кнопка живе окремо
+    // в кутку, а плашка — фіксовано зверху.
+    + '.gong-mini{position:fixed;right:18px;bottom:18px;z-index:210;display:inline-flex;'
+    + 'align-items:center;gap:8px;cursor:pointer;font-family:ui-monospace,SFMono-Regular,'
+    + 'Menlo,monospace;font-size:10px;letter-spacing:1.2px;color:#8fa6e8;'
+    + 'background:rgba(10,14,26,.86);border:1px solid rgba(143,166,232,.35);border-radius:10px;'
+    + 'padding:8px 11px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);'
+    + 'box-shadow:0 8px 22px rgba(0,0,0,.4);transition:all 150ms ease}'
+    + '.gong-mini:hover{color:#eef2ff;border-color:rgba(238,242,255,.6)}'
+    + '.gong-mini.on{color:#27E37A;border-color:rgba(39,227,122,.55);background:rgba(10,30,20,.9)}'
+    + '.gong-mini svg{width:13px;height:13px;flex:0 0 auto}'
+    + '.run-msg-fixed{position:fixed;left:50%;top:18px;bottom:auto;z-index:210}';
 
-  function init() {
-    var bar = document.querySelector('.kpi-bar');
-    if (!bar) return;   // не головна — тихо нічого не робимо
-
-    var style = document.createElement('style');
-    style.textContent = CSS;
-    document.head.appendChild(style);
-
+  // Повна панель із бігуном — там, де є рядок періодів (головна й CRM).
+  function buildPanel(bar) {
     var panel = document.createElement('div');
     panel.className = 'run-panel';
     panel.innerHTML = ''
@@ -619,10 +635,40 @@
     cv = document.getElementById('run-cv');
     g = cv.getContext('2d');
     g.imageSmoothingEnabled = false;
+    return document.getElementById('run-snd');
+  }
 
-    document.getElementById('run-snd').addEventListener('click', function () {
-      setSound(!on, true);
-    });
+  // Компактний режим — сторінки без бігуна: SEO, SMM, дзвінки, аудит.
+  // Малювати там нічого, але звук і сповіщення потрібні так само: людина
+  // півдня сидить саме на цих сторінках, і мовчазний гонг на них — те
+  // саме, що гонга немає.
+  function buildMini() {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'run-snd';
+    btn.className = 'gong-mini';
+    btn.innerHTML = BELL + '<span>ЗВУК OFF</span>';
+    document.body.appendChild(btn);
+
+    var msg = document.createElement('div');
+    msg.id = 'run-msg';
+    msg.className = 'run-msg run-msg-fixed';
+    msg.dataset.base = 'run-msg run-msg-fixed';
+    document.body.appendChild(msg);
+    return btn;
+  }
+
+  function init() {
+    // Сторінки для підрядників (shop, voice) гонга не отримують узагалі —
+    // там сторонні люди, та й /api/bitrix/pulse їм однаково недоступний.
+    var style = document.createElement('style');
+    style.textContent = CSS;
+    document.head.appendChild(style);
+
+    var bar = document.querySelector('.kpi-bar');
+    var btn = bar ? buildPanel(bar) : buildMini();
+
+    btn.addEventListener('click', function () { setSound(!on, true); });
 
     // Після перезавантаження звук заблокований знову, а стан відновився з
     // пам'яті. Ловимо перший-ліпший клік і доганяємо те, що мав зробити
@@ -646,8 +692,7 @@
     try { saved = localStorage.getItem(KEY) || '0'; } catch (e) {}
     setSound(saved === '1', false);
 
-    draw();
-    loop();
+    if (cv) { draw(); loop(); }
     tick();
     // Опитуємо і у фоні. Раніше тут стояла перевірка document.hidden, і
     // в згорнутому браузері гонг мовчав — тобто рівно тоді, коли він
@@ -664,7 +709,10 @@
     var b = document.getElementById('run-snd');
     if (b) {
       b.classList.toggle('on', on);
-      b.textContent = on ? 'ЗВУК ON' : 'ЗВУК OFF';
+      // У компактній кнопці текст лежить усередині <span> поруч із
+      // іконкою — перезаписувати їй textContent означало б стерти дзвоник.
+      var slot = b.querySelector('span') || b;
+      slot.textContent = on ? 'ЗВУК ON' : 'ЗВУК OFF';
       b.title = on ? 'Звук замовлень і лідів увімкнено. Працює, поки вкладка відкрита'
                    : 'Увімкнути звук замовлень і лідів';
     }
