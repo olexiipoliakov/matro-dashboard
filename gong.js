@@ -26,7 +26,7 @@
   'use strict';
 
   var KEY = 'matro-gong';
-  var POLL_MS = 45000;
+  var POLL_MS = 30000;
   var FILES = {order: 'sounds/order.mp3', lead: 'sounds/lead.mp3'};
   var VOL = {order: 0.85, lead: 0.5};
 
@@ -459,9 +459,14 @@
     play('order');
   }
 
-  function onLead() {
+  function onLead(n) {
     if (!scene.ship) scene.ship = {x: -24};
-    setMsg('НОВИЙ ЛІД', 'lead');
+    // Скільки саме лідів — важливо: сервер оновлює дані пачкою, і на три
+    // ліди поспіль гудок один. Без числа це виглядало б як пропущені.
+    var word = (n === 1) ? 'НОВИЙ ЛІД'
+             : (n >= 2 && n <= 4) ? n + ' НОВІ ЛІДИ'
+             : n + ' НОВИХ ЛІДІВ';
+    setMsg(word, 'lead');
     setTimeout(function () {
       var el = document.getElementById('run-msg');
       if (el && el.classList.contains('lead')) setMsg('');
@@ -501,7 +506,7 @@
           onOrder(fresh.length, fresh.reduce(function (a, x) { return a + (x[1] || 0); }, 0),
                   fresh[0][2]);
         } else if (newLeads.length) {
-          onLead();   // угода важливіша: якщо прийшло і те, і те, грає свято
+          onLead(newLeads.length);   // угода важливіша: якщо прийшло і те, і те, грає свято
         }
       })
       .catch(function () { /* мережа моргнула — спробуємо наступного разу */ });

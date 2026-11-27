@@ -179,29 +179,67 @@ def run_slow_periodic():
 
 # ── Вебхук з Bitrix — миттєве оновлення при зміні угоди/ліда ────────────
 WEBHOOK_SECRET = os.environ.get("BITRIX_INCOMING_WEBHOOK_SECRET", "")
-_last_bitrix_trigger = 0.0
 _bitrix_lock = threading.Lock()
 
 WEBHOOK_DAYS = 2   # скільки днів перезбирати на подію з Bitrix
 
+# Подія з Bitrix не може загубитись.
+#
+# Перша версія була дебаунсом без пам'яті: подія, що прийшла раніше ніж
+# через 60 секунд після попередньої, просто ігнорувалась. І друга діра —
+# мітку часу зсували ДО запуску, а запуск міг не відбутись, бо попередній
+# збір ще йшов. Лід, що потрапив у будь-яке з цих двох вікон, не викликав
+# перезбору взагалі, і гудок на нього не лунав — рівно «через раз».
+#
+# Тепер подія лише піднімає прапорець, а запускає збір окремий «насос»:
+# не частіше разу на хвилину, не поки йде попередній збір, і обов'язково
+# після нього. Серія змін злипається в один прогін, але жодна не зникає.
+_wh_pending = False     # є непрочитана подія
+_wh_last = 0.0          # коли стартував попередній збір
+_wh_armed = False       # вже стоїть відкладений запуск
+
 
 def trigger_bitrix_refresh():
-    """Дебаунс на 60с — якщо в Bitrix одразу змінили кілька угод підряд
-    (типова ситуація для масового імпорту), не запускаємо fetch_bitrix.py
-    на кожну подію окремо, а лише раз на хвилину максимум.
-
-    Збираємо лише два останні дні, а не всі 90. Повний прогін — це хвилини,
-    і вебхук, який мав давати «майже одразу», давав «колись». Два дні — те
-    саме, що робить кнопка «Оновити» на сторінці: сьогоднішні угоди ще
-    змінюються, вчорашні теж, а серпень уже ні. Повний збір лишається на
-    розкладі."""
-    global _last_bitrix_trigger
+    """Збираємо лише два останні дні, а не всі 90: повний прогін — це
+    хвилини, і вебхук, який мав давати «майже одразу», давав «колись».
+    Два дні — те саме, що робить кнопка «Оновити» на сторінці. Повний
+    збір лишається на розкладі."""
+    global _wh_pending
     with _bitrix_lock:
-        now = time.time()
-        if now - _last_bitrix_trigger < 60:
+        _wh_pending = True
+    _wh_pump()
+
+
+def _wh_pump():
+    global _wh_pending, _wh_last, _wh_armed
+    delay = 0.0
+    with _bitrix_lock:
+        if not _wh_pending or _wh_armed:
             return
-        _last_bitrix_trigger = now
-    start_bitrix_refresh(WEBHOOK_DAYS)
+        with _bitrix_run_lock:
+            if _bitrix_running:
+                return          # хвіст воркера покличе нас ще раз
+        delay = 60 - (time.time() - _wh_last)
+        if delay > 0:
+            _wh_armed = True
+        else:
+            _wh_pending = False
+            _wh_last = time.time()
+
+    if delay > 0:
+        def later():
+            global _wh_armed
+            time.sleep(delay)
+            with _bitrix_lock:
+                _wh_armed = False
+            _wh_pump()
+        threading.Thread(target=later, daemon=True).start()
+        return
+
+    if not start_bitrix_refresh(WEBHOOK_DAYS):
+        # Встигли зайняти між перевіркою й запуском — подію повертаємо.
+        with _bitrix_lock:
+            _wh_pending = True
 
 # Ручне оновлення CRM кнопкою «Оновити дані» на сторінці Bitrix. Дані
 # збираються раз на добу, а менеджеру часом треба побачити угоду, оформлену
@@ -218,6 +256,11 @@ def _bitrix_worker(args=()):
     finally:
         with _bitrix_run_lock:
             _bitrix_running = False
+        # Події, що прийшли під час збору, чекають у прапорці — підбираємо.
+        try:
+            _wh_pump()
+        except Exception as e:
+            print(f"[webhook] повторний запуск не вдався: {e}", flush=True)
 
 
 def start_bitrix_refresh(days=0):
