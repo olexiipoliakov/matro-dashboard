@@ -30,6 +30,14 @@ jobs:
           META_ACCESS_TOKEN_MATRO: ${{ secrets.META_ACCESS_TOKEN_MATRO }}
           META_ACCOUNT_ID: ${{ secrets.META_ACCOUNT_ID }}
           META_ACCOUNT_ID_2: ${{ secrets.META_ACCOUNT_ID_2 }}
+          # Третій кабінет (вкладка «Plume 2»). Раніше цих трьох рядків тут
+          # не було зовсім: збирач брав ідентифікатор зі свого значення за
+          # замовчуванням і ходив туди токеном Plume. Якщо кабінет в іншому
+          # бізнес-портфелі, це помилка доступу — і вкладка лишалась порожньою
+          # без жодного натяку, чому.
+          META_ACCOUNT_ID_3: ${{ secrets.META_ACCOUNT_ID_3 }}
+          META_ACCESS_TOKEN_3: ${{ secrets.META_ACCESS_TOKEN_3 }}
+          META_ACCOUNT_NAME_3: ${{ secrets.META_ACCOUNT_NAME_3 }}
         run: python fetch_meta.py
 
       - name: Run GSC fetch
@@ -69,6 +77,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json 2>/dev/null || true
           git add data2.json 2>/dev/null || true
+          # data3.json не комітився взагалі: файл збирався в Actions і там же
+          # зникав разом із раннером, а сторінка «Plume 2» показувала
+          # «не вдалося завантажити» — хоча збір минав успішно.
+          git add data3.json 2>/dev/null || true
           git add images/ 2>/dev/null || true
           git add seo_data.json 2>/dev/null || true
           git add bitrix_data.json 2>/dev/null || true

@@ -131,7 +131,16 @@ def _get(url, params, tries=4):
         # повідомлення Meta про ліміт додатку ("Application request limit
         # reached") слова "rate" не містить взагалі, і без цього retry
         # просто не спрацьовував.
-        if r.status_code in (429, 500, 503) or "rate" in text_low or "limit" in text_low:
+        # Крім лімітів ловимо ще code 2 / subcode 1504044 — «Service
+        # temporarily unavailable» на важкому запиті insights. Meta віддає
+        # його зі статусом 400 і прапорцем is_transient:false, хоча в її ж
+        # документації код 2 — саме тимчасова внутрішня помилка. Старий
+        # список умов його не покривав: статус не 429/500/503, слів «rate»
+        # чи «limit» у тексті немає — тож повтору не було жодного, і збір
+        # кабінету Matro падав з першої спроби півтора місяця поспіль.
+        heavy = ('"code":2' in r.text or "error_subcode\":1504044" in r.text
+                 or "temporarily unavailable" in text_low)
+        if r.status_code in (429, 500, 503) or "rate" in text_low or "limit" in text_low or heavy:
             wait = 20 * (i + 1)
             print(f"     ⏳ Meta API ліміт/тимчасова помилка, чекаю {wait}с і пробую ще раз ({i+1}/{tries})…")
             time.sleep(wait); continue
@@ -274,12 +283,58 @@ def pick_fallback(by_type):
     return "", 0.0
 
 
+def _preset_days(preset):
+    """last_90d → 90. Невідомий формат — беремо 90, це наш типовий період."""
+    digits = "".join(c for c in str(preset) if c.isdigit())
+    return int(digits) if digits else 90
+
+
+def _windows(days, step=30):
+    """Межі вікон від найстарішого до вчорашнього. Сьогодні не включаємо —
+    так само, як це робить сам date_preset у Meta."""
+    until = dt.date.today() - dt.timedelta(days=1)
+    since = until - dt.timedelta(days=days - 1)
+    out = []
+    a = since
+    while a <= until:
+        b = min(a + dt.timedelta(days=step - 1), until)
+        out.append((a, b))
+        a = b + dt.timedelta(days=1)
+    return out
+
+
 def insights(level, fields, extra=None):
     params = {"access_token": ACCESS_TOKEN, "level": level,
               "fields": fields, "date_preset": DATE_PRESET, "limit": 300}
     if extra:
         params.update(extra)
-    return paged(f"{BASE}/{ACCOUNT_ID}/insights", params)
+    url = f"{BASE}/{ACCOUNT_ID}/insights"
+    try:
+        return paged(url, params)
+    except Exception as e:
+        # Якщо навіть після повторів 90 днів подобово не віддаються —
+        # просимо те саме вікнами по 30 днів. Для Meta це три легких
+        # запити замість одного важкого, а на виході рівно ті самі рядки:
+        # вікна не перетинаються. Краще втричі більше запитів, ніж
+        # порожня вкладка.
+        msg = str(e)
+        if '"code":2' not in msg and "1504044" not in msg \
+           and "temporarily unavailable" not in msg.lower():
+            raise
+        days = _preset_days(DATE_PRESET)
+        wins = _windows(days)
+        n = len(wins)
+        word = "вікно" if n % 10 == 1 and n % 100 != 11 else (
+               "вікна" if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else "вікон")
+        print(f"     ⚠ весь період одним запитом не віддається — "
+              f"ділю на {n} {word} по 30 днів")
+        out = []
+        for a, b in wins:
+            p = dict(params)
+            p.pop("date_preset", None)
+            p["time_range"] = json.dumps({"since": str(a), "until": str(b)})
+            out += paged(url, p)
+        return out
 
 
 def fetch_thumbnails(ad_ids):
