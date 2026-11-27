@@ -959,6 +959,89 @@ RINGOSTAT_FIELD_CANDIDATES = [
 ]
 
 
+# ── Meta: що каже сам рекламний кабінет ────────────────────────────────
+#
+# Збір Matro падає з 14 жовтня на запиті статистики, хоча валюта й список
+# кампаній тим самим токеном читаються. Повтори й нарізка періоду на вікна
+# по 30 днів не допомогли — отже справа не у вазі запиту, а в кабінеті.
+# Цей маршрут питає в Meta стан кожного кабінету напряму: статус, причину
+# відключення, витрачене. Відповідь на питання «кабінет живий?» за десять
+# секунд і без походу в Ads Manager.
+META_STATUS = {
+    1: "ACTIVE — активний", 2: "DISABLED — відключений",
+    3: "UNSETTLED — несплачений борг", 7: "PENDING_RISK_REVIEW — на перевірці",
+    8: "PENDING_SETTLEMENT — очікує оплату", 9: "IN_GRACE_PERIOD — пільговий період",
+    100: "PENDING_CLOSURE — закривається", 101: "CLOSED — закритий",
+    201: "ANY_ACTIVE", 202: "ANY_CLOSED",
+}
+META_DISABLE = {
+    0: "не відключений", 1: "ADS_INTEGRITY_POLICY — порушення політики",
+    2: "ADS_IP_REVIEW", 3: "RISK_PAYMENT", 4: "GRAY_ACCOUNT_SHUT_DOWN",
+    5: "ADS_AFC_REVIEW", 6: "BUSINESS_INTEGRITY_RAR", 7: "PERMANENT_CLOSE",
+    8: "UNUSED_RESELLER_ACCOUNT", 9: "UNUSED_ACCOUNT",
+}
+
+
+@app.route("/api/meta/probe")
+@requires_auth
+def meta_probe():
+    tok_main = os.environ.get("META_ACCESS_TOKEN", "")
+    if not tok_main:
+        return jsonify({"error": "META_ACCESS_TOKEN не задано на сервері"}), 500
+
+    accounts = [
+        ("Plume", os.environ.get("META_ACCOUNT_ID", ""), tok_main),
+        ("Matro", os.environ.get("META_ACCOUNT_ID_2", ""),
+         os.environ.get("META_ACCESS_TOKEN_MATRO", "") or tok_main),
+        ("Plume 2", os.environ.get("META_ACCOUNT_ID_3", "") or "act_2264640017711817",
+         os.environ.get("META_ACCESS_TOKEN_3", "") or tok_main),
+    ]
+    out = []
+    for name, acc, tok in accounts:
+        row = {"кабінет": name, "id": acc or "(не задано)"}
+        if not acc:
+            row["стан"] = "ідентифікатор не заданий"
+            out.append(row)
+            continue
+        try:
+            r = requests.get(
+                f"https://graph.facebook.com/v21.0/{acc}",
+                params={"access_token": tok,
+                        "fields": "name,account_status,disable_reason,currency,"
+                                  "amount_spent,created_time,business"},
+                timeout=30)
+            d = r.json()
+            if "error" in d:
+                row["стан"] = "помилка: " + str(d["error"].get("message"))[:160]
+            else:
+                st = d.get("account_status")
+                dr = d.get("disable_reason")
+                row["назва"] = d.get("name")
+                row["стан"] = META_STATUS.get(st, f"код {st}")
+                row["причина_відключення"] = META_DISABLE.get(dr, dr)
+                row["валюта"] = d.get("currency")
+                row["витрачено_всього"] = d.get("amount_spent")
+                row["портфель"] = (d.get("business") or {}).get("name")
+        except Exception as e:
+            row["стан"] = "запит не вдався: " + str(e)[:160]
+
+        # Окремо — найкоротший можливий запит статистики: саме він падає.
+        try:
+            r2 = requests.get(
+                f"https://graph.facebook.com/v21.0/{acc}/insights",
+                params={"access_token": tok, "level": "account",
+                        "fields": "spend", "date_preset": "last_7d"},
+                timeout=45)
+            d2 = r2.json()
+            row["статистика_7_днів"] = ("помилка: " + str(d2["error"].get("message"))[:160]
+                                        if "error" in d2
+                                        else f"ok, рядків {len(d2.get('data') or [])}")
+        except Exception as e:
+            row["статистика_7_днів"] = "запит не вдався: " + str(e)[:160]
+        out.append(row)
+    return jsonify({"кабінети": out})
+
+
 @app.route("/api/ringostat/probe")
 @requires_auth
 def ringostat_probe():
