@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-11-27 16:07",
+  "generated_at": "2026-11-28 15:22",
   "source": "Meta Marketing API",
   "account": "Plume 2",
   "account_id": "act_2264640017711817",
   "token_type": "USER",
   "token_expires_at": "2027-01-22",
-  "period": "2026-10-09 — 2026-11-26",
+  "period": "2026-10-09 — 2026-11-27",
   "currency": "грн",
   "currency_code": "UAH",
   "daily": [
@@ -1119,6 +1119,17 @@
       "status": "ACTIVE",
       "daily_budget": 0,
       "budget_type": ""
+    },
+    {
+      "date": "2026-11-27",
+      "campaign": "DDA | дірект | 18.11.26",
+      "goal": "Переписки",
+      "spend": 290.22,
+      "leads": 4,
+      "cost_per_lead": 72.56,
+      "status": "ACTIVE",
+      "daily_budget": 0,
+      "budget_type": ""
     }
   ],
   "banners": [
@@ -1966,20 +1977,20 @@
       "banner": "elegant_50_v4",
       "campaign": "DDA | дірект | 18.11.26",
       "goal": "Переписки",
-      "spend": 2340.02,
-      "leads": 36,
-      "cost_per_lead": 65.0,
-      "ctr": 3.46,
+      "spend": 2573.23,
+      "leads": 40,
+      "cost_per_lead": 64.33,
+      "ctr": 3.49,
       "image": "images/72c8226626feb8c5.png"
     },
     {
       "banner": "elegant_3500_video",
       "campaign": "DDA | дірект | 18.11.26",
       "goal": "Переписки",
-      "spend": 53.75,
+      "spend": 53.76,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 1.21,
+      "ctr": 1.2,
       "image": "images/e90aa60dcebe5ffb.jpg"
     },
     {
@@ -1996,40 +2007,40 @@
       "banner": "elegant_white_dark_1-3500",
       "campaign": "DDA | дірект | 18.11.26",
       "goal": "Переписки",
-      "spend": 146.81,
+      "spend": 148.41,
       "leads": 2,
-      "cost_per_lead": 73.41,
-      "ctr": 1.99,
+      "cost_per_lead": 74.2,
+      "ctr": 1.94,
       "image": "images/71ffd6004da6c833.png"
     },
     {
       "banner": "elegant_50_video",
       "campaign": "DDA | дірект | 18.11.26",
       "goal": "Переписки",
-      "spend": 644.42,
+      "spend": 665.16,
       "leads": 4,
-      "cost_per_lead": 161.1,
-      "ctr": 2.61,
+      "cost_per_lead": 166.29,
+      "ctr": 2.72,
       "image": "images/3319cafcf4563b04.jpg"
     },
     {
       "banner": "elegant_50_v2",
       "campaign": "DDA | дірект | 18.11.26",
       "goal": "Переписки",
-      "spend": 61.91,
+      "spend": 75.94,
       "leads": 1,
-      "cost_per_lead": 61.91,
-      "ctr": 3.98,
+      "cost_per_lead": 75.94,
+      "ctr": 3.59,
       "image": "images/b6f719a7b2deefda.png"
     },
     {
       "banner": "elegant_50_v3",
       "campaign": "DDA | дірект | 18.11.26",
       "goal": "Переписки",
-      "spend": 50.98,
+      "spend": 71.61,
       "leads": 0,
       "cost_per_lead": 0,
-      "ctr": 2.38,
+      "ctr": 1.64,
       "image": "images/24414f7d7ccf304c.png"
     }
   ]
